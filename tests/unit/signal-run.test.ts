@@ -1,6 +1,9 @@
 import {
   Collider,
   CollisionShape,
+  ContactEnter,
+  ContactExit,
+  ContactStay,
   Engine,
   Scene,
   Transform,
@@ -145,4 +148,40 @@ it("completes the route through ordinary movement before the deadline", () => {
   expect(round.health.hp).toBeGreaterThan(0);
   expect(round.elapsed).toBeLessThan(round.duration);
   engine.dispose();
+});
+
+it("blocks continuous player movement with solid walls while pickups remain triggers", () => {
+  const engine = new Engine(),
+    round = new Round(engine.scene, { hazards: false });
+  const wall = [...round.walls].find(
+    (a) => a.require(Transform.type).x === 140,
+  );
+  if (!wall) throw Error("No wall");
+  let enters = 0,
+    stays = 0,
+    exits = 0;
+  const collider = round.player.require(Collider.type);
+  collider.events.on(ContactEnter, (c) => {
+    if (c.otherActor === wall) enters++;
+  });
+  collider.events.on(ContactStay, (c) => {
+    if (c.otherActor === wall) stays++;
+  });
+  collider.events.on(ContactExit, (c) => {
+    if (c.otherActor === wall) exits++;
+  });
+  round.player.x = 140;
+  round.player.y = 80;
+  engine.input.set("KeyS", true);
+  for (let i = 0; i < 60; i++) engine.step(1 / 60);
+  expect(round.player.y).toBeCloseTo(98);
+  expect(enters).toBe(1);
+  expect(stays).toBeGreaterThan(0);
+  expect(round.health.hp).toBe(3);
+  engine.input.clear();
+  engine.input.set("KeyD", true);
+  for (let i = 0; i < 60; i++) engine.step(1 / 60);
+  expect(exits).toBe(1);
+  engine.dispose();
+  expect(round.walls.size).toBe(0);
 });

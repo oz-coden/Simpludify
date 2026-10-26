@@ -1,4 +1,5 @@
 export * from "./actor";
+export * from "./camera-follow";
 export * from "./character";
 export * from "./collision";
 export * from "./component";

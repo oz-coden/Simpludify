@@ -360,3 +360,29 @@ describe("contact delivery after response", () => {
     expect(run()).toEqual(run());
   });
 });
+
+it("applies layer/mask filtering before Solid correction", () => {
+  const { engine, world, scene } = setup();
+  const a = body(scene, 0, 0, { mask: 0 }, 1);
+  body(scene, 10);
+  engine.step(0);
+  expect(a.t.x).toBe(0);
+  expect(world.diagnostics.contacts).toBe(0);
+  engine.dispose();
+});
+it("suppresses collider recipients removed during a Solid event", () => {
+  const { engine, scene } = setup();
+  const a = body(scene, 0, 0, {}, 1),
+    b = body(scene, 10);
+  let exits = 0,
+    other = 0;
+  a.collider.events.on(ContactEnter, () => b.actor.remove(Collider.type));
+  a.collider.events.on(ContactExit, () => exits++);
+  b.collider.events.on(ContactEnter, () => other++);
+  engine.step(0);
+  engine.step(0);
+  expect(exits).toBe(1);
+  expect(other).toBe(0);
+  expect(b.actor.disposed).toBe(false);
+  engine.dispose();
+});

@@ -501,3 +501,86 @@ test("wins a complete round through pointer destinations and normal Motion updat
     await page.evaluate(() => window.signalRun.result?.hp),
   ).toBeGreaterThan(0);
 });
+
+test("slides against Solid walls and exposes post-response contacts through public APIs", async ({
+  page,
+}) => {
+  await page.getByRole("button", { name: "Start run", exact: true }).click();
+  await page.evaluate(() => {
+    const round = window.signalRun.round;
+    if (!round) throw Error("No round");
+    round.player.x = 140;
+    round.player.y = 80;
+  });
+  await page.locator(".simpludify").focus();
+  await page.keyboard.down("s");
+  const blocked = await page.evaluate(async (url) => {
+    const {
+      Collider,
+      CollisionResponse,
+      Transform,
+      ContactEnter,
+      ContactStay,
+      ContactExit,
+    } = (await import(url)) as typeof import("@simpludify/web");
+    const { game, round } = window.signalRun;
+    if (!round) throw Error("No round");
+    const collider = round.player.require(Collider.type),
+      wall = [...round.walls].find((a) => a.require(Transform.type).x === 140);
+    let enters = 0,
+      stays = 0,
+      exits = 0;
+    collider.events.on(
+      ContactEnter,
+      (c) => {
+        if (c.otherActor === wall) enters++;
+      },
+      round.scene,
+    );
+    collider.events.on(
+      ContactStay,
+      (c) => {
+        if (c.otherActor === wall) stays++;
+      },
+      round.scene,
+    );
+    collider.events.on(
+      ContactExit,
+      (c) => {
+        if (c.otherActor === wall) exits++;
+      },
+      round.scene,
+    );
+    for (let frame = 0; frame < 60; frame++) game.engine.step(1 / 60);
+    const y = round.player.y,
+      contacts = round.world
+        .contactsFor(collider)
+        .filter((c) => c.response === CollisionResponse.Solid).length;
+    game.engine.input.clear();
+    game.engine.input.set("KeyD", true);
+    for (let frame = 0; frame < 60; frame++) game.engine.step(1 / 60);
+    game.engine.input.clear();
+    return { y, contacts, enters, stays, exits, hp: round.health.hp };
+  }, sdk);
+  await page.keyboard.up("s");
+  expect(blocked.y).toBeCloseTo(98);
+  expect(blocked.contacts).toBeGreaterThan(0);
+  expect(blocked.enters).toBe(1);
+  expect(blocked.stays).toBeGreaterThan(0);
+  expect(blocked.exits).toBe(1);
+  expect(blocked.hp).toBe(3);
+  await page.getByRole("button", { name: "Zoom", exact: true }).click();
+  const camera = await page.evaluate(() => {
+    const { game, round } = window.signalRun;
+    if (!round) throw Error();
+    round.player.x = 700;
+    round.player.y = 350;
+    game.engine.step(0);
+    return { x: game.camera.x, y: game.camera.y, zoom: game.camera.zoom };
+  });
+  expect(camera.zoom).toBe(1.25);
+  expect(camera.x).toBeCloseTo(80);
+  expect(camera.y).toBeCloseTo(45);
+  await page.getByRole("button", { name: "Restart", exact: true }).click();
+  await expect(page.getByText("HP 3/3", { exact: true })).toBeVisible();
+});

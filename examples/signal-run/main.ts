@@ -1,5 +1,6 @@
 import {
   Button,
+  CameraFollow,
   containsScreenPoint,
   Game,
   HoldButton,
@@ -27,7 +28,7 @@ game.scene("menu", ({ ui, onActivate }) => {
     Panel(
       [
         Label(
-          "Collect six amber signals in 30 seconds. Avoid red hazards and keep your three HP.",
+          "Collect six amber signals in 30 seconds. Avoid red hazards, slide along blue walls and keep your three HP.",
         ),
         Label(
           "WASD / arrows, click a destination, or use the touch buttons. Pause freezes simulation time.",
@@ -41,6 +42,10 @@ game.scene("menu", ({ ui, onActivate }) => {
 });
 game.scene("play", ({ scene, ui, signal, onActivate, onDispose }) => {
   const round = new Round(scene);
+  const follow = new CameraFollow(game.camera, {
+    bounds: { x: 0, y: 0, width: 800, height: 450 },
+  });
+  scene.onUpdate((seconds) => follow.update(round.player, seconds));
   current = round;
   result = undefined;
   onDispose(() => {
@@ -97,7 +102,8 @@ game.scene("play", ({ scene, ui, signal, onActivate, onDispose }) => {
             Button("Restart", () => game.goTo("play")),
             Button("Menu", () => game.goTo("menu")),
             Button("Zoom", () => {
-              game.camera.zoom = game.camera.zoom === 1 ? 1.1 : 1;
+              game.camera.zoom = game.camera.zoom === 1 ? 1.25 : 1;
+              follow.update(round.player, 0);
             }),
           ],
           { layout: Layout.Row },

@@ -2,6 +2,8 @@ import {
   Actor,
   Character,
   Collider,
+  CollisionBody,
+  CollisionResponse,
   CollisionShape,
   CollisionWorld,
   Component,
@@ -41,7 +43,7 @@ export interface RoundSnapshot {
 }
 export const RoundChanged = defineEvent<RoundSnapshot>("RoundChanged");
 export const RoundFinished = defineEvent<RoundSnapshot>("RoundFinished");
-const Layers = { Player: 1, Hazard: 2, Signal: 4 } as const;
+const Layers = { Player: 1, Hazard: 2, Signal: 4, Wall: 8 } as const;
 export const Controls = {
   up: [...KeyMaps.wasd.up, ...KeyMaps.arrows.up],
   down: [...KeyMaps.wasd.down, ...KeyMaps.arrows.down],
@@ -124,18 +126,6 @@ class PointControl extends Component {
     motion.direction.y = dy / denominator;
   }
 }
-class Bounds extends Component {
-  static readonly type: ComponentType<Bounds> = defineComponent<Bounds>(
-    "Bounds",
-    [Transform.type],
-  );
-  readonly type = Bounds.type;
-  update(): void {
-    const t = this.actor.require(Transform.type);
-    t.x = Math.max(16, Math.min(784, t.x));
-    t.y = Math.max(28, Math.min(422, t.y));
-  }
-}
 class DamageFlash extends Component {
   static readonly type: ComponentType<DamageFlash> =
     defineComponent<DamageFlash>("DamageFlash", [Health.type, Renderable.type]);
@@ -186,6 +176,7 @@ export class Round {
   readonly world: CollisionWorld;
   readonly pickups = new Set<Actor>();
   readonly hazards = new Set<Actor>();
+  readonly walls = new Set<Actor>();
   readonly duration: number;
   readonly goal: number;
   private phase: RoundStatus = RoundStatus.Playing;
@@ -235,14 +226,15 @@ export class Round {
     this.player.require(Renderable.type).zIndex = 10;
     this.health = this.player.add(new Health(options.hp ?? 3));
     this.player.add(new PointControl());
-    this.player.add(new Bounds());
+    this.player.add(new CollisionBody());
     this.player.add(new DamageFlash());
     const collider = this.player.add(
       new Collider({
         shape: CollisionShape.Circle,
+        response: CollisionResponse.Solid,
         radius: 13,
         layer: Layers.Player,
-        mask: Layers.Hazard | Layers.Signal,
+        mask: Layers.Hazard | Layers.Signal | Layers.Wall,
       }),
     );
     const contact = ({ otherActor }: { otherActor: Actor }) => {
@@ -283,6 +275,12 @@ export class Round {
           this.addHazard(260 + this.hazards.size * 45, 225, false);
       });
     }
+    this.addWall(0, 225, 6, 450);
+    this.addWall(800, 225, 6, 450);
+    this.addWall(400, 0, 800, 30);
+    this.addWall(400, 450, 800, 30);
+    this.addWall(140, 120, 70, 18);
+    this.addWall(560, 410, 110, 12);
     this.world = new CollisionWorld(scene);
     scene.onUpdate(() => {
       if (this.phase !== RoundStatus.Playing) return;
@@ -292,6 +290,7 @@ export class Round {
     scene.onDispose(() => {
       this.pickups.clear();
       this.hazards.clear();
+      this.walls.clear();
     });
   }
   get status(): RoundStatus {
@@ -349,6 +348,21 @@ export class Round {
     this.world.dispose();
     this.publish();
     this.scene.events.emit(RoundFinished, this.snapshot());
+  }
+  private addWall(x: number, y: number, width: number, height: number): void {
+    const actor = new Actor();
+    actor.add(new Transform({ x, y }));
+    actor.add(new Renderable({ width, height, color: 0x5294ba }));
+    actor.add(
+      new Collider({
+        width,
+        height,
+        response: CollisionResponse.Solid,
+        layer: Layers.Wall,
+        mask: Layers.Player,
+      }),
+    );
+    this.walls.add(this.scene.add(actor));
   }
   private addSignal(x: number, y: number): void {
     const actor = new Actor();
