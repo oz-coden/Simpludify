@@ -1,4 +1,4 @@
-import type { Camera, LogicalResolution, Point, Viewport } from "./coordinates";
+import type { Camera, LogicalResolution, Point } from "./coordinates";
 import { EngineError, positive } from "./diagnostics";
 
 function clampCenter(
@@ -11,9 +11,10 @@ function clampCenter(
     ? origin + size / 2
     : Math.max(origin + half, Math.min(origin + size - half, value));
 }
+export interface WorldBounds extends Point, LogicalResolution {}
 export interface CameraFollowOptions {
   resolution?: LogicalResolution;
-  bounds?: Viewport;
+  bounds?: WorldBounds;
   /** Exponential response per simulation second. Zero snaps immediately. */
   responsiveness?: number;
 }
@@ -21,7 +22,7 @@ export interface CameraFollowOptions {
 export class CameraFollow {
   private readonly width: number;
   private readonly height: number;
-  private readonly bounds: Viewport | undefined;
+  private readonly bounds: WorldBounds | undefined;
   private readonly responsiveness: number;
   constructor(
     readonly camera: Camera,

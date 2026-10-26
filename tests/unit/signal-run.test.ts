@@ -154,7 +154,7 @@ it("blocks continuous player movement with solid walls while pickups remain trig
   const engine = new Engine(),
     round = new Round(engine.scene, { hazards: false });
   const wall = [...round.walls].find(
-    (a) => a.require(Transform.type).x === 140,
+    (a) => a.require(Transform.type).x === 270,
   );
   if (!wall) throw Error("No wall");
   let enters = 0,
@@ -170,11 +170,11 @@ it("blocks continuous player movement with solid walls while pickups remain trig
   collider.events.on(ContactExit, (c) => {
     if (c.otherActor === wall) exits++;
   });
-  round.player.x = 140;
-  round.player.y = 80;
+  round.player.x = 270;
+  round.player.y = 255;
   engine.input.set("KeyS", true);
   for (let i = 0; i < 60; i++) engine.step(1 / 60);
-  expect(round.player.y).toBeCloseTo(98);
+  expect(round.player.y).toBeCloseTo(273);
   expect(enters).toBe(1);
   expect(stays).toBeGreaterThan(0);
   expect(round.health.hp).toBe(3);

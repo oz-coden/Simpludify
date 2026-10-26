@@ -279,8 +279,8 @@ export class Round {
     this.addWall(800, 225, 6, 450);
     this.addWall(400, 0, 800, 30);
     this.addWall(400, 450, 800, 30);
-    this.addWall(140, 120, 70, 18);
-    this.addWall(560, 410, 110, 12);
+    this.addWall(270, 295, 70, 18);
+    this.addWall(220, 350, 100, 12);
     this.world = new CollisionWorld(scene);
     scene.onUpdate(() => {
       if (this.phase !== RoundStatus.Playing) return;

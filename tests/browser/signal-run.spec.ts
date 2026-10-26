@@ -509,11 +509,30 @@ test("slides against Solid walls and exposes post-response contacts through publ
   await page.evaluate(() => {
     const round = window.signalRun.round;
     if (!round) throw Error("No round");
-    round.player.x = 140;
-    round.player.y = 80;
+    round.player.x = 270;
+    round.player.y = 255;
   });
   await page.locator(".simpludify").focus();
-  await page.keyboard.down("s");
+  expect(
+    await page.evaluate(async (url) => {
+      const { Transform } = (await import(
+        url
+      )) as typeof import("@simpludify/web");
+      const { game, round } = window.signalRun;
+      if (!round) throw Error();
+      const rect = game.element.getBoundingClientRect();
+      return [...round.walls]
+        .map((a) => a.require(Transform.type))
+        .filter((t) => t.x > 0 && t.x < 800 && t.y > 0 && t.y < 450)
+        .every((t) => {
+          const p = game.worldToScreen({ space: "world", x: t.x, y: t.y });
+          return (
+            document.elementFromPoint(rect.left + p.x, rect.top + p.y)
+              ?.tagName === "CANVAS"
+          );
+        });
+    }, sdk),
+  ).toBe(true);
   const blocked = await page.evaluate(async (url) => {
     const {
       Collider,
@@ -526,7 +545,7 @@ test("slides against Solid walls and exposes post-response contacts through publ
     const { game, round } = window.signalRun;
     if (!round) throw Error("No round");
     const collider = round.player.require(Collider.type),
-      wall = [...round.walls].find((a) => a.require(Transform.type).x === 140);
+      wall = [...round.walls].find((a) => a.require(Transform.type).x === 270);
     let enters = 0,
       stays = 0,
       exits = 0;
@@ -551,6 +570,7 @@ test("slides against Solid walls and exposes post-response contacts through publ
       },
       round.scene,
     );
+    game.engine.input.set("KeyS", true);
     for (let frame = 0; frame < 60; frame++) game.engine.step(1 / 60);
     const y = round.player.y,
       contacts = round.world
@@ -562,8 +582,7 @@ test("slides against Solid walls and exposes post-response contacts through publ
     game.engine.input.clear();
     return { y, contacts, enters, stays, exits, hp: round.health.hp };
   }, sdk);
-  await page.keyboard.up("s");
-  expect(blocked.y).toBeCloseTo(98);
+  expect(blocked.y).toBeCloseTo(273);
   expect(blocked.contacts).toBeGreaterThan(0);
   expect(blocked.enters).toBe(1);
   expect(blocked.stays).toBeGreaterThan(0);
