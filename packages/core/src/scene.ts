@@ -20,6 +20,10 @@ export class Scene {
   private roster: readonly Actor[] = [];
   private rosterDirty = false;
   private nextId = 0;
+  private updateRevision = -1;
+  private updateActors: readonly Actor[] = [];
+  private readonly postUpdates = new Set<(seconds: number) => void>();
+  private postPlan: readonly ((seconds: number) => void)[] = [];
   private version = 0;
   private readonly lifetime = new Lifetime();
   private bus: EventBus | undefined;
@@ -116,6 +120,16 @@ export class Scene {
       this.updatePlan = [...this.updates];
     };
   }
+  /** Runs after every captured Actor component update and before timers/onUpdate. */
+  onPostUpdate(callback: (seconds: number) => void): () => void {
+    this.assertAlive();
+    this.postUpdates.add(callback);
+    this.postPlan = [...this.postUpdates];
+    return () => {
+      this.postUpdates.delete(callback);
+      this.postPlan = [...this.postUpdates];
+    };
+  }
   onActivate(callback: () => void): () => void {
     this.assertAlive();
     if (this.phase !== SceneState.Preparing && this.phase !== SceneState.Ready)
@@ -198,12 +212,21 @@ export class Scene {
       throw new EngineError("SCENE_STATE", "Only active scenes can update", {
         sceneId: this.id,
       });
-    const actors = this.actors;
+    if (this.updateRevision !== this.revision) {
+      this.updateActors = this.actors.filter((actor) => actor.hasUpdates);
+      this.updateRevision = this.revision;
+    }
+    const actors = this.updateActors;
     for (const actor of actors) actor.beginStep();
     for (const actor of actors)
       actor.updatePhase(ComponentPhase.Input, context);
     for (const actor of actors)
       actor.updatePhase(ComponentPhase.Update, context);
+    if (this.disposed) return;
+    for (const callback of this.postPlan) {
+      if (this.disposed) return;
+      if (this.postUpdates.has(callback)) callback(context.delta);
+    }
     if (this.disposed) return;
     this.timers?.step(context.delta);
     // Callback plans change only on subscription changes; iteration stays stable.
@@ -243,6 +266,9 @@ export class Scene {
         "Scene cleanup failed",
       );
     } finally {
+      this.updateActors = [];
+      this.postUpdates.clear();
+      this.postPlan = [];
       this.updates.clear();
       this.updatePlan = [];
       this.activations.clear();

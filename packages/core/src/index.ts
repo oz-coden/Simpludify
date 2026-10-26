@@ -1,5 +1,6 @@
 export * from "./actor";
 export * from "./character";
+export * from "./collision";
 export * from "./component";
 export * from "./components";
 export * from "./coordinates";

@@ -1,6 +1,6 @@
 import type { Actor } from "./actor";
 import { EngineError } from "./diagnostics";
-import { EventBus } from "./events";
+import { EventBus, type EventType } from "./events";
 import type { InputReader } from "./input";
 import { cleanupAll, Lifetime } from "./lifetime";
 import type { Scene } from "./scene";
@@ -66,6 +66,9 @@ export abstract class Component {
       );
     this.bus ??= new EventBus();
     return this.bus;
+  }
+  protected emit<T>(type: EventType<T>, payload: NoInfer<T>): void {
+    this.bus?.emit(type, payload);
   }
   onDispose(callback: () => void): () => void {
     return this.lifetime.onDispose(callback);

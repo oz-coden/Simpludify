@@ -10,6 +10,7 @@ export class Engine {
   private dead = false;
   private stepping = false;
   private transitioning = false;
+  private suspended = false;
   private elapsed = 0;
   private randomState: number;
   private readonly context: {
@@ -36,6 +37,23 @@ export class Engine {
     if (this.dead)
       throw new EngineError("GAME_DISPOSED", "Game has been disposed");
   }
+  get paused(): boolean {
+    return this.suspended;
+  }
+  pause(): void {
+    this.assertAlive();
+    if (!this.suspended) {
+      this.suspended = true;
+      this.input.clear();
+    }
+  }
+  resume(): void {
+    this.assertAlive();
+    if (this.suspended) {
+      this.suspended = false;
+      this.input.clear();
+    }
+  }
   activate(scene: Scene): void {
     this.assertAlive();
     if (this.stepping || this.transitioning)
@@ -54,6 +72,7 @@ export class Engine {
     const previous = this.active;
     this.transitioning = true;
     this.active = scene;
+    this.context.scene = scene;
     scene.activateOwned();
     if (previous !== scene) this.input.clear();
     try {
@@ -82,6 +101,7 @@ export class Engine {
         "STEP_REENTRANT",
         "Cannot step during an update or transition",
       );
+    if (this.suspended) return;
     if (
       this.active.state === SceneState.Preparing ||
       this.active.state === SceneState.Ready
@@ -109,6 +129,7 @@ export class Engine {
       sceneId: this.active.id,
       sceneState: this.active.state,
       elapsed: this.elapsed,
+      paused: this.suspended,
       randomState: this.randomState,
       input: this.input.snapshot(),
       actors: this.active.actors.map((actor) => {
@@ -134,7 +155,9 @@ export class Engine {
   dispose(): void {
     if (this.dead) return;
     this.dead = true;
-    this.input.clear();
-    this.active.dispose();
+    cleanupAll(
+      [() => this.input.dispose(), () => this.active.dispose()],
+      "Engine cleanup failed",
+    );
   }
 }

@@ -1,5 +1,5 @@
 import { EngineError, positive } from "./diagnostics";
-import type { LifetimeOwner } from "./lifetime";
+import { cleanupAll, type LifetimeOwner } from "./lifetime";
 
 interface Timer {
   remaining: number;
@@ -35,8 +35,9 @@ export class SimulationTimers {
         if (!timer.active) return;
         timer.active = false;
         this.timers.delete(timer);
-        timer.removeOwner?.();
+        const remove = timer.removeOwner;
         delete timer.removeOwner;
+        remove?.();
       },
     };
     this.timers.add(timer);
@@ -57,8 +58,13 @@ export class SimulationTimers {
       if (!timer.active) continue;
       timer.remaining -= seconds;
       if (timer.remaining > 1e-12) continue;
-      if (timer.interval === 0) timer.cancel();
-      else timer.remaining = timer.interval;
+      if (timer.interval === 0) {
+        try {
+          timer.cancel();
+        } catch (error) {
+          errors.push(error);
+        }
+      } else timer.remaining = timer.interval;
       try {
         timer.callback();
       } catch (error) {
@@ -72,6 +78,14 @@ export class SimulationTimers {
   dispose(): void {
     if (this.dead) return;
     this.dead = true;
-    for (const timer of this.timers) timer.cancel();
+    const timers = [...this.timers];
+    try {
+      cleanupAll(
+        timers.map((timer) => timer.cancel),
+        "Timer cleanup failed",
+      );
+    } finally {
+      this.timers.clear();
+    }
   }
 }

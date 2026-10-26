@@ -205,6 +205,9 @@ export class Actor {
     this.identifier = id;
     this.owner = scene;
   }
+  /** @internal */ get hasUpdates(): boolean {
+    return this.inputPlan.length > 0 || this.updatePlan.length > 0;
+  }
   /** @internal */ beginStep(): void {
     this.frameInput = this.inputPlan;
     this.frameUpdates = this.updatePlan;

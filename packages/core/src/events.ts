@@ -1,5 +1,5 @@
 import { EngineError } from "./diagnostics";
-import type { LifetimeOwner } from "./lifetime";
+import { cleanupAll, type LifetimeOwner } from "./lifetime";
 export interface EventType<T> {
   readonly id: symbol;
   readonly name: string;
@@ -63,8 +63,9 @@ export class EventBus {
         subscription.active = false;
         group.delete(subscription);
         if (group.size === 0) this.listeners.delete(type.id);
-        removeOwnership?.();
+        const remove = removeOwnership;
         removeOwnership = undefined;
+        remove?.();
       },
     };
     group.add(subscription);
@@ -114,8 +115,16 @@ export class EventBus {
   dispose(): void {
     if (this.dead) return;
     this.dead = true;
-    for (const group of [...this.listeners.values()])
-      for (const subscription of [...group]) subscription.off();
-    this.listeners.clear();
+    const subscriptions = [...this.listeners.values()].flatMap((group) => [
+      ...group,
+    ]);
+    try {
+      cleanupAll(
+        subscriptions.map((subscription) => subscription.off),
+        "Event bus cleanup failed",
+      );
+    } finally {
+      this.listeners.clear();
+    }
   }
 }

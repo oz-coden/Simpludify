@@ -41,7 +41,30 @@ export class Transform extends Component {
     this.scaleY = finite(options.scaleY ?? 1, "scaleY");
   }
 }
-export const Shape = { Box: "box", Character: "character" } as const;
+export const Shape = {
+  Box: "box",
+  Character: "character",
+  Circle: "circle",
+} as const;
+export const SpriteFit = { Contain: "contain", Stretch: "stretch" } as const;
+export type SpriteFit = (typeof SpriteFit)[keyof typeof SpriteFit];
+export function imageSize(
+  sourceWidth: number,
+  sourceHeight: number,
+  width: number,
+  height: number,
+  fit: SpriteFit = SpriteFit.Contain,
+) {
+  positive(sourceWidth, "sourceWidth");
+  positive(sourceHeight, "sourceHeight");
+  positive(width, "width");
+  positive(height, "height");
+  if (fit === SpriteFit.Stretch) return { width, height };
+  if (fit !== SpriteFit.Contain)
+    throw new EngineError("INVALID_VALUE", "Unknown sprite fit");
+  const scale = Math.min(width / sourceWidth, height / sourceHeight);
+  return { width: sourceWidth * scale, height: sourceHeight * scale };
+}
 export type Shape = (typeof Shape)[keyof typeof Shape];
 export class Renderable extends Component {
   static readonly type: ComponentType<Renderable> = defineComponent<Renderable>(
@@ -54,6 +77,24 @@ export class Renderable extends Component {
   readonly color: number;
   readonly sprite: string | undefined;
   readonly shape: Shape;
+  readonly fit: SpriteFit;
+  visible: boolean;
+  private alpha: number;
+  private depth: number;
+  get opacity(): number {
+    return this.alpha;
+  }
+  set opacity(value: number) {
+    if (!Number.isFinite(value) || value < 0 || value > 1)
+      throw new EngineError("INVALID_VALUE", "opacity must be between 0 and 1");
+    this.alpha = value;
+  }
+  get zIndex(): number {
+    return this.depth;
+  }
+  set zIndex(value: number) {
+    this.depth = finite(value, "zIndex");
+  }
   constructor(
     options: {
       width?: number;
@@ -61,6 +102,10 @@ export class Renderable extends Component {
       color?: number;
       sprite?: string;
       shape?: Shape;
+      fit?: SpriteFit;
+      opacity?: number;
+      visible?: boolean;
+      zIndex?: number;
     } = {},
   ) {
     super();
@@ -77,6 +122,14 @@ export class Renderable extends Component {
         "color must be a 24-bit RGB integer",
       );
     this.sprite = options.sprite;
+    this.fit = options.fit ?? SpriteFit.Contain;
+    if (!Object.values(SpriteFit).includes(this.fit))
+      throw new EngineError("INVALID_VALUE", "Unknown sprite fit");
+    this.alpha = 1;
+    this.depth = 0;
+    this.opacity = options.opacity ?? 1;
+    this.zIndex = options.zIndex ?? 0;
+    this.visible = options.visible ?? true;
     this.shape = options.shape ?? Shape.Box;
     if (!Object.values(Shape).includes(this.shape))
       throw new EngineError("INVALID_VALUE", "Unknown shape");
