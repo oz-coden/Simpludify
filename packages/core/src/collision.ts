@@ -1,107 +1,31 @@
 import type { Actor } from "./actor";
-import { Component, type ComponentType, defineComponent } from "./component";
+import {
+  Collider,
+  CollisionResponse,
+  type Contact,
+  ContactEnter,
+  ContactExit,
+  ContactStay,
+} from "./collider";
+import { CollisionBody } from "./collision-body";
+import {
+  contactManifold,
+  createGeometry,
+  type Geometry,
+  type Manifold,
+  updateGeometry,
+} from "./collision-geometry";
+import { correctPositions } from "./collision-response";
 import { Transform } from "./components";
-import { EngineError, positive } from "./diagnostics";
-import { defineEvent, type EventType } from "./events";
+import { EngineError } from "./diagnostics";
+import type { EventType } from "./events";
 import { Lifetime } from "./lifetime";
 import { type Scene, SceneState } from "./scene";
-export const CollisionShape = { Box: "box", Circle: "circle" } as const;
-export type CollisionShape =
-  (typeof CollisionShape)[keyof typeof CollisionShape];
-type ShapeOptions =
-  | { shape?: typeof CollisionShape.Box; width?: number; height?: number }
-  | { shape: typeof CollisionShape.Circle; radius?: number };
-export type ColliderOptions = ShapeOptions & {
-  offsetX?: number;
-  offsetY?: number;
-  layer?: number;
-  mask?: number;
-};
-export interface Contact {
-  readonly self: Collider;
-  readonly other: Collider;
-  readonly selfActor: Actor;
-  readonly otherActor: Actor;
-}
-export const ContactEnter = defineEvent<Contact>("ContactEnter");
-export const ContactStay = defineEvent<Contact>("ContactStay");
-export const ContactExit = defineEvent<Contact>("ContactExit");
-function finite(value: number, name: string): number {
-  if (!Number.isFinite(value))
-    throw new EngineError("INVALID_VALUE", `${name} must be finite`, {
-      field: name,
-    });
-  return value;
-}
-function bits(value: number, name: string, allowZero: boolean): number {
-  if (
-    !Number.isInteger(value) ||
-    value < (allowZero ? 0 : 1) ||
-    value > 0xffffffff
-  )
-    throw new EngineError(
-      "INVALID_VALUE",
-      `${name} must be an unsigned 32-bit ${allowZero ? "mask" : "nonzero layer"}`,
-    );
-  return value;
-}
-/** Trigger geometry only: detection never moves an Actor or simulates a rigid body. */
-export class Collider extends Component {
-  static readonly type: ComponentType<Collider> = defineComponent<Collider>(
-    "Collider",
-    [Transform.type],
-  );
-  readonly type = Collider.type;
-  readonly shape: CollisionShape;
-  readonly width: number;
-  readonly height: number;
-  readonly radius: number;
-  readonly offsetX: number;
-  readonly offsetY: number;
-  readonly layer: number;
-  readonly mask: number;
-  constructor(options: ColliderOptions = {}) {
-    super();
-    this.shape = options.shape ?? CollisionShape.Box;
-    if (
-      this.shape !== CollisionShape.Box &&
-      this.shape !== CollisionShape.Circle
-    )
-      throw new EngineError("INVALID_VALUE", "Unknown collider shape");
-    this.width =
-      options.shape === CollisionShape.Circle
-        ? 0
-        : positive(options.width ?? 32, "width");
-    this.height =
-      options.shape === CollisionShape.Circle
-        ? 0
-        : positive(options.height ?? 32, "height");
-    this.radius =
-      options.shape === CollisionShape.Circle
-        ? positive(options.radius ?? 16, "radius")
-        : 0;
-    this.offsetX = finite(options.offsetX ?? 0, "offsetX");
-    this.offsetY = finite(options.offsetY ?? 0, "offsetY");
-    this.layer = bits(options.layer ?? 1, "layer", false);
-    this.mask = bits(options.mask ?? 0xffffffff, "mask", true);
-  }
-  /** @internal */ notify(type: EventType<Contact>, contact: Contact): void {
-    this.emit(type, contact);
-  }
-}
-interface Geometry {
-  x: number;
-  y: number;
-  hx: number;
-  hy: number;
-  radius: number;
-  cos: number;
-  sin: number;
-  minX: number;
-  minY: number;
-  maxX: number;
-  maxY: number;
-}
+
+export * from "./collider";
+export * from "./collision-body";
+
+type MutableContact = { -readonly [K in keyof Contact]: Contact[K] };
 interface Entry {
   readonly id: number;
   readonly collider: Collider;
@@ -112,92 +36,15 @@ interface Entry {
 interface Pair {
   readonly a: Entry;
   readonly b: Entry;
-  readonly aContact: Contact;
-  readonly bContact: Contact;
+  readonly aContact: MutableContact;
+  readonly bContact: MutableContact;
   seen: number;
   aEntered: boolean;
   bEntered: boolean;
 }
-function updateGeometry(entry: Entry): boolean {
-  const t = entry.transform,
-    c = entry.collider,
-    g = entry.geometry;
-  finite(t.x, "transform.x");
-  finite(t.y, "transform.y");
-  finite(t.rotation, "transform.rotation");
-  finite(t.scaleX, "transform.scaleX");
-  finite(t.scaleY, "transform.scaleY");
-  const sx = Math.abs(t.scaleX),
-    sy = Math.abs(t.scaleY);
-  if (sx === 0 || sy === 0) return false;
-  if (
-    c.shape === CollisionShape.Circle &&
-    Math.abs(sx - sy) > 1e-9 * Math.max(sx, sy)
-  )
-    throw new EngineError(
-      "COLLIDER_SCALE_UNSUPPORTED",
-      "Circle colliders require uniform absolute scale",
-      { actorId: entry.actor.id },
-    );
-  g.cos = Math.cos(t.rotation);
-  g.sin = Math.sin(t.rotation);
-  g.x = t.x + g.cos * c.offsetX * t.scaleX - g.sin * c.offsetY * t.scaleY;
-  g.y = t.y + g.sin * c.offsetX * t.scaleX + g.cos * c.offsetY * t.scaleY;
-  g.hx = (c.width * sx) / 2;
-  g.hy = (c.height * sy) / 2;
-  g.radius = c.radius * sx;
-  const ex =
-    c.shape === CollisionShape.Circle
-      ? g.radius
-      : Math.abs(g.cos) * g.hx + Math.abs(g.sin) * g.hy;
-  const ey =
-    c.shape === CollisionShape.Circle
-      ? g.radius
-      : Math.abs(g.sin) * g.hx + Math.abs(g.cos) * g.hy;
-  g.minX = g.x - ex;
-  g.maxX = g.x + ex;
-  g.minY = g.y - ey;
-  g.maxY = g.y + ey;
-  return true;
-}
-function boxCircle(box: Geometry, circle: Geometry): boolean {
-  const dx = circle.x - box.x,
-    dy = circle.y - box.y;
-  const x = dx * box.cos + dy * box.sin,
-    y = -dx * box.sin + dy * box.cos;
-  const ox = Math.max(Math.abs(x) - box.hx, 0),
-    oy = Math.max(Math.abs(y) - box.hy, 0);
-  return ox * ox + oy * oy <= circle.radius * circle.radius;
-}
-function separates(a: Geometry, b: Geometry, x: number, y: number): boolean {
-  const distance = Math.abs((b.x - a.x) * x + (b.y - a.y) * y);
-  const ar =
-    a.hx * Math.abs(a.cos * x + a.sin * y) +
-    a.hy * Math.abs(-a.sin * x + a.cos * y);
-  const br =
-    b.hx * Math.abs(b.cos * x + b.sin * y) +
-    b.hy * Math.abs(-b.sin * x + b.cos * y);
-  return distance > ar + br;
-}
-function overlaps(a: Entry, b: Entry): boolean {
-  const ag = a.geometry,
-    bg = b.geometry;
-  if (a.collider.shape === CollisionShape.Circle) {
-    if (b.collider.shape === CollisionShape.Circle) {
-      const dx = ag.x - bg.x,
-        dy = ag.y - bg.y,
-        r = ag.radius + bg.radius;
-      return dx * dx + dy * dy <= r * r;
-    }
-    return boxCircle(bg, ag);
-  }
-  if (b.collider.shape === CollisionShape.Circle) return boxCircle(ag, bg);
-  return (
-    !separates(ag, bg, ag.cos, ag.sin) &&
-    !separates(ag, bg, -ag.sin, ag.cos) &&
-    !separates(ag, bg, bg.cos, bg.sin) &&
-    !separates(ag, bg, -bg.sin, bg.cos)
-  );
+export interface CollisionWorldOptions {
+  iterations?: number;
+  tolerance?: number;
 }
 const sceneWorlds = new WeakMap<Scene, CollisionWorld>();
 /** Scene-owned post-update contact pass with a one-axis sweep broad phase. */
@@ -207,6 +54,13 @@ export class CollisionWorld {
   private readonly pairs = new Map<Entry, Map<Entry, Pair>>();
   private readonly sorted: Entry[] = [];
   private readonly delivery: Pair[] = [];
+  private readonly solving: Pair[] = [];
+  private readonly manifold: Manifold = { normalX: 0, normalY: 0, depth: 0 };
+  private readonly iterations: number;
+  private readonly tolerance: number;
+  private corrections = 0;
+  private solverPasses = 0;
+  private unresolved = 0;
   private revision = -1;
   private serial = 0;
   private pass = 0;
@@ -214,7 +68,23 @@ export class CollisionWorld {
   private contactCount = 0;
   private candidates = 0;
   private tests = 0;
-  constructor(readonly scene: Scene) {
+  constructor(
+    readonly scene: Scene,
+    options: CollisionWorldOptions = {},
+  ) {
+    this.iterations = options.iterations ?? 6;
+    this.tolerance = options.tolerance ?? 1e-7;
+    if (
+      !Number.isInteger(this.iterations) ||
+      this.iterations < 1 ||
+      this.iterations > 32 ||
+      !Number.isFinite(this.tolerance) ||
+      this.tolerance < 0
+    )
+      throw new EngineError(
+        "INVALID_VALUE",
+        "Collision iterations must be 1..32 and tolerance must be finite and nonnegative",
+      );
     if (sceneWorlds.has(scene))
       throw new EngineError(
         "COLLISION_WORLD_DUPLICATE",
@@ -239,6 +109,28 @@ export class CollisionWorld {
       candidates: this.candidates,
       narrowTests: this.tests,
     };
+  }
+  get responseDiagnostics() {
+    return {
+      passes: this.solverPasses,
+      corrections: this.corrections,
+      unresolved: this.unresolved,
+    };
+  }
+  contactsFor(collider: Collider): readonly Contact[] {
+    const contacts: Contact[] = [];
+    for (const group of this.pairs.values())
+      for (const pair of group.values())
+        if (pair.seen === this.pass && this.valid(pair)) {
+          if (pair.a.collider === collider) contacts.push({ ...pair.aContact });
+          else if (pair.b.collider === collider)
+            contacts.push({ ...pair.bContact });
+        }
+    return contacts;
+  }
+  private inverseMass(entry: Entry): number {
+    const body = entry.actor.get(CollisionBody.type);
+    return body?.enabled ? body.inverseMass : 0;
   }
   private eligible(entry: Entry): boolean {
     return (
@@ -271,27 +163,17 @@ export class CollisionWorld {
           collider,
           actor,
           transform: actor.require(Transform.type),
-          geometry: {
-            x: 0,
-            y: 0,
-            hx: 0,
-            hy: 0,
-            radius: 0,
-            cos: 1,
-            sin: 0,
-            minX: 0,
-            maxX: 0,
-            minY: 0,
-            maxY: 0,
-          },
+          geometry: createGeometry(),
         });
     }
   }
-  private pair(a: Entry, b: Entry): Pair {
+  private pair(a: Entry, b: Entry, manifold: Manifold): Pair {
+    let sign = 1;
     if (a.id > b.id) {
       const swap = a;
       a = b;
       b = swap;
+      sign = -1;
     }
     let group = this.pairs.get(a);
     if (!group) {
@@ -307,12 +189,22 @@ export class CollisionWorld {
         aEntered: false,
         bEntered: false,
         aContact: {
+          normalX: 0,
+          normalY: 0,
+          depth: 0,
+          response: CollisionResponse.Trigger,
+          resolved: false,
           self: a.collider,
           other: b.collider,
           selfActor: a.actor,
           otherActor: b.actor,
         },
         bContact: {
+          normalX: 0,
+          normalY: 0,
+          depth: 0,
+          response: CollisionResponse.Trigger,
+          resolved: false,
           self: b.collider,
           other: a.collider,
           selfActor: b.actor,
@@ -322,6 +214,24 @@ export class CollisionWorld {
       group.set(b, pair);
       this.contactCount++;
     }
+    if (pair.seen !== this.pass) {
+      pair.aContact.depth = -1;
+      pair.aContact.resolved = false;
+      pair.bContact.resolved = false;
+    }
+    if (manifold.depth >= pair.aContact.depth) {
+      pair.aContact.normalX = sign * manifold.normalX;
+      pair.aContact.normalY = sign * manifold.normalY;
+      pair.aContact.depth = manifold.depth;
+      pair.bContact.normalX = -pair.aContact.normalX;
+      pair.bContact.normalY = -pair.aContact.normalY;
+      pair.bContact.depth = manifold.depth;
+    }
+    pair.aContact.response = pair.bContact.response =
+      a.collider.response === CollisionResponse.Solid &&
+      b.collider.response === CollisionResponse.Solid
+        ? CollisionResponse.Solid
+        : CollisionResponse.Trigger;
     pair.seen = this.pass;
     return pair;
   }
@@ -329,6 +239,57 @@ export class CollisionWorld {
     const group = this.pairs.get(pair.a);
     if (group?.delete(pair.b)) this.contactCount--;
     if (!group?.size) this.pairs.delete(pair.a);
+  }
+  private capture(): void {
+    this.sorted.length = 0;
+    for (const entry of this.entries.values())
+      if (this.eligible(entry) && updateGeometry(entry))
+        this.sorted.push(entry);
+    this.sorted.sort(
+      (a, b) => a.geometry.minX - b.geometry.minX || a.id - b.id,
+    );
+  }
+  private scan(solidOnly: boolean): void {
+    for (let i = 0; i < this.sorted.length; i++) {
+      const a = this.sorted[i];
+      if (!a) continue;
+      for (let j = i + 1; j < this.sorted.length; j++) {
+        const b = this.sorted[j];
+        if (!b || b.geometry.minX > a.geometry.maxX + this.tolerance) break;
+        this.candidates++;
+        const solid =
+          a.collider.response === CollisionResponse.Solid &&
+          b.collider.response === CollisionResponse.Solid;
+        if (
+          (solidOnly && !solid) ||
+          a.geometry.maxY + this.tolerance < b.geometry.minY ||
+          b.geometry.maxY + this.tolerance < a.geometry.minY ||
+          !(a.collider.mask & b.collider.layer) ||
+          !(b.collider.mask & a.collider.layer)
+        )
+          continue;
+        this.tests++;
+        if (contactManifold(a, b, this.manifold, this.tolerance)) {
+          if (
+            !Number.isFinite(this.manifold.depth) ||
+            !Number.isFinite(this.manifold.normalX) ||
+            !Number.isFinite(this.manifold.normalY)
+          )
+            throw new EngineError(
+              "INVALID_VALUE",
+              "Contact geometry overflowed",
+            );
+          const pair = this.pair(a, b, this.manifold);
+          if (solidOnly) this.solving.push(pair);
+          else if (
+            solid &&
+            this.manifold.depth > this.tolerance &&
+            (this.inverseMass(a) > 0 || this.inverseMass(b) > 0)
+          )
+            this.unresolved++;
+        }
+      }
+    }
   }
   step(): void {
     if (this.disposed)
@@ -353,31 +314,51 @@ export class CollisionWorld {
     const errors: unknown[] = [];
     try {
       this.reconcile();
-      this.sorted.length = 0;
-      for (const entry of this.entries.values())
-        if (this.eligible(entry) && updateGeometry(entry))
-          this.sorted.push(entry);
-      this.sorted.sort(
-        (a, b) => a.geometry.minX - b.geometry.minX || a.id - b.id,
-      );
-      for (let i = 0; i < this.sorted.length; i++) {
-        const a = this.sorted[i];
-        if (!a) continue;
-        for (let j = i + 1; j < this.sorted.length; j++) {
-          const b = this.sorted[j];
-          if (!b || b.geometry.minX > a.geometry.maxX) break;
-          this.candidates++;
-          if (
-            a.geometry.maxY < b.geometry.minY ||
-            b.geometry.maxY < a.geometry.minY ||
-            !(a.collider.mask & b.collider.layer) ||
-            !(b.collider.mask & a.collider.layer)
-          )
-            continue;
-          this.tests++;
-          if (overlaps(a, b)) this.pair(a, b);
+      this.corrections = 0;
+      this.solverPasses = 0;
+      this.unresolved = 0;
+      this.capture(); // Validate every participating geometry before any position correction.
+      if (
+        this.sorted.some(
+          (entry) =>
+            entry.collider.response === CollisionResponse.Solid &&
+            this.inverseMass(entry) > 0,
+        )
+      ) {
+        for (let iteration = 0; iteration < this.iterations; iteration++) {
+          this.solving.length = 0;
+          this.scan(true);
+          this.solving.sort((a, b) => a.a.id - b.a.id || a.b.id - b.b.id);
+          let changed = false;
+          this.solverPasses++;
+          for (const pair of this.solving) {
+            updateGeometry(pair.a);
+            updateGeometry(pair.b);
+            if (
+              !contactManifold(pair.a, pair.b, this.manifold, this.tolerance) ||
+              this.manifold.depth <= this.tolerance
+            )
+              continue;
+            if (
+              correctPositions(
+                pair.a.transform,
+                pair.b.transform,
+                this.manifold,
+                this.inverseMass(pair.a),
+                this.inverseMass(pair.b),
+              )
+            ) {
+              changed = true;
+              this.corrections++;
+              pair.aContact.resolved = pair.bContact.resolved = true;
+            }
+          }
+          if (!changed) break;
+          this.capture();
         }
       }
+      // Triggers observe corrected positions; solids also retain contacts encountered by the solver.
+      this.scan(false);
       this.delivery.length = 0;
       for (const group of this.pairs.values())
         for (const pair of group.values()) this.delivery.push(pair);
@@ -416,6 +397,7 @@ export class CollisionWorld {
     } finally {
       this.stepping = false;
       this.sorted.length = 0;
+      this.solving.length = 0;
       this.delivery.length = 0;
     }
   }
@@ -427,8 +409,10 @@ export class CollisionWorld {
       this.entries.clear();
       this.pairs.clear();
       this.sorted.length = 0;
+      this.solving.length = 0;
       this.delivery.length = 0;
       this.contactCount = 0;
+      this.solving.length = 0;
     }
   }
 }
