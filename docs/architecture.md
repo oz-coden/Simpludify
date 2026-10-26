@@ -66,14 +66,25 @@ Each Engine step performs:
 1. Validate delta and freeze the current InputState for this step. Capture each existing Actor's update-component plan and initial eligibility.
 2. Run Input-phase components for all captured Actors, in Scene insertion order and Component insertion order.
 3. Run Update-phase components in the same ordering. Motion and custom Components use this phase by default.
-4. Advance active scene simulation timers, then Scene update callbacks.
-5. Return to the host, which reconciles changed render structure and draws current state.
+4. Run registered post-update hooks, including the optional Scene-owned CollisionWorld.
+5. Advance active scene simulation timers, then Scene update callbacks.
+6. Return to the host, which reconciles changed render structure and draws current state.
 
 Membership/component changes are immediately visible to lookup APIs. New Actors and new Components start updating on the **next** step. Removing/disabling Actors or Components prevents subsequent execution immediately; old snapshots are checked for disposal/membership. An Actor disabled at step start remains ineligible until the next step even if enabled mid-step. Changes cannot invalidate iteration or cause double updates. There is no configurable system graph or archetype storage.
 
-Input capture is cached until input changes; KeyboardController writes into Motion's existing vector without allocating a direction per Actor per frame. Actor rosters and Component execution plans are rebuilt only when structurally changed. Frame contexts are reused; do not retain a context for future frames. Snapshot exports intentionally allocate copies for inspection.
+Input capture is cached until input changes; KeyboardController writes into Motion's existing vector without allocating a direction per Actor per frame. Actor rosters and Component execution plans are rebuilt only when structurally changed. Passive Actors are omitted from the Component dispatch roster; they still participate in rendering and optional contact detection. Frame contexts are reused; do not retain a context for future frames. Snapshot exports intentionally allocate copies for inspection.
+
+Pause suspends subsequent Engine steps (including contacts/timers) while Web presentation and DOM controls continue. A state change clears input and Web resets its timestamp. Scene navigation remains available; scenes explicitly resume when appropriate.
+
+Independent InputSources compose into one frozen frame snapshot. Browser keyboard and scene-owned hold controls release their own contributions without cancelling other sources. Global input clearing releases all contributions but preserves live source handles.
 
 `Engine.step` is uncapped and deterministic for fixed controlled inputs, steps, seed, and user code. Web uses variable RAF delta with a default 0.05-second cap, drops excess stalled time, clears keys when hidden and resets the timestamp on resume. External time/randomness, asynchronous asset ordering and GPU output are not deterministic guarantees.
+
+## Contact detection
+
+CollisionWorld is optional and Scene-owned. It captures live Collider/Transform geometry in a post-update hook, uses an X sweep plus Y/layer filters, and applies exact oriented-box/circle tests. Its deterministic pair table stores participant-specific Enter/Stay/Exit state. Removals/disables suppress later contact delivery, surviving participants receive exits on the next observed pass, and disposal clears pair/geometry references without synthetic exits. Handler errors are aggregated; no physics response is applied. See [API contracts](api.md#trigger-contacts) for scale, mutation, boundary and tunneling limits.
+
+The sweep reduces sparse candidate work, but a dense population still creates O(n²) pairs. diagnostics exposes actual candidates/narrow tests; the benchmark includes both sparse and dense layouts. This is not a physics engine or an implicit requirement for every Scene.
 
 ## Events, timers and cleanup
 
@@ -97,8 +108,10 @@ The Web renderer defaults to min(devicePixelRatio, 2), configurable by pixelRati
 
 ## Presentation resources
 
-Pixi presentations reconcile only on Scene structural revision changes. Transform values and enable flags are read each render. Runtime Renderable addition loads an image asynchronously; a placeholder shape is immediate. Pending image visuals remain absent until ready. Game.whenReady waits for current presentation resources and rejects failed images; background failures are also reported without destroying the active Scene. Removing a failed Actor/component permits recovery.
+Pixi presentations reconcile only on Scene structural revision changes. Transform values, enable flags, visibility, opacity and depth are read each render. Depth ordering is rebuilt only on relevant changes; equal depths preserve Actor insertion order. Images preserve their aspect by default. Runtime Renderable addition loads an image asynchronously; a placeholder shape is immediate. Pending image visuals remain absent until ready. Game.whenReady waits for current presentation resources and rejects failed images; background failures are also reported without destroying the active Scene. Removing a failed Actor/component permits recovery.
 
-Actor/component destruction cancels pending image work and releases its texture/display object. Images bypass the shared Pixi texture cache. Scene-owned cleanup also disposes staged/active presentations. Diagnostics expose presentation, visual-entry and pending-image counts for resource tests. Painter order follows Actor insertion order even when image loading completes out of order.
+Actor/component destruction cancels pending image work and releases its texture/display object. Images bypass the shared Pixi texture cache. Scene-owned cleanup also disposes staged/active presentations. Diagnostics expose presentation, visual-entry, texture and pending-image counts for resource tests. Painter order at equal depth follows Actor insertion order even when image loading completes out of order. Presentation destruction explicitly releases clipping Graphics contexts. Renderer teardown removes its own canvas/resources without requesting destruction of shared Pixi resources; another live Game remains usable.
 
 DOM UI continues to use native Flexbox/Grid, textContent, focusable buttons and selective label subscriptions. The overlay has pointer-events disabled in empty space; visible controls/panels opt in. No UI layout engine, telemetry or mandatory editor is introduced.
+
+UI construction is transactional: a partial mount releases prior subscriptions and listeners before rethrowing. Unmount aborts button tasks and releases held pointer/keyboard controls. Late asynchronous UI or renderer cleanup failures reach the observer without preventing other teardown. A render failure after presentation commit disposes the Game; before-commit setup failures preserve the previous presentation.

@@ -1,0 +1,116 @@
+{
+  "environment": {
+    "date": "2026-10-26T22:34:11.498Z",
+    "node": "v24.22.1",
+    "platform": "linux",
+    "cpu": "AMD EPYC 9V74 80-Core Processor",
+    "engineSourceCommit": "266ccd5332722b81f52cd90b8971990fcfe7dd3f"
+  },
+  "scope": "Core Engine.step, trigger contacts, accelerated simulation and forced-GC round disposal",
+  "results": [
+    {
+      "workload": "1000 sparse",
+      "samples": 1000,
+      "milliseconds": {
+        "p50": 0.10332499999981337,
+        "p95": 0.15599399999996422,
+        "p99": 0.24991500000010092
+      },
+      "diagnostics": {
+        "colliders": 1000,
+        "contacts": 0,
+        "candidates": 0,
+        "narrowTests": 0
+      }
+    },
+    {
+      "workload": "1000 grid",
+      "samples": 1000,
+      "milliseconds": {
+        "p50": 0.7532000000001062,
+        "p95": 1.0207419999999274,
+        "p99": 1.3392600000001949
+      },
+      "diagnostics": {
+        "colliders": 1000,
+        "contacts": 1935,
+        "candidates": 36375,
+        "narrowTests": 3807
+      }
+    },
+    {
+      "workload": "100 dense",
+      "samples": 1000,
+      "milliseconds": {
+        "p50": 0.54156200000034,
+        "p95": 0.7333600000001752,
+        "p99": 0.9517089999999371
+      },
+      "diagnostics": {
+        "colliders": 100,
+        "contacts": 4950,
+        "candidates": 4950,
+        "narrowTests": 4950
+      }
+    }
+  ],
+  "sessions": [
+    {
+      "workload": "accelerated idle",
+      "steps": 36000,
+      "simulationSeconds": 600,
+      "wallMilliseconds": 4.491641000000072
+    },
+    {
+      "workload": "accelerated active round",
+      "steps": 36000,
+      "simulationSeconds": 600,
+      "wallMilliseconds": 153.7412260000001,
+      "round": {
+        "status": "playing",
+        "hp": 1000000,
+        "maximumHP": 1000000,
+        "score": 0,
+        "goal": 6,
+        "secondsRemaining": 2,
+        "elapsed": 599.999999999783
+      }
+    }
+  ],
+  "disposal": {
+    "warmupCycles": 50,
+    "measuredCycles": 500,
+    "heap": [
+      {
+        "cycles": 0,
+        "heapUsed": 56219760
+      },
+      {
+        "cycles": 100,
+        "heapUsed": 56242248
+      },
+      {
+        "cycles": 200,
+        "heapUsed": 56183752
+      },
+      {
+        "cycles": 300,
+        "heapUsed": 56254400
+      },
+      {
+        "cycles": 400,
+        "heapUsed": 56213216
+      },
+      {
+        "cycles": 500,
+        "heapUsed": 56357120
+      }
+    ]
+  },
+  "limitations": [
+    "Shared host, no GPU workload",
+    "600 simulation seconds run faster than real time; not a 10-minute wall-clock soak",
+    "Forced-GC heap samples are observations, not proof of leak absence",
+    "Dense overlap stores quadratic contact pairs"
+  ]
+}

@@ -61,7 +61,7 @@ New Actors/Components update from the next step. Removal/disable takes effect im
 | Motion             | speed=180 units/second, direction x/y=0                      | Transform           |
 | KeyboardController | KeyMaps.wasd; physical key codes; normalized diagonals       | Motion              |
 
-Motion.direction is an explicit velocity direction/multiplier; arbitrary user vectors are not normalized. KeyboardController normalizes its own input vector and writes into Motion. Renderable shape is Box or Character; sprite is an image URL, centered in its width/height box. Image aspect preservation, animation, collision, camera follow and physics remain deferred. Renderable configuration is immutable; remove/re-add it to change image/geometry. Transform and Motion.direction are live mutable numeric data; callers must preserve finite values when changing them.
+Motion.direction is an explicit velocity direction/multiplier; arbitrary user vectors are not normalized. KeyboardController normalizes its own input vector and writes into Motion. Renderable shape is Box, Character or Circle; sprite is an image URL, centered in its width/height box. Images default to SpriteFit.Contain, preserving their aspect inside width/height; SpriteFit.Stretch explicitly fills those bounds. Shape.Circle uses half the smaller dimension as its radius. Renderable.visible (true), opacity (1, between 0 and 1) and zIndex (0, finite) are live properties; higher depth draws above lower depth, with Actor insertion order breaking ties. Dimensions, image, shape, color and fit are immutable; remove/re-add the component to change them. Rendering visibility does not disable contacts. Animation, camera follow and physical response remain deferred. Transform and Motion.direction are live mutable numeric data; callers must preserve finite values when changing them.
 
 Character(options) returns a CharacterActor preset with Transform, Renderable(Shape.Character), Motion and KeyboardController. Its options retain id, x/y (400/225), speed (180), size (32), color (0x73e3c0), movement (Movement.None), keys and sprite. Movement.WASD/Arrows/None select mappings; explicit keys overrides movement. CharacterActor.x/y are convenience accessors for Transform. It has no separate simulation/storage path. Position is not automatically clamped or recentered for another resolution.
 
@@ -90,7 +90,7 @@ class Drift extends Component {
 
 Declare explicit token type annotations to avoid recursive TypeScript inference. Static type is the identifier used by get/require/remove; the instance type identifies its own capability. Override protected onAttach/onDisable/onDestroy for ownership hooks. onAttach runs when attached to an Actor, which may not yet belong to a Scene. It can read dependencies and register owned resources, but cannot recursively change the Actor component structure. onDispose(callback) registers removable LIFO cleanup. Component.dispose removes itself through the Actor and therefore respects dependency constraints.
 
-Default phase is ComponentPhase.Update; override readonly phase with ComponentPhase.Input for input processing. All Input components run before any Update components, then scene timers and scene callbacks run. Within a phase use Actor insertion order and Component insertion order. Requirements do not imply scheduling across phases. Frame context exposes delta (seconds), frozen input and scene; it is reused, so do not retain it.
+Default phase is ComponentPhase.Update; override readonly phase with ComponentPhase.Input for input processing. All Input components run before any Update components, then post-update hooks (including contact detection), scene timers and scene callbacks run. Within a phase use Actor insertion order and Component insertion order. Requirements do not imply scheduling across phases. Frame context exposes delta (seconds), frozen input and scene; it is reused, so do not retain it.
 
 ## Scenes, events and timers
 
@@ -105,11 +105,47 @@ off(); // also automatic when actor is destroyed
 scene.after(1, () => console.log("one simulation second"), actor);
 ```
 
-Scene state is Preparing → Ready → Active → Inactive → Disposed. markReady is synchronous; Engine.activate can mark a Preparing headless scene ready for convenience. Engine.step activates its default scene before the first update. Engine replacement destroys the old instance. Disposed/Inactive instances cannot be reused. Register onActivate before activation; UI layout is available after awaiting Web run/goTo. onActivate/onDeactivate/onUpdate/onDispose register callbacks and return unregister functions; unregister does not invoke cleanup. Resource acquisition on inactive/disposed owners throws. Initial default activation preserves synthetic input, and replacement clears it.
+Scene state is Preparing → Ready → Active → Inactive → Disposed. markReady is synchronous; Engine.activate can mark a Preparing headless scene ready for convenience. Engine.step activates its default scene before the first update. Engine replacement destroys the old instance. Disposed/Inactive instances cannot be reused. Register onActivate before activation; UI layout is available after awaiting Web run/goTo. onActivate/onDeactivate/onPostUpdate/onUpdate/onDispose register callbacks and return unregister functions; unregister does not invoke cleanup. Resource acquisition on inactive/disposed owners throws. Initial default activation preserves synthetic input, and replacement clears it.
 
 Scene.events, Actor.events and Component.events are lazy local buses. `new EventBus()` and `new Lifetime()` are available for explicitly application-owned scopes; dispose them yourself. `bus.on(token, handler, owner?)` returns idempotent unsubscribe. Disposing either the bus or optional owner removes the subscription. Same-name event tokens remain distinct. emit is synchronous and registration-ordered; additions during delivery wait for the next emit, while removal takes effect immediately. Different tokens can nest; the same token cannot recursively dispatch on the same bus. All eligible handlers run; failures are thrown as AggregateError. Promise-returning handlers produce EVENT_ASYNC_HANDLER; their rejections are consumed and the emitter receives an aggregate error. Own async work explicitly outside synchronous delivery.
 
 scene.after(delay, callback, owner?) permits finite nonnegative seconds; zero fires next step. scene.every(interval, callback, owner?) requires positive seconds. Both return cancellation functions, run only on active scene steps and cancel with the scene/optional owner. Repeated timers fire at most once per step, dropping missed repetitions. Timers created during a timer callback wait for another step. Actor/Component disable does not pause owner timers.
+
+## Trigger contacts
+
+```ts
+import {
+  Actor,
+  Collider,
+  CollisionShape,
+  CollisionWorld,
+  ContactEnter,
+  Transform,
+} from "@simpludify/core";
+const world = new CollisionWorld(scene);
+const item = scene.add(new Actor());
+item.add(new Transform({ x: 100, y: 200 }));
+const collider = item.add(
+  new Collider({ shape: CollisionShape.Circle, radius: 10, layer: 2, mask: 1 }),
+);
+collider.events.on(
+  ContactEnter,
+  ({ otherActor }) => {
+    console.log(otherActor.id);
+  },
+  item,
+);
+```
+
+Attach a Collider after Transform. One Collider per Actor is supported. Box is the default (width/height 32); Circle defaults to radius 16. All dimensions must be positive and finite. offsetX/Y default to 0 in local units and are scaled/rotated with Transform. Boxes follow rotation (radians) and independent scale axes. Circles require equal absolute scale axes; nonuniform scale throws COLLIDER_SCALE_UNSUPPORTED. Negative scale reflects offsets; zero on either axis excludes the collider. Transform.enabled does not gate geometry; Actor.enabled and Collider.enabled do. Renderable is optional and independent.
+
+layer defaults to 1 (nonzero uint32), mask to 0xffffffff (uint32, zero allowed). A pair is considered only when each mask includes at least one bit of the other's layer. Exact boundary contact counts as overlap. Configuration is immutable; remove/re-add Collider to change it. These are discrete trigger tests at current positions: fast objects can tunnel. There is no separation, velocity response, swept detection or rigid-body solver.
+
+Construct one CollisionWorld per Scene to opt in; duplicate worlds throw COLLISION_WORLD_DUPLICATE. It subscribes to scene.onPostUpdate and is disposed with the Scene. Without a world there is no contact pass. Explicit world.step requires an active Scene and runs an additional pass; automatic Engine stepping normally suffices. Manual world.dispose is idempotent, clears contacts silently, unregisters the hook and permits a new world. Stepping a disposed world throws COLLISION_WORLD_DISPOSED; recursive stepping throws COLLISION_REENTRANT.
+
+The pass captures eligible geometry after Component updates, sweeps X bounds, rejects Y/layer mismatches and then tests exact circles or oriented boxes. New colliders created before this capture can participate immediately; their Component updates still wait until the next Engine step. Contact-handler additions/movements affect geometry on the next pass. Pairs are delivered in deterministic collider-discovery order, first participant then second. ContactEnter fires once per participant, ContactStay on subsequent passes, ContactExit when separation/disable/removal is observed. Exit reaches previously notified surviving colliders, including disabled ones; destroyed colliders receive nothing. A removal during Enter suppresses later Enter/Stay to that participant. Scene/world disposal emits no exit events. Handler failures are aggregated after other eligible contacts run; geometry errors abort the pass, and a caller may correct the value before stepping again.
+
+Each event payload has self/other Collider references and selfActor/otherActor references. References can describe a removed participant on Exit; check disposed before acquiring resources. Geometry is captured once per pass, rather than recalculated after each callback. diagnostics returns colliders (reconciled registrations, including disabled), contacts (tracked pairs), candidates (X-overlap pairs) and narrowTests (pairs passing broad filters) from the latest pass. Removal during delivery can leave a tracked pair until the next pass. Dense overlap requires quadratic pair storage/testing; do not treat the sweep as a universal scalability guarantee.
 
 ## Camera and coordinate spaces
 
@@ -149,11 +185,11 @@ console.log(engine.snapshot().actors);
 engine.dispose();
 ```
 
-Engine.step takes finite nonnegative seconds without a cap. InputState supports set/clear/isPressed/direction/writeDirection/snapshot. capture returns a cached immutable InputReader until input changes. Engine.random is a seeded uint32 LCG. snapshots copy scene ID/state, elapsed time, PRNG state, input and generic Actor IDs/enable flags/optional Transform values. Custom component data and renderer state are not automatically serialized/restorable.
+Engine.step takes finite nonnegative seconds without a cap. InputState supports set/clear/isPressed/direction/writeDirection/snapshot. `input.createSource(owner?)` returns a disposable InputSource with set/clear/dispose and disposed. Pressed keys are the union of all sources: releasing one does not release another source holding the same code. InputState.set uses a separate scripted source. Source.clear releases only its keys; InputState.clear releases every source's keys while keeping source handles alive. sourceCount counts live explicit sources, excluding the scripted source. Owner destruction releases and disposes its source. Engine disposal disposes every source. A disposed source rejects new presses with OWNER_DISPOSED; late releases are harmless. capture returns a cached immutable InputReader until input changes. Engine.pause/resume and Web Game.pause/resume are idempotent state changes; paused is readable. Paused steps validate the delta but skip activation, movement, contacts, timers, callbacks and elapsed time. Transitions remain possible and pause state persists until explicitly resumed. Pause/resume clear all pressed keys on a state change. A pause called during a step takes effect on the next step. Game continues rendering and operating DOM UI, and resets its frame timestamp to avoid a large resume delta. Engine.random is a seeded uint32 LCG. snapshots copy scene ID/state, elapsed time, PRNG state, input and generic Actor IDs/enable flags/optional Transform values. Custom component data and renderer state are not automatically serialized/restorable.
 
 ## DOM UI and styling
 
-Label(text, {muted?}) exposes setText and only updates subscribers when text changes. Button(text, handler) is a native button; it disables itself while an async handler runs and reports failures. Panel(children, {title?,layout?}) defaults to Layout.Column; Row wraps and Grid auto-fits. Panels use intrinsic sizing, a 30rem maximum width, safe-area spacing and native overlay scrolling. Text is inserted with textContent. Empty overlay space passes pointer events to the world.
+Label(text, {muted?}) exposes setText and only updates subscribers when text changes. Button(text, handler) is a native button; the handler receives the mounted overlay's AbortSignal, aborted on unmount. It disables itself while an async handler runs and reports failures. HoldButton(text, onHold) reports a boolean held state across mouse/touch pointers and Enter/Space, including simultaneous pointers. Repeated presses do not repeat callbacks. Release, pointer cancellation, lost capture, blur, hiding and UI disposal release the relevant hold. Errors reach the UI observer. Use a separate owned InputSource for each independently releasable control group. Panel(children, {title?,layout?,placement?}) defaults to Layout.Column and Placement.Top; Placement.Center/Bottom align an outer panel within the overlay. Row wraps and Grid auto-fits. Panels use intrinsic sizing, a 30rem maximum width, safe-area spacing and native overlay scrolling. Text is inserted with textContent. Empty overlay space passes pointer events to the world.
 
 Theme.Dark/Light and partial tokens override typography/colors. Packaged fonts use ordinary @font-face; await document.fonts.load before run when needed for first-frame font readiness. DOM layout follows browser text/font/viewport invalidation; no custom font or layout manager is required. Application token overrides must preserve accessibility. Tab/Enter/Space retain native button interaction.
 

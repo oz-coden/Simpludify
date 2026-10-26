@@ -1,0 +1,117 @@
+{
+  "environment": {
+    "date": "2026-10-26T22:38:49.131Z",
+    "node": "v24.22.1",
+    "platform": "linux",
+    "cpu": "AMD EPYC 9V74 80-Core Processor",
+    "engineSourceCommit": "266ccd5332722b81f52cd90b8971990fcfe7dd3f",
+    "browser": "156.0.8078.4",
+    "viewport": [1280, 720],
+    "renderer": "headless WebGL / SwiftShader",
+    "build": "Vite production output at /Simpludify/"
+  },
+  "frameResults": [
+    {
+      "workload": "menu idle",
+      "frames": 300,
+      "frameMilliseconds": {
+        "p50": 33.29999999999927,
+        "p95": 33.400000000000546,
+        "p99": 50.099999999999454
+      },
+      "intervalsOver25ms": 182
+    },
+    {
+      "workload": "Signal Run active",
+      "frames": 300,
+      "frameMilliseconds": {
+        "p50": 33.30000000000109,
+        "p95": 50,
+        "p99": 50.100000000000364
+      },
+      "intervalsOver25ms": 256
+    }
+  ],
+  "disposal": {
+    "warmupRounds": 20,
+    "measuredRounds": 100,
+    "transitionsPerRound": 2,
+    "meanCycleMillisecondsByBatch": [
+      2.522313000000031, 1.7185209999999642, 2.427517699999953,
+      3.583686399999897, 3.056503049999992
+    ],
+    "heap": [
+      {
+        "cycles": 0,
+        "usedSize": 3935348,
+        "totalSize": 5312512,
+        "embedderHeapUsedSize": 788384,
+        "backingStorageSize": 542615,
+        "documents": 1,
+        "nodes": 50,
+        "jsEventListeners": 31
+      },
+      {
+        "cycles": 20,
+        "usedSize": 4044844,
+        "totalSize": 4788224,
+        "embedderHeapUsedSize": 745616,
+        "backingStorageSize": 542615,
+        "documents": 1,
+        "nodes": 50,
+        "jsEventListeners": 31
+      },
+      {
+        "cycles": 40,
+        "usedSize": 4058776,
+        "totalSize": 4788224,
+        "embedderHeapUsedSize": 453792,
+        "backingStorageSize": 542615,
+        "documents": 1,
+        "nodes": 50,
+        "jsEventListeners": 31
+      },
+      {
+        "cycles": 60,
+        "usedSize": 4068580,
+        "totalSize": 4788224,
+        "embedderHeapUsedSize": 454072,
+        "backingStorageSize": 542615,
+        "documents": 1,
+        "nodes": 50,
+        "jsEventListeners": 31
+      },
+      {
+        "cycles": 80,
+        "usedSize": 4101048,
+        "totalSize": 4788224,
+        "embedderHeapUsedSize": 529384,
+        "backingStorageSize": 542615,
+        "documents": 1,
+        "nodes": 50,
+        "jsEventListeners": 31
+      },
+      {
+        "cycles": 100,
+        "usedSize": 4124060,
+        "totalSize": 4788224,
+        "embedderHeapUsedSize": 454400,
+        "backingStorageSize": 542615,
+        "documents": 1,
+        "nodes": 50,
+        "jsEventListeners": 31
+      }
+    ],
+    "afterDispose": {
+      "hosts": 0,
+      "canvases": 0,
+      "sources": 0
+    }
+  },
+  "limitations": [
+    "Shared host with software rendering; no hardware/GPU or latency guarantee",
+    "300 RAF samples per workload are short observations",
+    "Forced-GC heap and DOM counters do not include all native/GPU memory",
+    "Accelerated round cycling is not an extended real-time soak"
+  ]
+}

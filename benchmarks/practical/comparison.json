@@ -1,0 +1,17 @@
+{
+  "baselineRevision": "73fcc41b0c6b5ef9e99776313e770ac086cc231c",
+  "practicalCheckpoint": "31d54ca3a00f04e554342764919544b00b821b74",
+  "measuredEngineSourceCommit": "266ccd5332722b81f52cd90b8971990fcfe7dd3f",
+  "matchedScripts": ["scripts/benchmark.mjs", "scripts/benchmark-browser.mjs"],
+  "matchedScriptChanges": "",
+  "lockfileChanges": "",
+  "reports": [
+    "before-core.json",
+    "after-core.json",
+    "before-browser.json",
+    "after-browser.json",
+    "contacts-and-memory.json",
+    "production-game.json"
+  ],
+  "methodology": "Separate runs on the same shared host, no concurrent test/build/benchmark workloads. Single observations, not statistical speedup claims. Browser comparison uses Vite development output; production-game uses the built Signal Run example. Accelerated simulation is not a real-time soak."
+}

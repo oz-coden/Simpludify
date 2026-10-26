@@ -356,3 +356,57 @@ it("uses oriented box axes to reject overlapping AABBs and include true rotated 
   expect(world.diagnostics.contacts).toBe(1);
   engine.dispose();
 });
+
+describe("contact failure recovery", () => {
+  it("recovers after invalid live geometry without losing established contacts", () => {
+    const { engine, world, scene } = setup();
+    const a = add(scene, circle()),
+      b = add(scene, circle());
+    const calls: string[] = [];
+    a.collider.events.on(ContactEnter, () => calls.push("enter"));
+    a.collider.events.on(ContactStay, () => calls.push("stay"));
+    engine.step(0);
+    b.position.scaleX = 2;
+    expect(() => engine.step(0)).toThrow(
+      expect.objectContaining({ code: "COLLIDER_SCALE_UNSUPPORTED" }),
+    );
+    b.position.scaleY = 2;
+    engine.step(0);
+    expect(calls).toEqual(["enter", "stay"]);
+    expect(world.diagnostics.contacts).toBe(1);
+    engine.dispose();
+  });
+  it("releases a disposed world's hook and permits a replacement", () => {
+    const { engine, world, scene } = setup();
+    add(scene);
+    add(scene);
+    expect(() => new CollisionWorld(scene)).toThrow(
+      expect.objectContaining({ code: "COLLISION_WORLD_DUPLICATE" }),
+    );
+    engine.step(0);
+    world.dispose();
+    world.dispose();
+    const next = new CollisionWorld(scene);
+    engine.step(0);
+    expect(next.diagnostics.contacts).toBe(1);
+    expect(world.diagnostics.colliders).toBe(0);
+    engine.dispose();
+    expect(next.disposed).toBe(true);
+  });
+  it("tests rotated boxes beyond their overlapping broad-phase rectangles", () => {
+    const { engine, world, scene } = setup();
+    add(scene, { width: 80, height: 8 }, { rotation: Math.PI / 4 });
+    const b = add(
+      scene,
+      { width: 80, height: 8 },
+      { rotation: Math.PI / 4, x: 10, y: -10 },
+    );
+    engine.step(0);
+    expect(world.diagnostics.contacts).toBe(0);
+    expect(world.diagnostics.narrowTests).toBe(1);
+    b.position.y = 10;
+    engine.step(0);
+    expect(world.diagnostics.contacts).toBe(1);
+    engine.dispose();
+  });
+});

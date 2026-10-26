@@ -22,7 +22,8 @@
     "format": "biome check --write .",
     "bench:browser": "node scripts/benchmark-browser.mjs",
     "test:build": "npm run build -- --target web --base /Simpludify/ && node scripts/smoke-build.mjs",
-    "test:build:game": "npm run build -- --target web --example signal-run --base /Simpludify/ && node scripts/smoke-build.mjs --example signal-run"
+    "test:build:game": "npm run build -- --target web --example signal-run --base /Simpludify/ && node scripts/smoke-build.mjs --example signal-run",
+    "bench:practical": "node --expose-gc scripts/benchmark-practical.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.3",

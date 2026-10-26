@@ -125,3 +125,24 @@ it("replays controlled input deterministically", () => {
   };
   expect(run()).toEqual(run());
 });
+
+it("completes the route through ordinary movement before the deadline", () => {
+  const engine = new Engine(),
+    round = new Round(engine.scene);
+  for (const target of [
+    [220, 225],
+    [340, 90],
+    [480, 90],
+    [660, 225],
+    [480, 360],
+    [340, 360],
+  ]) {
+    round.setTarget(worldPoint(target[0] ?? 0, target[1] ?? 0));
+    for (let step = 0; step < 120; step++) engine.step(1 / 60);
+  }
+  expect(round.status).toBe(RoundStatus.Won);
+  expect(round.score).toBe(6);
+  expect(round.health.hp).toBeGreaterThan(0);
+  expect(round.elapsed).toBeLessThan(round.duration);
+  engine.dispose();
+});

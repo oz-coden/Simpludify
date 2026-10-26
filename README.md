@@ -15,7 +15,7 @@ npm ci
 npm run dev
 ```
 
-Open **http://127.0.0.1:4173**. Click an empty part of the game area, then use **W A S D** to move. The button changes scenes; Tab and Enter also operate the controls. Narrow screens reflow the UI. Touch movement controls are not implemented.
+Open **http://127.0.0.1:4173**. Click an empty part of the game area, then use **W A S D** to move. The button changes scenes; Tab and Enter also operate the controls. Narrow screens reflow the UI. The Signal Run example also includes touch movement controls.
 
 To run the minimal character example:
 
@@ -45,6 +45,12 @@ npm run dev -- --example composition
 
 **Beacon field** demonstrates custom Components, WASD collection, typed events, runtime spawning/removal, simulation timers, pointer-to-world conversion and zoom. The same collection logic also runs in a headless test. See [API and migration notes](docs/api.md) for low-level extension APIs and changes to the experimental storage/renderer contracts.
 
+```sh
+npm run dev -- --example signal-run
+```
+
+**[Signal Run](examples/signal-run/README.md)** is a complete short game: collect six signals before the timer expires, avoid hazards, track HP, pause, restart and replay. It exercises circle/rotated-box trigger contacts, independent keyboard/touch input, typed state events and live visual properties. The same round logic runs without a browser. Contact detection does not simulate rigid-body physics or push objects apart.
+
 ## Create a separate game workspace
 
 The thin scaffold command copies the engine sources, toolchain lockfile, examples, and documentation into a new directory:
@@ -65,6 +71,7 @@ Edit `examples/ui-scenes/main.ts` for UI and navigation, or `examples/character/
 | `npm run dev`                                       | Start the UI/scenes example on localhost:4173                                                                  |
 | `npm run check`                                     | Strict typechecking, DOM-free core check, lint/format, boundary/file validation, dependency license validation |
 | `npm test`                                          | Node-only unit and CLI contract tests                                                                          |
+| `npm run test:build:game`                           | Build and smoke-test Signal Run under `/Simpludify/` at both viewport sizes                                    |
 | `npm run test:build`                                | Build and smoke-test production output under `/Simpludify/` at two viewport sizes                              |
 | `npm run test:browser`                              | Playwright integration tests at two viewport sizes                                                             |
 | `npm run build -- --target web`                     | Static Web output in `dist/`, including dependency notices and inventory                                       |
@@ -72,6 +79,7 @@ Edit `examples/ui-scenes/main.ts` for UI and navigation, or `examples/character/
 | `npm run doctor -- --json`                          | Machine-readable tooling diagnostics                                                                           |
 | `npm run bench`                                     | Headless idle and 1,000-character baseline as JSON                                                             |
 | `npm run bench:browser`                             | Browser workload measurements as JSON                                                                          |
+| `npm run bench:practical`                           | Contact workloads, accelerated sessions and forced-GC disposal observations                                    |
 | `npm run licenses -- --out dist`                    | Regenerate dependency notices/inventory                                                                        |
 | `npm run format`                                    | Apply Biome formatting and safe lint fixes                                                                     |
 
@@ -98,6 +106,7 @@ Upload **all files in `dist/`**, including `LICENSE.txt`, `THIRD-PARTY-NOTICES.t
 - [Architecture and lifecycle decisions](docs/architecture.md)
 - [Performance methodology and recorded limitations](docs/performance.md)
 - [Implementation status and next milestone](docs/roadmap.md)
+- [Practical game validation](docs/practical-validation.md)
 - [Licensing and dependency policy](docs/licensing.md)
 - [Original design specification](SPEC.md)
 - [Contributor and coding-agent instructions](AGENTS.md)

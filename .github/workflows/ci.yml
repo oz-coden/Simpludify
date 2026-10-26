@@ -8,6 +8,7 @@ permissions:
 jobs:
   web:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: actions/setup-node@v7.1.0
@@ -17,10 +18,12 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm test
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium --only-shell
       - run: npm run test:browser
       - run: npm run test:build
+      - run: npm run test:build:game
       - run: npm run bench
+      - run: npm run bench:practical -- --out test-results/practical-core.json
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:

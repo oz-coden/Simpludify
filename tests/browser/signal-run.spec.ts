@@ -462,3 +462,42 @@ test("scopes renderer teardown and keeps a second Game usable", async ({
     canvas: true,
   });
 });
+
+test("wins a complete round through pointer destinations and normal Motion updates", async ({
+  page,
+}) => {
+  await page.getByRole("button", { name: "Start run", exact: true }).click();
+  for (const [x, y] of [
+    [220, 225],
+    [340, 90],
+    [480, 90],
+    [660, 225],
+    [480, 360],
+    [340, 360],
+  ]) {
+    const target = await page.evaluate(
+      ({ x, y }) => {
+        const game = window.signalRun.game;
+        const point = game.worldToScreen({
+          space: "world",
+          x: x ?? 0,
+          y: y ?? 0,
+        });
+        const rect = game.element.getBoundingClientRect();
+        return { x: rect.left + point.x, y: rect.top + point.y };
+      },
+      { x, y },
+    );
+    await page.mouse.click(target.x, target.y);
+    await page.evaluate(() => {
+      for (let frame = 0; frame < 120; frame++)
+        window.signalRun.game.engine.step(1 / 60);
+    });
+  }
+  await expect(
+    page.getByRole("heading", { name: "Run complete" }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(() => window.signalRun.result?.hp),
+  ).toBeGreaterThan(0);
+});
