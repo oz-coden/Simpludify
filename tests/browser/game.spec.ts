@@ -305,3 +305,61 @@ test("loads a local image sprite, rejects missing assets, and disposes real Pixi
     cleaned: 6,
   });
 });
+
+test("runs the minimal default scene and clamps stalled frames with one owned frame chain", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading")).toBeVisible();
+  const result = await page.evaluate(async (url) => {
+    const { Game, Character, Movement } = (await import(
+      url
+    )) as typeof import("@simpludify/web");
+    window.demo.dispose();
+    let next = 0;
+    const callbacks = new Map<number, (time: number) => void>();
+    const game = new Game({
+      frames: {
+        request(callback) {
+          const id = ++next;
+          callbacks.set(id, callback);
+          return id;
+        },
+        cancel(id) {
+          callbacks.delete(id);
+        },
+      },
+    });
+    const player = game.add(Character({ movement: Movement.WASD }));
+    const ready = game.run(),
+      sameReadiness = ready === game.run();
+    await ready;
+    game.engine.input.set("KeyD", true);
+    const advance = (time: number) => {
+      const pending = callbacks.entries().next().value;
+      if (!pending) throw new Error("No pending frame");
+      callbacks.delete(pending[0]);
+      pending[1](time);
+    };
+    advance(0);
+    advance(1000);
+    const x = player.x,
+      pending = callbacks.size,
+      canvases = game.element.querySelectorAll("canvas").length;
+    game.dispose();
+    return {
+      x,
+      pending,
+      canvases,
+      sameReadiness,
+      remainingFrames: callbacks.size,
+    };
+  }, sdk);
+  expect(result).toEqual({
+    x: 409,
+    pending: 1,
+    canvases: 1,
+    sameReadiness: true,
+    remainingFrames: 0,
+  });
+});
