@@ -1,0 +1,60 @@
+import assert from "node:assert/strict";
+import { resolve } from "node:path";
+import { chromium } from "@playwright/test";
+import { preview } from "vite";
+
+const server = await preview({
+  configFile: false,
+  base: "/Simpludify/",
+  build: { outDir: resolve("dist") },
+  preview: { host: "127.0.0.1", port: 4175, strictPort: true },
+  logLevel: "error",
+});
+let browser;
+try {
+  browser = await chromium.launch({
+    ...(process.env.CHROMIUM_PATH
+      ? { executablePath: process.env.CHROMIUM_PATH }
+      : {}),
+    args: [
+      "--enable-webgl",
+      "--use-gl=angle",
+      "--use-angle=swiftshader",
+      "--enable-unsafe-swiftshader",
+    ],
+  });
+  for (const viewport of [
+    { width: 1440, height: 900 },
+    { width: 390, height: 844 },
+  ]) {
+    const page = await browser.newPage({ viewport });
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    const response = await page.goto("http://127.0.0.1:4175/Simpludify/");
+    assert.equal(response?.status(), 200);
+    await page.getByRole("heading", { name: "The garden" }).waitFor();
+    assert.equal(await page.locator("canvas").count(), 1);
+    await page.locator(".simpludify").focus();
+    await page.keyboard.down("d");
+    await page.waitForFunction(
+      () => window.demo.engine.snapshot().characters[0].x > 405,
+    );
+    await page.keyboard.up("d");
+    await page.getByRole("button", { name: "Visit the studio" }).click();
+    await page.getByRole("heading", { name: "The studio" }).waitFor();
+    assert.equal(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+      true,
+    );
+    assert.deepEqual(errors, []);
+    await page.close();
+  }
+  console.log(
+    "Production output passed at /Simpludify/ for 1440x900 and 390x844.",
+  );
+} finally {
+  await browser?.close();
+  await new Promise((resolve) => server.httpServer.close(resolve));
+}

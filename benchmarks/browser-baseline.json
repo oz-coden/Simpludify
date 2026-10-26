@@ -1,0 +1,102 @@
+{
+  "date": "2026-10-26T13:35:24.992Z",
+  "environment": {
+    "browser": "153.0.8010.0",
+    "node": "v24.22.1",
+    "platform": "linux",
+    "cpu": "AMD EPYC 9V74 80-Core Processor",
+    "viewport": [1280, 720],
+    "renderer": "headless Chromium / WebGL / SwiftShader software rendering",
+    "build": "Vite development server"
+  },
+  "limitations": [
+    "Shared container; not controlled physical hardware",
+    "No CPU/GPU load or dropped-frame telemetry",
+    "Heap samples are approximate and not forced-GC retained-memory measurements",
+    "Short idle/active samples do not replace a long-running soak test",
+    "No Godot/Phaser comparator; no performance superiority claim"
+  ],
+  "results": [
+    {
+      "workload": "idle/empty scene",
+      "frames": 180,
+      "frameMilliseconds": {
+        "p50": 16.699999999999818,
+        "p95": 16.799999999999955,
+        "p99": 16.800000000000182
+      },
+      "slowFramesOver25ms": 0,
+      "heapBefore": 17100000,
+      "heapAfter": 17100000
+    },
+    {
+      "workload": "1000 moving image sprites",
+      "frames": 180,
+      "frameMilliseconds": {
+        "p50": 16.699999999999818,
+        "p95": 16.700000000000728,
+        "p99": 16.80000000000109
+      },
+      "slowFramesOver25ms": 0,
+      "heapBefore": 17100000,
+      "heapAfter": 17100000
+    },
+    {
+      "workload": "1000 UI labels / one selective update per frame",
+      "frames": 180,
+      "frameMilliseconds": {
+        "p50": 16.69999999999891,
+        "p95": 16.700000000000728,
+        "p99": 16.80000000000109
+      },
+      "slowFramesOver25ms": 2,
+      "heapBefore": 17100000,
+      "heapAfter": 17100000
+    },
+    {
+      "workload": "continuous resize and font changes",
+      "frames": 180,
+      "frameMilliseconds": {
+        "p50": 49.900000000001455,
+        "p95": 66.79999999999927,
+        "p99": 83.39999999999782
+      },
+      "slowFramesOver25ms": 115,
+      "heapBefore": 17100000,
+      "heapAfter": 17100000
+    },
+    {
+      "workload": "50 scene creation/disposal cycles",
+      "transitionMilliseconds": {
+        "p50": 0.19999999995343387,
+        "p95": 0.5,
+        "p99": 1
+      },
+      "heapSamples": [17100000, 17100000, 17100000, 17100000, 17100000]
+    },
+    {
+      "workload": "short idle memory sample (not a soak test)",
+      "frames": 300,
+      "frameMilliseconds": {
+        "p50": 16.69999999999709,
+        "p95": 16.700000000004366,
+        "p99": 16.80000000000291
+      },
+      "slowFramesOver25ms": 0,
+      "heapBefore": 17100000,
+      "heapAfter": 17100000
+    },
+    {
+      "workload": "short active memory sample (not a soak test)",
+      "frames": 300,
+      "frameMilliseconds": {
+        "p50": 16.69999999999709,
+        "p95": 16.799999999995634,
+        "p99": 16.80000000000291
+      },
+      "slowFramesOver25ms": 0,
+      "heapBefore": 17100000,
+      "heapAfter": 17100000
+    }
+  ]
+}
