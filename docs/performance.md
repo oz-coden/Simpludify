@@ -83,3 +83,53 @@ Core sessions advance 36,000 steps each for idle and active play (600 simulation
 The matched browser workloads retained a 16.7ms RAF median for idle, moving sprites and selective UI updates. Continuous resize/font changes remained at 50.0ms median / 66.7ms p95, with 113 of 180 intervals over 25ms in both runs. Transition medians were 0.2ms before and 0.3ms after; their tails varied. These observations do not establish a browser-rendering improvement. The old coarse browser heap samples remain unsuitable for retention conclusions; the production disposal workload uses CDP GC/heap/DOM instrumentation instead.
 
 The production Signal Run sample recorded idle/active RAF medians of 33.3/33.3ms (300 samples each). After 20 warmup rounds and 100 measured play/menu cycles (200 measured transitions), forced-GC JS heap moved from 3.94MB to 4.12MB. Every batch retained 1 document, 50 DOM nodes and 31 JS event listeners. During menu checks there was one canvas, one overlay, one browser keyboard source and no Scene Actors; after Game disposal the owned host/canvas/input-source counts were zero. These counts and the small managed-heap variation support cleanup correctness for this workload, while excluding native/GPU memory and longer real-time behavior.
+
+## Trigger/Solid response extension
+
+[Validation and reproduction](solid-response-progress.md), [before Core](../benchmarks/solid-response/before-core.json), [after Core](../benchmarks/solid-response/after-core.json), [five-minute checkpoint soak](../benchmarks/solid-response/checkpoint-soak.json) and [final-placement profile](../benchmarks/solid-response/browser-profile.json) preserve the measured versions and raw observations. The before revision is `3f3d935`; subsequent source revisions are recorded in each report. The five-minute run preceded the final interior-wall placement adjustment; the final profile checks that layout separately. Do not silently treat different revisions as one sample.
+
+Node 24.22.1, Chromium 156.0.8078.4, Linux x64, AMD EPYC 9V74 shared host, 1280×720, production WebGL/SwiftShader are used for the browser observations. Core workloads use the same harness and lockfile with 200 warmup/1,000 measured steps, excluding rendering. Other local tests/builds/benchmarks do not overlap recorded runs. Single shared-host runs do not establish statistical or hardware-independent speedups.
+
+| Core workload                           | Before p50 / p95 / p99 (ms) | After p50 / p95 / p99 (ms)  |
+| --------------------------------------- | --------------------------- | --------------------------- |
+| empty                                   | 0.00089 / 0.00260 / 0.01603 | 0.00054 / 0.00123 / 0.01438 |
+| 1000 passive Actors                     | 0.00020 / 0.00149 / 0.00250 | 0.00034 / 0.00075 / 0.00119 |
+| 1000 moving Characters                  | 0.10538 / 0.16127 / 0.23502 | 0.10332 / 0.18505 / 0.30150 |
+| 1000 sparse Triggers                    | 0.06072 / 0.10169 / 0.16446 | 0.11918 / 0.16768 / 0.22570 |
+| 1000 grid Triggers                      | 0.70808 / 0.89072 / 1.01492 | 1.67991 / 2.25345 / 3.48616 |
+| 100 dense Triggers                      | 0.48801 / 0.63265 / 0.85395 | 1.21372 / 1.59666 / 2.97966 |
+| 1000 fixed Solids                       | not implemented             | 0.58155 / 0.77868 / 0.96023 |
+| 1000 static obstacles + 1 dynamic Actor | not implemented             | 1.40940 / 1.66724 / 2.95342 |
+| 100 moving dynamic Solids               | not implemented             | 0.21217 / 0.24670 / 0.32235 |
+| 100 crowded dynamic Solids              | not implemented             | 1.00134 / 1.36375 / 2.27625 |
+| one Trigger wall                        | not implemented             | 0.00192 / 0.00466 / 0.00617 |
+| one Solid wall                          | not implemented             | 0.00371 / 0.00432 / 0.00728 |
+
+Normal/manifold payloads, finite-world validation and response-policy bookkeeping add measurable Trigger cost; the extension is not presented as a performance improvement. Solids add bounded repeated scans only when a dynamic Solid participates. The one-axis sweep is retained because these local costs do not justify introducing a more complex index yet, but its unfavorable-axis and dense-pair costs remain explicit.
+
+The static-obstacle fixtures contain 1,000 fixed colliders whose layer/mask excludes mutual static/static interactions. The moving-dynamic fixture settles under uniform motion. The crowded fixture resets 100 poses into overlap outside each timed step to impose sustained simultaneous pressure; its default six passes retain unresolved overlaps (see raw diagnostics). It measures bounded work, not a claim that dense stacks converge. Position correction is intentionally not a full rigid-body solver.
+
+Pair-churn measurement crosses 1,000 filtered Trigger locations for 2,000 steps, observing 2,000 Enter and 1,999 Exit events and retaining one pair before disposal. Core memory sampling warms up 50 rounds, then performs 500 create/step/dispose cycles with forced GC every 100 cycles. Resource assertions verify empty world registrations/contact tables, input sources and wall sets after destruction. Raw managed-heap samples include Vite/tooling and are not native/GPU retention measurements.
+
+### Separating the reported 33ms frame interval
+
+The harness first samples the normal production application. It then drains/stops the application's automatic RAF chain and schedules four explicit workloads: RAF only, simulation only, draw only, and simulation plus draw. Simulation CPU time wraps Engine.step. The draw proxy wraps the public Game.setViewport operation, including projection refresh and synchronous Pixi/WebGL submission. Deferred DOM layout/composition and actual GPU execution are not individually timed. JavaScript clock resolution is coarse enough that small samples can round to zero.
+
+The five-minute checkpoint recorded the following 180-interval samples:
+
+| Workload            | RAF p50 / p95 (ms) | Simulation CPU p95 (ms) | Draw/projection CPU p95 (ms) |
+| ------------------- | ------------------ | ----------------------- | ---------------------------- |
+| RAF only            | 16.70 / 16.80      | 0.00                    | 0.00                         |
+| simulation only     | 16.70 / 16.80      | 0.10                    | 0.00                         |
+| render only         | 33.30 / 50.00      | 0.00                    | 0.30                         |
+| simulation + render | 33.40 / 50.10      | 0.20                    | 0.30                         |
+
+Simulation-only pacing stays near the RAF-only baseline, while adding draw submission reproduces the roughly 33ms cadence even without game simulation. This supports an inference that rendering/presentation work in this software-rendering environment is a larger contributor than the measured game logic. It does **not** identify exact GPU time, prove a renderer defect, establish hardware FPS, or distinguish all compositor/scheduling effects. No speculative renderer optimization is applied on this evidence alone.
+
+### Real-time memory observations
+
+The checkpoint ran for 300 actual wall-clock seconds, with alternating movement and a fresh round every 20 seconds. Forced-GC JS heap increased from 3.36MB to 4.60MB; event listeners stayed at 71. DOM nodes were usually 73, with transient samples of 106 around scene cycles, and returned to 73. In the subsequent 100 rapid round cycles, menu samples retained 50 nodes/31 listeners, and warmed JS heap was approximately 4.28–4.33MB. Owned host/input counts were zero after final disposal.
+
+The initial heap increase may include warmup/caches, but this run does not distinguish those from all retention mechanisms. It must not be reported as proof of leak absence. Longer runs with heap-snapshot attribution, dynamic-image workloads and native/GPU memory tracking remain open. The final wall placement is sampled separately for 60 real-time seconds and the same isolated frame modes; see its raw report and the observations below.
+
+The final-placement report uses source revision 1aee1114407e976974e4f606faa5ae0e6d3172a2. It recorded normal RAF p50/p95 of 33.40/50.00ms. Over 60.14 actual seconds, forced-GC JS heap moved from 3.36MB to 4.12MB; menu-cycle DOM/input cleanup assertions also passed. Its separated CPU/RAF samples are preserved in the raw report rather than generalized to hardware FPS.

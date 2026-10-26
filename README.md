@@ -49,7 +49,7 @@ npm run dev -- --example composition
 npm run dev -- --example signal-run
 ```
 
-**[Signal Run](examples/signal-run/README.md)** is a complete short game: collect six signals before the timer expires, avoid hazards, track HP, pause, restart and replay. It exercises circle/rotated-box trigger contacts, independent keyboard/touch input, typed state events and live visual properties. The same round logic runs without a browser. Contact detection does not simulate rigid-body physics or push objects apart.
+**[Signal Run](examples/signal-run/README.md)** is a complete short game: collect six signals before the timer expires, avoid hazards, track HP, pause, restart and replay. It exercises circle/rotated-box Trigger and Solid contacts, independent keyboard/touch input, typed state events and live visual properties. The same round logic runs without a browser. Blue walls use inverse-mass position correction; items and hazards remain nonblocking Triggers. Camera tracking follows the player within world bounds when zoomed. The solver does not simulate rigid-body forces or continuous collisions.
 
 ## Create a separate game workspace
 
@@ -80,6 +80,7 @@ Edit `examples/ui-scenes/main.ts` for UI and navigation, or `examples/character/
 | `npm run bench`                                     | Headless idle and 1,000-character baseline as JSON                                                             |
 | `npm run bench:browser`                             | Browser workload measurements as JSON                                                                          |
 | `npm run bench:practical`                           | Contact workloads, accelerated sessions and forced-GC disposal observations                                    |
+| `npm run bench:response`                            | Trigger/Solid costs, pair churn and memory; browser mode separates simulation and draw CPU                     |
 | `npm run licenses -- --out dist`                    | Regenerate dependency notices/inventory                                                                        |
 | `npm run format`                                    | Apply Biome formatting and safe lint fixes                                                                     |
 

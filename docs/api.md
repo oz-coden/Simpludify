@@ -111,41 +111,86 @@ Scene.events, Actor.events and Component.events are lazy local buses. `new Event
 
 scene.after(delay, callback, owner?) permits finite nonnegative seconds; zero fires next step. scene.every(interval, callback, owner?) requires positive seconds. Both return cancellation functions, run only on active scene steps and cancel with the scene/optional owner. Repeated timers fire at most once per step, dropping missed repetitions. Timers created during a timer callback wait for another step. Actor/Component disable does not pause owner timers.
 
-## Trigger contacts
+## Trigger and Solid contacts
 
 ```ts
 import {
   Actor,
+  BodyType,
   Collider,
+  CollisionBody,
+  CollisionResponse,
   CollisionShape,
   CollisionWorld,
   ContactEnter,
   Transform,
 } from "@simpludify/core";
 const world = new CollisionWorld(scene);
-const item = scene.add(new Actor());
-item.add(new Transform({ x: 100, y: 200 }));
-const collider = item.add(
-  new Collider({ shape: CollisionShape.Circle, radius: 10, layer: 2, mask: 1 }),
+const player = scene.add(new Actor());
+player.add(new Transform({ x: 100, y: 200 }));
+player.add(new CollisionBody({ motion: BodyType.Dynamic, mass: 1 }));
+const playerCollider = player.add(
+  new Collider({
+    shape: CollisionShape.Circle,
+    radius: 13,
+    response: CollisionResponse.Solid,
+  }),
 );
-collider.events.on(
+const wall = scene.add(new Actor());
+wall.add(new Transform({ x: 150, y: 200 }));
+wall.add(
+  new Collider({ width: 18, height: 150, response: CollisionResponse.Solid }),
+);
+playerCollider.events.on(
   ContactEnter,
-  ({ otherActor }) => {
-    console.log(otherActor.id);
+  ({ otherActor, normalX, normalY }) => {
+    console.log(otherActor.id, normalX, normalY);
   },
-  item,
+  player,
 );
+// Optional pull-based inspection; event subscriptions are not required.
+const contacts = world.contactsFor(playerCollider);
 ```
 
-Attach a Collider after Transform. One Collider per Actor is supported. Box is the default (width/height 32); Circle defaults to radius 16. All dimensions must be positive and finite. offsetX/Y default to 0 in local units and are scaled/rotated with Transform. Boxes follow rotation (radians) and independent scale axes. Circles require equal absolute scale axes; nonuniform scale throws COLLIDER_SCALE_UNSUPPORTED. Negative scale reflects offsets; zero on either axis excludes the collider. Transform.enabled does not gate geometry; Actor.enabled and Collider.enabled do. Renderable is optional and independent.
+### Geometry, filtering and response policy
 
-layer defaults to 1 (nonzero uint32), mask to 0xffffffff (uint32, zero allowed). A pair is considered only when each mask includes at least one bit of the other's layer. Exact boundary contact counts as overlap. Configuration is immutable; remove/re-add Collider to change it. These are discrete trigger tests at current positions: fast objects can tunnel. There is no separation, velocity response, swept detection or rigid-body solver.
+One Collider per Actor requires Transform; Renderable is optional. Box defaults to width/height 32, Circle to radius 16. Dimensions must be positive and finite. offsetX/Y default to 0 in local units and follow Transform scale/rotation. Boxes support independent scale axes and rotation in radians; circles require equal absolute scale axes (otherwise COLLIDER_SCALE_UNSUPPORTED). Negative scales reflect offsets, and zero on either axis excludes the collider. Actor.enabled and Collider.enabled gate participation; Transform.enabled and visibility do not. Finite values whose derived world geometry overflows are rejected.
 
-Construct one CollisionWorld per Scene to opt in; duplicate worlds throw COLLISION_WORLD_DUPLICATE. It subscribes to scene.onPostUpdate and is disposed with the Scene. Without a world there is no contact pass. Explicit world.step requires an active Scene and runs an additional pass; automatic Engine stepping normally suffices. Manual world.dispose is idempotent, clears contacts silently, unregisters the hook and permits a new world. Stepping a disposed world throws COLLISION_WORLD_DISPOSED; recursive stepping throws COLLISION_REENTRANT.
+`response` defaults to **CollisionResponse.Trigger**, preserving existing games. It is immutable, as are dimensions, offsets and filters; remove/re-add the Collider to change them. The named response values keep configuration readable and permit additional policies without overloading the opposite of an isTrigger/isSensor boolean. There is one policy API, rather than equivalent boolean aliases.
 
-The pass captures eligible geometry after Component updates, sweeps X bounds, rejects Y/layer mismatches and then tests exact circles or oriented boxes. New colliders created before this capture can participate immediately; their Component updates still wait until the next Engine step. Contact-handler additions/movements affect geometry on the next pass. Pairs are delivered in deterministic collider-discovery order, first participant then second. ContactEnter fires once per participant, ContactStay on subsequent passes, ContactExit when separation/disable/removal is observed. Exit reaches previously notified surviving colliders, including disabled ones; destroyed colliders receive nothing. A removal during Enter suppresses later Enter/Stay to that participant. Scene/world disposal emits no exit events. Handler failures are aggregated after other eligible contacts run; geometry errors abort the pass, and a caller may correct the value before stepping again.
+layer defaults to 1 (nonzero uint32); mask defaults to 0xffffffff (uint32, zero allowed). **Both** masks must include a bit of the other's layer. The same filter applies to detection, correction and notification. World contact tolerance defaults to 1e-7 world units, so exact touching and numerical gaps within that tolerance count as contact.
 
-Each event payload has self/other Collider references and selfActor/otherActor references. References can describe a removed participant on Exit; check disposed before acquiring resources. Geometry is captured once per pass, rather than recalculated after each callback. diagnostics returns colliders (reconciled registrations, including disabled), contacts (tracked pairs), candidates (X-overlap pairs) and narrowTests (pairs passing broad filters) from the latest pass. Removal during delivery can leave a tracked pair until the next pass. Dense overlap requires quadratic pair storage/testing; do not treat the sweep as a universal scalability guarantee.
+| Pair              | Contact detection/events                    | Position correction                          |
+| ----------------- | ------------------------------------------- | -------------------------------------------- |
+| Trigger / Trigger | Yes, at final corrected positions           | None                                         |
+| Trigger / Solid   | Yes, at final corrected positions           | None                                         |
+| Solid / Solid     | Yes, including encounters during correction | Based on enabled CollisionBody participation |
+
+### CollisionBody and position correction
+
+CollisionBody is a passive Component requiring Transform. `motion` defaults to BodyType.Dynamic, `mass` to 1 (finite, positive, with finite reciprocal). Dynamic bodies share translation inversely to mass. BodyType.Static, a disabled body, or **no CollisionBody** gives zero correction weight. Thus ordinary Solid walls require no body; a player explicitly opts into correction by adding one. A body without a Solid Collider does not create collisions. Motion still integrates directional movement intent, while the collision pass corrects Transform positions afterward. Neither the solver nor CollisionBody changes Motion.direction, creates velocity, rotates bodies or integrates forces.
+
+Fixed bodies may still be moved explicitly by application code; Static is a response weight, not a Transform lock. Moving-platform velocity transfer and kinematic pushing are not implemented. A fixed/fixed overlap remains detectable but is not separated. Disabling/removing a body changes the next pass's weight without disabling its Collider. Disabling/removing a Collider excludes it and produces survivor exits under the rules below.
+
+`new CollisionWorld(scene, { iterations: 6, tolerance: 1e-7 })` opts a Scene into detection/response. iterations must be an integer from 1 to 32; tolerance finite/nonnegative. One world per Scene is enforced (COLLISION_WORLD_DUPLICATE). The default iteration budget is bounded; it is not a rigid-body stability guarantee.
+
+Each Engine step runs Component updates, then the world in its registered post-update hook, then timers and Scene.onUpdate. The world first validates/captures eligible geometry, then repeatedly sweeps X bounds, applies Y/filter rejection and computes minimum translation normals for Solid pairs. Pairs are corrected in deterministic collider-discovery order, recomputing current geometry before each correction. New overlaps introduced by correction are considered on subsequent iterations. Correction stops when no translation is needed or the budget is exhausted. A final pass detects Trigger contacts at corrected positions and records current Solid contacts. All event callbacks run **after** correction; the solver does not call game logic halfway through a response iteration. Registered post-update hooks before/after the world retain their normal registration order.
+
+Normal wall movement stops along the collision normal and preserves tangent displacement, allowing sliding. Repeated inward Motion intent is corrected each step. Narrow impossible gaps, deep interlocking bodies, arbitrary crowds/stacks and too-small iteration budgets can retain penetration or jitter; inspect responseDiagnostics.unresolved. There are no impulses, restitution, gravity, friction, torque, angular response or rigid-body constraints.
+
+This is **discrete** collision detection. Fast objects can cross thin walls between endpoints. Use suitably bounded Engine.step calls, or explicitly subdivide a movement interval into smaller Engine steps; additions, events and timers then follow each substep's normal semantics. Subdivision mitigates tunneling only when displacement is small enough for the geometry. Large teleports, swept contacts and a universal continuous-collision guarantee are not supported. Web's maxDelta cap limits time but cannot guarantee safety for every speed or shape.
+
+### Contact lifecycle and observation
+
+Contacts use ContactEnter/ContactStay/ContactExit for both policies, once per notified participant per world pass (not once per solver iteration). A newly observed pair enters, a pair seen on a later pass stays, and a previously notified pair absent/invalid on the next pass exits. Solid pairs encountered during correction remain observed for that pass even if another correction subsequently separates them; an exit can therefore follow on the next pass. Triggers are sampled after correction only. There is no swept Trigger crossing event.
+
+Pairs deliver in deterministic discovery-ID order, first participant then second. Handler additions and position changes affect the next pass. Removal/disable suppresses later Enter/Stay to that participant immediately. Exit reaches previously notified surviving colliders, including disabled ones; destroyed colliders receive nothing. Scene/world disposal stops delivery and clears silently without synthetic exits. Handler failures are aggregated after other eligible contacts run. Geometry errors abort the pass; initial geometry validation occurs before response, but already performed Component updates or later corrections are not rolled back. A caller may correct invalid values and step again.
+
+Contact payloads contain self/other Collider, selfActor/otherActor, normalX/Y (unit vector from self toward other), depth (largest observed pre-correction penetration in that pass), response (effective pair policy), and resolved (whether that pair translated a body in this pass). Exit retains the last observed payload. Participants can be disposed; check before acquiring resources. Event payloads are reused between passes; copy scalar values to retain history. `world.contactsFor(collider)` allocates independent readonly scalar snapshots of currently tracked eligible contacts; referenced Actors/Colliders remain live objects. It returns an empty array after disposal, and reflects the last pass rather than unstepped position changes.
+
+`world.diagnostics` reports reconciled colliders (including disabled), tracked contacts, X candidates and narrow tests. `responseDiagnostics` reports solver passes, pair corrections and unresolved movable Solid overlaps in the final scan. Candidate/narrow-test counts include repeated solver scans. No response passes run without an eligible dynamic Solid. Removal during delivery can leave a tracked pair until the next pass; contactsFor excludes invalid pairs immediately.
+
+World ownership, duplicate rejection, explicit step/dispose and reentrancy remain unchanged: automatic stepping normally suffices; manual world.step requires an active Scene and performs an additional pass. dispose is idempotent, unregisters hooks and permits a replacement world. Recursive step throws COLLISION_REENTRANT, and disposed step throws COLLISION_WORLD_DISPOSED. Dense contact storage/work remains quadratic; the sweep is not a universal scalability guarantee.
 
 ## Camera and coordinate spaces
 
@@ -172,6 +217,12 @@ WorldPoint, ScreenPoint and PhysicalPoint carry a space tag so accidental cross-
 Aspect.Fit preserves ratio with centered bars and clips to the fitted rectangle. Fill preserves ratio and crops to the viewport. Adaptive uses the viewport CSS size as logical extent. containsScreenPoint(view, point) checks visible clip bounds. screenToPhysical(point, dpr) scales only presentation pixels; DPR never belongs in world/screen conversion.
 
 Game.camera is mutable. Game.view returns the current cached projection; worldToScreen/screenToWorld methods use it. Game.pointerToWorld({clientX,clientY}) accounts for host bounds/scaling and returns WorldPoint. It converts outside points too; call containsScreenPoint if clicks in bars must be ignored. Game.setViewport(rect) selects a fixed CSS rectangle; setViewport() restores full-host tracking. The overlay remains responsive across the whole host and is unaffected by Camera. Custom fixed CSS positioning can clip independently.
+
+### CameraFollow
+
+`new CameraFollow(camera, { resolution?, bounds?, responsiveness? })` supplies optional world-space tracking. resolution defaults to 800×450; bounds is an optional world rectangle; responsiveness defaults to 0 (immediate). `follow.update(target, seconds)` follows a finite x/y point and rejects negative/nonfinite time. Call it after response, for example from Scene.onUpdate, so it tracks the corrected position. It owns no subscriptions, Scene or host resources. Match resolution to the Game's logical extent; Adaptive layouts must supply their actual logical extent.
+
+The view's center follows the target, clamped using camera.zoom so visible edges remain within bounds when possible. If the world is smaller than the visible extent, it is centered. Positive responsiveness uses exponential smoothing per simulation second, with no per-frame target allocation. Zero snaps even for a zero-duration update. On zoom changes, update the follower immediately if pointer conversion must use the newly clamped camera before the next simulation step. Pixel ratio is never part of tracking. Signal Run demonstrates bounded zoom/follow using the public API.
 
 ## Headless execution
 

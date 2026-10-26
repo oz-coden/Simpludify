@@ -209,7 +209,7 @@ Work may be divided into small PRs. Do not use placeholders for acceptance crite
 ## 14. Open design decisions (do not silently lock in)
 
 - Public npm package identity and distribution; the project name Simpludify and private source workspace names are selected.
-- Whether character collision, sprite animation, and camera follow belong in MVP or first extension.
+- Further sprite animation and audio scope beyond the implemented contact/position-correction and camera-follow extension.
 - Whether desktop portable output should be default or opt-in.
 - Supported minimum versions of Node, Windows, and browsers, determined after CI verification.
 - Future pooling/reactivation and multi-camera policies beyond the current terminal scene lifecycle and single view.
@@ -228,3 +228,7 @@ Optional events use typed identity tokens and synchronous registration-order del
 World coordinates, host-local Screen coordinates, logical resolution, offset Viewport, Camera position/zoom and DPR-scaled physical pixels must remain distinct. Pure forward/inverse conversion and browser pointer conversion must be testable. A single Camera/Viewport is sufficient; DOM UI remains independent.
 
 Headless and browser tests must cover dynamic membership, lifecycle/cancellation/failure recovery, component ownership/dependencies, event order/cleanup/errors, coordinate round trips, viewport/DPR changes, existing movement and a real composition-based sample. Record same-condition before/after benchmarks without assuming architectural changes improve performance. Experimental APIs may change when a coherent replacement is documented; do not retain duplicate storage/behavior solely for compatibility.
+
+## 16. Contact response extension
+
+The implemented extension separates Collider Trigger/Solid policy from CollisionBody correction weight. Existing colliders default to Trigger. A Scene-owned world reuses circle/oriented-box geometry, performs bounded deterministic inverse-mass translation for movable Solid pairs, then delivers contact events. Motion retains movement intent; CameraFollow can run after correction. No impulse/angular physics or continuous collision detection is implied. API defaults, contact lifecycle and known convergence/tunneling limits are defined in docs/api.md; measured scope belongs in docs/performance.md.

@@ -24,6 +24,7 @@ jobs:
       - run: npm run test:build:game
       - run: npm run bench
       - run: npm run bench:practical -- --out test-results/practical-core.json
+      - run: npm run bench:response -- --out test-results/response-core.json
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:

@@ -1,0 +1,12 @@
+{
+  "baseline": "3f3d93502f6fca65f91ae1b5597e08124cfbbc57",
+  "fiveMinuteRuntime": "2ada340d02df5b75ff382a75f7b2d580b1028aba",
+  "finalRuntime": "1aee1114407e976974e4f606faa5ae0e6d3172a2",
+  "reports": [
+    "before-core.json",
+    "after-core.json",
+    "checkpoint-soak.json",
+    "browser-profile.json"
+  ],
+  "methodology": "Same core harness at both revisions; 200 warmup/1000 measured steps. Distinct 300-second checkpoint and 60-second final-placement production runs. Separate simulation, draw/projection CPU proxies and normal/controlled RAF intervals. No concurrent local tests or builds. Shared software-rendering observations; no universal performance or leak-absence claim."
+}

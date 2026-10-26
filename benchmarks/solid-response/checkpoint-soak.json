@@ -1,0 +1,289 @@
+{
+  "environment": {
+    "date": "2026-10-26T23:27:33.214Z",
+    "node": "v24.22.1",
+    "platform": "linux",
+    "cpu": "AMD EPYC 9V74 80-Core Processor",
+    "sourceRevision": "2ada340d02df5b75ff382a75f7b2d580b1028aba",
+    "browser": "156.0.8078.4",
+    "viewport": [1280, 720],
+    "renderer": "WebGL / SwiftShader",
+    "build": "production Signal Run"
+  },
+  "soak": {
+    "requestedSeconds": 300,
+    "restarts": 14,
+    "samples": [
+      {
+        "seconds": 0,
+        "usedSize": 3356480,
+        "totalSize": 4001792,
+        "embedderHeapUsedSize": 461624,
+        "backingStorageSize": 542703,
+        "documents": 1,
+        "nodes": 73,
+        "jsEventListeners": 71
+      },
+      {
+        "seconds": 30.019554991,
+        "usedSize": 4023240,
+        "totalSize": 4788224,
+        "embedderHeapUsedSize": 467856,
+        "backingStorageSize": 557519,
+        "documents": 1,
+        "nodes": 73,
+        "jsEventListeners": 71
+      },
+      {
+        "seconds": 60.228585197,
+        "usedSize": 4139480,
+        "totalSize": 5050368,
+        "embedderHeapUsedSize": 476848,
+        "backingStorageSize": 557519,
+        "documents": 1,
+        "nodes": 73,
+        "jsEventListeners": 71
+      },
+      {
+        "seconds": 90.072479152,
+        "usedSize": 4204584,
+        "totalSize": 4788224,
+        "embedderHeapUsedSize": 476424,
+        "backingStorageSize": 557519,
+        "documents": 1,
+        "nodes": 73,
+        "jsEventListeners": 71
+      },
+      {
+        "seconds": 120.12789568,
+        "usedSize": 4309036,
+        "totalSize": 5050368,
+        "embedderHeapUsedSize": 484216,
+        "backingStorageSize": 557519,
+        "documents": 1,
+        "nodes": 106,
+        "jsEventListeners": 71
+      },
+      {
+        "seconds": 150.22165878700002,
+        "usedSize": 4366952,
+        "totalSize": 5312512,
+        "embedderHeapUsedSize": 629976,
+        "backingStorageSize": 557519,
+        "documents": 1,
+        "nodes": 73,
+        "jsEventListeners": 71
+      },
+      {
+        "seconds": 180.08735380800002,
+        "usedSize": 4440016,
+        "totalSize": 5312512,
+        "embedderHeapUsedSize": 909480,
+        "backingStorageSize": 557519,
+        "documents": 1,
+        "nodes": 106,
+        "jsEventListeners": 71
+      },
+      {
+        "seconds": 210.16298365200004,
+        "usedSize": 4522400,
+        "totalSize": 4788224,
+        "embedderHeapUsedSize": 493424,
+        "backingStorageSize": 557519,
+        "documents": 1,
+        "nodes": 73,
+        "jsEventListeners": 71
+      },
+      {
+        "seconds": 240.228261389,
+        "usedSize": 4539784,
+        "totalSize": 5050368,
+        "embedderHeapUsedSize": 501856,
+        "backingStorageSize": 557519,
+        "documents": 1,
+        "nodes": 106,
+        "jsEventListeners": 71
+      },
+      {
+        "seconds": 270.06115813499997,
+        "usedSize": 4574216,
+        "totalSize": 5312512,
+        "embedderHeapUsedSize": 688824,
+        "backingStorageSize": 557519,
+        "documents": 1,
+        "nodes": 73,
+        "jsEventListeners": 71
+      },
+      {
+        "seconds": 300.11138521,
+        "usedSize": 4599940,
+        "totalSize": 5312512,
+        "embedderHeapUsedSize": 628496,
+        "backingStorageSize": 557519,
+        "documents": 1,
+        "nodes": 73,
+        "jsEventListeners": 71
+      }
+    ]
+  },
+  "actualGameRafMilliseconds": {
+    "p50": 33.29999999998836,
+    "p95": 50,
+    "p99": 50.100000000034925
+  },
+  "profiles": [
+    {
+      "workload": "RAF only",
+      "samples": 180,
+      "rafMilliseconds": {
+        "p50": 16.699999999953434,
+        "p95": 16.79999999998836,
+        "p99": 16.800000000046566
+      },
+      "simulationCpuMilliseconds": {
+        "p50": 0,
+        "p95": 0,
+        "p99": 0.10000000055879354
+      },
+      "renderAndProjectionCpuMilliseconds": {
+        "p50": 0,
+        "p95": 0,
+        "p99": 0
+      },
+      "intervalsOver25ms": 2
+    },
+    {
+      "workload": "simulation only",
+      "samples": 180,
+      "rafMilliseconds": {
+        "p50": 16.699999999953434,
+        "p95": 16.79999999998836,
+        "p99": 16.79999999998836
+      },
+      "simulationCpuMilliseconds": {
+        "p50": 0,
+        "p95": 0.10000000055879354,
+        "p99": 0.20000000018626451
+      },
+      "renderAndProjectionCpuMilliseconds": {
+        "p50": 0,
+        "p95": 0,
+        "p99": 0
+      },
+      "intervalsOver25ms": 0
+    },
+    {
+      "workload": "render only",
+      "samples": 180,
+      "rafMilliseconds": {
+        "p50": 33.29999999998836,
+        "p95": 50,
+        "p99": 50.09999999997672
+      },
+      "simulationCpuMilliseconds": {
+        "p50": 0,
+        "p95": 0,
+        "p99": 0.10000000055879354
+      },
+      "renderAndProjectionCpuMilliseconds": {
+        "p50": 0.20000000018626451,
+        "p95": 0.2999999998137355,
+        "p99": 0.40000000037252903
+      },
+      "intervalsOver25ms": 131
+    },
+    {
+      "workload": "simulation + render",
+      "samples": 180,
+      "rafMilliseconds": {
+        "p50": 33.399999999965075,
+        "p95": 50.100000000034925,
+        "p99": 83.29999999998836
+      },
+      "simulationCpuMilliseconds": {
+        "p50": 0.09999999962747097,
+        "p95": 0.20000000018626451,
+        "p99": 0.20000000018626451
+      },
+      "renderAndProjectionCpuMilliseconds": {
+        "p50": 0.20000000018626451,
+        "p95": 0.30000000074505806,
+        "p99": 0.5
+      },
+      "intervalsOver25ms": 164
+    }
+  ],
+  "cycles": {
+    "count": 100,
+    "heap": [
+      {
+        "cycles": 0,
+        "usedSize": 4626304,
+        "totalSize": 5312512,
+        "embedderHeapUsedSize": 501800,
+        "backingStorageSize": 557519,
+        "documents": 1,
+        "nodes": 73,
+        "jsEventListeners": 71
+      },
+      {
+        "cycles": 20,
+        "usedSize": 4332132,
+        "totalSize": 5312512,
+        "embedderHeapUsedSize": 489960,
+        "backingStorageSize": 557519,
+        "documents": 1,
+        "nodes": 50,
+        "jsEventListeners": 31
+      },
+      {
+        "cycles": 40,
+        "usedSize": 4279720,
+        "totalSize": 5312512,
+        "embedderHeapUsedSize": 489880,
+        "backingStorageSize": 557519,
+        "documents": 1,
+        "nodes": 50,
+        "jsEventListeners": 31
+      },
+      {
+        "cycles": 60,
+        "usedSize": 4287252,
+        "totalSize": 5312512,
+        "embedderHeapUsedSize": 489752,
+        "backingStorageSize": 557519,
+        "documents": 1,
+        "nodes": 50,
+        "jsEventListeners": 31
+      },
+      {
+        "cycles": 80,
+        "usedSize": 4298288,
+        "totalSize": 5312512,
+        "embedderHeapUsedSize": 599768,
+        "backingStorageSize": 557519,
+        "documents": 1,
+        "nodes": 50,
+        "jsEventListeners": 31
+      },
+      {
+        "cycles": 100,
+        "usedSize": 4326496,
+        "totalSize": 5574656,
+        "embedderHeapUsedSize": 600824,
+        "backingStorageSize": 557519,
+        "documents": 1,
+        "nodes": 50,
+        "jsEventListeners": 31
+      }
+    ]
+  },
+  "limitations": [
+    "Shared software-rendering host, no physical hardware guarantee",
+    "RAF is presentation cadence, not CPU duration or GPU execution time",
+    "Render proxy is public Game.setViewport(), including projection and synchronous draw submission",
+    "Deferred layout/composition and native/GPU work are not isolated by JS clocks",
+    "Measured modes stop automatic application RAF and drive simulation explicitly; normal pacing is sampled separately",
+    "GC heap/DOM samples omit native/GPU allocations; bounded soak is not exhaustive"
+  ]
+}

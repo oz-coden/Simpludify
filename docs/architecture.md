@@ -80,11 +80,17 @@ Independent InputSources compose into one frozen frame snapshot. Browser keyboar
 
 `Engine.step` is uncapped and deterministic for fixed controlled inputs, steps, seed, and user code. Web uses variable RAF delta with a default 0.05-second cap, drops excess stalled time, clears keys when hidden and resets the timestamp on resume. External time/randomness, asynchronous asset ordering and GPU output are not deterministic guarantees.
 
-## Contact detection
+## Contacts and position correction
 
-CollisionWorld is optional and Scene-owned. It captures live Collider/Transform geometry in a post-update hook, uses an X sweep plus Y/layer filters, and applies exact oriented-box/circle tests. Its deterministic pair table stores participant-specific Enter/Stay/Exit state. Removals/disables suppress later contact delivery, surviving participants receive exits on the next observed pass, and disposal clears pair/geometry references without synthetic exits. Handler errors are aggregated; no physics response is applied. See [API contracts](api.md#trigger-contacts) for scale, mutation, boundary and tunneling limits.
+Collider owns geometry, layer/mask filtering and an explicit Trigger/Solid response policy. CollisionBody separately owns static/dynamic correction weight and mass; it does not own velocity integration. Motion integrates intent into Transform, and the optional Scene-owned CollisionWorld corrects positions afterward. Body-less Solids are fixed. Existing Collider defaults remain Trigger.
 
-The sweep reduces sparse candidate work, but a dense population still creates O(n²) pairs. diagnostics exposes actual candidates/narrow tests; the benchmark includes both sparse and dense layouts. This is not a physics engine or an implicit requirement for every Scene.
+The existing circle/oriented-box narrow phase now returns minimum translation normals and penetration depth. It lives in collision-geometry; collision-response contains weighted translation only. CollisionWorld retains ownership, broad-phase sweep, deterministic pair tracking and notification. All eligible geometry is validated before the first correction; per-pair geometry is refreshed during bounded sequential correction. Repeated scans discover overlaps caused by earlier corrections. The final scan captures Trigger contacts at corrected positions, while Solid contacts retain encounters from response iterations. Only then are contact events delivered, before timers/Scene.onUpdate. Query snapshots permit ordinary game logic without subscriptions.
+
+Removals/disables suppress later delivery, destroyed recipients receive nothing, and Scene/world disposal clears without synthetic exits. Response is committed before callbacks; callback failures do not roll positions back. A bounded iteration count cannot solve all stacks, narrow gaps or interlocking bodies. This is positional depenetration, not a force/impulse/angular physics simulator; discrete tunneling remains possible. See [API contracts](api.md#trigger-and-solid-contacts) for ordering, pair combinations, mutation and numeric limits.
+
+The X sweep is retained because measured costs do not yet justify a more complex spatial index. Dense overlap and unfavorable axis distributions remain quadratic; diagnostics expose candidates/narrow tests and unresolved movable contacts. Trigger-only worlds do not execute response iterations.
+
+CameraFollow is a host-independent world-space helper with zoom-aware bounds and optional exponential smoothing. Applications call it after response, normally from Scene.onUpdate. It does not add renderer/Scene dependencies or special Engine behavior. Signal Run updates tracking immediately on zoom changes to keep rendered and converted pointer coordinates coherent.
 
 ## Events, timers and cleanup
 

@@ -1,0 +1,136 @@
+{
+  "environment": {
+    "date": "2026-10-26T23:35:34.018Z",
+    "node": "v24.22.1",
+    "platform": "linux",
+    "cpu": "AMD EPYC 9V74 80-Core Processor",
+    "sourceRevision": "3f3d93502f6fca65f91ae1b5597e08124cfbbc57"
+  },
+  "results": [
+    {
+      "workload": "empty",
+      "resetPosesOutsideTimedRegion": 0,
+      "samples": 1000,
+      "stepMilliseconds": {
+        "p50": 0.0008920000000216532,
+        "p95": 0.0026040000000193686,
+        "p99": 0.016033999999990556
+      }
+    },
+    {
+      "workload": "1000 passive Actors",
+      "resetPosesOutsideTimedRegion": 0,
+      "samples": 1000,
+      "stepMilliseconds": {
+        "p50": 0.00020000000006348273,
+        "p95": 0.0014919999999847278,
+        "p99": 0.0025040000000444707
+      }
+    },
+    {
+      "workload": "1000 moving Characters",
+      "resetPosesOutsideTimedRegion": 0,
+      "samples": 1000,
+      "stepMilliseconds": {
+        "p50": 0.10537799999997333,
+        "p95": 0.1612719999999399,
+        "p99": 0.23502300000006926
+      }
+    },
+    {
+      "workload": "1000 sparse Triggers",
+      "resetPosesOutsideTimedRegion": 0,
+      "samples": 1000,
+      "stepMilliseconds": {
+        "p50": 0.06072099999994407,
+        "p95": 0.10169199999995726,
+        "p99": 0.16445699999997032
+      },
+      "contacts": {
+        "colliders": 1000,
+        "contacts": 0,
+        "candidates": 0,
+        "narrowTests": 0
+      }
+    },
+    {
+      "workload": "1000 grid Triggers",
+      "resetPosesOutsideTimedRegion": 0,
+      "samples": 1000,
+      "stepMilliseconds": {
+        "p50": 0.7080829999999878,
+        "p95": 0.8907169999999951,
+        "p99": 1.0149239999998372
+      },
+      "contacts": {
+        "colliders": 1000,
+        "contacts": 1935,
+        "candidates": 36375,
+        "narrowTests": 3807
+      }
+    },
+    {
+      "workload": "100 dense Triggers",
+      "resetPosesOutsideTimedRegion": 0,
+      "samples": 1000,
+      "stepMilliseconds": {
+        "p50": 0.4880119999997987,
+        "p95": 0.6326489999999012,
+        "p99": 0.8539509999998245
+      },
+      "contacts": {
+        "colliders": 100,
+        "contacts": 4950,
+        "candidates": 4950,
+        "narrowTests": 4950
+      }
+    }
+  ],
+  "churn": {
+    "steps": 2000,
+    "enters": 2000,
+    "exits": 1999,
+    "finalContacts": 1,
+    "stepMilliseconds": {
+      "p50": 0.06852299999991374,
+      "p95": 0.12031999999999243,
+      "p99": 0.2007909999997537
+    }
+  },
+  "disposal": {
+    "warmup": 50,
+    "cycles": 500,
+    "memory": [
+      {
+        "cycles": 0,
+        "heapUsed": 55488448
+      },
+      {
+        "cycles": 100,
+        "heapUsed": 55650176
+      },
+      {
+        "cycles": 200,
+        "heapUsed": 55577776
+      },
+      {
+        "cycles": 300,
+        "heapUsed": 55652816
+      },
+      {
+        "cycles": 400,
+        "heapUsed": 55527304
+      },
+      {
+        "cycles": 500,
+        "heapUsed": 55701664
+      }
+    ]
+  },
+  "limitations": [
+    "Shared host, no renderer/GPU work",
+    "Dense contacts and a one-axis sweep retain quadratic worst cases",
+    "Fixed iteration budgets do not guarantee arbitrary crowd/stack convergence",
+    "Forced-GC managed memory includes tooling and does not prove absence of native leaks"
+  ]
+}
