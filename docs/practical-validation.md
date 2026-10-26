@@ -14,7 +14,7 @@ npm run test:build
 npm run test:build:game
 ```
 
-`CHROMIUM_PATH` can select a compatible existing Chromium executable. The normal CI workflow runs these checks against the committed sources; it does not silently format them before validation.
+`CHROMIUM_PATH` can select a compatible existing Chromium executable. The normal CI workflow runs these checks against the committed sources; it does not silently format them before validation. Browser fixtures run with one worker because focus/blur and held-input assertions require a stable foreground game; desktop and narrow projects are tested sequentially.
 
 The headless suite covers shape boundaries/rotation/scale/filtering, contact mutation and exception delivery, owner cleanup, input composition, pause, failure recovery and controlled gameplay. The browser suite exercises real Pixi output, native controls, two simultaneous touch holds, pointer conversion under zoom, complete collection routes, win/loss/replay, aborted preparation, partial UI construction and renderer failure/disposal. Screenshots are inspection artifacts; color/pixel and bounds assertions provide explicit checks rather than an unmaintained visual snapshot claim.
 
