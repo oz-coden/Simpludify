@@ -1,6 +1,7 @@
 import {
   type Actor,
   EngineError,
+  cleanupAll, imageSize,
   type PreparedScene,
   Renderable,
   type RendererPort,
@@ -16,6 +17,9 @@ interface Visual {
   transform: Transform;
   controller: AbortController;
   order: number;
+  depth: number;
+  scaleX: number;
+  scaleY: number;
   display?: Sprite | Graphics;
   texture?: Texture;
   error?: unknown;
@@ -29,10 +33,12 @@ export class PixiRenderer implements RendererPort {
   private ready = false;
   private dead = false;
   private visualCount = 0;
+  private textureCount = 0;
   get diagnostics() {
     return {
       presentations: this.scenes.size,
       visuals: this.visualCount,
+      textures: this.textureCount,
       pendingImages: this.pending.size,
     };
   }
@@ -118,6 +124,8 @@ export class PixiRenderer implements RendererPort {
     root.addChild(world, mask);
     root.mask = mask;
     const visuals = new Map<Actor, Visual>();
+    const drawOrder: Visual[] = [];
+    let depthDirty = true;
     let revision = -1,
       disposed = false,
       clipX = NaN,
@@ -141,6 +149,7 @@ export class PixiRenderer implements RendererPort {
         removeComponentCleanup = () => {};
       const entry: Visual = {
         order: 0,
+        depth: NaN, scaleX: 1, scaleY: 1,
         actor,
         component,
         transform: actor.require(Transform.type),
@@ -149,15 +158,12 @@ export class PixiRenderer implements RendererPort {
         dispose: () => {
           if (dead) return;
           dead = true;
-          this.visualCount--;
-          controller.abort();
-          this.pending.delete(controller);
-          removeActorCleanup();
-          removeComponentCleanup();
-          entry.display?.destroy();
-          entry.texture?.destroy(true);
-          delete entry.display;
-          delete entry.texture;
+          this.visualCount--; depthDirty = true; drawOrder.length = 0;
+          controller.abort(); this.pending.delete(controller);
+          if (entry.texture) this.textureCount--;
+          const display = entry.display, texture = entry.texture;
+          delete entry.display; delete entry.texture;
+          cleanupAll([removeActorCleanup, removeComponentCleanup, () => display?.destroy(), () => texture?.destroy(true)], "Visual cleanup failed");
         },
       };
       removeActorCleanup = actor.onDispose(entry.dispose);
@@ -169,13 +175,13 @@ export class PixiRenderer implements RendererPort {
               texture.destroy(true);
               return;
             }
-            entry.texture = texture;
+            entry.texture = texture; this.textureCount++;
             const sprite = new Sprite(texture);
             sprite.anchor.set(0.5);
-            sprite.width = component.width;
-            sprite.height = component.height;
+            const size = imageSize(texture.width, texture.height, component.width, component.height, component.fit);
+            entry.scaleX = size.width / texture.width; entry.scaleY = size.height / texture.height;
             entry.display = sprite;
-            sprite.zIndex = entry.order;
+            depthDirty = true;
             world.addChild(sprite);
           })
           .catch((error) => {
@@ -192,17 +198,9 @@ export class PixiRenderer implements RendererPort {
       } else {
         const width = component.width,
           height = component.height;
-        const graphics = new Graphics()
-          .roundRect(
-            -width / 2,
-            -height / 2,
-            width,
-            height,
-            component.shape === Shape.Character
-              ? Math.min(width, height) / 4
-              : 2,
-          )
-          .fill(component.color);
+        const graphics = new Graphics();
+        if (component.shape === Shape.Circle) graphics.circle(0,0,Math.min(width,height)/2).fill(component.color);
+        else graphics.roundRect(-width/2,-height/2,width,height,component.shape === Shape.Character ? Math.min(width,height)/4 : 2).fill(component.color);
         if (component.shape === Shape.Character)
           graphics
             .circle(-width / 7, -height / 10, Math.min(width, height) / 18)
@@ -219,6 +217,7 @@ export class PixiRenderer implements RendererPort {
       if (disposed || scene.disposed) return;
       if (revision === scene.revision) return;
       revision = scene.revision;
+      depthDirty = true;
       for (const [actor, entry] of visuals)
         if (!valid(entry)) {
           entry.dispose();
@@ -234,7 +233,7 @@ export class PixiRenderer implements RendererPort {
             visuals.set(actor, entry);
           }
           entry.order = order++;
-          if (entry.display) entry.display.zIndex = entry.order;
+
         }
       }
     };
@@ -285,29 +284,28 @@ export class PixiRenderer implements RendererPort {
           if (entry.display) {
             const t = entry.transform;
             entry.display.visible =
-              entry.actor.enabled && entry.component.enabled;
+              entry.actor.enabled && entry.component.enabled && entry.component.visible;
+            entry.display.alpha = entry.component.opacity;
+            if (entry.depth !== entry.component.zIndex) { entry.depth = entry.component.zIndex; depthDirty = true; }
             entry.display.position.set(t.x, t.y);
             entry.display.rotation = t.rotation;
-            // Sprite width/height establish its base scale; apply Transform relative to that size.
-            if (entry.display instanceof Sprite)
-              entry.display.scale.set(
-                (entry.component.width / entry.display.texture.width) *
-                  t.scaleX,
-                (entry.component.height / entry.display.texture.height) *
-                  t.scaleY,
-              );
-            else entry.display.scale.set(t.scaleX, t.scaleY);
+            entry.display.scale.set(entry.scaleX*t.scaleX,entry.scaleY*t.scaleY);
           }
+        if(depthDirty) {
+          drawOrder.length=0;
+          for(const entry of visuals.values()) if(entry.display) drawOrder.push(entry);
+          drawOrder.sort((a,b)=>a.component.zIndex-b.component.zIndex || a.order-b.order);
+          for(let i=0;i<drawOrder.length;i++){const entry=drawOrder[i];if(entry?.display)entry.display.zIndex=i;}
+          depthDirty=false;
+        }
         this.app.render();
       },
       dispose: () => {
         if (disposed) return;
         disposed = true;
-        removeSceneCleanup?.();
         this.scenes.delete(prepared);
-        for (const entry of visuals.values()) entry.dispose();
-        visuals.clear();
-        root.destroy({ children: true });
+        const entries = [...visuals.values()]; visuals.clear(); drawOrder.length=0;
+        cleanupAll([()=>removeSceneCleanup?.(), ...entries.map(entry=>entry.dispose), ()=>root.destroy({children:true,context:true})], "Presentation cleanup failed");
       },
     };
     removeSceneCleanup = scene.onDispose(prepared.dispose);
@@ -328,7 +326,7 @@ export class PixiRenderer implements RendererPort {
   private destroyApp(): void {
     if (this.ready) {
       this.ready = false;
-      this.app.destroy(true, { children: true });
+      this.app.destroy({ removeView: true }, { children: true, context: true });
     }
   }
   dispose(): void {
@@ -336,8 +334,7 @@ export class PixiRenderer implements RendererPort {
     this.dead = true;
     for (const controller of this.pending) controller.abort();
     this.pending.clear();
-    for (const scene of this.scenes) scene.dispose();
-    this.scenes.clear();
-    this.destroyApp();
+    const scenes = [...this.scenes]; this.scenes.clear();
+    cleanupAll([...scenes.map(scene=>scene.dispose),()=>this.destroyApp()], "Renderer cleanup failed");
   }
 }

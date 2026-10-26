@@ -7,6 +7,7 @@ export class BrowserInput {
     input: InputState,
     accepts: (code: string) => boolean,
   ) {
+    const source = input.createSource();
     const editable = (target: EventTarget | null) =>
       target instanceof HTMLElement &&
       !!target.closest(
@@ -16,17 +17,17 @@ export class BrowserInput {
       if (editable(event.target)) return;
       if (!accepts(event.code)) return;
       event.preventDefault();
-      input.set(event.code, true);
+      source.set(event.code, true);
     };
-    const up = (event: KeyboardEvent) => input.set(event.code, false);
+    const up = (event: KeyboardEvent) => source.set(event.code, false);
     const options = { signal: this.controller.signal };
     host.addEventListener("keydown", down, options);
     window.addEventListener("keyup", up, options);
-    window.addEventListener("blur", () => input.clear(), options);
+    window.addEventListener("blur", () => source.clear(), options);
     document.addEventListener(
       "visibilitychange",
       () => {
-        if (document.hidden) input.clear();
+        if (document.hidden) source.clear();
       },
       options,
     );
@@ -38,7 +39,7 @@ export class BrowserInput {
           !host.contains(event.relatedTarget) ||
           editable(event.relatedTarget)
         )
-          input.clear();
+          source.clear();
       },
       options,
     );
@@ -49,7 +50,7 @@ export class BrowserInput {
       },
       options,
     );
-    this.clear = () => input.clear();
+    this.clear = () => source.dispose();
   }
   private readonly clear: () => void;
   dispose(): void {

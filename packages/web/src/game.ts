@@ -89,6 +89,8 @@ export class Game<SceneId extends string = string> {
   private previousTime: number | undefined;
   private dead = false;
   private ready = false;
+  private rendererReady = false;
+  private rendererSized = false;
   private staging: Scene | undefined;
   private readonly shutdown = new AbortController();
   private readonly errorBox: HTMLParagraphElement;
@@ -167,13 +169,17 @@ export class Game<SceneId extends string = string> {
         return false;
       },
     );
-    this.observer = new ResizeObserver(() => this.resize());
+    document.addEventListener("visibilitychange",()=>{this.previousTime=undefined;this.engine.input.clear();},{signal:this.shutdown.signal});
+    this.observer = new ResizeObserver(()=>{try{this.resize();}catch(error){this.report(error);this.dispose();}});
     this.observer.observe(this.element);
   }
   private assertAlive(): void {
     if (this.dead)
       throw new EngineError("GAME_DISPOSED", "Game has been disposed");
   }
+  get paused(): boolean { return this.engine.paused; }
+  pause(): void { this.assertAlive(); this.engine.pause(); this.previousTime=undefined; }
+  resume(): void { this.assertAlive(); this.engine.resume(); this.previousTime=undefined; }
   add<T extends Actor>(actor: T): T {
     this.assertAlive();
     return this.engine.scene.add(actor);
@@ -228,7 +234,7 @@ export class Game<SceneId extends string = string> {
     this.startPromise = (async () => {
       try {
         await this.wait(this.renderer.init());
-        this.assertAlive();
+        this.assertAlive(); this.rendererReady=true;
         if (initialScene !== undefined) await this.navigate(initialScene);
         else await this.present(this.engine.scene, this.defaultUI);
         this.assertAlive();
@@ -314,15 +320,14 @@ export class Game<SceneId extends string = string> {
       const preparing = this.renderer.prepare(scene);
       void preparing.then(
         (value) => {
-          if (this.dead || scene.disposed) value.dispose();
+          if(this.dead || scene.disposed){try{value.dispose();}catch(error){this.report(error);}}
         },
         () => {},
       );
       prepared = await this.wait(preparing);
       this.assertAlive();
-      ui = mountUI(nodes, (error) => this.report(error));
-      const mounted = ui;
-      scene.onDispose(() => mounted.dispose());
+      ui = mountUI(nodes, this.report);
+      scene.onDispose(ui.dispose);
       scene.markReady();
       this.errorBox.hidden = true;
       try {
@@ -366,6 +371,7 @@ export class Game<SceneId extends string = string> {
             this.report(cleanupError);
           }
         }
+      if(committed) this.dispose();
       throw error;
     }
   }
@@ -447,16 +453,18 @@ export class Game<SceneId extends string = string> {
     });
   }
   private resize(): void {
-    if (this.dead || !this.startPromise) return;
+    if (this.dead || !this.rendererReady) return;
     const width = this.element.clientWidth,
       height = this.element.clientHeight;
     if (width <= 0 || height <= 0) return;
+    const ratio=this.options.pixelRatio ?? Math.min(window.devicePixelRatio || 1,2);
+    if(this.rendererSized && this.width===width && this.height===height && this.ratio===ratio)return;
+    this.rendererSized=true;
     if (this.width !== width || this.height !== height)
       this.projectionDirty = true;
     this.width = width;
     this.height = height;
-    this.ratio =
-      this.options.pixelRatio ?? Math.min(window.devicePixelRatio || 1, 2);
+    this.ratio = ratio;
     this.renderer.resize(width, height, this.ratio);
     this.updateProjection();
     if (this.ready) this.render();
@@ -494,7 +502,7 @@ export class Game<SceneId extends string = string> {
       this.dispose();
     }
   };
-  private report(error: unknown): void {
+  private readonly report = (error: unknown): void => {
     this.errorBox.textContent =
       error instanceof Error ? error.message : String(error);
     this.errorBox.hidden = false;
@@ -504,7 +512,7 @@ export class Game<SceneId extends string = string> {
     } catch {
       /* Observers must not prevent cleanup. */
     }
-  }
+  };
   dispose(): void {
     if (this.dead) return;
     this.dead = true;
@@ -526,5 +534,6 @@ export class Game<SceneId extends string = string> {
         this.report(error);
       }
     }
+    this.ui=undefined;this.prepared=undefined;this.staging=undefined;this.defaultUI.length=0;this.scenes.clear();this.pendingScenes.clear();
   }
 }
