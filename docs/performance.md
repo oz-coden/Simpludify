@@ -34,3 +34,26 @@ The initial static build was approximately 1.02 MB including conservative depend
 Heap values are sampled without forced GC. Browser memory reporting was coarse/constant in this environment; it cannot demonstrate retained-memory stability. Short idle/active samples of 300 frames are recorded, but a long-running soak test remains pending. Scene cleanup correctness is additionally asserted in browser tests.
 
 CPU/GPU load, actual dropped frames, startup latency and input latency were not measured. No Godot/Phaser comparator has been implemented. Run controlled-hardware benchmarks, a production-build browser benchmark, detailed memory instrumentation and an extended active/idle soak before performance claims or optimization targets are chosen. Future baselines must separate CPU simulation cost, UI/layout cost, GPU work and device/refresh-rate limits.
+
+## Generic Core architecture comparison
+
+The [comparison inventory](../benchmarks/core-refactor/comparison.json) links the revision baseline to `fd6c116`. Fresh [before Core](../benchmarks/core-refactor/before-core.json), [after Core](../benchmarks/core-refactor/after-core.json), [before browser](../benchmarks/core-refactor/before-browser.json) and [after browser](../benchmarks/core-refactor/after-browser.json) reports preserve the raw observations. These fresh before values differ from the original baseline above; compare matched runs rather than choosing the most favorable historical value.
+
+Both runs used the same scripts, Node 24.22.1, Chromium 153.0.8010.0, Linux x64/AMD EPYC 9V74 shared host and software WebGL rendering at 1280×720. No local test/build job ran concurrently with these recorded samples. The shared container is still not controlled physical hardware. Core samples use 1,000 warmup steps and 5,000 measured steps; browser rendering samples use 180 RAF intervals.
+
+| Core workload                  | Before p50 / p95 / p99 (ms) | After p50 / p95 / p99 (ms)  |
+| ------------------------------ | --------------------------- | --------------------------- |
+| Idle                           | 0.00010 / 0.00018 / 0.00118 | 0.00014 / 0.00123 / 0.00147 |
+| 1,000 moving Character presets | 0.04121 / 0.05400 / 0.07782 | 0.13033 / 0.16155 / 0.21661 |
+
+The 1,000-Actor Core median increased by about **0.089ms** (approximately **3.16×** the prior specialized loop). The generic revision executes ownership/enable checks, separate input/update phases and Component dispatch. It therefore must not be described as a speed improvement. Its steady-state implementation caches structural plans, freezes input only on changes, reuses movement vectors and avoids per-frame projection/mask strings; further profiling is still warranted.
+
+| Browser workload               | Before p50 / p95 (ms) | After p50 / p95 (ms) | Intervals over 25ms, before → after |
+| ------------------------------ | --------------------- | -------------------- | ----------------------------------- |
+| Empty scene                    | 16.70 / 16.70         | 16.70 / 16.70        | 0 → 0                               |
+| 1,000 moving image sprites     | 16.70 / 16.80         | 16.70 / 16.70        | 1 → 1                               |
+| 1,000 UI labels                | 16.70 / 16.80         | 16.70 / 16.70        | 0 → 0                               |
+| Continuous resize/font changes | 50.00 / 66.70         | 49.90 / 66.70        | 111 → 108                           |
+| Scene transitions (50 cycles)  | 0.30 / 0.60           | 0.30 / 0.50          | not a RAF sample                    |
+
+RAF-limited medians do not demonstrate equal GPU cost or a reliable performance improvement. The tiny differences are not statistically established. Resize/font changes remain an identified slow workload. Reported browser heap samples were coarse/constant (about 17.1MB before and 18.2MB after), so they cannot establish retained-memory stability. Unit/browser tests separately assert owned resource counters, scoped subscriptions, cancellation and cleanup behavior. Long-running soak tests and detailed memory/CPU/GPU instrumentation remain pending.

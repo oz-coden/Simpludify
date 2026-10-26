@@ -1,11 +1,11 @@
-import type { InputState, KeyMap } from "@simpludify/core";
+import type { InputState } from "@simpludify/core";
 /** Keyboard belongs to the focused game surface; native controls keep their keys. */
 export class BrowserInput {
   private readonly controller = new AbortController();
   constructor(
     host: HTMLElement,
     input: InputState,
-    maps: () => readonly KeyMap[],
+    accepts: (code: string) => boolean,
   ) {
     const editable = (target: EventTarget | null) =>
       target instanceof HTMLElement &&
@@ -14,12 +14,7 @@ export class BrowserInput {
       );
     const down = (event: KeyboardEvent) => {
       if (editable(event.target)) return;
-      if (
-        !maps().some((map) =>
-          Object.values(map).some((codes) => codes.includes(event.code)),
-        )
-      )
-        return;
+      if (!accepts(event.code)) return;
       event.preventDefault();
       input.set(event.code, true);
     };

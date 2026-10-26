@@ -2,7 +2,7 @@
 
 A code-first TypeScript 2D game engine. Create a visible character, responsive UI, and scene navigation using ordinary code and browser tooling.
 
-**Status: experimental Web vertical slice.** The API can change before a stable release. Windows/Electron packaging is pending. No npm package or release is published.
+**Status: experimental Web engine with a composition-based Core.** The API can change before a stable release. Windows/Electron packaging is pending. No npm package or release is published.
 
 ## Quick start
 
@@ -35,6 +35,16 @@ await game.run();
 
 The browser entry imports the default stylesheet automatically. With no parent specified, the game is appended to `document.body`. Give the page and parent a height for a full-screen game; the supplied example HTML already does this. Click or Tab into the game to grant keyboard focus. The rounded placeholder character needs no image asset or visual editor. Call `game.dispose()` when removing the game from a page.
 
+## Actors, Components and the sample game
+
+Game objects are generic Actors composed from reusable Components. Transform, Renderable, Motion and KeyboardController implement the Character preset. Typed events and simulation timers can be scoped to Scenes, Actors or Components. Camera, Viewport, logical resolution and physical pixels are separate concepts.
+
+```sh
+npm run dev -- --example composition
+```
+
+**Beacon field** demonstrates custom Components, WASD collection, typed events, runtime spawning/removal, simulation timers, pointer-to-world conversion and zoom. The same collection logic also runs in a headless test. See [API and migration notes](docs/api.md) for low-level extension APIs and changes to the experimental storage/renderer contracts.
+
 ## Create a separate game workspace
 
 The thin scaffold command copies the engine sources, toolchain lockfile, examples, and documentation into a new directory:
@@ -55,6 +65,7 @@ Edit `examples/ui-scenes/main.ts` for UI and navigation, or `examples/character/
 | `npm run dev`                                       | Start the UI/scenes example on localhost:4173                                                                  |
 | `npm run check`                                     | Strict typechecking, DOM-free core check, lint/format, boundary/file validation, dependency license validation |
 | `npm test`                                          | Node-only unit and CLI contract tests                                                                          |
+| `npm run test:build`                                | Build and smoke-test production output under `/Simpludify/` at two viewport sizes                              |
 | `npm run test:browser`                              | Playwright integration tests at two viewport sizes                                                             |
 | `npm run build -- --target web`                     | Static Web output in `dist/`, including dependency notices and inventory                                       |
 | `npm run build -- --target web --example character` | Build the minimal example                                                                                      |

@@ -1,14 +1,25 @@
 import {
+  type Actor,
   Aspect,
-  type CharacterState,
+  Camera,
+  createViewTransform,
   Engine,
   EngineError,
   type FrameDriver,
+  KeyboardController,
+  type LogicalResolution,
   type PreparedScene,
   positive,
   type RendererPort,
   Scene,
-  type WorldView,
+  SceneState,
+  type ScreenPoint,
+  screenPoint,
+  screenToWorld,
+  type Viewport,
+  type ViewTransform,
+  type WorldPoint,
+  worldToScreen,
 } from "@simpludify/core";
 import { BrowserInput } from "./input";
 import { PixiRenderer } from "./renderer";
@@ -22,15 +33,22 @@ import {
 } from "./ui";
 export interface SceneContext {
   readonly scene: Scene;
-  add(character: CharacterState): CharacterState;
+  readonly signal: AbortSignal;
+  add<T extends Actor>(actor: T): T;
   ui(...nodes: UINode[]): void;
-  onUpdate(callback: (seconds: number) => void): void;
-  onDispose(callback: () => void): void;
+  onUpdate(callback: (seconds: number) => void): () => void;
+  onActivate(callback: () => void): () => void;
+  onDeactivate(callback: () => void): () => void;
+  onDispose(callback: () => void): () => void;
 }
 export type SceneSetup = (context: SceneContext) => void | Promise<void>;
 export interface GameOptions {
   parent?: HTMLElement;
-  world?: Partial<WorldView>;
+  resolution?: LogicalResolution;
+  aspect?: Aspect;
+  camera?: Camera;
+  viewport?: Viewport;
+  pixelRatio?: number;
   theme?: Theme;
   tokens?: Partial<ThemeTokens>;
   seed?: number;
@@ -42,14 +60,26 @@ export interface GameOptions {
 export class Game<SceneId extends string = string> {
   readonly engine: Engine;
   readonly element: HTMLDivElement;
+  readonly camera: Camera;
   private readonly renderer: RendererPort;
   private readonly keyboard: BrowserInput;
   private readonly observer: ResizeObserver;
   private readonly frames: FrameDriver;
-  private readonly view: WorldView;
-  private readonly maxDelta: number;
   private readonly options: GameOptions;
+  private readonly resolution: LogicalResolution;
+  private readonly aspect: Aspect;
+  private readonly maxDelta: number;
+  private requestedViewport: Viewport | undefined;
+  private projection: ViewTransform;
+  private projectionDirty = true;
+  private cameraX = NaN;
+  private cameraY = NaN;
+  private cameraZoom = NaN;
+  private width = 800;
+  private height = 450;
+  private ratio = 1;
   private readonly scenes = new Map<SceneId, SceneSetup>();
+  private readonly pendingScenes = new Map<SceneId, Promise<void>>();
   private readonly defaultUI: UINode[] = [];
   private ui: MountedUI | undefined;
   private prepared: PreparedScene | undefined;
@@ -58,20 +88,36 @@ export class Game<SceneId extends string = string> {
   private frame: number | undefined;
   private previousTime: number | undefined;
   private dead = false;
-  private started = false;
+  private ready = false;
   private staging: Scene | undefined;
+  private readonly shutdown = new AbortController();
   private readonly errorBox: HTMLParagraphElement;
   constructor(options: GameOptions = {}) {
     this.options = options;
     this.engine = new Engine(options.seed);
+    this.camera = options.camera ?? new Camera();
     this.maxDelta = positive(options.maxDelta ?? 0.05, "maxDelta");
-    this.view = {
-      width: positive(options.world?.width ?? 800, "world.width"),
-      height: positive(options.world?.height ?? 450, "world.height"),
-      aspect: options.world?.aspect ?? Aspect.Fit,
+    this.resolution = {
+      width: positive(options.resolution?.width ?? 800, "resolution.width"),
+      height: positive(options.resolution?.height ?? 450, "resolution.height"),
     };
-    if (!Object.values(Aspect).includes(this.view.aspect))
-      throw new EngineError("INVALID_ASPECT", "Unknown aspect policy");
+    this.aspect = options.aspect ?? Aspect.Fit;
+    this.requestedViewport = options.viewport
+      ? { ...options.viewport }
+      : undefined;
+    this.projection = createViewTransform({
+      viewport: this.requestedViewport ?? {
+        x: 0,
+        y: 0,
+        width: this.width,
+        height: this.height,
+      },
+      resolution: this.resolution,
+      aspect: this.aspect,
+      camera: this.camera,
+    });
+    if (options.pixelRatio !== undefined)
+      positive(options.pixelRatio, "pixelRatio");
     const theme = Themes[options.theme ?? Theme.Dark];
     if (!theme) throw new EngineError("INVALID_THEME", "Unknown theme");
     const tokens = { ...theme, ...options.tokens };
@@ -93,7 +139,9 @@ export class Game<SceneId extends string = string> {
     try {
       this.renderer =
         options.renderer?.(this.element) ??
-        new PixiRenderer(this.element, tokens.background);
+        new PixiRenderer(this.element, tokens.background, (error) =>
+          this.report(error),
+        );
     } catch (error) {
       this.element.remove();
       this.engine.dispose();
@@ -103,8 +151,21 @@ export class Game<SceneId extends string = string> {
       request: (callback) => requestAnimationFrame(callback),
       cancel: (handle) => cancelAnimationFrame(handle),
     };
-    this.keyboard = new BrowserInput(this.element, this.engine.input, () =>
-      this.engine.scene.characters.map((c) => c.keys),
+    this.keyboard = new BrowserInput(
+      this.element,
+      this.engine.input,
+      (code) => {
+        for (const actor of this.engine.scene.actors) {
+          const controller = actor.get(KeyboardController.type);
+          if (
+            actor.enabled &&
+            controller?.enabled &&
+            Object.values(controller.keys).some((codes) => codes.includes(code))
+          )
+            return true;
+        }
+        return false;
+      },
     );
     this.observer = new ResizeObserver(() => this.resize());
     this.observer.observe(this.element);
@@ -113,19 +174,21 @@ export class Game<SceneId extends string = string> {
     if (this.dead)
       throw new EngineError("GAME_DISPOSED", "Game has been disposed");
   }
-  add(character: CharacterState): CharacterState {
+  add<T extends Actor>(actor: T): T {
     this.assertAlive();
-    if (this.startPromise)
-      throw new EngineError(
-        "SCENE_SEALED",
-        "Add entities in scene setup before readiness",
-      );
-    return this.engine.scene.add(character);
+    return this.engine.scene.add(actor);
+  }
+  remove(actor: Actor | string): boolean {
+    this.assertAlive();
+    return this.engine.scene.remove(actor);
   }
   uiOverlay(...nodes: UINode[]): void {
     this.assertAlive();
     if (this.startPromise)
-      throw new EngineError("SCENE_SEALED", "Define UI before run");
+      throw new EngineError(
+        "UI_ALREADY_STARTED",
+        "Define default UI before run",
+      );
     this.defaultUI.push(...nodes);
   }
   scene(id: SceneId, setup: SceneSetup): this {
@@ -139,6 +202,23 @@ export class Game<SceneId extends string = string> {
     this.scenes.set(id, setup);
     return this;
   }
+  private wait<T>(promise: Promise<T>): Promise<T> {
+    if (this.dead)
+      return Promise.reject(
+        new EngineError("GAME_DISPOSED", "Game has been disposed"),
+      );
+    const signal = this.shutdown.signal;
+    return new Promise<T>((resolve, reject) => {
+      const abort = () => {
+        signal.removeEventListener("abort", abort);
+        reject(new EngineError("GAME_DISPOSED", "Game has been disposed"));
+      };
+      signal.addEventListener("abort", abort, { once: true });
+      promise
+        .then(resolve, reject)
+        .finally(() => signal.removeEventListener("abort", abort));
+    });
+  }
   run(initialScene?: SceneId): Promise<void> {
     if (this.dead)
       return Promise.reject(
@@ -147,27 +227,15 @@ export class Game<SceneId extends string = string> {
     if (this.startPromise) return this.startPromise;
     this.startPromise = (async () => {
       try {
-        await this.renderer.init();
+        await this.wait(this.renderer.init());
         this.assertAlive();
-        this.started = true;
-        if (initialScene !== undefined) await this.goTo(initialScene);
-        else {
-          this.engine.scene.seal();
-          const prepared = await this.renderer.prepare(
-            this.engine.scene.characters,
-          );
-          if (this.dead) {
-            prepared.dispose();
-            this.assertAlive();
-          }
-          this.prepared = prepared;
-          this.assertAlive();
-          this.ui = mountUI(this.defaultUI, (error) => this.report(error));
-          this.element.append(this.ui.element);
-        }
+        if (initialScene !== undefined) await this.navigate(initialScene);
+        else await this.present(this.engine.scene, this.defaultUI);
         this.assertAlive();
+        this.ready = true;
         this.resize();
-        this.prepared?.render();
+        this.render();
+        this.assertAlive();
         this.frame = this.frames.request(this.tick);
       } catch (error) {
         this.dispose();
@@ -181,87 +249,221 @@ export class Game<SceneId extends string = string> {
       return Promise.reject(
         new EngineError("GAME_DISPOSED", "Game has been disposed"),
       );
-    if (!this.started)
+    if (!this.ready)
       return Promise.reject(
-        new EngineError("GAME_NOT_READY", "Call run before navigating"),
+        new EngineError("GAME_NOT_READY", "Await run before navigating"),
       );
+    return this.navigate(id);
+  }
+  private navigate(id: SceneId): Promise<void> {
     const setup = this.scenes.get(id);
     if (!setup)
       return Promise.reject(
         new EngineError("SCENE_NOT_FOUND", "Unknown scene", { sceneId: id }),
       );
-    const task = this.queue.then(async () => {
-      this.assertAlive();
-      const scene = new Scene(id);
-      this.staging = scene;
-      const nodes: UINode[] = [];
-      let prepared: PreparedScene | undefined;
-      let ui: MountedUI | undefined;
-      let committed = false;
-      try {
-        await setup({
-          scene,
-          add: (character) => scene.add(character),
-          ui: (...items) => nodes.push(...items),
-          onUpdate: (callback) => scene.onUpdate(callback),
-          onDispose: (callback) => scene.onDispose(callback),
-        });
+    const existing = this.pendingScenes.get(id);
+    if (existing) return existing;
+    const task = this.queue
+      .then(async () => {
         this.assertAlive();
-        scene.seal();
-        prepared = await this.renderer.prepare(scene.characters);
-        this.assertAlive();
-        ui = mountUI(nodes, (error) => this.report(error));
-        const oldPrepared = this.prepared,
-          oldUI = this.ui;
-        this.prepared = prepared;
-        this.ui = ui;
-        committed = true;
-        this.staging = undefined;
-        this.errorBox.hidden = true;
+        const scene = new Scene(id),
+          nodes: UINode[] = [],
+          controller = new AbortController();
+        this.staging = scene;
+        scene.onDispose(() => controller.abort());
         try {
-          this.engine.activate(scene);
+          await this.wait(
+            Promise.resolve(
+              setup({
+                scene,
+                signal: controller.signal,
+                add: (actor) => scene.add(actor),
+                ui: (...items) => nodes.push(...items),
+                onUpdate: (callback) => scene.onUpdate(callback),
+                onActivate: (callback) => scene.onActivate(callback),
+                onDeactivate: (callback) => scene.onDeactivate(callback),
+                onDispose: (callback) => scene.onDispose(callback),
+              }),
+            ),
+          );
+          this.assertAlive();
+          await this.present(scene, nodes);
         } catch (error) {
-          this.report(error);
-        }
-        for (const cleanup of [
-          () => oldPrepared?.dispose(),
-          () => oldUI?.dispose(),
-        ]) {
-          try {
-            cleanup();
-          } catch (error) {
-            this.report(error);
-          }
-        }
-        this.assertAlive();
-        this.element.append(ui.element);
-        this.previousTime = undefined;
-        this.resize();
-        prepared.render();
-      } catch (error) {
-        if (!committed) {
-          prepared?.dispose();
-          ui?.dispose();
           try {
             scene.dispose();
           } catch (cleanupError) {
             this.report(cleanupError);
           }
+          throw error;
+        } finally {
+          if (this.staging === scene) this.staging = undefined;
         }
-        if (this.staging === scene) this.staging = undefined;
-        throw error;
-      }
-    });
+      })
+      .finally(() => {
+        if (this.pendingScenes.get(id) === task) this.pendingScenes.delete(id);
+      });
+    this.pendingScenes.set(id, task);
     this.queue = task.catch(() => {});
     return task;
   }
-  private resize(): void {
-    if (!this.started || this.dead) return;
-    const { width, height } = this.element.getBoundingClientRect();
-    if (width > 0 && height > 0) {
-      this.renderer.resize(width, height, this.view);
-      this.prepared?.render();
+  private async present(scene: Scene, nodes: readonly UINode[]): Promise<void> {
+    let prepared: PreparedScene | undefined,
+      ui: MountedUI | undefined,
+      committed = false;
+    try {
+      const preparing = this.renderer.prepare(scene);
+      void preparing.then(
+        (value) => {
+          if (this.dead || scene.disposed) value.dispose();
+        },
+        () => {},
+      );
+      prepared = await this.wait(preparing);
+      this.assertAlive();
+      ui = mountUI(nodes, (error) => this.report(error));
+      const mounted = ui;
+      scene.onDispose(() => mounted.dispose());
+      scene.markReady();
+      this.errorBox.hidden = true;
+      try {
+        this.engine.activate(scene);
+      } catch (error) {
+        if (this.engine.scene !== scene || scene.state !== SceneState.Active)
+          throw error;
+        this.report(error);
+      }
+      this.assertAlive();
+      const oldPrepared = this.prepared,
+        oldUI = this.ui;
+      this.prepared = prepared;
+      this.ui = ui;
+      committed = true;
+      this.element.append(ui.element);
+      for (const cleanup of [
+        () => oldPrepared?.dispose(),
+        () => oldUI?.dispose(),
+      ]) {
+        try {
+          cleanup();
+        } catch (error) {
+          this.report(error);
+        }
+      }
+      this.assertAlive();
+      this.previousTime = undefined;
+      this.updateProjection();
+      this.render();
+      this.assertAlive();
+    } catch (error) {
+      if (!committed)
+        for (const cleanup of [
+          () => prepared?.dispose(),
+          () => ui?.dispose(),
+        ]) {
+          try {
+            cleanup();
+          } catch (cleanupError) {
+            this.report(cleanupError);
+          }
+        }
+      throw error;
     }
+  }
+  get viewport(): Viewport {
+    this.updateProjection();
+    return this.projection.viewport;
+  }
+  get view(): ViewTransform {
+    this.updateProjection();
+    return this.projection;
+  }
+  setViewport(viewport?: Viewport): void {
+    this.assertAlive();
+    const next = viewport ? { ...viewport } : undefined;
+    createViewTransform({
+      viewport: next ?? { x: 0, y: 0, width: this.width, height: this.height },
+      resolution: this.resolution,
+      aspect: this.aspect,
+      camera: this.camera,
+    });
+    this.requestedViewport = next;
+    this.projectionDirty = true;
+    this.updateProjection();
+    if (this.ready) this.render();
+  }
+  worldToScreen(point: WorldPoint): ScreenPoint {
+    return worldToScreen(this.view, point);
+  }
+  screenToWorld(point: ScreenPoint): WorldPoint {
+    return screenToWorld(this.view, point);
+  }
+  pointerToWorld(pointer: {
+    readonly clientX: number;
+    readonly clientY: number;
+  }): WorldPoint {
+    const rect = this.element.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0)
+      throw new EngineError(
+        "VIEWPORT_UNAVAILABLE",
+        "Game has no visible bounds",
+      );
+    return this.screenToWorld(
+      screenPoint(
+        ((pointer.clientX - rect.left) * this.width) / rect.width,
+        ((pointer.clientY - rect.top) * this.height) / rect.height,
+      ),
+    );
+  }
+  async whenReady(): Promise<void> {
+    if (!this.startPromise)
+      throw new EngineError(
+        "GAME_NOT_READY",
+        "Call run before waiting for resources",
+      );
+    await this.startPromise;
+    this.assertAlive();
+    this.render();
+    await this.wait(this.prepared?.ready?.() ?? Promise.resolve());
+  }
+  private updateProjection(): void {
+    const v = this.requestedViewport,
+      c = this.camera;
+    if (
+      !this.projectionDirty &&
+      this.cameraX === c.x &&
+      this.cameraY === c.y &&
+      this.cameraZoom === c.zoom
+    )
+      return;
+    this.projectionDirty = false;
+    this.cameraX = c.x;
+    this.cameraY = c.y;
+    this.cameraZoom = c.zoom;
+    this.projection = createViewTransform({
+      viewport: v ?? { x: 0, y: 0, width: this.width, height: this.height },
+      resolution: this.resolution,
+      aspect: this.aspect,
+      camera: c,
+    });
+  }
+  private resize(): void {
+    if (this.dead || !this.startPromise) return;
+    const width = this.element.clientWidth,
+      height = this.element.clientHeight;
+    if (width <= 0 || height <= 0) return;
+    if (this.width !== width || this.height !== height)
+      this.projectionDirty = true;
+    this.width = width;
+    this.height = height;
+    this.ratio =
+      this.options.pixelRatio ?? Math.min(window.devicePixelRatio || 1, 2);
+    this.renderer.resize(width, height, this.ratio);
+    this.updateProjection();
+    if (this.ready) this.render();
+  }
+  private render(): void {
+    this.updateProjection();
+    this.prepared?.render(this.projection);
   }
   private readonly tick = (time: number): void => {
     if (this.dead) return;
@@ -279,9 +481,14 @@ export class Game<SceneId extends string = string> {
               );
         this.previousTime = time;
         this.engine.step(seconds);
-        this.prepared?.render();
+        if (
+          this.ratio !==
+          (this.options.pixelRatio ?? Math.min(window.devicePixelRatio || 1, 2))
+        )
+          this.resize();
+        this.render();
       }
-      this.frame = this.frames.request(this.tick);
+      if (!this.dead) this.frame = this.frames.request(this.tick);
     } catch (error) {
       this.report(error);
       this.dispose();
@@ -292,16 +499,18 @@ export class Game<SceneId extends string = string> {
       error instanceof Error ? error.message : String(error);
     this.errorBox.hidden = false;
     try {
-      this.options.onError?.(error);
+      if (this.options.onError) this.options.onError(error);
+      else console.error(error);
     } catch {
-      /* Diagnostic observers must not prevent cleanup. */
+      /* Observers must not prevent cleanup. */
     }
   }
   dispose(): void {
     if (this.dead) return;
     this.dead = true;
+    this.shutdown.abort();
     if (this.frame !== undefined) this.frames.cancel(this.frame);
-    const cleanup = [
+    for (const cleanup of [
       () => this.staging?.dispose(),
       () => this.keyboard.dispose(),
       () => this.observer.disconnect(),
@@ -310,10 +519,9 @@ export class Game<SceneId extends string = string> {
       () => this.renderer.dispose(),
       () => this.engine.dispose(),
       () => this.element.remove(),
-    ];
-    for (const action of cleanup) {
+    ]) {
       try {
-        action();
+        cleanup();
       } catch (error) {
         this.report(error);
       }

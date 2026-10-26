@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-26T13:48:42.800Z",
+  "environment": {
+    "node": "v24.22.1",
+    "platform": "linux",
+    "release": "6.18.55",
+    "arch": "x64",
+    "cpu": "AMD EPYC 9V74 80-Core Processor",
+    "logicalCpus": 9
+  },
+  "scope": "Engine.step only; no rendering, no GC control, no hardware performance guarantee",
+  "results": [
+    {
+      "workload": "idle core",
+      "samples": 5000,
+      "milliseconds": {
+        "p50": 0.00010000000003174137,
+        "p95": 0.00018000000000029104,
+        "p99": 0.0011819999999715947
+      },
+      "heapBefore": 18796632,
+      "heapAfter": 20546488
+    },
+    {
+      "workload": "1000 moving characters (core only)",
+      "samples": 5000,
+      "milliseconds": {
+        "p50": 0.04120999999997821,
+        "p95": 0.05399899999997615,
+        "p99": 0.07782399999996414
+      },
+      "heapBefore": 22233312,
+      "heapAfter": 22767424
+    }
+  ]
+}

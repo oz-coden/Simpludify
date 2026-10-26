@@ -14,12 +14,14 @@ test("renders, moves with focused input, and navigates through native buttons", 
   expect(bounds?.width).toBe(info.project.use.viewport?.width);
   await page.locator(".simpludify").focus();
   const before = await page.evaluate(
-    () => window.demo.engine.snapshot().characters[0]?.x ?? 0,
+    () => window.demo.engine.snapshot().actors[0]?.transform?.x ?? 0,
   );
   await page.keyboard.down("d");
   await expect
     .poll(() =>
-      page.evaluate(() => window.demo.engine.snapshot().characters[0]?.x ?? 0),
+      page.evaluate(
+        () => window.demo.engine.snapshot().actors[0]?.transform?.x ?? 0,
+      ),
     )
     .toBeGreaterThan(before + 5);
   await page.keyboard.up("d");
@@ -124,6 +126,7 @@ test("owns scene cleanup and commits only after async readiness; failures keep t
       cleaned: 0,
       click: 0,
       rendered: 0,
+      updated: 0,
     };
     const game = new Game<"one" | "two" | "bad">({
       renderer: () => ({
@@ -150,7 +153,10 @@ test("owns scene cleanup and commits only after async readiness; failures keep t
       }),
     });
     let oldButton: HTMLButtonElement | null = null;
-    game.scene("one", ({ add, ui, onDispose }) => {
+    game.scene("one", ({ add, ui, onDispose, onUpdate }) => {
+      onUpdate(() => {
+        counts.updated++;
+      });
       add(Character());
       ui(
         Button("old", () => {
@@ -176,6 +182,9 @@ test("owns scene cleanup and commits only after async readiness; failures keep t
     const switching = game.goTo("two");
     await Promise.resolve();
     const during = game.engine.scene.id;
+    await new Promise<void>((resolve) =>
+      requestAnimationFrame(() => resolve()),
+    );
     resolveSetup?.();
     await switching;
     oldButton?.click();
@@ -201,6 +210,7 @@ test("owns scene cleanup and commits only after async readiness; failures keep t
     click: 0,
   });
   expect(result.rendered).toBeGreaterThan(0);
+  expect(result.updated).toBeGreaterThan(0);
 });
 test("disposes pending setup and late prepared resources", async ({ page }) => {
   await page.goto("/");
@@ -230,11 +240,11 @@ test("disposes pending setup and late prepared resources", async ({ page }) => {
         },
       }),
     });
-    game.scene("pending", ({ onDispose }) =>
+    game.scene("pending", ({ onDispose }) => {
       onDispose(() => {
         cleaned++;
-      }),
-    );
+      });
+    });
     const running = game.run("pending").catch((error: Error) => error.message);
     // Yield until prepare is waiting, then dispose without waiting for the adapter.
     for (let i = 0; i < 10 && !release; i++) await Promise.resolve();

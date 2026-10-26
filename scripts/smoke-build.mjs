@@ -3,6 +3,12 @@ import { resolve } from "node:path";
 import { chromium } from "@playwright/test";
 import { preview } from "vite";
 
+const exampleIndex = process.argv.indexOf("--example");
+const example = exampleIndex < 0 ? "ui-scenes" : process.argv[exampleIndex + 1];
+assert.ok(
+  example === "ui-scenes" || example === "composition",
+  "Choose ui-scenes or composition",
+);
 const server = await preview({
   configFile: false,
   base: "/Simpludify/",
@@ -32,16 +38,27 @@ try {
     page.on("pageerror", (error) => errors.push(error.message));
     const response = await page.goto("http://127.0.0.1:4175/Simpludify/");
     assert.equal(response?.status(), 200);
-    await page.getByRole("heading", { name: "The garden" }).waitFor();
-    assert.equal(await page.locator("canvas").count(), 1);
-    await page.locator(".simpludify").focus();
-    await page.keyboard.down("d");
-    await page.waitForFunction(
-      () => window.demo.engine.snapshot().characters[0].x > 405,
-    );
-    await page.keyboard.up("d");
-    await page.getByRole("button", { name: "Visit the studio" }).click();
-    await page.getByRole("heading", { name: "The studio" }).waitFor();
+    if (example === "composition") {
+      await page.getByRole("heading", { name: "Beacon field" }).waitFor();
+      assert.equal(await page.locator("canvas").count(), 1);
+      await page
+        .getByRole("button", { name: "Add beacon", exact: true })
+        .click();
+      await page.getByRole("button", { name: "Zoom", exact: true }).click();
+      await page.getByRole("button", { name: "Restart", exact: true }).click();
+      await page.getByText(/^Beacons collected:/).waitFor();
+    } else {
+      await page.getByRole("heading", { name: "The garden" }).waitFor();
+      assert.equal(await page.locator("canvas").count(), 1);
+      await page.locator(".simpludify").focus();
+      await page.keyboard.down("d");
+      await page.waitForFunction(
+        () => window.demo.engine.snapshot().actors[0].transform.x > 405,
+      );
+      await page.keyboard.up("d");
+      await page.getByRole("button", { name: "Visit the studio" }).click();
+      await page.getByRole("heading", { name: "The studio" }).waitFor();
+    }
     assert.equal(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,

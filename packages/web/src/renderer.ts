@@ -1,28 +1,45 @@
 import {
-  type CharacterState,
+  type Actor,
   EngineError,
   type PreparedScene,
+  Renderable,
   type RendererPort,
-  viewTransform,
-  type WorldView,
+  type Scene,
+  Shape,
+  Transform,
 } from "@simpludify/core";
 import { Application, Container, Graphics, Sprite, Texture } from "pixi.js";
+
+interface Visual {
+  actor: Actor;
+  component: Renderable;
+  transform: Transform;
+  controller: AbortController;
+  order: number;
+  display?: Sprite | Graphics;
+  texture?: Texture;
+  error?: unknown;
+  promise: Promise<void>;
+  dispose(): void;
+}
 export class PixiRenderer implements RendererPort {
   private readonly app = new Application();
   private readonly scenes = new Set<PreparedScene>();
   private readonly pending = new Set<AbortController>();
   private ready = false;
   private dead = false;
-  private transform = {
-    scale: 1,
-    x: 0,
-    y: 0,
-    worldWidth: 800,
-    worldHeight: 450,
-  };
+  private visualCount = 0;
+  get diagnostics() {
+    return {
+      presentations: this.scenes.size,
+      visuals: this.visualCount,
+      pendingImages: this.pending.size,
+    };
+  }
   constructor(
     private readonly host: HTMLElement,
     private readonly background = "#101922",
+    private readonly onError: (error: unknown) => void = () => {},
   ) {}
   async init(): Promise<void> {
     await this.app.init({
@@ -33,7 +50,7 @@ export class PixiRenderer implements RendererPort {
       autoStart: false,
       sharedTicker: false,
       preference: "webgl",
-      resolution: Math.min(window.devicePixelRatio || 1, 2),
+      resolution: 1,
       autoDensity: true,
     });
     this.ready = true;
@@ -90,107 +107,222 @@ export class PixiRenderer implements RendererPort {
       });
     return Texture.from(image, true);
   }
-  async prepare(characters: readonly CharacterState[]): Promise<PreparedScene> {
+
+  async prepare(scene: Scene): Promise<PreparedScene> {
     if (!this.ready || this.dead)
       throw new EngineError("RENDERER_NOT_READY", "Renderer is not available");
-    const controller = new AbortController();
-    this.pending.add(controller);
-    const container = new Container();
-    const mask = new Graphics();
-    container.addChild(mask);
-    container.mask = mask;
-    let maskWidth = 0,
-      maskHeight = 0;
-    const textures: Texture[] = [];
-    const visuals: Array<{
-      character: CharacterState;
-      display: Sprite | Graphics;
-    }> = [];
-    try {
-      for (const character of characters) {
-        let display: Sprite | Graphics;
-        if (character.sprite) {
-          const texture = await this.texture(
-            character.sprite,
-            controller.signal,
-          );
-          textures.push(texture);
-          const sprite = new Sprite(texture);
-          sprite.anchor.set(0.5);
-          sprite.width = character.size;
-          sprite.height = character.size;
-          display = sprite;
-        } else {
-          display = new Graphics()
-            .roundRect(
-              -character.size / 2,
-              -character.size / 2,
-              character.size,
-              character.size,
-              character.size / 4,
-            )
-            .fill(character.color)
-            .circle(
-              -character.size / 7,
-              -character.size / 10,
-              character.size / 18,
-            )
+    const root = new Container(),
+      world = new Container(),
+      mask = new Graphics();
+    world.sortableChildren = true;
+    root.addChild(world, mask);
+    root.mask = mask;
+    const visuals = new Map<Actor, Visual>();
+    let revision = -1,
+      disposed = false,
+      clipX = NaN,
+      clipY = NaN,
+      clipWidth = NaN,
+      clipHeight = NaN,
+      removeSceneCleanup: (() => void) | undefined;
+    const valid = (entry: Visual) =>
+      !disposed &&
+      !scene.disposed &&
+      !entry.actor.disposed &&
+      entry.actor.scene === scene &&
+      entry.actor.get(Renderable.type) === entry.component &&
+      !entry.component.disposed;
+    const create = (actor: Actor, component: Renderable): Visual => {
+      const controller = new AbortController();
+      this.pending.add(controller);
+      this.visualCount++;
+      let dead = false,
+        removeActorCleanup = () => {},
+        removeComponentCleanup = () => {};
+      const entry: Visual = {
+        order: 0,
+        actor,
+        component,
+        transform: actor.require(Transform.type),
+        controller,
+        promise: Promise.resolve(),
+        dispose: () => {
+          if (dead) return;
+          dead = true;
+          this.visualCount--;
+          controller.abort();
+          this.pending.delete(controller);
+          removeActorCleanup();
+          removeComponentCleanup();
+          entry.display?.destroy();
+          entry.texture?.destroy(true);
+          delete entry.display;
+          delete entry.texture;
+        },
+      };
+      removeActorCleanup = actor.onDispose(entry.dispose);
+      removeComponentCleanup = component.onDispose(entry.dispose);
+      if (component.sprite) {
+        entry.promise = this.texture(component.sprite, controller.signal)
+          .then((texture) => {
+            if (dead || !valid(entry)) {
+              texture.destroy(true);
+              return;
+            }
+            entry.texture = texture;
+            const sprite = new Sprite(texture);
+            sprite.anchor.set(0.5);
+            sprite.width = component.width;
+            sprite.height = component.height;
+            entry.display = sprite;
+            sprite.zIndex = entry.order;
+            world.addChild(sprite);
+          })
+          .catch((error) => {
+            if (!dead && valid(entry)) {
+              entry.error = error;
+              try {
+                this.onError(error);
+              } catch {
+                /* Observers cannot invalidate resource cleanup. */
+              }
+            }
+          })
+          .finally(() => this.pending.delete(controller));
+      } else {
+        const width = component.width,
+          height = component.height;
+        const graphics = new Graphics()
+          .roundRect(
+            -width / 2,
+            -height / 2,
+            width,
+            height,
+            component.shape === Shape.Character
+              ? Math.min(width, height) / 4
+              : 2,
+          )
+          .fill(component.color);
+        if (component.shape === Shape.Character)
+          graphics
+            .circle(-width / 7, -height / 10, Math.min(width, height) / 18)
             .fill(0x102c28)
-            .circle(
-              character.size / 7,
-              -character.size / 10,
-              character.size / 18,
-            )
+            .circle(width / 7, -height / 10, Math.min(width, height) / 18)
             .fill(0x102c28);
-        }
-        container.addChild(display);
-        visuals.push({ character, display });
+        entry.display = graphics;
+        world.addChild(graphics);
+        this.pending.delete(controller);
       }
-      if (this.dead)
-        throw new EngineError(
-          "GAME_DISPOSED",
-          "Renderer disposed while preparing scene",
-        );
-    } catch (error) {
-      container.destroy({ children: true });
-      for (const texture of textures) texture.destroy(true);
-      throw error;
-    } finally {
-      this.pending.delete(controller);
-    }
-    let disposed = false;
-    const prepared: PreparedScene = {
-      render: () => {
-        if (disposed || this.dead) return;
-        if (!container.parent) this.app.stage.addChild(container);
-        if (
-          maskWidth !== this.transform.worldWidth ||
-          maskHeight !== this.transform.worldHeight
-        ) {
-          maskWidth = this.transform.worldWidth;
-          maskHeight = this.transform.worldHeight;
-          mask.clear().rect(0, 0, maskWidth, maskHeight).fill(0xffffff);
+      return entry;
+    };
+    const reconcile = () => {
+      if (disposed || scene.disposed) return;
+      if (revision === scene.revision) return;
+      revision = scene.revision;
+      for (const [actor, entry] of visuals)
+        if (!valid(entry)) {
+          entry.dispose();
+          visuals.delete(actor);
         }
-        container.scale.set(this.transform.scale);
-        container.position.set(this.transform.x, this.transform.y);
-        for (const { character, display } of visuals)
-          display.position.set(character.x, character.y);
+      let order = 0;
+      for (const actor of scene.actors) {
+        const component = actor.get(Renderable.type);
+        if (component) {
+          let entry = visuals.get(actor);
+          if (!entry) {
+            entry = create(actor, component);
+            visuals.set(actor, entry);
+          }
+          entry.order = order++;
+          if (entry.display) entry.display.zIndex = entry.order;
+        }
+      }
+    };
+    const prepared: PreparedScene = {
+      ready: async () => {
+        for (;;) {
+          if (disposed || this.dead || scene.disposed)
+            throw new EngineError(
+              "GAME_DISPOSED",
+              "Scene presentation has been disposed",
+            );
+          reconcile();
+          const version = scene.revision;
+          await Promise.all(
+            [...visuals.values()].map((entry) => entry.promise),
+          );
+          if (disposed || this.dead || scene.disposed)
+            throw new EngineError(
+              "GAME_DISPOSED",
+              "Scene presentation has been disposed",
+            );
+          if (version !== scene.revision) continue;
+          for (const entry of visuals.values())
+            if (entry.error) throw entry.error;
+          return;
+        }
+      },
+      render: (view) => {
+        if (disposed || this.dead || scene.disposed) return;
+        reconcile();
+        if (!root.parent) this.app.stage.addChild(root);
+        const c = view.clip;
+        if (
+          c.x !== clipX ||
+          c.y !== clipY ||
+          c.width !== clipWidth ||
+          c.height !== clipHeight
+        ) {
+          clipX = c.x;
+          clipY = c.y;
+          clipWidth = c.width;
+          clipHeight = c.height;
+          mask.clear().rect(c.x, c.y, c.width, c.height).fill(0xffffff);
+        }
+        world.scale.set(view.scale);
+        world.position.set(view.x, view.y);
+        for (const entry of visuals.values())
+          if (entry.display) {
+            const t = entry.transform;
+            entry.display.visible =
+              entry.actor.enabled && entry.component.enabled;
+            entry.display.position.set(t.x, t.y);
+            entry.display.rotation = t.rotation;
+            // Sprite width/height establish its base scale; apply Transform relative to that size.
+            if (entry.display instanceof Sprite)
+              entry.display.scale.set(
+                (entry.component.width / entry.display.texture.width) *
+                  t.scaleX,
+                (entry.component.height / entry.display.texture.height) *
+                  t.scaleY,
+              );
+            else entry.display.scale.set(t.scaleX, t.scaleY);
+          }
         this.app.render();
       },
       dispose: () => {
         if (disposed) return;
         disposed = true;
+        removeSceneCleanup?.();
         this.scenes.delete(prepared);
-        container.destroy({ children: true });
-        for (const texture of textures) texture.destroy(true);
+        for (const entry of visuals.values()) entry.dispose();
+        visuals.clear();
+        root.destroy({ children: true });
       },
     };
+    removeSceneCleanup = scene.onDispose(prepared.dispose);
     this.scenes.add(prepared);
-    return prepared;
+    try {
+      await prepared.ready?.();
+      return prepared;
+    } catch (error) {
+      prepared.dispose();
+      throw error;
+    }
   }
-  resize(width: number, height: number, view: WorldView): void {
+  resize(width: number, height: number, devicePixelRatio: number): void {
     if (!this.ready || this.dead) return;
-    this.transform = viewTransform(width, height, view);
+    this.app.renderer.resolution = devicePixelRatio;
     this.app.renderer.resize(width, height);
   }
   private destroyApp(): void {

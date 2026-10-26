@@ -1,0 +1,35 @@
+{
+  "baselineCommit": "fd6c116ba33c92799cbd4c0673f390fef7bb409d",
+  "revision": "generic Core architecture",
+  "conditions": "Same scripts, Node/browser/CPU/viewport/software renderer; no concurrent local test or build jobs. Shared host is not isolated hardware.",
+  "core": [
+    {
+      "workload": "idle core",
+      "before": {
+        "p50": 0.00010000000003174137,
+        "p95": 0.00018000000000029104,
+        "p99": 0.0011819999999715947
+      },
+      "after": {
+        "p50": 0.0001400000000444379,
+        "p95": 0.0012309999999615684,
+        "p99": 0.001472000000035223
+      },
+      "p50Ratio": 1.4
+    },
+    {
+      "workload": "1000 moving characters (core only)",
+      "before": {
+        "p50": 0.04120999999997821,
+        "p95": 0.05399899999997615,
+        "p99": 0.07782399999996414
+      },
+      "after": {
+        "p50": 0.13033199999995304,
+        "p95": 0.16154800000003888,
+        "p99": 0.21660900000006222
+      },
+      "p50Ratio": 3.162630429507934
+    }
+  ]
+}

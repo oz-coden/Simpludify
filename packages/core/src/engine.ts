@@ -1,14 +1,30 @@
+import type { UpdateContext } from "./component";
+import { Transform } from "./components";
 import { EngineError } from "./diagnostics";
 import { InputState } from "./input";
-import { Scene } from "./scene";
+import { cleanupAll } from "./lifetime";
+import { Scene, SceneState } from "./scene";
 export class Engine {
   readonly input = new InputState();
   private active = new Scene("default");
   private dead = false;
+  private stepping = false;
+  private transitioning = false;
   private elapsed = 0;
   private randomState: number;
+  private readonly context: {
+    delta: number;
+    input: UpdateContext["input"];
+    scene: Scene;
+  };
   constructor(seed = 1) {
     this.randomState = seed >>> 0;
+    this.active.claim(this);
+    this.context = {
+      delta: 0,
+      input: this.input.capture(),
+      scene: this.active,
+    };
   }
   get scene(): Scene {
     return this.active;
@@ -20,20 +36,39 @@ export class Engine {
     if (this.dead)
       throw new EngineError("GAME_DISPOSED", "Game has been disposed");
   }
-  /** Activates the new scene even if old cleanup throws. */
   activate(scene: Scene): void {
     this.assertAlive();
-    if (scene.disposed)
+    if (this.stepping || this.transitioning)
       throw new EngineError(
-        "SCENE_DISPOSED",
-        "Cannot activate a disposed scene",
-        { sceneId: scene.id },
+        "TRANSITION_REENTRANT",
+        "Cannot activate during a synchronous update or transition",
       );
-    if (scene === this.active) return;
+    scene.validateOwner(this);
+    if (scene === this.active && scene.state === SceneState.Active) return;
+    if (scene.state === SceneState.Preparing) scene.markReady();
+    if (scene.state !== SceneState.Ready)
+      throw new EngineError("SCENE_STATE", "Only ready scenes can activate", {
+        sceneId: scene.id,
+      });
+    scene.claim(this);
     const previous = this.active;
+    this.transitioning = true;
     this.active = scene;
-    this.input.clear();
-    previous.dispose();
+    scene.activateOwned();
+    if (previous !== scene) this.input.clear();
+    try {
+      cleanupAll(
+        [
+          ...(previous !== scene
+            ? [() => previous.deactivateOwned(), () => previous.dispose()]
+            : []),
+          () => scene.notifyActivated(),
+        ],
+        "Scene transition callbacks failed",
+      );
+    } finally {
+      this.transitioning = false;
+    }
   }
   step(seconds: number): void {
     this.assertAlive();
@@ -42,13 +77,26 @@ export class Engine {
         "INVALID_DELTA",
         "Delta seconds must be finite and nonnegative",
       );
-    for (const character of this.active.characters) {
-      const direction = this.input.direction(character.keys);
-      character.x += direction.x * character.speed * seconds;
-      character.y += direction.y * character.speed * seconds;
+    if (this.stepping || this.transitioning)
+      throw new EngineError(
+        "STEP_REENTRANT",
+        "Cannot step during an update or transition",
+      );
+    if (
+      this.active.state === SceneState.Preparing ||
+      this.active.state === SceneState.Ready
+    )
+      this.activate(this.active);
+    this.context.delta = seconds;
+    this.context.input = this.input.capture();
+    this.context.scene = this.active;
+    this.stepping = true;
+    try {
+      this.elapsed += seconds;
+      this.active.step(this.context);
+    } finally {
+      this.stepping = false;
     }
-    this.elapsed += seconds;
-    this.active.update(seconds);
   }
   random(): number {
     this.assertAlive();
@@ -59,14 +107,28 @@ export class Engine {
   snapshot() {
     return {
       sceneId: this.active.id,
+      sceneState: this.active.state,
       elapsed: this.elapsed,
       randomState: this.randomState,
       input: this.input.snapshot(),
-      characters: this.active.characters.map((c) => ({
-        ...(c.id === undefined ? {} : { id: c.id }),
-        x: c.x,
-        y: c.y,
-      })),
+      actors: this.active.actors.map((actor) => {
+        const transform = actor.get(Transform.type);
+        return {
+          id: actor.id,
+          enabled: actor.enabled,
+          ...(transform
+            ? {
+                transform: {
+                  x: transform.x,
+                  y: transform.y,
+                  rotation: transform.rotation,
+                  scaleX: transform.scaleX,
+                  scaleY: transform.scaleY,
+                },
+              }
+            : {}),
+        };
+      }),
     };
   }
   dispose(): void {

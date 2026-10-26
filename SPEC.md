@@ -1,9 +1,9 @@
-# Code-First 2D Game Engine — Specification (Draft v0.1)
+# Code-First 2D Game Engine — Specification (Draft v0.2)
 
-Status: Initial implementation specification
+Status: Evolving design requirements; implementation status is tracked in docs/roadmap.md
 Date: 2026-10-26
 
-> This document specifies a general-purpose, code-first 2D game development framework. All names and API examples are provisional until validated through a working vertical slice.
+> This document specifies a general-purpose, code-first 2D game development framework. Long-term API examples illustrate design goals; implemented APIs and defaults are documented in docs/api.md.
 
 ## 1. Product goals
 
@@ -73,14 +73,14 @@ Avoid speculative abstractions. Each public abstraction must have a working use 
 
 ## 4. Game and scene API
 
-Aspirational usage, not an existing implementation:
+Working minimal Web usage:
 
 ```ts
-import { Game, Character, Movement } from "@engine/api";
+import { Game, Character, Movement } from "@simpludify/web";
 
 const game = new Game();
 game.add(Character({ movement: Movement.WASD }));
-game.run();
+await game.run();
 ```
 
 This example must work with a built-in placeholder visual and default position. Explicit image asset:
@@ -208,9 +208,23 @@ Work may be divided into small PRs. Do not use placeholders for acceptance crite
 
 ## 14. Open design decisions (do not silently lock in)
 
-- Final project and npm package name.
+- Public npm package identity and distribution; the project name Simpludify and private source workspace names are selected.
 - Whether character collision, sprite animation, and camera follow belong in MVP or first extension.
 - Whether desktop portable output should be default or opt-in.
 - Supported minimum versions of Node, Windows, and browsers, determined after CI verification.
-- Exact semantics of scene creation and async asset readiness.
+- Future pooling/reactivation and multi-camera policies beyond the current terminal scene lifecycle and single view.
 - Future C# runtime strategy and native platform implementation.
+
+## 15. Generic Core requirements
+
+Game/Engine, Scene, Actor, Component, Event and Coordinate are distinct responsibilities. Engine orchestration must not contain Character-specific behavior. Character remains a high-level composition preset over generic Components. The current minimal baseline includes Transform, Renderable, Motion and KeyboardController; custom nonvisual Components must work without a renderer.
+
+Scenes have explicit synchronous preparation/readiness/activation/deactivation/disposal semantics. Platform hosts own asynchronous resource loading and transaction cancellation; they declare readiness before Core activation. Before-commit failure must preserve the active Scene. Scene instances are exclusively owned and cannot be reused after deactivation/disposal. Runtime Actor/Component membership changes must be deterministic and safe during iteration, with additions updating next step and removals effective immediately.
+
+Component dependencies must diagnose missing/duplicate/shared instances, cycles and removal of required capabilities. Composition does not require a generic ECS, archetype store or configurable scheduler. Input must be frozen for a step, Input components run before Update components, and Scene timers/callbacks follow. Passive/nonvisual Actors do not require Transform/Renderable.
+
+Optional events use typed identity tokens and synchronous registration-order delivery with explicit exception and recursion rules. Scene/Actor/Component ownership must release subscriptions on local or external buses. Engine-managed timers use simulation time and share owner cleanup; unused event/timer features should incur no per-frame dispatch work.
+
+World coordinates, host-local Screen coordinates, logical resolution, offset Viewport, Camera position/zoom and DPR-scaled physical pixels must remain distinct. Pure forward/inverse conversion and browser pointer conversion must be testable. A single Camera/Viewport is sufficient; DOM UI remains independent.
+
+Headless and browser tests must cover dynamic membership, lifecycle/cancellation/failure recovery, component ownership/dependencies, event order/cleanup/errors, coordinate round trips, viewport/DPR changes, existing movement and a real composition-based sample. Record same-condition before/after benchmarks without assuming architectural changes improve performance. Experimental APIs may change when a coherent replacement is documented; do not retain duplicate storage/behavior solely for compatibility.

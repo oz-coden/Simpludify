@@ -1,75 +1,254 @@
-import type { CharacterState } from "./character";
+import type { Actor } from "./actor";
+import { ComponentPhase, type UpdateContext } from "./component";
 import { EngineError } from "./diagnostics";
+import type { Engine } from "./engine";
+import { EventBus } from "./events";
+import { cleanupAll, Lifetime, type LifetimeOwner } from "./lifetime";
+import { SimulationTimers } from "./timers";
+export const SceneState = {
+  Preparing: "preparing",
+  Ready: "ready",
+  Active: "active",
+  Inactive: "inactive",
+  Disposed: "disposed",
+} as const;
+export type SceneState = (typeof SceneState)[keyof typeof SceneState];
 export class Scene {
-  private readonly entities: CharacterState[] = [];
-  private readonly cleanup: Array<() => void> = [];
-  private readonly updates: Array<(seconds: number) => void> = [];
-  private dead = false;
-  private sealed = false;
-  constructor(readonly id: string) {}
-  get characters(): readonly CharacterState[] {
-    return this.entities;
+  private phase: SceneState = SceneState.Preparing;
+  private engineOwner: Engine | undefined;
+  private readonly members = new Map<string, Actor>();
+  private roster: readonly Actor[] = [];
+  private rosterDirty = false;
+  private nextId = 0;
+  private version = 0;
+  private readonly lifetime = new Lifetime();
+  private bus: EventBus | undefined;
+  private timers: SimulationTimers | undefined;
+  private readonly updates = new Set<(seconds: number) => void>();
+  private updatePlan: readonly ((seconds: number) => void)[] = [];
+  private readonly activations = new Set<() => void>();
+  private readonly deactivations = new Set<() => void>();
+  constructor(readonly id: string) {
+    if (!id.trim())
+      throw new EngineError("INVALID_ID", "Scene id cannot be empty");
+  }
+  get state(): SceneState {
+    return this.phase;
   }
   get disposed(): boolean {
-    return this.dead;
+    return this.phase === SceneState.Disposed;
+  }
+  get revision(): number {
+    return this.version;
+  }
+  get actors(): readonly Actor[] {
+    if (this.rosterDirty) {
+      this.roster = [...this.members.values()];
+      this.rosterDirty = false;
+    }
+    return this.roster;
+  }
+  get events(): EventBus {
+    this.assertAlive();
+    this.bus ??= new EventBus();
+    return this.bus;
   }
   private assertAlive(): void {
-    if (this.dead)
-      throw new EngineError("SCENE_DISPOSED", "Scene has been disposed", {
+    if (this.disposed || this.phase === SceneState.Inactive)
+      throw new EngineError(
+        "SCENE_DISPOSED",
+        "Scene can no longer acquire resources",
+        { sceneId: this.id },
+      );
+  }
+  add<T extends Actor>(actor: T): T {
+    this.assertAlive();
+    if (actor.disposed || actor.scene)
+      throw new EngineError(
+        "ACTOR_OWNERSHIP",
+        "Actor must be new and unowned",
+        { sceneId: this.id, actorId: actor.id },
+      );
+    let id = actor.id;
+    if (id === undefined)
+      do {
+        id = `actor-${++this.nextId}`;
+      } while (this.members.has(id));
+    if (this.members.has(id))
+      throw new EngineError("DUPLICATE_ACTOR", "Actor id already exists", {
+        sceneId: this.id,
+        actorId: id,
+      });
+    actor.attachTo(this, id);
+    this.members.set(id, actor);
+    this.rosterDirty = true;
+    this.touch();
+    return actor;
+  }
+  find(id: string): Actor | undefined {
+    return this.members.get(id);
+  }
+  remove(actorOrId: Actor | string): boolean {
+    const actor =
+      typeof actorOrId === "string" ? this.members.get(actorOrId) : actorOrId;
+    if (
+      !actor ||
+      actor.scene !== this ||
+      actor.id === undefined ||
+      this.members.get(actor.id) !== actor
+    )
+      return false;
+    this.members.delete(actor.id);
+    this.rosterDirty = true;
+    this.touch();
+    actor.destroyOwned();
+    return true;
+  }
+  /** @internal */ touch(): void {
+    this.version++;
+  }
+  onUpdate(callback: (seconds: number) => void): () => void {
+    this.assertAlive();
+    this.updates.add(callback);
+    this.updatePlan = [...this.updates];
+    return () => {
+      this.updates.delete(callback);
+      this.updatePlan = [...this.updates];
+    };
+  }
+  onActivate(callback: () => void): () => void {
+    this.assertAlive();
+    if (this.phase !== SceneState.Preparing && this.phase !== SceneState.Ready)
+      throw new EngineError(
+        "SCENE_STATE",
+        "Register activation callbacks before activation",
+        { sceneId: this.id },
+      );
+    this.activations.add(callback);
+    return () => {
+      this.activations.delete(callback);
+    };
+  }
+  onDeactivate(callback: () => void): () => void {
+    this.assertAlive();
+    this.deactivations.add(callback);
+    return () => {
+      this.deactivations.delete(callback);
+    };
+  }
+  onDispose(callback: () => void): () => void {
+    this.assertAlive();
+    return this.lifetime.onDispose(callback);
+  }
+  after(
+    seconds: number,
+    callback: () => void,
+    owner?: LifetimeOwner,
+  ): () => void {
+    this.assertAlive();
+    this.timers ??= new SimulationTimers();
+    return this.timers.schedule(seconds, callback, false, owner);
+  }
+  every(
+    seconds: number,
+    callback: () => void,
+    owner?: LifetimeOwner,
+  ): () => void {
+    this.assertAlive();
+    this.timers ??= new SimulationTimers();
+    return this.timers.schedule(seconds, callback, true, owner);
+  }
+  markReady(): void {
+    this.assertAlive();
+    if (this.phase !== SceneState.Preparing)
+      throw new EngineError(
+        "SCENE_STATE",
+        "Only a preparing scene can become ready",
+        { sceneId: this.id },
+      );
+    this.phase = SceneState.Ready;
+  }
+  /** @internal */ validateOwner(engine: Engine): void {
+    this.assertAlive();
+    if (this.engineOwner && this.engineOwner !== engine)
+      throw new EngineError(
+        "SCENE_OWNERSHIP",
+        "Scene belongs to another engine",
+        { sceneId: this.id },
+      );
+  }
+  /** @internal */ claim(engine: Engine): void {
+    this.validateOwner(engine);
+    this.engineOwner = engine;
+  }
+  /** @internal */ activateOwned(): void {
+    this.phase = SceneState.Active;
+  }
+  /** @internal */ notifyActivated(): void {
+    if (!this.disposed)
+      cleanupAll(this.activations, "Scene activation callbacks failed");
+  }
+  /** @internal */ deactivateOwned(): void {
+    if (this.phase !== SceneState.Active) return;
+    this.phase = SceneState.Inactive;
+    cleanupAll(this.deactivations, "Scene deactivation callbacks failed");
+  }
+  /** @internal */ step(context: UpdateContext): void {
+    if (this.phase !== SceneState.Active)
+      throw new EngineError("SCENE_STATE", "Only active scenes can update", {
         sceneId: this.id,
       });
-  }
-  seal(): void {
-    this.assertAlive();
-    this.sealed = true;
-  }
-  add(character: CharacterState): CharacterState {
-    this.assertAlive();
-    if (this.sealed)
-      throw new EngineError(
-        "SCENE_SEALED",
-        "Entities must be added during scene setup",
-        { sceneId: this.id },
-      );
-    if (
-      this.entities.includes(character) ||
-      (character.id !== undefined &&
-        this.entities.some((item) => item.id === character.id))
-    )
-      throw new EngineError(
-        "DUPLICATE_ENTITY",
-        "Entity or id already belongs to this scene",
-        { sceneId: this.id },
-      );
-    this.entities.push(character);
-    return character;
-  }
-  onUpdate(callback: (seconds: number) => void): void {
-    this.assertAlive();
-    this.updates.push(callback);
-  }
-  onDispose(callback: () => void): void {
-    this.assertAlive();
-    this.cleanup.push(callback);
-  }
-  update(seconds: number): void {
-    this.assertAlive();
-    for (const callback of this.updates) callback(seconds);
+    const actors = this.actors;
+    for (const actor of actors) actor.beginStep();
+    for (const actor of actors)
+      actor.updatePhase(ComponentPhase.Input, context);
+    for (const actor of actors)
+      actor.updatePhase(ComponentPhase.Update, context);
+    if (this.disposed) return;
+    this.timers?.step(context.delta);
+    // Callback plans change only on subscription changes; iteration stays stable.
+    if (this.updates.size)
+      for (const callback of this.updatePlan) {
+        if (this.disposed) break;
+        if (this.updates.has(callback)) callback(context.delta);
+      }
   }
   dispose(): void {
-    if (this.dead) return;
-    this.dead = true;
-    const errors: unknown[] = [];
-    for (const callback of this.cleanup.reverse()) {
-      try {
-        callback();
-      } catch (error) {
-        errors.push(error);
-      }
+    if (this.disposed) return;
+    const wasActive = this.phase === SceneState.Active;
+    this.phase = SceneState.Disposed;
+    const actors = this.actors;
+    this.engineOwner = undefined;
+    this.members.clear();
+    this.roster = [];
+    this.rosterDirty = false;
+    this.touch();
+    try {
+      cleanupAll(
+        [
+          ...(wasActive
+            ? [
+                () =>
+                  cleanupAll(
+                    this.deactivations,
+                    "Scene deactivation callbacks failed",
+                  ),
+              ]
+            : []),
+          () => this.timers?.dispose(),
+          () => this.bus?.dispose(),
+          ...[...actors].reverse().map((actor) => () => actor.destroyOwned()),
+          () => this.lifetime.dispose(),
+        ],
+        "Scene cleanup failed",
+      );
+    } finally {
+      this.updates.clear();
+      this.updatePlan = [];
+      this.activations.clear();
+      this.deactivations.clear();
+      this.bus = undefined;
+      this.timers = undefined;
     }
-    this.cleanup.length = 0;
-    this.updates.length = 0;
-    this.entities.length = 0;
-    if (errors.length) throw new AggregateError(errors, "Scene cleanup failed");
   }
 }

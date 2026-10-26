@@ -94,8 +94,12 @@ try {
         `Target ${target} is not implemented; use web`,
         2,
       );
-    if (!["character", "ui-scenes"].includes(example))
-      fail("EXAMPLE_NOT_FOUND", "Choose character or ui-scenes", 2);
+    if (!["character", "ui-scenes", "composition"].includes(example))
+      fail(
+        "EXAMPLE_NOT_FOUND",
+        "Choose character, ui-scenes or composition",
+        2,
+      );
     if (!(base.startsWith("/") || base.startsWith("./")) || base.includes(".."))
       fail(
         "INVALID_ARGUMENT",

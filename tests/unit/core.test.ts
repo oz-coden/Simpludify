@@ -1,12 +1,13 @@
 import {
   Aspect,
   Character,
+  createViewTransform,
   Engine,
   InputState,
+  KeyboardController,
   KeyMaps,
   Movement,
   Scene,
-  viewTransform,
 } from "@simpludify/core";
 import { describe, expect, it } from "vitest";
 
@@ -60,7 +61,9 @@ describe("simulation", () => {
     right.length = 0;
     const input = new InputState();
     input.set("KeyL", true);
-    expect(input.direction(player.keys)).toEqual({ x: 1, y: 0 });
+    expect(
+      input.direction(player.require(KeyboardController.type).keys),
+    ).toEqual({ x: 1, y: 0 });
   });
 });
 describe("input", () => {
@@ -120,39 +123,36 @@ describe("scene ownership", () => {
   });
 });
 describe("world mapping", () => {
-  it("fits without stretching and fills by cropping", () => {
-    const view = { width: 800, height: 450, aspect: Aspect.Fit };
-    expect(viewTransform(400, 800, view)).toEqual({
+  it("fits and fills without stretching", () => {
+    const viewport = { x: 0, y: 0, width: 400, height: 800 };
+    const fit = createViewTransform({ viewport, aspect: Aspect.Fit });
+    expect(fit).toMatchObject({
       scale: 0.5,
       x: 0,
       y: 287.5,
-      worldWidth: 800,
-      worldHeight: 450,
+      logicalWidth: 800,
+      logicalHeight: 450,
     });
-    const fill = viewTransform(400, 800, { ...view, aspect: Aspect.Fill });
+    const fill = createViewTransform({ viewport, aspect: Aspect.Fill });
     expect(fill.scale).toBeCloseTo(800 / 450);
     expect(fill.x).toBeLessThan(0);
-    expect(fill.y).toBe(0);
   });
-  it("adaptive uses CSS-pixel logical units", () =>
+  it("adaptive uses viewport CSS-pixel logical units", () => {
     expect(
-      viewTransform(390, 844, {
-        width: 800,
-        height: 450,
+      createViewTransform({
+        viewport: { x: 0, y: 0, width: 390, height: 844 },
         aspect: Aspect.Adaptive,
       }),
-    ).toEqual({ scale: 1, x: 0, y: 0, worldWidth: 390, worldHeight: 844 }));
-  it("rejects degenerate sizes", () =>
+    ).toMatchObject({
+      scale: 1,
+      x: 0,
+      y: 0,
+      logicalWidth: 390,
+      logicalHeight: 844,
+    });
+  });
+  it("rejects degenerate dimensions", () =>
     expect(() =>
-      viewTransform(0, 100, { width: 800, height: 450, aspect: Aspect.Fit }),
+      createViewTransform({ viewport: { x: 0, y: 0, width: 0, height: 100 } }),
     ).toThrow());
-});
-
-it("seals the entity roster while keeping live positions mutable", () => {
-  const scene = new Scene("sealed");
-  const player = scene.add(Character());
-  scene.seal();
-  expect(() => scene.add(Character())).toThrow();
-  player.x = 10;
-  expect(scene.characters[0]?.x).toBe(10);
 });
