@@ -117,7 +117,18 @@
   }
 }
 
-.s-ui > .s-bottom { margin-top: auto; }
-.s-ui > .s-center { margin: auto; }
-.simpludify .s-hold { min-width: 3rem; min-height: 3rem; touch-action: none; user-select: none; }
-.simpludify .s-hold[aria-pressed="true"] { filter: brightness(0.8); }
+.s-ui > .s-bottom {
+  margin-top: auto;
+}
+.s-ui > .s-center {
+  margin: auto;
+}
+.simpludify .s-hold {
+  min-width: 3rem;
+  min-height: 3rem;
+  touch-action: none;
+  user-select: none;
+}
+.simpludify .s-hold[aria-pressed="true"] {
+  filter: brightness(0.8);
+}
