@@ -107,6 +107,8 @@ export class Engine {
       this.active.state === SceneState.Ready
     )
       this.activate(this.active);
+    // Activation hooks may synchronously terminate or suspend this first step.
+    if (this.dead || this.active.disposed || this.suspended) return;
     this.context.delta = seconds;
     this.context.input = this.input.capture();
     this.context.scene = this.active;

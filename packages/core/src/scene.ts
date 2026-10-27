@@ -212,6 +212,7 @@ export class Scene {
       throw new EngineError("SCENE_STATE", "Only active scenes can update", {
         sceneId: this.id,
       });
+    this.timers?.beginStep();
     if (this.updateRevision !== this.revision) {
       this.updateActors = this.actors.filter((actor) => actor.hasUpdates);
       this.updateRevision = this.revision;

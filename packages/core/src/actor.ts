@@ -236,7 +236,6 @@ export class Actor {
     this.destroying = true;
     this.owner = undefined;
     const components = [...this.components.values()].reverse();
-    this.components.clear();
     this.inputPlan = [];
     this.updatePlan = [];
     this.frameInput = [];
@@ -246,11 +245,18 @@ export class Actor {
         [
           () => this.lifetime.dispose(),
           () => this.bus?.dispose(),
-          ...components.map((component) => () => component.destroyOwned()),
+          ...components.map((component) => () => {
+            try {
+              component.destroyOwned();
+            } finally {
+              this.components.delete(component.type.id);
+            }
+          }),
         ],
         "Actor cleanup failed",
       );
     } finally {
+      this.components.clear();
       this.bus = undefined;
     }
   }

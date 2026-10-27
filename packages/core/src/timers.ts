@@ -12,6 +12,7 @@ interface Timer {
 export class SimulationTimers {
   private readonly timers = new Set<Timer>();
   private dead = false;
+  private plan: readonly Timer[] = [];
   schedule(
     seconds: number,
     callback: () => void,
@@ -51,10 +52,14 @@ export class SimulationTimers {
     }
     return timer.cancel;
   }
+  /** Capture eligibility before any Scene update phase. */
+  beginStep(): void {
+    this.plan = [...this.timers];
+  }
   step(seconds: number): void {
     if (!this.timers.size) return;
     const errors: unknown[] = [];
-    for (const timer of [...this.timers]) {
+    for (const timer of this.plan) {
       if (!timer.active) continue;
       timer.remaining -= seconds;
       if (timer.remaining > 1e-12) continue;
@@ -64,7 +69,12 @@ export class SimulationTimers {
         } catch (error) {
           errors.push(error);
         }
-      } else timer.remaining = timer.interval;
+      } else {
+        // Preserve phase, but deliver at most once after a long step.
+        const remainder = Math.max(0, -timer.remaining) % timer.interval;
+        timer.remaining = timer.interval - remainder;
+        if (timer.remaining <= 1e-12) timer.remaining = timer.interval;
+      }
       try {
         timer.callback();
       } catch (error) {
@@ -86,6 +96,7 @@ export class SimulationTimers {
       );
     } finally {
       this.timers.clear();
+      this.plan = [];
     }
   }
 }
