@@ -228,6 +228,7 @@ it("locks live input, validates supplied deltas, and releases the lock on dispos
 });
 it("rejects malformed JSON data and inconsistent Button transitions", () => {
   const a = recording();
+  // biome-ignore lint/suspicious/noExplicitAny: deliberately corrupt parsed JSON to exercise runtime validation.
   const modify = (fn: (v: any) => void) => {
     const v = JSON.parse(JSON.stringify(a.data));
     fn(v);
@@ -316,4 +317,63 @@ it("enforces a recording budget and rejects non-JSON metadata/events", () => {
   expect(rec.length).toBe(1);
   expect(data.steps).toHaveLength(1);
   a.engine.dispose();
+});
+
+it("does no frame or random snapshot traversal with recording disabled", () => {
+  const engine = new Engine({ seed: 42 });
+  const c = new ActionController(Actions, {
+    scene: engine.scene,
+    input: engine.input,
+  });
+  const a = { engine, c };
+  let frameReads = 0,
+    snapshotReads = 0;
+  const frame = a.c.frame.bind(a.c),
+    snapshot = a.engine.random.snapshot.bind(a.engine.random);
+  a.c.frame = () => {
+    frameReads++;
+    return frame();
+  };
+  a.engine.random.snapshot = () => {
+    snapshotReads++;
+    return snapshot();
+  };
+  for (let i = 0; i < 10000; i++) a.engine.step(1 / 120);
+  expect(frameReads).toBe(0);
+  expect(snapshotReads).toBe(0);
+  a.engine.dispose();
+});
+it("canonicalizes metadata key order and checks game/engine versions before attachment", () => {
+  const a = recording(),
+    b = setup();
+  const data = JSON.parse(JSON.stringify(a.data));
+  data.engineVersion = "different";
+  expect(
+    () => new ReplayPlayer(b.engine, data, { controllers: { player: b.c } }),
+  ).toThrow(/version/);
+  const c = new ActionController(defineActions({ Changed: Action.button() }), {
+    scene: b.engine.scene,
+    input: b.engine.input,
+  });
+  expect(
+    () => new ReplayPlayer(b.engine, a.data, { controllers: { player: c } }),
+  ).toThrow(/Controller/);
+  c.dispose();
+  a.engine.dispose();
+  b.engine.dispose();
+});
+it("bounds playback host-time work without skipping recorded frames", () => {
+  const a = recording(),
+    b = setup(),
+    player = new ReplayPlayer(b.engine, a.data, {
+      controllers: { player: b.c },
+    });
+  expect(player.advance(100, 1)).toBe(1);
+  expect(player.index).toBe(1);
+  for (let i = 0; i < 100 && !player.done; i++) player.advance(0.25, 2);
+  expect(player.done).toBe(true);
+  expect(b.log).toEqual(a.log);
+  player.dispose();
+  a.engine.dispose();
+  b.engine.dispose();
 });

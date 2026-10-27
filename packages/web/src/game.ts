@@ -5,11 +5,16 @@ import {
   createViewTransform,
   Engine,
   EngineError,
+  type FixedStepOptions,
+  FixedStepRunner,
   type FrameDriver,
+  type JsonValue,
   type LogicalResolution,
   type PreparedScene,
   positive,
   type RendererPort,
+  type ReplayControllers,
+  ReplayPlayer,
   Scene,
   SceneState,
   type ScreenPoint,
@@ -30,6 +35,7 @@ import {
   type ThemeTokens,
   type UINode,
 } from "./ui";
+
 export interface SceneContext {
   readonly scene: Scene;
   readonly signal: AbortSignal;
@@ -52,6 +58,7 @@ export interface GameOptions {
   tokens?: Partial<ThemeTokens>;
   seed?: number;
   maxDelta?: number;
+  fixedStep?: FixedStepOptions;
   renderer?: (host: HTMLElement) => RendererPort;
   frames?: FrameDriver;
   onError?: (error: unknown) => void;
@@ -68,6 +75,10 @@ export class Game<SceneId extends string = string> {
   private readonly resolution: LogicalResolution;
   private readonly aspect: Aspect;
   private readonly maxDelta: number;
+  private readonly fixed: FixedStepRunner | undefined;
+  private playback: ReplayPlayer | undefined;
+  private playbackScene: Scene | undefined;
+  private removeReplayOwner: (() => void) | undefined;
   private requestedViewport: Viewport | undefined;
   private projection: ViewTransform;
   private projectionDirty = true;
@@ -98,6 +109,9 @@ export class Game<SceneId extends string = string> {
     this.engine = new Engine(
       options.seed === undefined ? {} : { seed: options.seed },
     );
+    this.fixed = options.fixedStep
+      ? new FixedStepRunner(this.engine, options.fixedStep)
+      : undefined;
     this.camera = options.camera ?? new Camera();
     this.maxDelta = positive(options.maxDelta ?? 0.05, "maxDelta");
     this.resolution = {
@@ -159,6 +173,7 @@ export class Game<SceneId extends string = string> {
       "visibilitychange",
       () => {
         this.previousTime = undefined;
+        this.fixed?.reset();
         this.engine.input.clear();
       },
       { signal: this.shutdown.signal },
@@ -184,11 +199,52 @@ export class Game<SceneId extends string = string> {
     this.assertAlive();
     this.engine.pause();
     this.previousTime = undefined;
+    this.fixed?.reset();
   }
   resume(): void {
     this.assertAlive();
     this.engine.resume();
     this.previousTime = undefined;
+    this.fixed?.reset();
+  }
+  /** Configure inside the initial Scene factory after game setup, before the first Engine step. */
+  playReplay(
+    data: unknown,
+    options: {
+      scene: Scene;
+      controllers: ReplayControllers;
+      expectedMetadata?: Readonly<Record<string, JsonValue>>;
+    },
+  ): ReplayPlayer {
+    this.assertAlive();
+    if (options.scene !== this.engine.scene && options.scene !== this.staging)
+      throw new EngineError(
+        "REPLAY_STATE",
+        "Replay Scene must be current or staged by this Game",
+      );
+    if (this.playback)
+      throw new EngineError("REPLAY_STATE", "Game already has a Replay player");
+    const player = new ReplayPlayer(this.engine, data, options);
+    this.playback = player;
+    this.playbackScene = options.scene;
+    try {
+      this.removeReplayOwner = options.scene.onDispose(() => this.stopReplay());
+    } catch (error) {
+      this.stopReplay();
+      throw error;
+    }
+    return player;
+  }
+  stopReplay(): void {
+    const player = this.playback,
+      off = this.removeReplayOwner;
+    this.playback = undefined;
+    this.playbackScene = undefined;
+    this.removeReplayOwner = undefined;
+    off?.();
+    player?.dispose();
+    this.previousTime = undefined;
+    this.fixed?.reset();
   }
   add<T extends Actor>(actor: T): T {
     this.assertAlive();
@@ -348,6 +404,7 @@ export class Game<SceneId extends string = string> {
       scene.markReady();
       this.errorBox.hidden = true;
       try {
+        if (this.playback && this.playbackScene !== scene) this.stopReplay();
         this.engine.activate(scene);
       } catch (error) {
         if (this.engine.scene !== scene || scene.state !== SceneState.Active)
@@ -373,6 +430,7 @@ export class Game<SceneId extends string = string> {
       }
       this.assertAlive();
       this.previousTime = undefined;
+      this.fixed?.reset();
       this.updateProjection();
       this.render();
       this.assertAlive();
@@ -502,17 +560,18 @@ export class Game<SceneId extends string = string> {
     try {
       if (document.hidden) {
         this.previousTime = undefined;
+        this.fixed?.reset();
         this.engine.input.clear();
       } else {
-        const seconds =
+        const elapsed =
           this.previousTime === undefined
             ? 0
-            : Math.min(
-                this.maxDelta,
-                Math.max(0, (time - this.previousTime) / 1000),
-              );
+            : Math.max(0, (time - this.previousTime) / 1000);
         this.previousTime = time;
-        this.engine.step(seconds);
+        if (this.playback)
+          this.playback.advance(elapsed, this.options.fixedStep?.maxSteps ?? 8);
+        else if (this.fixed) this.fixed.advance(elapsed);
+        else this.engine.step(Math.min(this.maxDelta, elapsed));
         if (
           this.ratio !==
           (this.options.pixelRatio ?? Math.min(window.devicePixelRatio || 1, 2))
@@ -543,6 +602,7 @@ export class Game<SceneId extends string = string> {
     this.shutdown.abort();
     if (this.frame !== undefined) this.frames.cancel(this.frame);
     for (const cleanup of [
+      () => this.stopReplay(),
       () => this.staging?.dispose(),
       () => this.keyboard.dispose(),
       () => this.observer.disconnect(),

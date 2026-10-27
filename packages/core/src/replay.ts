@@ -36,14 +36,14 @@ function bindings(
   controllers: ReplayControllers,
 ): [string, ReplayController][] {
   if (engine.disposed || engine.stepCount !== 0)
-    return state(
+    state(
       "Replay requires a new Engine before its first step; rebuild game state with the recorded seed",
     );
   const result = Object.entries(controllers).sort(([a], [b]) =>
       a < b ? -1 : a > b ? 1 : 0,
     ),
     seen = new Set<ReplayController>();
-  if (result.length > 64) return state("Too many Replay controllers");
+  if (result.length > 64) state("Too many Replay controllers");
   for (const [id, c] of result) {
     if (
       !id.length ||
@@ -52,9 +52,7 @@ function bindings(
       seen.has(c) ||
       !engine.input.hasController(c)
     )
-      return state(
-        "Replay IDs must uniquely bind controllers owned by this Engine",
-      );
+      state("Replay IDs must uniquely bind controllers owned by this Engine");
     seen.add(c);
   }
   return result;
@@ -103,7 +101,7 @@ export class ReplayRecorder implements ExecutionPort {
       this.maxSteps < 1 ||
       this.maxSteps > 1000000
     )
-      return state("maxSteps must be an integer from 1 to 1000000");
+      state("maxSteps must be an integer from 1 to 1000000");
     this.detach = engine.attachExecution(this);
   }
   get disposed(): boolean {
@@ -121,11 +119,9 @@ export class ReplayRecorder implements ExecutionPort {
   beforeStep(seconds: number): void {
     if (this.closed) return;
     if (this.failure)
-      return state("Recording failed; dispose it and rebuild the game");
+      state("Recording failed; dispose it and rebuild the game");
     if (this.steps.length >= this.maxSteps)
-      return state(
-        "Replay recording reached maxSteps; finish before advancing again",
-      );
+      state("Replay recording reached maxSteps; finish before advancing again");
     this.engine.input.verifyControllers(this.bound.map(([, c]) => c));
     if (this.sceneId === undefined) {
       this.sceneId = this.engine.scene.id;
@@ -133,7 +129,7 @@ export class ReplayRecorder implements ExecutionPort {
       this.initial = this.engine.random.snapshot();
     }
     if (this.scene !== this.engine.scene)
-      return state(
+      state(
         "Replay records one Scene; start a fresh Engine to record a different Scene",
       );
     this.current = { dt: seconds, pausedBefore: this.engine.paused };
@@ -147,7 +143,7 @@ export class ReplayRecorder implements ExecutionPort {
   afterStep(): void {
     if (this.closed) return;
     const c = this.current;
-    if (!c?.inputs) return state("Input capture did not complete");
+    if (!c?.inputs) state("Input capture did not complete");
     this.steps.push(
       Object.freeze({
         index: this.steps.length,
@@ -166,11 +162,10 @@ export class ReplayRecorder implements ExecutionPort {
   }
   record(type: string, payload: JsonValue): void {
     if (this.closed || this.failure)
-      return state("Cannot append to a closed or failed recording");
+      state("Cannot append to a closed or failed recording");
     if (typeof type !== "string" || !type.length || type.length > 256)
-      return state("Event type must contain 1 to 256 code units");
-    if (this.events.length >= 1000000)
-      return state("Too many auxiliary events");
+      state("Event type must contain 1 to 256 code units");
+    if (this.events.length >= 1000000) state("Too many auxiliary events");
     this.events.push(
       Object.freeze({
         step: this.steps.length,
@@ -190,7 +185,7 @@ export class ReplayRecorder implements ExecutionPort {
       !this.initial ||
       this.sceneId === undefined
     )
-      return state(
+      state(
         "Finish requires a healthy recording with completed steps, outside Engine.step",
       );
     const result = parseReplayData({
@@ -274,8 +269,7 @@ export class ReplayPlayer implements ExecutionPort {
     return this.position;
   }
   step(): boolean {
-    if (this.closed || this.failure)
-      return state("Playback is closed or failed");
+    if (this.closed || this.failure) state("Playback is closed or failed");
     if (this.done) return false;
     const frame = this.data.steps[this.position];
     if (!frame) return false;
@@ -295,8 +289,7 @@ export class ReplayPlayer implements ExecutionPort {
         "INVALID_DELTA",
         "Playback advance requires nonnegative finite seconds and maxSteps 1..1000",
       );
-    if (this.closed || this.failure)
-      return state("Playback is closed or failed");
+    if (this.closed || this.failure) state("Playback is closed or failed");
     if (this.advancing)
       throw new EngineError(
         "STEP_REENTRANT",
@@ -332,8 +325,7 @@ export class ReplayPlayer implements ExecutionPort {
       );
   }
   beforeStep(seconds: number): void {
-    if (this.closed || this.failure)
-      return state("Playback is closed or failed");
+    if (this.closed || this.failure) state("Playback is closed or failed");
     const frame = this.data.steps[this.position];
     if (!frame)
       throw new EngineError(

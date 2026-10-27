@@ -95,6 +95,8 @@ export function copyJson(value: unknown): JsonValue {
     }
     if (typeof v !== "object" || !v)
       return bad("Expected JSON data, not executable/host values");
+    if (Object.getOwnPropertySymbols(v).length)
+      return bad("Symbol keys are not JSON payloads");
     if (ancestors.has(v)) return bad("Cyclic JSON payload");
     ancestors.add(v);
     let result: JsonValue;

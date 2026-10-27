@@ -10,6 +10,7 @@ export * from "./coordinates";
 export * from "./diagnostics";
 export * from "./engine";
 export * from "./events";
+export * from "./fixed-step";
 export { InputSystem, KeyboardSource } from "./input";
 export * from "./key-code";
 export * from "./lifetime";
