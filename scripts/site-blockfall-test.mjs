@@ -35,6 +35,29 @@ export async function testBlockfall(frame, page, context, width) {
     (before) => window.blockfall.puzzle.active.rotation !== before,
     rotation,
   );
+  // Exercise public runtime rebinding against the production sample, not source modules.
+  await frame.evaluate(() => {
+    const c = window.blockfall.controller.controls;
+    c.rebind(c.actions.RotateCW, { keys: ["KeyV"] });
+  });
+  const reboundRotation = await frame.evaluate(
+    () => window.blockfall.puzzle.active.rotation,
+  );
+  await page.keyboard.press("KeyX");
+  await frame.evaluate(() => window.blockfall.game.engine.step(0));
+  assert.equal(
+    await frame.evaluate(() => window.blockfall.puzzle.active.rotation),
+    reboundRotation,
+  );
+  await page.keyboard.press("KeyV");
+  await frame.waitForFunction(
+    (before) => window.blockfall.puzzle.active.rotation !== before,
+    reboundRotation,
+  );
+  await frame.evaluate(() => {
+    const c = window.blockfall.controller.controls;
+    c.resetBindings(c.actions.RotateCW);
+  });
   await page.keyboard.press("KeyC");
   await frame.waitForFunction(() => window.blockfall.puzzle.held !== null);
   await page.keyboard.press("ArrowDown");

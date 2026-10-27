@@ -30,6 +30,28 @@ export async function testPrismRaid(frame, page, context, width) {
   );
   await page.keyboard.up("ArrowRight");
   await page.keyboard.up("Space");
+  await frame.evaluate(() => {
+    const c = window.prismRaid.round.controls;
+    c.rebind(c.actions.Fire, { keys: ["KeyF"] });
+  });
+  const beforeRebind = await frame.evaluate(
+    () => window.prismRaid.round.shotsFired,
+  );
+  await page.keyboard.press("Space");
+  await frame.evaluate(() => window.prismRaid.game.engine.step(0.2));
+  assert.equal(
+    await frame.evaluate(() => window.prismRaid.round.shotsFired),
+    beforeRebind,
+  );
+  await page.keyboard.press("KeyF");
+  await frame.waitForFunction(
+    (before) => window.prismRaid.round.shotsFired > before,
+    beforeRebind,
+  );
+  await frame.evaluate(() => {
+    const c = window.prismRaid.round.controls;
+    c.resetBindings(c.actions.Fire);
+  });
   await frame.getByRole("button", { name: "Pause", exact: true }).click();
   await frame.waitForFunction(() => window.prismRaid.game.paused);
   const frozen = await frame.evaluate(() => window.prismRaid.round.snapshot());

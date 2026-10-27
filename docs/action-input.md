@@ -155,3 +155,19 @@ engine.dispose();
 Action controllers are not an input-context/priority stack, a gamepad adapter or a full replay/save system. Gamepad adapters may write analog values into their own source later. snapshot copies captured logical state; events/tokens and user component state are not a restorable save format. Reproducibility requires controlled seed, step sequence and inputs, including command order.
 
 Existing raw key tests and Character/KeyboardController continue to work. Action-based games should read logical values/edges, register bindings once, feed touch/AI through ActionSource and remove per-game keydown command queues. Changing bindings then does not change game logic. No Engine movement behavior depends on an action name.
+
+
+## Validation and measured scope
+
+The integrated source checkpoint is [`1017c25`](https://github.com/oz-coden/Simpludify/commit/1017c259598b47dde823970264473196a08b2428). Lifecycle/timer fixes are independently saved in `335d93d`, and the initial Action foundation in `94f0df8`.
+
+- Strict TypeScript and DOM-free Core checks pass, including `@ts-expect-error` contracts for unknown keys/actions, value types, vector dimensions and button-only operations.
+- 204 unit cases pass. Input cases cover multiple short presses and ordering, source/key unions, normalized/independent axes, immutable capture, rebinding/config validation, pause/resume, initial/staged input, cross-Engine ownership, failed preparation cleanup and mutation from input callbacks. Lifecycle cases cover activation disposal, dependency teardown and six hundred simulation seconds of 144Hz repeating timers.
+- All 80 Chromium browser cases pass at 1440×900 and 390×844. New fixtures use real keyboard events, real CDP touch, source overlap/cancellation, native-control focus, pause/autorepeat, Scene preparation and actual Blockfall/Prism Raid rebinding. A touch-end synthetic mouse focus change is a focus-release case; touch cancellation with the game focused separately verifies source composition.
+- Production site checks pass with both `/` and `/Simpludify/`: 23 documentation pages, all six games, 14 independently typechecked snippets, themes, keyboard/touch, game outcomes, restart/stop and iframe cleanup. Standalone UI/scenes and Signal Run build smoke checks pass, and standalone Blockfall/Prism Raid builds succeed.
+
+[Raw Core measurements](../benchmarks/action-input/core.json) record Node 24.22.1, Linux, AMD EPYC 9V74, clean source `1017c25`. Recorded benchmarking ran without other local tests/builds. Sixty complete input-only automatic rounds (seeds 42–101, dt=1/120, decisions every six steps, five warmup rounds) produced 172796 steps, 1439.97 simulation seconds, 1440 kills and 60 wins in 3.47 wall seconds. All round/world resources were asserted empty after disposal. The peak 41 counts game Units, not every Scene Actor.
+
+The 100-enemy/1000-shot contact/removal profile has step p95 about 3.68ms; it is not a steady 1101-Unit workload. Ten thousand shot Actor create/dispose operations take about 122.46ms. Forced-GC managed heap across the sixty rounds is about 19.60→19.70MB, including Vite/SSR/tooling. These are local observations, not a statistically established speed comparison or proof of leak freedom. No new hardware GPU or physical-device performance measurement is claimed.
+
+Remaining limits: no full gamepad adapter, input-context priority stack, replay/save format or fixed-step Web scheduler. Axis excursions completed between steps are continuous-state changes rather than queued commands. Browser/OS-reserved keys may not be delivered. Physical mobile devices, Safari/Firefox and cross-platform bitwise reproducibility remain unverified.
