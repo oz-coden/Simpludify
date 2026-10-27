@@ -14,6 +14,10 @@ export type ActionValue<K extends ActionKind> = K extends "button"
     : K extends "axis2d"
       ? Axis2DValue
       : Axis3DValue;
+/** Axis2D writes reject a third component even when supplied through a typed variable. */
+export type ActionInputValue<K extends ActionKind> = K extends "axis2d"
+  ? Axis2DValue & { readonly z?: never }
+  : ActionValue<K>;
 export interface ActionDefinition<K extends ActionKind = ActionKind> {
   readonly kind: K;
   readonly normalize: boolean;

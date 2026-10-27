@@ -46,6 +46,9 @@ export function actionTypeContracts(scene: Scene, input: InputState): void {
   source.set(actions.Yaw, true);
   // @ts-expect-error wrong vector dimension
   source.set(actions.Move, { x: 0, y: 0, z: 1 });
+  const threeAxes = c.value(actions.Aim);
+  // @ts-expect-error a typed three-axis variable is not a two-axis source value
+  source.set(actions.Move, threeAxes);
   // @ts-expect-error missing third axis
   source.set(actions.Aim, { x: 0, y: 0 });
   // @ts-expect-error button edges do not apply to vectors

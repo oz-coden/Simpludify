@@ -10,6 +10,7 @@ import {
   keyLists,
 } from "./action-bindings";
 import type {
+  ActionInputValue,
   ActionSet,
   ActionToken,
   ActionValue,
@@ -27,6 +28,7 @@ export type {
 } from "./action-bindings";
 export type {
   ActionDefinition,
+  ActionInputValue,
   ActionKind,
   ActionSet,
   ActionToken,
@@ -540,7 +542,7 @@ export class ActionSource<A extends ActionSet> {
   }
   set<T extends Token<A>>(
     action: T,
-    value: NoInfer<ActionValue<T["kind"]>>,
+    value: NoInfer<ActionInputValue<T["kind"]>>,
   ): void {
     if (this.dead) {
       if (isNeutral(checkedValue(action, value))) return;
