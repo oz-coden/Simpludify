@@ -251,7 +251,10 @@ test("composes simultaneous touch holds", async ({ page }) => {
         () => window.signalRun.round?.controls.snapshot().Move.value,
       ),
     )
-    .toEqual({ x: Math.SQRT1_2, y: -Math.SQRT1_2 });
+    .toEqual({
+      x: expect.closeTo(Math.SQRT1_2, 10),
+      y: expect.closeTo(-Math.SQRT1_2, 10),
+    });
   await cdp.send("Input.dispatchTouchEvent", {
     type: "touchEnd",
     touchPoints: [a],
