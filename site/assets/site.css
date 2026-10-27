@@ -476,7 +476,7 @@ footer {
     grid-template-columns: 1fr;
   }
   .home h1 {
-    font-size: 2.65rem;
+    font-size: 2.1rem;
   }
   pre {
     padding: 1rem;
@@ -502,4 +502,8 @@ footer {
   html {
     scroll-behavior: auto !important;
   }
+}
+/* Long API names wrap in prose; code blocks and tables keep their own scrollers. */
+article {
+  overflow-wrap: anywhere;
 }

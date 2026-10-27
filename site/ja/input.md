@@ -33,7 +33,7 @@ Scene破棄で入力元も破棄します。HoldButtonはタッチ・マウス�
 
 `Engine.step(seconds)`は秒単位の有限・非負値を受け取り、上限を設けません。テストでは固定入力、固定ステップ、seed、外部時刻を使わないゲームロジックを揃えます。
 
-```ts
+```ts verify
 import { Character, Engine, Movement } from "@simpludify/core";
 const engine = new Engine(42);
 engine.scene.add(Character({ movement: Movement.WASD }));

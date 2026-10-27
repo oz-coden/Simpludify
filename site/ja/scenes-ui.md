@@ -4,7 +4,7 @@
 
 ## Sceneを登録する
 
-```ts
+```ts verify
 import {
   Button,
   Character,

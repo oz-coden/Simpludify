@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { checkSnippets } from "./site-snippets.mjs";
 
 const root = resolve("site-dist");
 const manifest = JSON.parse(readFileSync(`${root}/site-manifest.json`, "utf8"));
@@ -61,3 +62,5 @@ for (const file of [
 console.log(
   `Site references verified: ${documents.length} HTML documents, ${references} links/assets, base ${manifest.base}`,
 );
+
+checkSnippets();

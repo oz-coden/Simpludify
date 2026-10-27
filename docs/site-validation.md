@@ -35,13 +35,24 @@ npm run test:build:game
 
 Install the Playwright Chromium headless shell first, or set CHROMIUM_PATH to a compatible binary. `site:serve` reads the built manifest and prints the correct preview URL. `SITE_URL=https://host/path/ npm run test:site` checks an actual deployed site rather than local output.
 
-The site smoke suite crawls every document, checks root overflow, theme persistence, narrow navigation, all sample startups, visible keyboard-driven rendering changes, UI scene switching, synthetic touch movement, pause/resume, restart, explicit host/source disposal, focus return and WebGL failure messaging. It records screenshots and a machine-readable report under test-results/site. The static checker verifies local href/src destinations, anchors, sample entry points, required notices and base containment. It does not assert every external website's availability.
+The site smoke suite crawls every document, checks root overflow, theme persistence, narrow navigation, all sample startups, visible keyboard-driven rendering changes, UI scene switching, synthetic touch movement, pause/resume, restart, explicit host/source disposal, focus return and renderer-unavailability messaging, plus a limited no-WebGL Character Canvas2D startup. It records screenshots and a machine-readable report under test-results/site. The static checker verifies local href/src destinations, anchors, sample entry points, required notices and base containment. It does not assert every external website's availability.
 
-## Validation status at checkpoint
+## Local validation (2026-10-27)
 
-- Implementation and static build: complete; /Simpludify/ link validation passed (23 HTML documents).
-- Strict checks, unit tests, browser/site tests: in progress; final results will replace this section before main integration.
-- Root-path build, Actions, deployment and actual public URL: not yet verified at this checkpoint.
+- Node 24.22.1, Linux, Playwright 1.64.1, Chrome headless shell 156.0.8078.4 with SwiftShader. Desktop 1440×900 and narrow 390×844; synthetic browser touch, not physical devices. Noto CJK was installed on the QA host to inspect Japanese glyphs; no font is bundled in the site.
+- `npm run check`: passed, including DOM-free Core, strict TypeScript, boundaries, formatting and all 116 locked dependency licenses/notices. Nonblocking existing template-style and disjoint CSS specificity suggestions remain.
+- `npm test`: 128 passed. `npm run test:browser`: 52 passed.
+- Integrated site production build and local smoke: passed at both `/Simpludify/` and `/`, with 19 documentation pages and four sample entry points. Local href/src and anchor checks passed. Six complete `ts verify` code examples compile with the real project TypeScript CLI; contextual fragments are not claimed to be standalone programs.
+- Each sample starts, visibly responds to keyboard/game controls, restarts and closes. Signal Run touch movement, pause/resume and replay entry passed. Actual restart/stop buttons trigger disposal before frame removal: owned hosts disappear for all four examples, while the existing UI/Scenes and Signal Run inspection hooks additionally confirm disposed Engine and zero InputSources. Theme persistence, narrow navigation and focus restoration passed.
+- A forced no-WebGL/no-WebGPU Character startup selected the pinned Pixi Canvas2D fallback. This is limited evidence, not complete fallback-renderer support. Disabling all canvas contexts produced the explicit startup help and released the failed host.
+- Existing game-only production smoke builds for UI/Scenes and Signal Run passed under `/Simpludify/` at both viewport sizes; the original CLI output/meaning remains unchanged.
+- `npm audit` reported zero known vulnerabilities in the current registry response. This is a dated observation, not a security guarantee.
+
+## Remote validation and deployment checkpoint
+
+The initial `23b09b6` work-branch checkpoint passed strict checks, all 128 unit tests, site build/reference checks and all 52 existing browser tests. Its new site test failed because the initial synthetic pointer event did not represent a browser touch. The corrected harness uses CDP touch input and scrolls the control into view; local root/project-base runs pass. Narrow prose overflow was also corrected. The subsequent commit contains these validated fixes and the standalone code-example check.
+
+At this checkpoint, the corrected Actions run and the live Pages deployment are pending. No local result in this document is evidence of a public-site test. Main integration will use a fresh remote-head check and a non-forced ref update; deployment evidence will be recorded after the actual URL is checked.
 
 ## Hosting and language limits
 

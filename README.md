@@ -10,7 +10,7 @@ A code-first TypeScript 2D game engine. Create a visible character, responsive U
 
 ## Quick start
 
-Use Node.js **22.12 or later** and npm. Node 24 is used by the initial CI configuration. The Web renderer requires a modern browser with WebGL, ResizeObserver, and ES2022 support; Chromium is the automated browser test target. Other browsers have not yet been verified.
+Use Node.js **22.12 or later** and npm. Node 24 is used by the initial CI configuration. The verified rendering path uses WebGL in a modern browser with ResizeObserver and ES2022 support; Chromium is the automated browser test target. Other browsers have not yet been verified. The pinned Pixi version can select a fallback renderer; only a limited no-WebGL Character startup check is included, not full fallback compatibility.
 
 ```sh
 git clone https://github.com/oz-coden/Simpludify.git
@@ -29,7 +29,7 @@ npm run dev -- --example character
 
 `examples/character/main.ts` contains the working SDK entry point:
 
-```ts
+```ts verify
 import { Game, Character, Movement } from "@simpludify/web";
 
 const game = new Game();

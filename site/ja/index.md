@@ -17,7 +17,7 @@ Simpludifyは、TypeScriptを中心に2Dゲームをつくる実験的なゲー�
 
 ## 小さく始める
 
-```ts
+```ts verify
 import { Character, Game, Movement } from "@simpludify/web";
 
 const game = new Game();

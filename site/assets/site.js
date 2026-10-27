@@ -26,12 +26,16 @@ const slot = document.querySelector("[data-frame-slot]");
 const status = document.querySelector("[data-player-status]");
 let current, launcher, frame;
 function release() {
-  // Explicit disposal before removal also handles browsers that skip iframe pagehide.
-  // The sample and docs are trusted same-origin code, isolated into separate documents.
-  frame?.contentWindow?.dispatchEvent(new Event("simpludify:dispose"));
-  frame?.remove();
+  // Explicit disposal also handles browsers that skip iframe pagehide.
+  const retired = frame;
   frame = undefined;
+  try {
+    retired?.contentWindow?.dispatchEvent(new Event("simpludify:dispose"));
+  } finally {
+    retired?.remove();
+  }
 }
+
 function launch(button) {
   release();
   current = button.dataset.launch;

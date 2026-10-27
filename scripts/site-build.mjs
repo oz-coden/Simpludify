@@ -1,9 +1,11 @@
 import { execFileSync } from "node:child_process";
 import {
   cpSync,
+  existsSync,
   mkdirSync,
   readFileSync,
   rmSync,
+  statSync,
   writeFileSync,
 } from "node:fs";
 import { dirname, posix, resolve } from "node:path";
@@ -57,11 +59,16 @@ md.renderer.rules.link_open = (tokens, index, options, env, self) => {
       token.attrSet("href", url(published) + (hash ? `#${hash}` : ""));
       return self.renderToken(tokens, index, options);
     }
+    if (!sourceRoutes.has(target) && !existsSync(resolve(root, target))) {
+      throw new Error(`Unknown repository link in ${env.source}: ${href}`);
+    }
+    const kind =
+      existsSync(target) && statSync(target).isDirectory() ? "tree" : "blob";
     token.attrSet(
       "href",
       sourceRoutes.has(target)
         ? url(sourceRoutes.get(target)) + (hash ? `#${hash}` : "")
-        : `${repository}/blob/main/${target}${hash ? `#${hash}` : ""}`,
+        : `${repository}/${kind}/main/${target}${hash ? `#${hash}` : ""}`,
     );
   }
   return linkOpen

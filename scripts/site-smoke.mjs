@@ -29,7 +29,11 @@ try {
     { width: 1440, height: 900 },
     { width: 390, height: 844 },
   ]) {
-    const context = await browser.newContext({ viewport, hasTouch: true });
+    const context = await browser.newContext({
+      viewport,
+      hasTouch: true,
+      reducedMotion: "reduce",
+    });
     const page = await context.newPage();
     const failures = [];
     page.on("pageerror", (error) => failures.push(error.message));
@@ -90,6 +94,7 @@ try {
         await frame.waitForFunction(() => !!window.signalRun?.round);
         const x = await frame.evaluate(() => window.signalRun.round.player.x);
         const right = frame.getByRole("button", { name: "Right", exact: true });
+        await right.scrollIntoViewIfNeeded();
         const box = await right.boundingBox();
         assert(box);
         const touch = await context.newCDPSession(page);
@@ -145,36 +150,54 @@ try {
         await page.keyboard.up("KeyD");
       }
       assert.equal(await page.locator("iframe").count(), 1);
-      // Retain the old Game through a closure and verify explicit disposal before detach.
-      const disposal = await frame.evaluateHandle(() => {
-        const game = window.signalRun?.game ?? window.demo;
-        window.__sitePreviousGame = game;
-        return game;
-      });
+      const observeCleanup = async (targetFrame) => {
+        await page.evaluate(() => {
+          delete document.body.dataset.sampleCleanup;
+        });
+        await targetFrame.evaluate(() => {
+          const game = window.signalRun?.game ?? window.demo;
+          window.addEventListener(
+            "simpludify:dispose",
+            () => {
+              parent.document.body.dataset.sampleCleanup = JSON.stringify({
+                hosts: document.querySelectorAll(".simpludify").length,
+                ...(game
+                  ? {
+                      disposed: game.engine.disposed,
+                      sources: game.engine.input.sourceCount,
+                    }
+                  : {}),
+              });
+            },
+            { once: true },
+          );
+        });
+      };
+      const assertCleanup = async () => {
+        const cleaned = JSON.parse(
+          await page.evaluate(() => document.body.dataset.sampleCleanup),
+        );
+        assert.equal(cleaned.hosts, 0);
+        if ("disposed" in cleaned) {
+          assert.equal(cleaned.disposed, true);
+          assert.equal(cleaned.sources, 0);
+        }
+      };
       if (example.id === "signal-run")
         await page.screenshot({
           path: `test-results/site/gallery-${viewport.width}.png`,
-          fullPage: true,
+          fullPage: false,
         });
+      await observeCleanup(frame);
       await page.locator("[data-restart]").click();
+      await assertCleanup();
       await page.frameLocator("iframe").locator("canvas").waitFor();
-      // Frame removal destroys its JS execution context. The in-document host cleanup is
-      // separately asserted below before removing the live replacement frame.
-      await disposal.dispose();
       const currentFrame = await (
         await page.locator("iframe").elementHandle()
       ).contentFrame();
-      const cleaned = await currentFrame.evaluate(() => {
-        const game = window.signalRun?.game ?? window.demo;
-        window.dispatchEvent(new Event("simpludify:dispose"));
-        return {
-          hosts: document.querySelectorAll(".simpludify").length,
-          disposed: game?.engine.disposed ?? true,
-          sources: game?.engine.input.sourceCount ?? 0,
-        };
-      });
-      assert.deepEqual(cleaned, { hosts: 0, disposed: true, sources: 0 });
+      await observeCleanup(currentFrame);
       await page.locator("[data-stop]").click();
+      await assertCleanup();
       assert.equal(await page.locator("iframe").count(), 0);
       assert.equal(
         await launch.evaluate((button) => button === document.activeElement),
@@ -189,20 +212,49 @@ try {
       keyboard: true,
       syntheticTouch: true,
       theme: true,
-      disposal: true,
+      hostCleanupAll: true,
+      inspectedEngineCleanup: ["ui-scenes", "signal-run"],
       failures,
     });
     await context.close();
   }
-  // Force renderer initialization failure to check the user-facing fallback.
+  // Pinned Pixi may fall back to Canvas2D. Check the minimal example without WebGL,
+  // then disable all contexts to exercise the user-facing startup failure.
+  const noGl = await browser.newContext();
+  const noGlPage = await noGl.newPage();
+  await noGlPage.addInitScript(() => {
+    Object.defineProperty(navigator, "gpu", { get: () => undefined });
+    for (const prototype of [
+      HTMLCanvasElement.prototype,
+      typeof OffscreenCanvas === "undefined"
+        ? undefined
+        : OffscreenCanvas.prototype,
+    ]) {
+      if (!prototype) continue;
+      const get = prototype.getContext;
+      prototype.getContext = function (kind, ...args) {
+        return String(kind).includes("webgl")
+          ? null
+          : get.call(this, kind, ...args);
+      };
+    }
+  });
+  await noGlPage.goto(site + "play/character/index.html");
+  await noGlPage.locator("canvas").waitFor();
+  assert.equal(
+    await noGlPage.evaluate(
+      () => !!document.querySelector("canvas").getContext("2d"),
+    ),
+    true,
+  );
+  await noGl.close();
   const context = await browser.newContext();
   const page = await context.newPage();
   await page.addInitScript(() => {
-    const get = HTMLCanvasElement.prototype.getContext;
-    HTMLCanvasElement.prototype.getContext = function (kind, ...args) {
-      if (String(kind).startsWith("webgl")) return null;
-      return get.call(this, kind, ...args);
-    };
+    Object.defineProperty(navigator, "gpu", { get: () => undefined });
+    HTMLCanvasElement.prototype.getContext = () => null;
+    if (typeof OffscreenCanvas !== "undefined")
+      OffscreenCanvas.prototype.getContext = () => null;
   });
   await page.goto(site + "play/character/index.html");
   await page
@@ -218,6 +270,7 @@ try {
     browser: browser.version(),
     results,
     startupFailureFallback: true,
+    webglUnavailableCharacterCanvasFallback: true,
   };
   writeFileSync(
     "test-results/site/result.json",

@@ -5,7 +5,7 @@
 ## 必要な環境
 
 - Node.js 22.12以上とnpm。CIはNode 24を使用します。
-- WebGL、ResizeObserver、ES2022に対応するブラウザ。
+- WebGL、ResizeObserver、ES2022に対応するブラウザを中心に検証します。
 - 自動検証対象はChromiumです。Safari・Firefox・実機スマートフォン全般の動作保証はありません。
 
 ```sh
@@ -21,7 +21,7 @@ npm run dev -- --example character
 
 `examples/character/main.ts`の本体です。サンプル共通の起動補助を除いたSDKの使い方は次のとおりです。
 
-```ts
+```ts verify
 import { Character, Game, Movement } from "@simpludify/web";
 
 const parent = document.querySelector<HTMLElement>("#app")!;

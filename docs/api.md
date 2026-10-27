@@ -4,7 +4,7 @@
 
 ## Minimal game and defaults
 
-```ts
+```ts verify
 import { Game, Character, Movement } from "@simpludify/web";
 const game = new Game();
 game.add(Character({ movement: Movement.WASD }));
