@@ -3,7 +3,12 @@ import { EngineError } from "./diagnostics";
 import { EventBus, type EventType } from "./events";
 import { cleanupAll, Lifetime } from "./lifetime";
 import type { Scene } from "./scene";
-export const ComponentPhase = { Input: "input", Update: "update" } as const;
+export const ComponentPhase = {
+  Input: "input",
+  Update: "update",
+  Integrate: "integrate",
+  LateUpdate: "late-update",
+} as const;
 export type ComponentPhase =
   (typeof ComponentPhase)[keyof typeof ComponentPhase];
 export interface UpdateContext {

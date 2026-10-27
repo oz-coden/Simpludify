@@ -136,42 +136,99 @@ export class Renderable extends Component {
       throw new EngineError("INVALID_VALUE", "Unknown shape");
   }
 }
+/** Integrates an input-independent direction × speed after command-producing Components. */
 export class Motion extends Component {
   static readonly type: ComponentType<Motion> = defineComponent<Motion>(
     "Motion",
     [Transform.type],
   );
   readonly type: ComponentType<Motion> = Motion.type;
-  readonly direction: { x: number; y: number } = { x: 0, y: 0 };
-  readonly speed: number;
+  readonly phase: ComponentPhase = ComponentPhase.Integrate;
+  private readonly vector: { x: number; y: number };
+  get direction(): { x: number; y: number } {
+    return this.vector;
+  }
+  private horizontal = 0;
+  private vertical = 0;
+  private rate = 180;
   private transform: Transform | undefined;
+  get speed(): number {
+    return this.rate;
+  }
+  set speed(value: number) {
+    if (!Number.isFinite(value) || value < 0)
+      throw new EngineError(
+        "INVALID_VALUE",
+        "Motion.speed must be finite and nonnegative",
+      );
+    this.rate = value;
+  }
   constructor(options: { speed?: number; x?: number; y?: number } = {}) {
     super();
-    this.speed = positive(options.speed ?? 180, "speed");
-    this.direction.x = finite(options.x ?? 0, "direction.x");
-    this.direction.y = finite(options.y ?? 0, "direction.y");
+    const motion = this;
+    this.vector = {
+      get x() {
+        return motion.horizontal;
+      },
+      set x(value: number) {
+        motion.horizontal = finite(value, "Motion.direction.x");
+      },
+      get y() {
+        return motion.vertical;
+      },
+      set y(value: number) {
+        motion.vertical = finite(value, "Motion.direction.y");
+      },
+    };
+    this.speed = options.speed ?? 180;
+    this.direction.x = options.x ?? 0;
+    this.direction.y = options.y ?? 0;
   }
   protected onAttach(): void {
     this.transform = this.actor.require(Transform.type);
   }
   update(context: UpdateContext): void {
     if (!this.transform) return;
-    this.transform.x += this.direction.x * this.speed * context.delta;
-    this.transform.y += this.direction.y * this.speed * context.delta;
+    const x = finite(
+        this.transform.x + this.horizontal * this.rate * context.delta,
+        "Motion result x",
+      ),
+      y = finite(
+        this.transform.y + this.vertical * this.rate * context.delta,
+        "Motion result y",
+      );
+    this.transform.x = x;
+    this.transform.y = y;
   }
   protected onDestroy(): void {
     this.transform = undefined;
   }
 }
-/** Applies an explicitly supplied Axis2D Action to Motion during the input phase. */
+/** Optional Action-to-Motion adapter. Custom Update Components can replace it entirely. */
 export class ActionMovement extends Component {
   static readonly type: ComponentType<ActionMovement> =
     defineComponent<ActionMovement>("ActionMovement", [Motion.type]);
   readonly type = ActionMovement.type;
-  readonly phase = ComponentPhase.Input;
+  readonly phase: ComponentPhase = ComponentPhase.Update;
   private motion: Motion | undefined;
-  constructor(readonly input: ActionReader<"axis2d">) {
+  private factor = 1;
+  get scale(): number {
+    return this.factor;
+  }
+  set scale(value: number) {
+    if (!Number.isFinite(value) || value < 0)
+      throw new EngineError(
+        "INVALID_VALUE",
+        "ActionMovement.scale must be finite and nonnegative",
+      );
+    this.factor = value;
+  }
+  constructor(
+    readonly input: ActionReader<"axis2d">,
+    options: { scale?: number } = {},
+  ) {
     super();
+    this.scale = options.scale ?? 1;
   }
   protected onAttach(): void {
     this.motion = this.actor.require(Motion.type);
@@ -194,8 +251,10 @@ export class ActionMovement extends Component {
     }
     const value = this.input.value();
     if (this.motion) {
-      this.motion.direction.x = value.x;
-      this.motion.direction.y = value.y;
+      const x = finite(value.x * this.factor, "scaled direction.x"),
+        y = finite(value.y * this.factor, "scaled direction.y");
+      this.motion.direction.x = x;
+      this.motion.direction.y = y;
     }
   }
   protected onDestroy(): void {

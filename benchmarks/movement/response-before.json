@@ -1,0 +1,277 @@
+{
+  "environment": {
+    "date": "2026-10-27T16:19:31.812Z",
+    "node": "v24.22.1",
+    "platform": "linux",
+    "cpu": "AMD EPYC 9V74 80-Core Processor",
+    "sourceRevision": "01bb2fb0fedbcb18e3ea383880a50a8a896cdb1d"
+  },
+  "results": [
+    {
+      "workload": "empty",
+      "resetPosesOutsideTimedRegion": 0,
+      "samples": 1000,
+      "stepMilliseconds": {
+        "p50": 0.001592999999957101,
+        "p95": 0.003424999999992906,
+        "p99": 0.0246670000000222
+      }
+    },
+    {
+      "workload": "1000 passive Actors",
+      "resetPosesOutsideTimedRegion": 0,
+      "samples": 1000,
+      "stepMilliseconds": {
+        "p50": 0.0007610000000113359,
+        "p95": 0.0021930000000338623,
+        "p99": 0.0034150000000181535
+      }
+    },
+    {
+      "workload": "1000 moving Characters",
+      "resetPosesOutsideTimedRegion": 0,
+      "samples": 1000,
+      "stepMilliseconds": {
+        "p50": 0.3703690000002098,
+        "p95": 0.6548510000000078,
+        "p99": 1.1609109999999419
+      }
+    },
+    {
+      "workload": "1000 sparse Triggers",
+      "resetPosesOutsideTimedRegion": 0,
+      "samples": 1000,
+      "stepMilliseconds": {
+        "p50": 0.12030800000002273,
+        "p95": 0.21959500000002663,
+        "p99": 0.4116199999998571
+      },
+      "contacts": {
+        "colliders": 1000,
+        "contacts": 0,
+        "candidates": 0,
+        "narrowTests": 0
+      },
+      "response": {
+        "passes": 0,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "workload": "1000 grid Triggers",
+      "resetPosesOutsideTimedRegion": 0,
+      "samples": 1000,
+      "stepMilliseconds": {
+        "p50": 1.7933389999998326,
+        "p95": 3.520520999999917,
+        "p99": 4.887097000000267
+      },
+      "contacts": {
+        "colliders": 1000,
+        "contacts": 1935,
+        "candidates": 36375,
+        "narrowTests": 3807
+      },
+      "response": {
+        "passes": 0,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "workload": "100 dense Triggers",
+      "resetPosesOutsideTimedRegion": 0,
+      "samples": 1000,
+      "stepMilliseconds": {
+        "p50": 1.2795369999994364,
+        "p95": 3.3840879999997924,
+        "p99": 4.610196999999971
+      },
+      "contacts": {
+        "colliders": 100,
+        "contacts": 4950,
+        "candidates": 4950,
+        "narrowTests": 4950
+      },
+      "response": {
+        "passes": 0,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "workload": "1000 fixed Solids",
+      "resetPosesOutsideTimedRegion": 0,
+      "samples": 1000,
+      "stepMilliseconds": {
+        "p50": 0.5930090000001655,
+        "p95": 1.0065829999994094,
+        "p99": 1.758827999999994
+      },
+      "contacts": {
+        "colliders": 1000,
+        "contacts": 0,
+        "candidates": 12000,
+        "narrowTests": 0
+      },
+      "response": {
+        "passes": 0,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "workload": "1000 static obstacles + 1 dynamic Actor",
+      "resetPosesOutsideTimedRegion": 0,
+      "samples": 1000,
+      "stepMilliseconds": {
+        "p50": 1.5521520000002056,
+        "p95": 2.634095999999772,
+        "p99": 4.782993000000715
+      },
+      "contacts": {
+        "colliders": 1001,
+        "contacts": 1,
+        "candidates": 36075,
+        "narrowTests": 3
+      },
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "workload": "100 moving dynamic Solids",
+      "resetPosesOutsideTimedRegion": 0,
+      "samples": 1000,
+      "stepMilliseconds": {
+        "p50": 0.2336959999993269,
+        "p95": 0.4028779999989638,
+        "p99": 0.5690140000006068
+      },
+      "contacts": {
+        "colliders": 100,
+        "contacts": 172,
+        "candidates": 1890,
+        "narrowTests": 448
+      },
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "workload": "100 crowded dynamic Solids",
+      "resetPosesOutsideTimedRegion": 100,
+      "samples": 1000,
+      "stepMilliseconds": {
+        "p50": 1.1218430000008084,
+        "p95": 1.6898359999995591,
+        "p99": 2.5326960000002146
+      },
+      "contacts": {
+        "colliders": 100,
+        "contacts": 180,
+        "candidates": 8470,
+        "narrowTests": 2062
+      },
+      "response": {
+        "passes": 6,
+        "corrections": 983,
+        "unresolved": 147
+      }
+    },
+    {
+      "workload": "one Trigger wall",
+      "resetPosesOutsideTimedRegion": 0,
+      "samples": 1000,
+      "stepMilliseconds": {
+        "p50": 0.0021230000002105953,
+        "p95": 0.0032850000006874325,
+        "p99": 0.0061189999996713595
+      },
+      "contacts": {
+        "colliders": 2,
+        "contacts": 0,
+        "candidates": 0,
+        "narrowTests": 0
+      },
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "workload": "one Solid wall",
+      "resetPosesOutsideTimedRegion": 0,
+      "samples": 1000,
+      "stepMilliseconds": {
+        "p50": 0.0038860000004206086,
+        "p95": 0.0056590000003780005,
+        "p99": 0.025777999999263557
+      },
+      "contacts": {
+        "colliders": 2,
+        "contacts": 1,
+        "candidates": 3,
+        "narrowTests": 3
+      },
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    }
+  ],
+  "churn": {
+    "steps": 2000,
+    "enters": 2000,
+    "exits": 1999,
+    "finalContacts": 1,
+    "stepMilliseconds": {
+      "p50": 0.1372639999990497,
+      "p95": 0.26959999999962747,
+      "p99": 0.4083150000005844
+    }
+  },
+  "disposal": {
+    "warmup": 50,
+    "cycles": 500,
+    "memory": [
+      {
+        "cycles": 0,
+        "heapUsed": 58146432
+      },
+      {
+        "cycles": 100,
+        "heapUsed": 58191272
+      },
+      {
+        "cycles": 200,
+        "heapUsed": 58169872
+      },
+      {
+        "cycles": 300,
+        "heapUsed": 58218504
+      },
+      {
+        "cycles": 400,
+        "heapUsed": 58271624
+      },
+      {
+        "cycles": 500,
+        "heapUsed": 58465496
+      }
+    ]
+  },
+  "limitations": [
+    "Shared host, no renderer/GPU work",
+    "Dense contacts and a one-axis sweep retain quadratic worst cases",
+    "Fixed iteration budgets do not guarantee arbitrary crowd/stack convergence",
+    "Forced-GC managed memory includes tooling and does not prove absence of native leaks"
+  ]
+}

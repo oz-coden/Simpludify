@@ -97,7 +97,7 @@ class PointControl extends Component {
       ActionMovement.type,
     ]);
   readonly type = PointControl.type;
-  readonly phase = ComponentPhase.Input;
+  readonly phase = ComponentPhase.Update;
   target: WorldPoint | undefined;
   constructor(private readonly input: ActionReader<"axis2d">) {
     super();

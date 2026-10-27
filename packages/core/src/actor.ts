@@ -18,14 +18,20 @@ export interface ActorOptions {
   id?: string;
   enabled?: boolean;
 }
+const emptyPlan: readonly Component[] = Object.freeze([]);
+const phases = Object.values(ComponentPhase);
 export class Actor {
   private identifier: string | undefined;
   private owner: Scene | undefined;
   private readonly components = new Map<symbol, Component>();
-  private inputPlan: readonly Component[] = [];
-  private updatePlan: readonly Component[] = [];
-  private frameInput: readonly Component[] = [];
-  private frameUpdates: readonly Component[] = [];
+  private inputPlan = emptyPlan;
+  private updatePlan = emptyPlan;
+  private integratePlan = emptyPlan;
+  private latePlan = emptyPlan;
+  private frameInput = emptyPlan;
+  private frameUpdates = emptyPlan;
+  private frameIntegrate = emptyPlan;
+  private frameLate = emptyPlan;
   private attaching = false;
   private frameEligible = false;
   private readonly lifetime = new Lifetime();
@@ -115,6 +121,10 @@ export class Actor {
         "Do not change component structure from onAttach",
       );
     this.validate(component.type);
+    if (!phases.includes(component.phase))
+      throw new EngineError("COMPONENT_PHASE", "Unknown Component phase", {
+        component: component.type.name,
+      });
     if (this.components.has(component.type.id))
       throw new EngineError(
         "COMPONENT_DUPLICATE",
@@ -182,16 +192,35 @@ export class Actor {
     return true;
   }
   private rebuild(): void {
-    const input: Component[] = [],
-      update: Component[] = [];
+    let input: Component[] | undefined,
+      update: Component[] | undefined,
+      integrate: Component[] | undefined,
+      late: Component[] | undefined;
     for (const component of this.components.values())
       if (component.update !== Component.prototype.update) {
-        (component.phase === ComponentPhase.Input ? input : update).push(
-          component,
-        );
+        switch (component.phase) {
+          case ComponentPhase.Input:
+            input ??= [];
+            input.push(component);
+            break;
+          case ComponentPhase.Update:
+            update ??= [];
+            update.push(component);
+            break;
+          case ComponentPhase.Integrate:
+            integrate ??= [];
+            integrate.push(component);
+            break;
+          case ComponentPhase.LateUpdate:
+            late ??= [];
+            late.push(component);
+            break;
+        }
       }
-    this.inputPlan = input;
-    this.updatePlan = update;
+    this.inputPlan = input ?? emptyPlan;
+    this.updatePlan = update ?? emptyPlan;
+    this.integratePlan = integrate ?? emptyPlan;
+    this.latePlan = late ?? emptyPlan;
     this.owner?.touch();
   }
   /** @internal */ attachTo(scene: Scene, id: string): void {
@@ -206,17 +235,33 @@ export class Actor {
     this.owner = scene;
   }
   /** @internal */ get hasUpdates(): boolean {
-    return this.inputPlan.length > 0 || this.updatePlan.length > 0;
+    return (
+      this.inputPlan.length > 0 ||
+      this.updatePlan.length > 0 ||
+      this.integratePlan.length > 0 ||
+      this.latePlan.length > 0
+    );
   }
   /** @internal */ beginStep(): void {
     this.frameInput = this.inputPlan;
     this.frameUpdates = this.updatePlan;
+    this.frameIntegrate = this.integratePlan;
+    this.frameLate = this.latePlan;
     this.frameEligible = this.enabled && !this.disposed;
   }
   /** @internal */ updatePhase(
     phase: ComponentPhase,
     context: UpdateContext,
   ): void {
+    const plan =
+      phase === ComponentPhase.Input
+        ? this.frameInput
+        : phase === ComponentPhase.Update
+          ? this.frameUpdates
+          : phase === ComponentPhase.Integrate
+            ? this.frameIntegrate
+            : this.frameLate;
+    if (!plan.length) return;
     if (
       !this.frameEligible ||
       !this.enabled ||
@@ -224,9 +269,7 @@ export class Actor {
       this.owner !== context.scene
     )
       return;
-    for (const component of phase === ComponentPhase.Input
-      ? this.frameInput
-      : this.frameUpdates) {
+    for (const component of plan) {
       if (!this.enabled || this.disposed || this.owner !== context.scene) break;
       if (component.enabled && !component.disposed) component.update(context);
     }
@@ -236,10 +279,14 @@ export class Actor {
     this.destroying = true;
     this.owner = undefined;
     const components = [...this.components.values()].reverse();
-    this.inputPlan = [];
-    this.updatePlan = [];
-    this.frameInput = [];
-    this.frameUpdates = [];
+    this.inputPlan = emptyPlan;
+    this.updatePlan = emptyPlan;
+    this.integratePlan = emptyPlan;
+    this.latePlan = emptyPlan;
+    this.frameInput = emptyPlan;
+    this.frameUpdates = emptyPlan;
+    this.frameIntegrate = emptyPlan;
+    this.frameLate = emptyPlan;
     try {
       cleanupAll(
         [

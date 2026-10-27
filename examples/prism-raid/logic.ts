@@ -80,6 +80,7 @@ class Pilot extends Component {
     [Transform.type],
   );
   readonly type = Pilot.type;
+  readonly phase = ComponentPhase.LateUpdate;
   cooldown = 0;
   constructor(private readonly round: Raid) {
     super();
@@ -160,6 +161,7 @@ class Lifetime extends Component {
     [Transform.type, Unit.type],
   );
   readonly type = Lifetime.type;
+  readonly phase = ComponentPhase.LateUpdate;
   constructor(
     private readonly round: Raid,
     private readonly ttl: number,

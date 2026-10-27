@@ -248,6 +248,10 @@ export class Scene {
       actor.updatePhase(ComponentPhase.Input, context);
     for (const actor of actors)
       actor.updatePhase(ComponentPhase.Update, context);
+    for (const actor of actors)
+      actor.updatePhase(ComponentPhase.Integrate, context);
+    for (const actor of actors)
+      actor.updatePhase(ComponentPhase.LateUpdate, context);
     if (this.disposed) return;
     for (const callback of this.postPlan) {
       if (this.disposed) return;
