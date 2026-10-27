@@ -194,23 +194,23 @@ npm run bench:replay-memory -- --out /tmp/replay-memory.json
 
 Run recorded benchmarks alone, without other local tests/builds. [Raw reports](../benchmarks/random-replay/) retain source commit, environment and parameters. Measurements used Node 24.22.1, Linux and an AMD EPYC 9V74 shared host. Each shooter invocation warmed five rounds, then ran 60 seeds (42–101), dt=1/120, with ordinary Action autopilot decisions every six steps. Every invocation completed 172796 boundaries / 1439.97 simulated seconds, 60 wins, 1440 kills, and asserted round/world disposal. Peak 41 counts game Units, not every Scene Actor.
 
-| Source/mode | Three wall times (seconds) | Median |
-| --- | --- | --- |
-| Before this work, clean 76fd916 | 3.42 / 3.91 / 4.69 | 3.91 |
-| New system, recording OFF, clean 1f18214 | 3.66 / 3.63 / 4.97 | 3.66 |
-| Recording ON before completion-copy removal, 1f18214 | 4.50 / 5.16 / 5.65 | 5.16 |
-| Recording ON with buffer transfer, clean 0b89def | 4.10 / 4.42 / 4.26 | 4.26 |
+| Source/mode                                          | Three wall times (seconds) | Median |
+| ---------------------------------------------------- | -------------------------- | ------ |
+| Before this work, clean 76fd916                      | 3.42 / 3.91 / 4.69         | 3.91   |
+| New system, recording OFF, clean 1f18214             | 3.66 / 3.63 / 4.97         | 3.66   |
+| Recording ON before completion-copy removal, 1f18214 | 4.50 / 5.16 / 5.65         | 5.16   |
+| Recording ON with buffer transfer, clean 0b89def     | 4.10 / 4.42 / 4.26         | 4.26   |
 
 ON includes completion and JSON serialization; OFF creates no recorder/Replay frames. The completion optimization does not add work to OFF. Shared-host drift is visible; these samples show no large OFF regression, not a general speedup. Final ON is approximately 16% above the OFF median for this workload. The 60 exported recordings total 29716069 UTF-8 JSON bytes (about 172 bytes/boundary); each round is released independently. A single uninterrupted recording retains all its frames, so long sessions require an explicit budget; no automatic compression or streaming persistence is provided.
 
 A separate forced-GC experiment used 100000 boundaries, three Actions and no Actors/rendering. It includes SSR/tooling heap and is not the shooter's memory profile:
 
-| Recording stage | Before copy removal (bc2eceb) | Buffer transfer (0b89def) |
-| --- | --- | --- |
-| Heap increase while holding frames | 27.43 MB | 27.43 MB |
-| Heap increase after finish | 51.26 MB | 27.35 MB |
-| Heap increase with JSON string also retained | 68.86 MB | 44.94 MB |
-| Finish time | 171.88 ms | 0.09 ms |
-| JSON bytes | 17594936 | 17594936 |
+| Recording stage                              | Before copy removal (bc2eceb) | Buffer transfer (0b89def) |
+| -------------------------------------------- | ----------------------------- | ------------------------- |
+| Heap increase while holding frames           | 27.43 MB                      | 27.43 MB                  |
+| Heap increase after finish                   | 51.26 MB                      | 27.35 MB                  |
+| Heap increase with JSON string also retained | 68.86 MB                      | 44.94 MB                  |
+| Finish time                                  | 171.88 ms                     | 0.09 ms                   |
+| JSON bytes                                   | 17594936                      | 17594936                  |
 
 finish now transfers already immutable frames/events and validates headers/payloads once; untrusted Replay imports are still fully validated/copied. The exported object/arrays are frozen and detached from the recorder. After releasing data/string and disposing Engine, sampled heap returned close to its initial level and remaining input sources were zero. Forced-GC stage samples are neither true peak memory nor proof of leak freedom. OFF's 100000-boundary heap increase at the held stage was about 0.07 MB and produced zero Replay bytes. The final microbenchmark measured one million cached stream acquisitions in 10.28 ms and 10000 new named streams in 5.04 ms; prefer retaining frequently used handles for clarity, not because these measurements require a pooling system. No GPU/native memory or multi-hour browser stability conclusion follows from these Core observations.
