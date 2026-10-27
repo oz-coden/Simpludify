@@ -1,7 +1,11 @@
 const root = document.documentElement;
-const theme = document.querySelector("[data-theme]");
+const theme = document.querySelector("button[data-theme-toggle]");
+const updateThemeButton = () =>
+  theme?.setAttribute("aria-pressed", String(root.dataset.theme === "dark"));
+updateThemeButton();
 theme?.addEventListener("click", () => {
   root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark";
+  updateThemeButton();
   try {
     localStorage.setItem("simpludify-docs-theme", root.dataset.theme);
   } catch {

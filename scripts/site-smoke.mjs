@@ -3,6 +3,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { chromium } from "playwright";
 import { examples, pages } from "../site/config.mjs";
 import { serveSite } from "./site-server.mjs";
+import { testSiteTheme } from "./site-theme-test.mjs";
 
 const { base } = JSON.parse(
   readFileSync("site-dist/site-manifest.json", "utf8"),
@@ -25,6 +26,7 @@ const browser = await chromium.launch({
 const results = [];
 mkdirSync("test-results/site", { recursive: true });
 try {
+  await testSiteTheme(browser, site);
   for (const viewport of [
     { width: 1440, height: 900 },
     { width: 390, height: 844 },
