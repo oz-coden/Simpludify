@@ -329,3 +329,26 @@ it("supports many active bullets/enemies without reusing destroyed actors", () =
   engine.dispose();
   expect(round.units.size).toBe(0);
 });
+
+it("emits a survivor Exit after a production hit consumes its projectile", () => {
+  const { engine, round } = fixture();
+  const enemy = round.spawnEnemy({
+    x: 180,
+    y: 150,
+    kind: "gunner",
+    hp: 3,
+    shoots: false,
+  });
+  engine.step(0);
+  let exits = 0;
+  enemy.require(Collider.type).events.on(ContactExit, () => exits++, enemy);
+  const shot = round.spawnPlayerShot(enemy.require(Transform.type).x, 150);
+  engine.step(0);
+  expect(shot.disposed).toBe(true);
+  expect(enemy.require(Unit.type).hp).toBe(2);
+  expect(exits).toBe(0);
+  engine.step(0);
+  expect(exits).toBe(1);
+  expect(enemy.disposed).toBe(false);
+  engine.dispose();
+});

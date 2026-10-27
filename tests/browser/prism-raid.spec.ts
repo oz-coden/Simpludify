@@ -233,3 +233,58 @@ test("restarts repeatedly without accumulating input sources or presentations", 
     });
   }
 });
+
+test("runs Triangle combat and a complete mission on the Canvas2D fallback", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "gpu", { get: () => undefined });
+    for (const prototype of [
+      HTMLCanvasElement.prototype,
+      typeof OffscreenCanvas === "undefined"
+        ? undefined
+        : OffscreenCanvas.prototype,
+    ]) {
+      if (!prototype) continue;
+      const get = prototype.getContext;
+      prototype.getContext = function (
+        this: HTMLCanvasElement | OffscreenCanvas,
+        kind: string,
+        ...args: unknown[]
+      ) {
+        return kind.includes("webgl")
+          ? null
+          : Reflect.apply(get, this, [kind, ...args]);
+      } as typeof prototype.getContext;
+    }
+  });
+  await launch(page);
+  expect(
+    await page
+      .locator("canvas")
+      .evaluate((canvas) => !!(canvas as HTMLCanvasElement).getContext("2d")),
+  ).toBe(true);
+  const result = await page.evaluate(() => {
+    const { game } = window.prismRaid;
+    for (
+      let i = 0;
+      i < 120 * 76 && window.prismRaid.round?.status === "playing";
+      i++
+    ) {
+      if (i % 6 === 0) window.prismRaid.autoStep();
+      game.engine.step(1 / 120);
+      if (i % 40 === 0) game.setViewport();
+    }
+    const result = window.prismRaid.result;
+    game.dispose();
+    return { result, resources: window.prismRaid.renderer?.diagnostics };
+  });
+  expect(result.result?.status).toBe("won");
+  expect(result.result?.kills).toBe(24);
+  expect(result.resources).toEqual({
+    presentations: 0,
+    visuals: 0,
+    textures: 0,
+    pendingImages: 0,
+  });
+});

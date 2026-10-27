@@ -1,0 +1,325 @@
+{
+  "environment": {
+    "date": "2026-10-27T04:53:35.115Z",
+    "node": "v24.22.1",
+    "platform": "linux",
+    "cpu": "AMD EPYC 9V74 80-Core Processor",
+    "sourceCommit": "4297c5172932491c65d4641de881c10f752b397a",
+    "trackedSourceChanges": ""
+  },
+  "mode": "browser",
+  "measurements": {
+    "scope": "Isolated Box/Triangle render submission through local Vite, then production Prism Raid realtime autoplay/restart. Chrome with SwiftShader, DPR 1, 1000x800. CPU timings are not GPU execution time. GC pauses plus 500ms are excluded; timing buffers are bounded. No other local tests/builds during recording.",
+    "browser": "156.0.8078.4",
+    "triangle": [
+      {
+        "shape": "box",
+        "count": 100,
+        "beforeDispose": {
+          "presentations": 1,
+          "visuals": 100,
+          "textures": 0,
+          "pendingImages": 0
+        },
+        "afterDispose": {
+          "presentations": 0,
+          "visuals": 0,
+          "textures": 0,
+          "pendingImages": 0
+        },
+        "drawSubmissionMilliseconds": {
+          "samples": 120,
+          "p50": 0,
+          "p95": 0.10000000009313226,
+          "p99": 0.20000000018626451,
+          "maximum": 0.6999999999534339
+        }
+      },
+      {
+        "shape": "triangle",
+        "count": 100,
+        "beforeDispose": {
+          "presentations": 1,
+          "visuals": 100,
+          "textures": 0,
+          "pendingImages": 0
+        },
+        "afterDispose": {
+          "presentations": 0,
+          "visuals": 0,
+          "textures": 0,
+          "pendingImages": 0
+        },
+        "drawSubmissionMilliseconds": {
+          "samples": 120,
+          "p50": 0,
+          "p95": 0.10000000009313226,
+          "p99": 0.20000000018626451,
+          "maximum": 0.39999999990686774
+        }
+      },
+      {
+        "shape": "box",
+        "count": 500,
+        "beforeDispose": {
+          "presentations": 1,
+          "visuals": 500,
+          "textures": 0,
+          "pendingImages": 0
+        },
+        "afterDispose": {
+          "presentations": 0,
+          "visuals": 0,
+          "textures": 0,
+          "pendingImages": 0
+        },
+        "drawSubmissionMilliseconds": {
+          "samples": 120,
+          "p50": 0,
+          "p95": 0.19999999995343387,
+          "p99": 0.19999999995343387,
+          "maximum": 1.3999999999068677
+        }
+      },
+      {
+        "shape": "triangle",
+        "count": 500,
+        "beforeDispose": {
+          "presentations": 1,
+          "visuals": 500,
+          "textures": 0,
+          "pendingImages": 0
+        },
+        "afterDispose": {
+          "presentations": 0,
+          "visuals": 0,
+          "textures": 0,
+          "pendingImages": 0
+        },
+        "drawSubmissionMilliseconds": {
+          "samples": 120,
+          "p50": 0,
+          "p95": 0.10000000009313226,
+          "p99": 0.10000000009313226,
+          "maximum": 0.39999999990686774
+        }
+      }
+    ],
+    "soak": {
+      "requestedSeconds": 120,
+      "actualSeconds": 120.252,
+      "wins": 5,
+      "losses": 0,
+      "peakActors": 36,
+      "peakVisuals": 78,
+      "milliseconds": {
+        "simulationCPU": {
+          "samples": 7140,
+          "p50": 0.19999999995343387,
+          "p95": 0.4000000001396984,
+          "p99": 1,
+          "maximum": 5.100000000093132
+        },
+        "renderSubmissionCPU": {
+          "samples": 7146,
+          "p50": 0.20000000018626451,
+          "p95": 0.5,
+          "p99": 1.5,
+          "maximum": 6.100000000093132
+        },
+        "frameIntervals": {
+          "samples": 7139,
+          "p50": 16.69999999999709,
+          "p95": 16.70000000001164,
+          "p99": 16.80000000000291,
+          "maximum": 50
+        }
+      },
+      "memory": [
+        {
+          "elapsedSeconds": 0,
+          "heap": {
+            "usedSize": 8247176,
+            "totalSize": 8929280,
+            "embedderHeapUsedSize": 1125240,
+            "backingStorageSize": 4393181
+          },
+          "dom": {
+            "documents": 1,
+            "nodes": 95,
+            "jsEventListeners": 101
+          },
+          "resources": {
+            "sources": 3,
+            "renderer": {
+              "presentations": 1,
+              "visuals": 58,
+              "textures": 0,
+              "pendingImages": 0
+            },
+            "units": 16,
+            "canvases": 1,
+            "hosts": 1
+          }
+        },
+        {
+          "elapsedSeconds": 30.249,
+          "heap": {
+            "usedSize": 8834988,
+            "totalSize": 9977856,
+            "embedderHeapUsedSize": 1178808,
+            "backingStorageSize": 4393181
+          },
+          "dom": {
+            "documents": 1,
+            "nodes": 101,
+            "jsEventListeners": 101
+          },
+          "resources": {
+            "sources": 3,
+            "renderer": {
+              "presentations": 1,
+              "visuals": 66,
+              "textures": 0,
+              "pendingImages": 0
+            },
+            "units": 24,
+            "canvases": 1,
+            "hosts": 1
+          }
+        },
+        {
+          "elapsedSeconds": 60.023,
+          "heap": {
+            "usedSize": 8994528,
+            "totalSize": 9715712,
+            "embedderHeapUsedSize": 629352,
+            "backingStorageSize": 4393181
+          },
+          "dom": {
+            "documents": 1,
+            "nodes": 121,
+            "jsEventListeners": 101
+          },
+          "resources": {
+            "sources": 3,
+            "renderer": {
+              "presentations": 1,
+              "visuals": 66,
+              "textures": 0,
+              "pendingImages": 0
+            },
+            "units": 24,
+            "canvases": 1,
+            "hosts": 1
+          }
+        },
+        {
+          "elapsedSeconds": 90.254,
+          "heap": {
+            "usedSize": 9145012,
+            "totalSize": 9977856,
+            "embedderHeapUsedSize": 1240672,
+            "backingStorageSize": 4393181
+          },
+          "dom": {
+            "documents": 1,
+            "nodes": 121,
+            "jsEventListeners": 101
+          },
+          "resources": {
+            "sources": 3,
+            "renderer": {
+              "presentations": 1,
+              "visuals": 64,
+              "textures": 0,
+              "pendingImages": 0
+            },
+            "units": 22,
+            "canvases": 1,
+            "hosts": 1
+          }
+        },
+        {
+          "elapsedSeconds": 120.034,
+          "heap": {
+            "usedSize": 9205044,
+            "totalSize": 9977856,
+            "embedderHeapUsedSize": 1316472,
+            "backingStorageSize": 4393181
+          },
+          "dom": {
+            "documents": 1,
+            "nodes": 122,
+            "jsEventListeners": 101
+          },
+          "resources": {
+            "sources": 3,
+            "renderer": {
+              "presentations": 1,
+              "visuals": 51,
+              "textures": 0,
+              "pendingImages": 0
+            },
+            "units": 9,
+            "canvases": 1,
+            "hosts": 1
+          }
+        },
+        {
+          "elapsedSeconds": 120.062,
+          "heap": {
+            "usedSize": 9180448,
+            "totalSize": 9977856,
+            "embedderHeapUsedSize": 1264088,
+            "backingStorageSize": 4393181
+          },
+          "dom": {
+            "documents": 1,
+            "nodes": 121,
+            "jsEventListeners": 101
+          },
+          "resources": {
+            "sources": 3,
+            "renderer": {
+              "presentations": 1,
+              "visuals": 51,
+              "textures": 0,
+              "pendingImages": 0
+            },
+            "units": 9,
+            "canvases": 1,
+            "hosts": 1
+          }
+        }
+      ],
+      "disposed": {
+        "elapsedSeconds": 120.226,
+        "heap": {
+          "usedSize": 4879264,
+          "totalSize": 5906432,
+          "embedderHeapUsedSize": 543376,
+          "backingStorageSize": 529463
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 50,
+          "jsEventListeners": 29
+        },
+        "resources": {
+          "sources": 0,
+          "renderer": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "units": 0,
+          "canvases": 0,
+          "hosts": 0
+        }
+      }
+    },
+    "failures": []
+  }
+}
