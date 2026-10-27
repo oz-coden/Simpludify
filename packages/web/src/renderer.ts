@@ -227,6 +227,13 @@ export class PixiRenderer implements RendererPort {
           graphics
             .circle(0, 0, Math.min(width, height) / 2)
             .fill(component.color);
+        else if (component.shape === Shape.Triangle)
+          graphics
+            .poly(
+              [0, -height / 2, width / 2, height / 2, -width / 2, height / 2],
+              true,
+            )
+            .fill(component.color);
         else
           graphics
             .roundRect(

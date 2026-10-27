@@ -23,7 +23,7 @@
 
 ## 表示と画像
 
-RenderableはTransformを必要とします。Box・Circle・Characterの形状、または画像を表示できます。
+RenderableはTransformを必要とします。Box・Circle・Character・Triangleの形状、または画像を表示できます。
 
 ```ts
 import { Renderable, SpriteFit } from "@simpludify/core";
@@ -40,6 +40,26 @@ actor.add(
 画像は選択サンプルの`public/`へ置くかVite importを使います。外部URLは適切なCORS設定が必要です。`visible`、`opacity`、`zIndex`は実行中に変更できます。高いzIndexが手前、同値はActorの挿入順です。`actor.enabled`は更新と表示を止めますが、`visible`だけをfalseにしても接触は続きます。
 
 サイズ・画像・色・形状はimmutableです。変更には依存関係を守ってRenderableを差し替えます。画像準備は非同期で、`game.whenReady()`が現在要求済みの画像の完了を待ちます。Actorの論理更新はロード中も継続できます。スプライトアニメーションは未実装です。
+
+## 三角形
+
+```ts verify
+import { Actor, Renderable, Shape, Transform } from "@simpludify/core";
+const ship = new Actor();
+ship.add(new Transform({ x: 160, y: 300 }));
+ship.add(
+  new Renderable({
+    shape: Shape.Triangle,
+    width: 32,
+    height: 40,
+    color: 0x65a8ed,
+  }),
+);
+```
+
+Triangleは上向きの二等辺三角形です。ローカル頂点は`(0,-height/2)`、`(width/2,height/2)`、`(-width/2,height/2)`。原点・回転中心は外接矩形の中心で、重心ではありません。幅と高さ、回転（ラジアン）、正負の拡大縮小を既存形状と同じように扱います。`opacity`・`visible`・`zIndex`も共通です。
+
+描画形状と衝突形状は独立しています。三角形の機体にも、操作感に合わせた円・矩形のTriggerを付けられます。Triangleの追加は三角形ColliderやSolidの処理を変更しません。
 
 ## カメラ追従
 
