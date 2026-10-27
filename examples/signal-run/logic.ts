@@ -413,7 +413,7 @@ export class Round {
       new Renderable({
         width: 32,
         height: 32,
-        shape: Shape.Circle,
+        source: { kind: "shape", shape: Shape.Circle },
         color: 0xf27d86,
       }),
     );

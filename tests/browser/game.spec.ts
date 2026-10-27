@@ -279,14 +279,14 @@ test("loads a local image sprite, rejects missing assets, and disposes real Pixi
     const game = new Game<"image" | "missing">();
     let cleaned = 0;
     game.scene("image", ({ add, ui, onDispose }) => {
-      add(Character({ sprite: "./player.svg" }));
+      add(Character({ source: { kind: "image", url: "./player.svg" } }));
       ui(Label("Image loaded"));
       onDispose(() => {
         cleaned++;
       });
     });
     game.scene("missing", ({ add }) => {
-      add(Character({ sprite: "./not-found.png" }));
+      add(Character({ source: { kind: "image", url: "./not-found.png" } }));
     });
     await game.run("image");
     let failure = "";

@@ -339,11 +339,14 @@ test("renders live depth, visibility, opacity, transforms and image proportions"
       new Renderable({
         width: 80,
         height: 80,
-        sprite:
-          "data:image/svg+xml," +
-          encodeURIComponent(
-            '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="40"><rect width="80" height="40" fill="#ff8800"/></svg>',
-          ),
+        source: {
+          kind: "image",
+          url:
+            "data:image/svg+xml," +
+            encodeURIComponent(
+              '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="40"><rect width="80" height="40" fill="#ff8800"/></svg>',
+            ),
+        },
       }),
     );
     await game.whenReady();

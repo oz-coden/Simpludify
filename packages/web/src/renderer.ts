@@ -9,22 +9,36 @@ import {
   type Scene,
   Shape,
   Transform,
+  type VisualSource,
 } from "@simpludify/core";
 import { Application, Container, Graphics, Sprite, Texture } from "pixi.js";
 
+/** One Visual owns a lease today; a shared loader can later replace its release policy. */
+interface ImageResource {
+  readonly texture: Texture;
+  release(): void;
+}
 interface Visual {
   actor: Actor;
   component: Renderable;
   transform: Transform;
-  controller: AbortController;
+  revision: number;
+  generation: number;
+  requestUrl?: string;
+  controller?: AbortController;
   order: number;
   depth: number;
   scaleX: number;
   scaleY: number;
   display?: Sprite | Graphics;
-  texture?: Texture;
+  displayedSource?: VisualSource;
+  geometryShape?: Shape;
+  geometryWidth: number;
+  geometryHeight: number;
+  geometryColor: number;
+  image?: ImageResource;
   error?: unknown;
-  promise: Promise<void>;
+  disposed: boolean;
   dispose(): void;
 }
 export class PixiRenderer implements RendererPort {
@@ -71,7 +85,10 @@ export class PixiRenderer implements RendererPort {
     this.app.canvas.setAttribute("aria-label", "Game world");
     this.host.prepend(this.app.canvas);
   }
-  private async texture(url: string, signal: AbortSignal): Promise<Texture> {
+  private async image(
+    url: string,
+    signal: AbortSignal,
+  ): Promise<ImageResource> {
     const image = new Image();
     await new Promise<void>((resolve, reject) => {
       const clear = () => {
@@ -112,7 +129,26 @@ export class PixiRenderer implements RendererPort {
       throw new EngineError("GAME_DISPOSED", "Image loading cancelled", {
         path: url,
       });
-    return Texture.from(image, true);
+    const texture = Texture.from(image, true);
+    if (!(texture.width > 0 && texture.height > 0)) {
+      texture.destroy(true);
+      throw new EngineError(
+        "ASSET_LOAD_FAILED",
+        "Image has no drawable dimensions",
+        { path: url },
+      );
+    }
+    this.textureCount++;
+    let released = false;
+    return {
+      texture,
+      release: () => {
+        if (released) return;
+        released = true;
+        this.textureCount--;
+        texture.destroy(true);
+      },
+    };
   }
 
   async prepare(scene: Scene): Promise<PreparedScene> {
@@ -141,14 +177,196 @@ export class PixiRenderer implements RendererPort {
       entry.actor.scene === scene &&
       entry.actor.get(Renderable.type) === entry.component &&
       !entry.component.disposed;
+    // Waiters follow the current requests of this presentation. No polling timer,
+    // replay hook or Core subscription is needed when no readiness call is pending.
+    let wake: Promise<void> | undefined;
+    let wakeResolve: (() => void) | undefined;
+    const changed = () => {
+      const resolve = wakeResolve;
+      wake = undefined;
+      wakeResolve = undefined;
+      resolve?.();
+    };
+    const cancel = (entry: Visual) => {
+      entry.generation++;
+      const controller = entry.controller;
+      delete entry.controller;
+      if (controller) {
+        this.pending.delete(controller);
+        controller.abort();
+      }
+    };
+    const appearance = (entry: Visual) => {
+      const { component, display, displayedSource: source } = entry;
+      if (!display || !source) return;
+      if (source.kind === "image" && display instanceof Sprite && entry.image) {
+        const texture = entry.image.texture;
+        const size = imageSize(
+          texture.width,
+          texture.height,
+          component.width,
+          component.height,
+          source.fit,
+        );
+        entry.scaleX = size.width / texture.width;
+        entry.scaleY = size.height / texture.height;
+        display.tint = component.color;
+      } else if (source.kind === "shape" && display instanceof Graphics) {
+        const width = component.width,
+          height = component.height;
+        if (
+          entry.geometryShape === source.shape &&
+          entry.geometryWidth === width &&
+          entry.geometryHeight === height &&
+          entry.geometryColor === component.color
+        )
+          return;
+        entry.geometryShape = source.shape;
+        entry.geometryWidth = width;
+        entry.geometryHeight = height;
+        entry.geometryColor = component.color;
+        display.clear();
+        if (source.shape === Shape.Circle)
+          display
+            .circle(0, 0, Math.min(width, height) / 2)
+            .fill(component.color);
+        else if (source.shape === Shape.Triangle)
+          display
+            .poly(
+              [0, -height / 2, width / 2, height / 2, -width / 2, height / 2],
+              true,
+            )
+            .fill(component.color);
+        else
+          display
+            .roundRect(
+              -width / 2,
+              -height / 2,
+              width,
+              height,
+              source.shape === Shape.Character
+                ? Math.min(width, height) / 4
+                : 2,
+            )
+            .fill(component.color);
+        if (source.shape === Shape.Character)
+          display
+            .circle(-width / 7, -height / 10, Math.min(width, height) / 18)
+            .fill(0x102c28)
+            .circle(width / 7, -height / 10, Math.min(width, height) / 18)
+            .fill(0x102c28);
+        entry.scaleX = entry.scaleY = 1;
+      }
+    };
+    const replace = (
+      entry: Visual,
+      display: Sprite | Graphics,
+      source: VisualSource,
+    ) => {
+      if (entry.display !== display) {
+        entry.display?.destroy();
+        entry.display = display;
+        delete entry.geometryShape;
+        world.addChild(display);
+        depthDirty = true;
+      }
+      entry.displayedSource = source;
+    };
+    const update = (entry: Visual) => {
+      const component = entry.component;
+      if (entry.revision === component.revision) return;
+      entry.revision = component.revision;
+      const source = component.source;
+      if (source.kind === "shape") {
+        cancel(entry);
+        delete entry.requestUrl;
+        delete entry.error;
+        const previous = entry.image;
+        delete entry.image;
+        replace(
+          entry,
+          entry.display instanceof Graphics ? entry.display : new Graphics(),
+          source,
+        );
+        previous?.release();
+        changed();
+      } else if (entry.requestUrl !== source.url) {
+        cancel(entry);
+        entry.requestUrl = source.url;
+        delete entry.error;
+        // Returning to the still-displayed image needs no new load.
+        if (
+          entry.image &&
+          entry.displayedSource?.kind === "image" &&
+          entry.displayedSource.url === source.url
+        ) {
+          entry.displayedSource = source;
+        } else {
+          const controller = new AbortController(),
+            generation = entry.generation;
+          entry.controller = controller;
+          this.pending.add(controller);
+          const current = () =>
+            !entry.disposed &&
+            valid(entry) &&
+            entry.generation === generation &&
+            component.source.kind === "image" &&
+            component.source.url === source.url;
+          void this.image(source.url, controller.signal)
+            .then((resource) => {
+              if (!current()) {
+                resource.release();
+                return;
+              }
+              const previous = entry.image;
+              const sprite =
+                entry.display instanceof Sprite
+                  ? entry.display
+                  : new Sprite(resource.texture);
+              sprite.texture = resource.texture;
+              sprite.anchor.set(0.5);
+              entry.image = resource;
+              replace(entry, sprite, component.source);
+              appearance(entry);
+              previous?.release();
+            })
+            .catch((error) => {
+              if (current()) {
+                entry.error = error;
+                try {
+                  this.onError(error);
+                } catch {
+                  /* Diagnostics cannot invalidate cleanup. */
+                }
+              }
+            })
+            .finally(() => {
+              this.pending.delete(controller);
+              if (entry.controller === controller) delete entry.controller;
+              changed();
+            });
+        }
+        changed();
+      } else if (
+        entry.displayedSource?.kind === "image" &&
+        entry.displayedSource.url === source.url
+      ) {
+        entry.displayedSource = source;
+      }
+      // Layout/color changes also apply to the retained display while a new image loads.
+      appearance(entry);
+    };
     const create = (actor: Actor, component: Renderable): Visual => {
-      const controller = new AbortController();
-      this.pending.add(controller);
       this.visualCount++;
-      let dead = false,
-        removeActorCleanup = () => {},
+      let removeActorCleanup = () => {},
         removeComponentCleanup = () => {};
       const entry: Visual = {
+        revision: -1,
+        generation: 0,
+        disposed: false,
+        geometryWidth: NaN,
+        geometryHeight: NaN,
+        geometryColor: NaN,
         order: 0,
         depth: NaN,
         scaleX: 1,
@@ -156,27 +374,24 @@ export class PixiRenderer implements RendererPort {
         actor,
         component,
         transform: actor.require(Transform.type),
-        controller,
-        promise: Promise.resolve(),
         dispose: () => {
-          if (dead) return;
-          dead = true;
+          if (entry.disposed) return;
+          entry.disposed = true;
           this.visualCount--;
           depthDirty = true;
           drawOrder.length = 0;
-          controller.abort();
-          this.pending.delete(controller);
-          if (entry.texture) this.textureCount--;
+          cancel(entry);
+          changed();
           const display = entry.display,
-            texture = entry.texture;
+            image = entry.image;
           delete entry.display;
-          delete entry.texture;
+          delete entry.image;
           cleanupAll(
             [
               removeActorCleanup,
               removeComponentCleanup,
               () => display?.destroy(),
-              () => texture?.destroy(true),
+              () => image?.release(),
             ],
             "Visual cleanup failed",
           );
@@ -184,78 +399,7 @@ export class PixiRenderer implements RendererPort {
       };
       removeActorCleanup = actor.onDispose(entry.dispose);
       removeComponentCleanup = component.onDispose(entry.dispose);
-      if (component.sprite) {
-        entry.promise = this.texture(component.sprite, controller.signal)
-          .then((texture) => {
-            if (dead || !valid(entry)) {
-              texture.destroy(true);
-              return;
-            }
-            entry.texture = texture;
-            this.textureCount++;
-            const sprite = new Sprite(texture);
-            sprite.anchor.set(0.5);
-            const size = imageSize(
-              texture.width,
-              texture.height,
-              component.width,
-              component.height,
-              component.fit,
-            );
-            entry.scaleX = size.width / texture.width;
-            entry.scaleY = size.height / texture.height;
-            entry.display = sprite;
-            depthDirty = true;
-            world.addChild(sprite);
-          })
-          .catch((error) => {
-            if (!dead && valid(entry)) {
-              entry.error = error;
-              try {
-                this.onError(error);
-              } catch {
-                /* Observers cannot invalidate resource cleanup. */
-              }
-            }
-          })
-          .finally(() => this.pending.delete(controller));
-      } else {
-        const width = component.width,
-          height = component.height;
-        const graphics = new Graphics();
-        if (component.shape === Shape.Circle)
-          graphics
-            .circle(0, 0, Math.min(width, height) / 2)
-            .fill(component.color);
-        else if (component.shape === Shape.Triangle)
-          graphics
-            .poly(
-              [0, -height / 2, width / 2, height / 2, -width / 2, height / 2],
-              true,
-            )
-            .fill(component.color);
-        else
-          graphics
-            .roundRect(
-              -width / 2,
-              -height / 2,
-              width,
-              height,
-              component.shape === Shape.Character
-                ? Math.min(width, height) / 4
-                : 2,
-            )
-            .fill(component.color);
-        if (component.shape === Shape.Character)
-          graphics
-            .circle(-width / 7, -height / 10, Math.min(width, height) / 18)
-            .fill(0x102c28)
-            .circle(width / 7, -height / 10, Math.min(width, height) / 18)
-            .fill(0x102c28);
-        entry.display = graphics;
-        world.addChild(graphics);
-        this.pending.delete(controller);
-      }
+      update(entry);
       return entry;
     };
     const reconcile = () => {
@@ -281,6 +425,10 @@ export class PixiRenderer implements RendererPort {
         }
       }
     };
+    const sync = () => {
+      reconcile();
+      for (const entry of visuals.values()) update(entry);
+    };
     const prepared: PreparedScene = {
       ready: async () => {
         for (;;) {
@@ -289,25 +437,22 @@ export class PixiRenderer implements RendererPort {
               "GAME_DISPOSED",
               "Scene presentation has been disposed",
             );
-          reconcile();
-          const version = scene.revision;
-          await Promise.all(
-            [...visuals.values()].map((entry) => entry.promise),
-          );
-          if (disposed || this.dead || scene.disposed)
-            throw new EngineError(
-              "GAME_DISPOSED",
-              "Scene presentation has been disposed",
-            );
-          if (version !== scene.revision) continue;
-          for (const entry of visuals.values())
+          sync();
+          let pending = false;
+          for (const entry of visuals.values()) {
             if (entry.error) throw entry.error;
-          return;
+            if (entry.controller) pending = true;
+          }
+          if (!pending) return;
+          wake ??= new Promise<void>((resolve) => {
+            wakeResolve = resolve;
+          });
+          await wake;
         }
       },
       render: (view) => {
         if (disposed || this.dead || scene.disposed) return;
-        reconcile();
+        sync();
         if (!root.parent) this.app.stage.addChild(root);
         const c = view.clip;
         if (
@@ -362,6 +507,7 @@ export class PixiRenderer implements RendererPort {
       dispose: () => {
         if (disposed) return;
         disposed = true;
+        changed();
         this.scenes.delete(prepared);
         const entries = [...visuals.values()];
         visuals.clear();
