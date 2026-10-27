@@ -1,10 +1,10 @@
 # Official site implementation and validation
 
-## Scope and recovery
+## Source history
 
-Source baseline: main `8a07049dab7e9e3901211e4426341a680b5141c9`. The previous main CI completed successfully before this work began. The earlier transient checkout was unavailable; the latest remote source and complete prior commits were recovered with a fresh clone, without overwriting a local working copy. Work is checkpointed on `codex/docs-site` before main integration.
+The static documentation and playable gallery were introduced in `23b09b6` and validated further in `5426013e49eae2ac1f6e9d26d62357e0ce8833dd`. Both remain in main history. Theme activation was corrected in `c758b168d96f1dc04b57767107bc7c5b5d2a9507`; Blockfall was added in `f85dbfeb72485e1f920b8654d65611170400014f`.
 
-Repository metadata initially reported public visibility and `has_pages: false`. The repository administrator subsequently enabled Pages with GitHub Actions, and metadata then reported `has_pages: true`. The workflow does not enable Pages, change repository visibility, configure DNS, or add a custom domain.
+Pages is enabled with GitHub Actions. Deployment uses the existing hosting configuration and does not enable visibility, configure DNS or add a custom domain. The GitHub Pages address redirects to the account's existing domain, `https://github.oz-coden.com/Simpludify/`.
 
 ## Build design
 
@@ -12,9 +12,9 @@ Repository metadata initially reported public visibility and `has_pages: false`.
 
 VitePress was considered. The available stable 1.6.4 adds a separate Vite 5/Vue/theme dependency graph to this Vite 8 workspace. The chosen generator uses existing Vite plus one exact development dependency, markdown-it 15.0.3 (seven lockfile additions including transitives). It emits static HTML; shared client code handles only theme, mobile navigation and the trusted sample iframe. No framework runtime, remote font, analytics, cloud API or server component is required. Code fences remain plain readable monospaced text rather than shipping a syntax-highlighter runtime.
 
-`site:build` validates the absolute base, replaces only dedicated generated `.site-build/` and `site-dist/`, builds all document HTML and four independent sample roots, and adds notices/inventory. The game CLI keeps its existing `dist/` and defaults. The source-scaffold command also copies site sources so its copied package scripts remain usable.
+`site:build` validates the absolute base, replaces only dedicated generated `.site-build/` and `site-dist/`, builds all document HTML and five independent sample roots, and adds notices/inventory. The game CLI keeps its existing `dist/` and defaults. The source-scaffold command also copies site sources so its copied package scripts remain usable.
 
-One sample iframe is mounted on explicit request. Restart/switch/stop dispatches the trusted same-origin disposal event, then removes the iframe; sample bootstrap calls public Game.dispose. Direct sample navigation uses pagehide disposal and reloads on a restored back/forward-cache document. Parent and child CSS/input stay separate. The same-origin sandbox is document isolation for first-party examples, not a security boundary for arbitrary code. Character/Beacon movement remains keyboard-only; UI buttons and Signal Run movement support touch.
+One sample iframe is mounted on explicit request. Restart/switch/stop dispatches the trusted same-origin disposal event, then removes the iframe; sample bootstrap calls public Game.dispose. Direct sample navigation uses pagehide disposal and reloads on a restored back/forward-cache document. Parent and child CSS/input stay separate. The same-origin sandbox is document isolation for first-party examples, not a security boundary for arbitrary code. Character/Beacon movement remains keyboard-only; UI buttons, Signal Run movement and all Blockfall controls support touch.
 
 ## Reproduction
 
@@ -40,19 +40,23 @@ The site smoke suite crawls every document, checks root overflow, theme persiste
 ## Local validation (2026-10-27)
 
 - Node 24.22.1, Linux, Playwright 1.64.1, Chrome headless shell 156.0.8078.4 with SwiftShader. Desktop 1440×900 and narrow 390×844; synthetic browser touch, not physical devices. Noto CJK was installed on the QA host to inspect Japanese glyphs; no font is bundled in the site.
-- `npm run check`: passed, including DOM-free Core, strict TypeScript, boundaries, formatting and all 116 locked dependency licenses/notices. Nonblocking existing template-style and disjoint CSS specificity suggestions remain.
-- `npm test`: 128 passed. `npm run test:browser`: 52 passed.
-- Integrated site production build and local smoke: passed at both `/Simpludify/` and `/`, with 19 documentation pages and four sample entry points. Local href/src and anchor checks passed. Six complete `ts verify` code examples compile with the real project TypeScript CLI; contextual fragments are not claimed to be standalone programs.
-- Each sample starts, visibly responds to keyboard/game controls, restarts and closes. Signal Run touch movement, pause/resume and replay entry passed. Actual restart/stop buttons trigger disposal before frame removal: owned hosts disappear for all four examples, while the existing UI/Scenes and Signal Run inspection hooks additionally confirm disposed Engine and zero InputSources. Theme persistence, narrow navigation and focus restoration passed.
+- `npm run check`: passed, including DOM-free Core, strict TypeScript, boundaries, formatting and all 116 locked dependency licenses/notices. Nonblocking style suggestions remain; test fixtures also use explicit known-index assertions.
+- `npm test`: 152 passed, including 24 Blockfall tests. `npm run test:browser`: 52 passed.
+- Integrated site production build and local smoke: passed at both `/Simpludify/` and `/`, with 20 documentation pages and five sample entry points. Local href/src and anchor checks passed. Six complete `ts verify` code examples compile with the real project TypeScript CLI; contextual fragments are not claimed to be standalone programs.
+- Each sample starts, visibly responds to keyboard/game controls, restarts and closes. Signal Run touch movement, pause/resume and replay entry passed. Actual restart/stop buttons trigger disposal before frame removal: owned hosts disappear for all five examples, while the UI/Scenes, Signal Run and Blockfall inspection hooks additionally confirm disposed Engine and zero InputSources. Both themes on all documents, narrow navigation and focus restoration passed. Blockfall keyboard/touch commands, pause/resume, repeated Scene restarts and button-operated game over/restart passed.
 - A forced no-WebGL/no-WebGPU Character startup selected the pinned Pixi Canvas2D fallback. This is limited evidence, not complete fallback-renderer support. Disabling all canvas contexts produced the explicit startup help and released the failed host.
 - Existing game-only production smoke builds for UI/Scenes and Signal Run passed under `/Simpludify/` at both viewport sizes; the original CLI output/meaning remains unchanged.
-- `npm audit` reported zero known vulnerabilities in the current registry response. This is a dated observation, not a security guarantee.
+- Blockfall unit fixtures cover all seven pieces, occupied cells, wall kicks, one to four cleared lines, scoring/levels, lock delay, hold limits, terminal states, sub-frame command queues, gravity changes, pause and disposal. Identical seeded Engine input/time sequences produce identical snapshots. A 100,000-step headless test advances 1,666.7 simulated seconds through more than 100 rounds and 5,000 fixed pieces, without a renderer. This is functional/performance-feasibility evidence, not a cross-engine benchmark.
 
-## Remote validation and deployment checkpoint
+## Theme regression coverage
 
-The initial `23b09b6` work-branch checkpoint passed strict checks, all 128 unit tests, site build/reference checks and all 52 existing browser tests. Its new site test failed because the initial synthetic pointer event did not represent a browser touch. The corrected harness uses CDP touch input and scrolls the control into view; local root/project-base runs pass. Narrow prose overflow was also corrected. The subsequent commit contains these validated fixes and the standalone code-example check.
+Theme initialization writes `data-theme` on the root HTML element. The former generic `[data-theme]` query selected that element before the button, so bubbled clicks from any descendant toggled the theme. The button now has its own `data-theme-toggle` selector; it retains native button activation and a stable accessible name, with `aria-pressed` reflecting dark mode. Optional storage failures still initialize from the OS color scheme.
 
-At this checkpoint, the corrected Actions run and the live Pages deployment are pending. No local result in this document is evidence of a public-site test. Main integration will use a fresh remote-head check and a non-forced ref update; deployment evidence will be recorded after the actual URL is checked.
+`site-theme-test.mjs` checks both OS defaults, body/whitespace/navigation/sample-button clicks, button-only activation, persistence across reload/navigation, Enter/Space and blocked storage. Injecting the original site script into the browser test fails at the ordinary body-click assertion. `site-blockfall-test.mjs` checks the actual built game in both gallery viewports; all iframe restart/stop cases observe disposal before frame removal. Browser waits are bounded so missing input/render progress becomes a CI failure.
+
+## Remote validation and deployment
+
+For `c758b168d96f1dc04b57767107bc7c5b5d2a9507`, main CI and Documentation and Pages both succeeded. The published theme regression suite also passed against `https://github.oz-coden.com/Simpludify/`, independently of local builds and Actions. The Blockfall integration is checkpointed on `codex/site-recovery-blockfall`; deployment evidence is recorded separately from local test results.
 
 ## Hosting and language limits
 

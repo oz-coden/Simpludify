@@ -1,14 +1,6 @@
 export const repository = "https://github.com/oz-coden/Simpludify";
 export const examples = [
   {
-    id: "blockfall",
-    title: "Blockfall",
-    summary: "整数グリッドの落ち物パズル・seed付き7-bag・ホールド・ゴースト",
-    controls:
-      "← →移動、↑ / X・Z回転、↓ソフトドロップ、Spaceハードドロップ、C / Shiftホールド、P / Esc一時停止。スマートフォンは下部ボタンで全操作に対応。",
-    guide: "guides/blockfall.html",
-  },
-  {
     id: "character",
     title: "Character",
     summary: "最小のキャラクター移動",
@@ -40,14 +32,16 @@ export const examples = [
       "Start runから開始。WASD／矢印、空き領域のクリック／タップ、または下部の長押しボタンで移動。30秒以内に6個の信号を収集し、赤を避け、青い壁に沿って進みます。Pause・Restart・Menu・Zoomも利用できます。",
     guide: "guides/collision.html",
   },
+  {
+    id: "blockfall",
+    title: "Blockfall",
+    summary: "整数グリッドの落ち物パズル・seed付き7-bag・ホールド・ゴースト",
+    controls:
+      "← →移動、↑ / X・Z回転、↓ソフトドロップ、Spaceハードドロップ、C / Shiftホールド、P / Esc一時停止。スマートフォンは下部ボタンで全操作に対応。",
+    guide: "guides/blockfall.html",
+  },
 ];
 export const pages = [
-  [
-    "guides/blockfall.html",
-    "examples/blockfall/README.md",
-    "Blockfallのルールと実装",
-    "サンプル",
-  ],
   ["index.html", "site/ja/index.md", "ホーム", "はじめに"],
   [
     "getting-started.html",
@@ -77,6 +71,12 @@ export const pages = [
   ],
   ["api.html", "site/ja/api.md", "APIリファレンス", "リファレンス"],
   ["examples.html", "site/ja/examples.md", "サンプルギャラリー", "サンプル"],
+  [
+    "guides/blockfall.html",
+    "examples/blockfall/README.md",
+    "Blockfallのルールと実装",
+    "サンプル",
+  ],
   [
     "architecture.html",
     "site/ja/architecture.md",

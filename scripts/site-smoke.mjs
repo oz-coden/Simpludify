@@ -242,6 +242,7 @@ try {
   // then disable all contexts to exercise the user-facing startup failure.
   const noGl = await browser.newContext();
   const noGlPage = await noGl.newPage();
+  noGlPage.setDefaultTimeout(15_000);
   await noGlPage.addInitScript(() => {
     Object.defineProperty(navigator, "gpu", { get: () => undefined });
     for (const prototype of [

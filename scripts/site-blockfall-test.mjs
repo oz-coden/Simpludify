@@ -149,6 +149,26 @@ export async function testBlockfall(frame, page, context, width) {
     await frame.evaluate(() => window.retiredBlockfall.controller.disposed),
     true,
   );
+  assert.equal(await frame.locator("#next span").count(), 4);
+  // A normal run reaches game over through repeated button-operated drops.
+  for (let index = 0; index < 50; index++) {
+    if (await frame.evaluate(() => window.blockfall.puzzle.over)) break;
+    const before = await frame.evaluate(() => window.blockfall.puzzle.locked);
+    await frame.getByRole("button", { name: "Hard drop", exact: true }).click();
+    await frame.waitForFunction(
+      (value) =>
+        window.blockfall.puzzle.over || window.blockfall.puzzle.locked > value,
+      before,
+    );
+  }
+  assert.equal(await frame.evaluate(() => window.blockfall.puzzle.over), true);
+  await frame
+    .getByText("Game over — Restart to play again", { exact: true })
+    .waitFor();
+  await touchButton("Restart");
+  await frame.waitForFunction(
+    () => !window.blockfall.puzzle.over && window.blockfall.puzzle.score === 0,
+  );
   await page.screenshot({
     path: `test-results/site/blockfall-${width}.png`,
     fullPage: false,
