@@ -13,4 +13,5 @@ export { InputSystem, KeyboardSource } from "./input";
 export * from "./key-code";
 export * from "./lifetime";
 export * from "./ports";
+export * from "./random";
 export * from "./scene";

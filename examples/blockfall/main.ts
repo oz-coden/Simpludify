@@ -34,7 +34,7 @@ let current: Puzzle | undefined,
   currentController: PuzzleController | undefined;
 game.scene("play", ({ scene, onUpdate, onActivate, onDispose }) => {
   const { puzzle, controller } = createPuzzle(scene, game.engine.input, () =>
-    game.engine.random(),
+    game.engine.random.next(),
   );
   const view = new BoardView(scene);
   current = puzzle;

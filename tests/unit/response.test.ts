@@ -17,7 +17,7 @@ import {
 import { describe, expect, it } from "vitest";
 
 function setup(options: ConstructorParameters<typeof CollisionWorld>[1] = {}) {
-  const engine = new Engine(),
+  const engine = new Engine({ seed: 42 }),
     world = new CollisionWorld(engine.scene, options);
   return { engine, world, scene: engine.scene };
 }

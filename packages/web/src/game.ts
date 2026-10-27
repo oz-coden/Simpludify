@@ -95,7 +95,9 @@ export class Game<SceneId extends string = string> {
   private readonly errorBox: HTMLParagraphElement;
   constructor(options: GameOptions = {}) {
     this.options = options;
-    this.engine = new Engine(options.seed);
+    this.engine = new Engine(
+      options.seed === undefined ? {} : { seed: options.seed },
+    );
     this.camera = options.camera ?? new Camera();
     this.maxDelta = positive(options.maxDelta ?? 0.05, "maxDelta");
     this.resolution = {

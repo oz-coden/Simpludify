@@ -12,7 +12,7 @@ try {
     await server.ssrLoadModule("/packages/core/src/index.ts");
   const results = [];
   for (const count of [0, 1000]) {
-    const engine = new Engine(42);
+    const engine = new Engine({ seed: 42 });
     const actions = defineActions({ Move: Action.axis2D() });
     const controls = new ActionController(actions, {
       scene: engine.scene,

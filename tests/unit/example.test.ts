@@ -8,7 +8,7 @@ import {
 } from "../../examples/composition/logic";
 
 it("plays the composition example headlessly and removes collected actors", () => {
-  const engine = new Engine(42),
+  const engine = new Engine({ seed: 42 }),
     player = createPlayer(engine.scene, engine.input);
   const total: number[] = [];
   engine.scene.events.on(

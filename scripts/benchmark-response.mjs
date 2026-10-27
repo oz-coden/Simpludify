@@ -86,7 +86,7 @@ if (mode === "core") {
     const results = [];
     for (const name of names) {
       const resets = [];
-      const engine = new Engine(42),
+      const engine = new Engine({ seed: 42 }),
         world =
           name.includes("Trigger") ||
           name.includes("Solid") ||

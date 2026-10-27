@@ -19,7 +19,7 @@ const Actions = defineActions({
   Yaw: Action.axis1D(),
   Orientation: Action.axis3D(),
 });
-const engine = new Engine(42);
+const engine = new Engine({ seed: 42 });
 const controls = new ActionController(Actions, {
   scene: engine.scene,
   input: engine.input,

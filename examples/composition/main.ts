@@ -19,8 +19,8 @@ game.scene("field", ({ scene, ui, signal, onActivate }) => {
     if (scene.actors.filter((actor) => actor.get(Beacon.type)).length < 24)
       spawnBeacon(
         scene,
-        60 + game.engine.random() * 680,
-        90 + game.engine.random() * 300,
+        60 + game.engine.random.next() * 680,
+        90 + game.engine.random.next() * 300,
       );
   };
   for (let i = 0; i < 6; i++) spawn();

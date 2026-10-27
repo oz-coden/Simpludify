@@ -65,12 +65,17 @@ if (mode === "browser") {
       "/examples/prism-raid/autoplay.ts",
     );
     const workload = (enemies, shots, overlap) => {
-      const engine = new Engine(42),
-        round = new Raid(engine.scene, engine.input, () => engine.random(), {
-          hp: 1000,
-          spawnInterval: 1000,
-          duration: 10000,
-        });
+      const engine = new Engine({ seed: 42 }),
+        round = new Raid(
+          engine.scene,
+          engine.input,
+          () => engine.random.next(),
+          {
+            hp: 1000,
+            spawnInterval: 1000,
+            duration: 10000,
+          },
+        );
       for (let i = 0; i < enemies; i++)
         round.spawnEnemy({
           kind: "gunner",
@@ -120,8 +125,8 @@ if (mode === "browser") {
       workload(60, 240, false),
       workload(100, 1000, true),
     ];
-    const engine = new Engine(42),
-      round = new Raid(engine.scene, engine.input, () => engine.random(), {
+    const engine = new Engine({ seed: 42 }),
+      round = new Raid(engine.scene, engine.input, () => engine.random.next(), {
         spawnInterval: 1000,
         duration: 10000,
       });
@@ -149,9 +154,9 @@ if (mode === "browser") {
       wins = 0,
       losses = 0;
     const play = (seed) => {
-      const simulation = new Engine(seed),
+      const simulation = new Engine({ seed: seed }),
         mission = new Raid(simulation.scene, simulation.input, () =>
-          simulation.random(),
+          simulation.random.next(),
         );
       for (let i = 0; i < 120 * 76 && mission.status === "playing"; i++) {
         if (i % 6 === 0) autopilot(mission);

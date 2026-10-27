@@ -267,10 +267,10 @@ describe("update consistency", () => {
   });
   it("keeps engine-managed execution reproducible with dynamic objects and timers", () => {
     const run = () => {
-      const engine = new Engine(9);
+      const engine = new Engine({ seed: 9 });
       engine.scene.every(0.1, () => {
         const actor = engine.scene.add(new Actor());
-        actor.add(new Transform({ x: engine.random() }));
+        actor.add(new Transform({ x: engine.random.next() }));
       });
       for (let i = 0; i < 20; i++) engine.step(0.05);
       return engine.snapshot();

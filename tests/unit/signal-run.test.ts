@@ -119,7 +119,7 @@ it("publishes coarse UI changes and cleans round resources on restart", () => {
 });
 it("replays controlled input deterministically", () => {
   const run = () => {
-    const engine = new Engine(42),
+    const engine = new Engine({ seed: 42 }),
       round = new Round(engine.scene, engine.input);
     keyboard(engine).set("KeyD", true);
     for (let i = 0; i < 240; i++) {

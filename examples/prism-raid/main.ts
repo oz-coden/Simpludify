@@ -63,7 +63,9 @@ game.scene("menu", ({ scene, ui, onActivate }) => {
   );
 });
 game.scene("play", ({ scene, onActivate, onDispose, onUpdate }) => {
-  const round = new Raid(scene, game.engine.input, () => game.engine.random());
+  const round = new Raid(scene, game.engine.input, () =>
+    game.engine.random.next(),
+  );
   current = round;
   result = undefined;
   presentRaid(scene, round);

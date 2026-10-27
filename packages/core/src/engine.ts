@@ -2,6 +2,7 @@ import { Transform } from "./components";
 import { EngineError } from "./diagnostics";
 import { InputSystem } from "./input";
 import { cleanupAll } from "./lifetime";
+import { RandomManager } from "./random";
 import { Scene, SceneState } from "./scene";
 export class Engine {
   readonly input = new InputSystem();
@@ -11,13 +12,13 @@ export class Engine {
   private transitioning = false;
   private suspended = false;
   private elapsed = 0;
-  private randomState: number;
+  readonly random: RandomManager;
   private readonly context: {
     delta: number;
     scene: Scene;
   };
-  constructor(seed = 1) {
-    this.randomState = seed >>> 0;
+  constructor(options: { seed?: number } = {}) {
+    this.random = new RandomManager(options.seed);
     this.active.claim(this);
     this.context = {
       delta: 0,
@@ -122,19 +123,13 @@ export class Engine {
       this.stepping = false;
     }
   }
-  random(): number {
-    this.assertAlive();
-    this.randomState =
-      (Math.imul(1664525, this.randomState) + 1013904223) >>> 0;
-    return this.randomState / 4294967296;
-  }
   snapshot() {
     return {
       sceneId: this.active.id,
       sceneState: this.active.state,
       elapsed: this.elapsed,
       paused: this.suspended,
-      randomState: this.randomState,
+      random: this.random.snapshot(),
       input: this.input.snapshot(),
       actors: this.active.actors.map((actor) => {
         const transform = actor.get(Transform.type);
@@ -160,7 +155,11 @@ export class Engine {
     if (this.dead) return;
     this.dead = true;
     cleanupAll(
-      [() => this.input.dispose(), () => this.active.dispose()],
+      [
+        () => this.input.dispose(),
+        () => this.active.dispose(),
+        () => this.random.dispose(),
+      ],
       "Engine cleanup failed",
     );
   }

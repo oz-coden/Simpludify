@@ -61,7 +61,7 @@ if (mode === "core") {
     );
     const results = [];
     for (const workload of ["1000 sparse", "1000 grid", "100 dense"]) {
-      const engine = new Engine(42),
+      const engine = new Engine({ seed: 42 }),
         world = new CollisionWorld(engine.scene);
       const count = workload.startsWith("100 ") ? 100 : 1000;
       for (let i = 0; i < count; i++) {
@@ -97,7 +97,7 @@ if (mode === "core") {
       });
     }
     const session = (active) => {
-      const engine = new Engine(42),
+      const engine = new Engine({ seed: 42 }),
         round = active
           ? new Round(engine.scene, engine.input, {
               duration: 601,
@@ -132,7 +132,7 @@ if (mode === "core") {
     };
     const sessions = [session(false), session(true)];
     const cycle = () => {
-      const engine = new Engine(42),
+      const engine = new Engine({ seed: 42 }),
         round = new Round(engine.scene, engine.input),
         source = round.controls.createSource(engine.scene);
       source.set(round.controls.actions.Move, { x: 1, y: 0 });

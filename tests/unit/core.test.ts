@@ -56,15 +56,15 @@ describe("simulation", () => {
     expect(() => new Engine().step(Infinity)).toThrow();
   });
   it("reproduces engine-managed randomness and snapshots", () => {
-    const a = new Engine(42),
-      b = new Engine(42);
+    const a = new Engine({ seed: 42 }),
+      b = new Engine({ seed: 42 });
     for (const engine of [a, b]) {
       const input = controls(engine);
       engine.scene.add(Character({ movement: input.reader(Actions.Move) }));
       input.createSource().set(Actions.Move, { x: 0, y: -1 });
       engine.step(0.5);
     }
-    expect(a.random()).toBe(b.random());
+    expect(a.random.next()).toBe(b.random.next());
     expect(a.snapshot()).toEqual(b.snapshot());
     a.dispose();
     b.dispose();

@@ -248,7 +248,7 @@ import {
   defineActions,
   Engine,
 } from "@simpludify/core";
-const engine = new Engine(42);
+const engine = new Engine({ seed: 42 });
 const Actions = defineActions({ Move: Action.axis2D() });
 const controls = new ActionController(Actions, {
   scene: engine.scene,

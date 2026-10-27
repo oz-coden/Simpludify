@@ -12,9 +12,9 @@ import {
 import { keyboard } from "../helpers/keyboard";
 
 function fixture(seed = 42) {
-  const engine = new Engine(seed);
+  const engine = new Engine({ seed: seed });
   const { puzzle, controller } = createPuzzle(engine.scene, engine.input, () =>
-    engine.random(),
+    engine.random.next(),
   );
   return { engine, puzzle, controller };
 }
@@ -205,7 +205,7 @@ it("freezes and resumes simulation, then disposes old controllers and input sour
   expect(puzzle.active.y).toBeGreaterThan(before.active.y);
   const old = engine.scene;
   const fresh = new Scene("restart");
-  const next = createPuzzle(fresh, engine.input, () => engine.random());
+  const next = createPuzzle(fresh, engine.input, () => engine.random.next());
   engine.activate(fresh);
   expect(old.disposed).toBe(true);
   expect(controller.disposed).toBe(true);
@@ -243,7 +243,9 @@ it("simulates 100,000 headless steps with repeated live rounds and bounded scene
   for (let index = 0; index < 100_000; index++) {
     if (index === 0 || puzzle.over) {
       const scene = new Scene(`round-${++rounds}`);
-      puzzle = createPuzzle(scene, engine.input, () => engine.random()).puzzle;
+      puzzle = createPuzzle(scene, engine.input, () =>
+        engine.random.next(),
+      ).puzzle;
       engine.activate(scene);
     }
     keyboard(engine).set("ArrowRight", index % 60 < 20);

@@ -22,11 +22,11 @@ function fixture(
   options: RaidOptions = { spawnInterval: 100, duration: 100 },
   seed = 42,
 ) {
-  const engine = new Engine(seed),
+  const engine = new Engine({ seed: seed }),
     round = new Raid(
       engine.scene,
       engine.input,
-      () => engine.random(),
+      () => engine.random.next(),
       options,
     );
   return { engine, round };
@@ -235,7 +235,7 @@ it("freezes simulation and timers while paused and initializes a fresh Scene on 
   const old = engine.scene;
   const source = engine.input.createKeyboardSource(old);
   const next = new Scene("retry");
-  const fresh = new Raid(next, engine.input, () => engine.random());
+  const fresh = new Raid(next, engine.input, () => engine.random.next());
   engine.activate(next);
   expect(old.disposed).toBe(true);
   expect(round.world.disposed).toBe(true);
