@@ -1,3 +1,4 @@
+export * from "./actions";
 export * from "./actor";
 export * from "./camera-follow";
 export * from "./character";
@@ -9,6 +10,7 @@ export * from "./diagnostics";
 export * from "./engine";
 export * from "./events";
 export * from "./input";
+export * from "./key-code";
 export * from "./lifetime";
 export * from "./ports";
 export * from "./scene";

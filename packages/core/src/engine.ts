@@ -101,19 +101,22 @@ export class Engine {
         "STEP_REENTRANT",
         "Cannot step during an update or transition",
       );
-    if (this.suspended) return;
     if (
-      this.active.state === SceneState.Preparing ||
-      this.active.state === SceneState.Ready
-    )
+      !this.suspended &&
+      (this.active.state === SceneState.Preparing ||
+        this.active.state === SceneState.Ready)
+    ) {
       this.activate(this.active);
-    // Activation hooks may synchronously terminate or suspend this first step.
-    if (this.dead || this.active.disposed || this.suspended) return;
-    this.context.delta = seconds;
-    this.context.input = this.input.capture();
-    this.context.scene = this.active;
+      // Activation hooks may synchronously terminate this first step.
+      if (this.dead || this.active.disposed) return;
+    }
     this.stepping = true;
     try {
+      this.context.delta = seconds;
+      this.context.input = this.input.beginStep();
+      this.context.scene = this.active;
+      // Logical input callbacks remain available for pause/resume controls.
+      if (this.dead || this.suspended || this.active.disposed) return;
       this.elapsed += seconds;
       this.active.step(this.context);
     } finally {

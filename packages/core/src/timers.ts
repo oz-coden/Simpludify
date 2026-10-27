@@ -57,9 +57,11 @@ export class SimulationTimers {
     this.plan = [...this.timers];
   }
   step(seconds: number): void {
-    if (!this.timers.size) return;
+    const plan = this.plan;
+    this.plan = [];
+    if (!plan.length) return;
     const errors: unknown[] = [];
-    for (const timer of this.plan) {
+    for (const timer of plan) {
       if (!timer.active) continue;
       timer.remaining -= seconds;
       if (timer.remaining > 1e-12) continue;

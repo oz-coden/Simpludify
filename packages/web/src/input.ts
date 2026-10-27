@@ -17,7 +17,8 @@ export class BrowserInput {
       if (editable(event.target)) return;
       if (!accepts(event.code)) return;
       event.preventDefault();
-      source.set(event.code, true);
+      // A cleared held key must be pressed afresh after pause/focus changes.
+      if (!event.repeat) source.set(event.code, true);
     };
     const up = (event: KeyboardEvent) => source.set(event.code, false);
     const options = { signal: this.controller.signal };

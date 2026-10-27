@@ -157,6 +157,7 @@ export class Game<SceneId extends string = string> {
       this.element,
       this.engine.input,
       (code) => {
+        if (this.engine.input.acceptsKey(code)) return true;
         for (const actor of this.engine.scene.actors) {
           const controller = actor.get(KeyboardController.type);
           if (

@@ -1,4 +1,5 @@
 import { EngineError } from "./diagnostics";
+import type { KeyCode } from "./key-code";
 import { cleanupAll, type LifetimeOwner } from "./lifetime";
 export const Movement = {
   WASD: "wasd",
@@ -7,10 +8,10 @@ export const Movement = {
 } as const;
 export type Movement = (typeof Movement)[keyof typeof Movement];
 export interface KeyMap {
-  readonly up: readonly string[];
-  readonly down: readonly string[];
-  readonly left: readonly string[];
-  readonly right: readonly string[];
+  readonly up: readonly KeyCode[];
+  readonly down: readonly KeyCode[];
+  readonly left: readonly KeyCode[];
+  readonly right: readonly KeyCode[];
 }
 export const KeyMaps: Readonly<Record<Movement, KeyMap>> = {
   wasd: { up: ["KeyW"], down: ["KeyS"], left: ["KeyA"], right: ["KeyD"] },
@@ -112,7 +113,19 @@ export class InputSource {
     );
   }
 }
+/** @internal Host-independent logical input sampling and keyboard routing. */
+export interface ActionInputPort {
+  readonly active: boolean;
+  readonly sourceCount: number;
+  accepts(code: string): boolean;
+  keyChanged(): void;
+  capture(): void;
+  dispatch(): void;
+  reset(): void;
+  dispose(): void;
+}
 export class InputState implements InputReader {
+  private readonly actions = new Set<ActionInputPort>();
   private readonly keys = new Set<string>();
   private readonly counts = new Map<string, number>();
   private readonly sources = new Map<
@@ -123,7 +136,44 @@ export class InputState implements InputReader {
   private dead = false;
   private cached: InputReader | undefined;
   get sourceCount(): number {
-    return this.sources.size - Number(this.sources.has(this.defaultSource));
+    let count =
+      this.sources.size - Number(this.sources.has(this.defaultSource));
+    for (const actions of this.actions) count += actions.sourceCount;
+    return count;
+  }
+  /** @internal */ registerActions(actions: ActionInputPort): () => void {
+    if (this.dead)
+      throw new EngineError("OWNER_DISPOSED", "Input has been disposed");
+    this.actions.add(actions);
+    return () => {
+      this.actions.delete(actions);
+    };
+  }
+  acceptsKey(code: string): boolean {
+    for (const actions of this.actions) if (actions.accepts(code)) return true;
+    return false;
+  }
+  private notifyActions(): void {
+    for (const actions of this.actions) actions.keyChanged();
+  }
+  /** @internal Captures all controllers before delivering any input callbacks. */
+  beginStep(): InputReader {
+    const frame = this.capture();
+    if (!this.actions.size) return frame;
+    const plan = [...this.actions].filter((actions) => actions.active);
+    for (const actions of plan) actions.capture();
+    const errors: unknown[] = [];
+    for (const actions of plan) {
+      if (!this.actions.has(actions) || !actions.active) continue;
+      try {
+        actions.dispatch();
+      } catch (error) {
+        errors.push(error);
+      }
+    }
+    if (errors.length)
+      throw new AggregateError(errors, "Input callbacks failed");
+    return frame;
   }
   createSource(owner?: LifetimeOwner): InputSource {
     if (this.dead || owner?.disposed)
@@ -158,6 +208,7 @@ export class InputState implements InputReader {
       if (count === 0) {
         this.keys.add(code);
         this.cached = undefined;
+        this.notifyActions();
       }
     } else {
       source.keys.delete(code);
@@ -166,6 +217,7 @@ export class InputState implements InputReader {
         this.counts.delete(code);
         this.keys.delete(code);
         this.cached = undefined;
+        this.notifyActions();
       } else this.counts.set(code, count - 1);
     }
   }
@@ -183,6 +235,7 @@ export class InputState implements InputReader {
         this.counts.delete(code);
         this.keys.delete(code);
         this.cached = undefined;
+        this.notifyActions();
       } else this.counts.set(code, count - 1);
     }
     this.sources.delete(id);
@@ -194,6 +247,7 @@ export class InputState implements InputReader {
       this.keys.clear();
       this.cached = undefined;
     }
+    for (const actions of this.actions) actions.reset();
   }
   capture(): InputReader {
     this.cached ??= new InputFrame(new Set(this.keys));
@@ -217,10 +271,15 @@ export class InputState implements InputReader {
     const sources = [...this.sources.values()];
     try {
       cleanupAll(
-        sources.map((source) => () => source.handle?.dispose()),
+        [
+          ...[...this.actions].map((actions) => () => actions.dispose()),
+          ...sources.map((source) => () => source.handle?.dispose()),
+        ],
         "Input cleanup failed",
       );
     } finally {
+      for (const actions of this.actions) actions.reset();
+      this.actions.clear();
       this.sources.clear();
       this.keys.clear();
       this.counts.clear();

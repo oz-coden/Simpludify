@@ -56,7 +56,7 @@ describe("simulation", () => {
     expect(a.snapshot()).toEqual(b.snapshot());
   });
   it("keeps character key mappings independent from user arrays", () => {
-    const right = ["KeyL"];
+    const right: import("@simpludify/core").KeyCode[] = ["KeyL"];
     const player = Character({ keys: { up: [], down: [], left: [], right } });
     right.length = 0;
     const input = new InputState();
