@@ -14,6 +14,8 @@ function option(name, fallback) {
   args.splice(i, 2);
   return value;
 }
+const recording = args.includes("--record");
+if (recording) args.splice(args.indexOf("--record"), 1);
 const mode = option("--mode", "core"),
   output = option("--out", "test-results/shooter.json"),
   seconds = Number(option("--seconds", "120"));
@@ -55,7 +57,7 @@ if (mode === "browser") {
     server: { middlewareMode: true },
   });
   try {
-    const { Engine } = await server.ssrLoadModule(
+    const { Engine, ReplayRecorder } = await server.ssrLoadModule(
       "/packages/core/src/index.ts",
     );
     const { Raid } = await server.ssrLoadModule(
@@ -153,16 +155,29 @@ if (mode === "browser") {
       peakActors = 0,
       wins = 0,
       losses = 0;
+    let replayBytes = 0,
+      recordedFrames = 0;
     const play = (seed) => {
       const simulation = new Engine({ seed: seed }),
         mission = new Raid(simulation.scene, simulation.input, () =>
           simulation.random.next(),
         );
+      const recorder = recording
+        ? new ReplayRecorder(simulation, {
+            controllers: { raid: mission.controls },
+            metadata: { gameVersion: "benchmark-1" },
+          })
+        : undefined;
       for (let i = 0; i < 120 * 76 && mission.status === "playing"; i++) {
         if (i % 6 === 0) autopilot(mission);
         simulation.step(1 / 120);
         steps++;
         peakActors = Math.max(peakActors, mission.units.size);
+      }
+      if (recorder) {
+        const data = recorder.finish();
+        recordedFrames += data.steps.length;
+        replayBytes += Buffer.byteLength(JSON.stringify(data));
       }
       created += mission.shotsFired + mission.spawned;
       kills += mission.kills;
@@ -179,6 +194,8 @@ if (mode === "browser") {
     wins = 0;
     losses = 0;
     peakActors = 0;
+    replayBytes = 0;
+    recordedFrames = 0;
     globalThis.gc();
     const memory = [{ round: 0, heap: process.memoryUsage().heapUsed }],
       started = performance.now();
@@ -205,6 +222,14 @@ if (mode === "browser") {
         wins,
         losses,
         gcHeapSamples: memory,
+        replay: {
+          enabled: recording,
+          recordedFrames,
+          jsonBytes: replayBytes,
+          bytesPerStep: recordedFrames ? replayBytes / recordedFrames : 0,
+          scope:
+            "record mode includes finish validation/copy and JSON serialization",
+        },
       },
     };
   } finally {

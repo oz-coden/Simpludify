@@ -36,3 +36,7 @@ Viewport tests cover the supplied examples on Chromium, not arbitrary user layou
 4. Review Electron/electron-builder/Chromium/Node licenses and support before enabling build --target windows. In Windows CI launch the built portable artifact, verify a rendered frame, movement/navigation, offline behavior, process cleanup and temporary/extracted files. Report compressed and installed/extracted sizes separately before documenting verified OS/portable support.
 
 Before comparative performance claims, implement equivalent Godot/Phaser workloads on controlled hardware and preserve all versions and raw results.
+
+## Controlled execution
+
+Implemented: standalone RandomManager, cached named streams, actual automatic seeds, opt-in JSON Action Replay from a fresh Engine/one Scene, auxiliary observations, and optional bounded fixed stepping. Deferred: seek/rewind, arbitrary state restoration, cross-Scene replay, compression, render interpolation and network determinism. See [contracts and validation](replay.md).

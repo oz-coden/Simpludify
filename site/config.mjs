@@ -60,6 +60,12 @@ export const pages = [
   ["concepts.html", "site/ja/concepts.md", "基本概念", "はじめに"],
   ["guides/input.html", "site/ja/input.md", "入力とゲームループ", "ガイド"],
   [
+    "guides/replay.html",
+    "site/ja/replay.md",
+    "乱数・Replay・固定ステップ",
+    "ガイド",
+  ],
+  [
     "guides/rendering.html",
     "site/ja/rendering.md",
     "描画・座標・カメラ",
@@ -108,6 +114,12 @@ export const pages = [
   ["en/index.html", "site/en.md", "English documentation", "English"],
   ["en/api.html", "docs/api.md", "API contracts", "English"],
   ["en/actions.html", "docs/action-input.md", "Typed Action input", "English"],
+  [
+    "en/replay.html",
+    "docs/replay.md",
+    "Random / Replay / fixed steps",
+    "English",
+  ],
   [
     "en/input-unification.html",
     "docs/input-unification.md",

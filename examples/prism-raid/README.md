@@ -93,3 +93,14 @@ npm run test:site
 ## Action入力とリバインド
 
 RaidActions.MoveはAxis2D、FireとPauseはButtonです。new Raid(scene, engine.input, random)で構成し、移動Componentと戦闘ルールは物理キーを参照しません。キーボードはcontrolsのbindings、タッチは独立ActionSource、自動プレイヤーはround.inputへMove/Fireを設定します。controls.rebindで物理キーを変更しても、タッチ・自動プレイや戦闘ロジックは変わりません。pause/resumeは停止中も捕捉するonPressedを利用します。[詳細な入力契約](../../docs/action-input.md)には所有権・合成・設定保存をまとめています。
+
+## 記録と再生
+
+`replay.ts`は同じゲームロジックを名前付き`enemy`乱数ストリームで動かし、論理Actionを記録・JSON往復・再生して状態を比較します。通常のブラウザプレイでは記録を有効にしません。
+
+```sh
+npm run replay:demo
+npm run replay:demo -- --out mission.json
+```
+
+ファイル保存はCLI側の処理で、CoreのReplayはメモリ上のJSON互換データだけを扱います。ゲームバージョンはサンプル自身が指定します。[Random・Replay・固定ステップ](../../docs/replay.md)に手順と制約をまとめています。

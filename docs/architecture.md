@@ -130,3 +130,11 @@ The official site is build tooling, not an engine dependency: existing Vite plus
 Code-first means coherent, understandable and maintainable composition, not shortest syntax. High-level defaults and low-level access coexist, and typed events remain optional. Blockfall expresses its grid rules with ordinary game logic rather than mandatory physical Colliders. Prism Raid uses circle Triggers beneath Triangle visuals; enemy patterns, firing, damage and waves remain game-owned Components and state. Circle/box approximations are sufficient where game feel permits; exact contours are not a requirement.
 
 Static hosting is independent from network capability. Standalone samples need no external game service after delivery. Future transport, simulation location and state authority must be separate decisions; P2P, player-hosted and dedicated-server designs are candidates, not implemented APIs. DOM-free simulation must remain reusable without committing to a transport.
+
+## Controlled execution
+
+Engine owns a standalone RandomManager. Exact named streams derive seeds independently of lookup order; Scene replacement retains consumption and Engine disposal closes every handle. Random snapshots inspect seed/state/calls and do not restore arbitrary game state.
+
+ReplayRecorder/ReplayPlayer attach one optional execution driver. With no driver, Engine does not capture replay frames or random snapshots. Capture occurs after all Action frames are frozen and before any input callback, preserving Button transitions and pause controls. Playback supplies validated logical frames at that same boundary and excludes live contributions. Controller IDs disambiguate repeated Action names. Initial support requires a fresh Engine and one Scene; unsupported replacement is rejected before commit. Data persistence remains outside Core.
+
+FixedStepRunner is a small host-time accumulator; Web can opt into it while preserving variable RAF stepping. Replay pacing consumes recorded deltas with bounded work and never discards recorded steps. Neither helper is a universal determinism, interpolation or save-state system. [Random / Replay contracts](replay.md) describe ownership, pause boundaries, limits and reproducibility conditions.

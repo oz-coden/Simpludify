@@ -37,7 +37,7 @@ Click or Tab into the game host to use movement keys. Game does not autofocus. W
 | pixelRatio  | min(devicePixelRatio, 2)      | Positive physical backing-buffer density; independent of world units |
 | theme       | Theme.Dark                    | Dark or Light semantic tokens                                        |
 | tokens      | no overrides                  | Partial background/surface/text/muted/accent/font overrides          |
-| seed        | 1                             | Managed PRNG seed, converted to uint32                               |
+| seed        | automatic                     | Managed PRNG seed, converted to uint32                               |
 | maxDelta    | 0.05 seconds                  | Positive Web frame delta cap                                         |
 | renderer    | PixiRenderer factory          | Receives owned HTMLElement; returns RendererPort                     |
 | frames      | RAF driver                    | FrameDriver request/cancel; callbacks must be asynchronous           |
@@ -48,6 +48,8 @@ Game.add(actor) returns the same Actor and works both before run and during exec
 Game.scene(id, setup) registers a unique factory. `Game<'menu' | 'play'>` restricts IDs at compile time. Setup receives scene, signal, add, ui, onUpdate, onActivate, onDeactivate and onDispose. Async setup is allowed; use signal for cancellable work and register cleanup before awaiting. run(id?) returns a shared startup Promise; await it before goTo. goTo(id) returns a readiness Promise, coalesces identical outstanding requests, queues different IDs and creates a fresh Scene after a completed reload. Before-commit setup/asset failures preserve the current scene. Lifecycle callback errors are reported after commit while retaining the new scene. Game.dispose is synchronous and idempotent; it promptly rejects outstanding navigation.
 
 Game.whenReady waits for currently requested dynamic visual resources of the current scene, not for an independently pending navigation. A failed image rejects it and reports a background diagnostic. The failed visual remains absent; removing its Actor/Renderable clears that failure. Logical updates continue while runtime images load.
+
+`fixedStep?: { step?, maxSteps?, maxFrameDelta? }` opts Web into bounded fixed stepping; variable stepping remains the default. `Game.playReplay(data, { scene, controllers, expectedMetadata? })` configures playback in the initial Scene factory, before the fresh Engine's first step; `stopReplay()` releases it. See the [complete contract and examples](replay.md).
 
 ## Actors and Components
 
@@ -264,7 +266,7 @@ engine.dispose();
 
 Engine.step takes finite nonnegative seconds without a cap. It captures all active ActionControllers before delivering any onPressed callbacks. UpdateContext supplies delta and scene; input dependencies are explicitly injected rather than read from a global raw frame. Read ActionController.value/button/events or inject a kind-typed reader into a Component. [Action input](action-input.md) defines buttons, axes, composition, binding changes, ownership and boundary semantics.
 
-Engine.pause/resume and Web Game.pause/resume are idempotent. Paused steps capture Action input and dispatch onPressed controls but skip simulation unless resumed at that boundary. State changes clear held contributions and pending edges. Game continues rendering/DOM UI and resets its frame timestamp. Scene replacement clears input; disposal releases controllers and sources. Engine.random is a seeded uint32 LCG. Engine.snapshot copies scene state, elapsed time, PRNG state, device-key diagnostics and generic Actor/Transform state. Logical state is available from controls.snapshot(); neither snapshot is a restorable custom-Component save format.
+Engine.pause/resume and Web Game.pause/resume are idempotent. Paused steps capture Action input and dispatch onPressed controls but skip simulation unless resumed at that boundary. State changes clear held contributions and pending edges. Game continues rendering/DOM UI and resets its frame timestamp. Scene replacement clears input; disposal releases controllers and sources. Engine.random is an owned RandomManager with an actual initial seed and named independent streams. See [Random / Replay / fixed steps](replay.md). Engine.snapshot copies scene state, elapsed time, PRNG state, device-key diagnostics and generic Actor/Transform state. Logical state is available from controls.snapshot(); neither snapshot is a restorable custom-Component save format.
 
 ### Device adapters and text input
 

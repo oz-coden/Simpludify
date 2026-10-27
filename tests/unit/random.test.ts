@@ -90,3 +90,10 @@ it("rejects ambiguous seeds and invalid stream names", () => {
   expect(() => random.stream("")).toThrow();
   expect(() => random.stream("a".repeat(257))).toThrow();
 });
+
+it("pins cross-host named seed fixtures independently of the implementation", () => {
+  expect(deriveStreamSeed(123, "enemy")).toBe(332427948);
+  expect(deriveStreamSeed(123, "loot")).toBe(1125229326);
+  expect(deriveStreamSeed(123, "日本語🙂")).toBe(4133938996);
+  expect(deriveStreamSeed(0, "map")).toBe(3428071641);
+});
