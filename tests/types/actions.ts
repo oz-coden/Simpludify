@@ -29,6 +29,10 @@ export function actionTypeContracts(scene: Scene, input: InputSystem): void {
   source.set(actions.Fire, true);
   source.set(actions.Move, { x: 1, y: 0 });
   source.set(actions.Aim, { x: 0, y: 0, z: 1 });
+  // @ts-expect-error implicit raw gameplay writes have been removed
+  input.set(KeyCode.Space, true);
+  // @ts-expect-error Components no longer have a raw frame-reader path
+  input.capture();
   // @ts-expect-error nonexistent physical key constant
   void KeyCode.Spcae;
   // @ts-expect-error invalid static binding code

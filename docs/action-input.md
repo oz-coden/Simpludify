@@ -200,13 +200,13 @@ The existing Web API can host native DOM fields inside game.element. BrowserInpu
 ```ts verify
 import { Game } from "@simpludify/web";
 const game = new Game();
-game.scene("typing", ({ signal, onDispose }) => {
+game.scene("typing", ({ signal, onActivate, onDispose }) => {
   const field = document.createElement("textarea");
   field.setAttribute("aria-label", "Typing answer");
   field.inputMode = "text";
   field.autocomplete = "off";
   field.spellcheck = false;
-  game.element.append(field);
+  onActivate(() => game.element.append(field));
   onDispose(() => field.remove());
   let composing = false,
     committed = field.value;

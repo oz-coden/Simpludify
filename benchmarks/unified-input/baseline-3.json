@@ -1,0 +1,116 @@
+{
+  "environment": {
+    "date": "2026-10-27T14:01:52.614Z",
+    "node": "v24.22.1",
+    "platform": "linux",
+    "cpu": "AMD EPYC 9V74 80-Core Processor",
+    "sourceCommit": "12a56667c58f693193628c6752b9ad4482af5d89",
+    "trackedSourceChanges": ""
+  },
+  "mode": "core",
+  "measurements": {
+    "scope": "Core only; no renderer/DOM. Controlled GC, warmup and complete input-only rounds. No other local tests/builds during recording.",
+    "updates": [
+      {
+        "enemies": 0,
+        "shots": 0,
+        "overlap": false,
+        "stepSeconds": 0.004166666666666667,
+        "milliseconds": {
+          "samples": 160,
+          "p50": 0.01061600000002727,
+          "p95": 0.03384099999999535,
+          "p99": 0.05841799999996056,
+          "maximum": 0.14016099999997778
+        },
+        "peakActors": 1,
+        "candidates": 0,
+        "narrowTests": 0,
+        "finalColliders": 1
+      },
+      {
+        "enemies": 60,
+        "shots": 240,
+        "overlap": false,
+        "stepSeconds": 0.004166666666666667,
+        "milliseconds": {
+          "samples": 160,
+          "p50": 0.34703199999995604,
+          "p95": 0.5804040000000441,
+          "p99": 0.7219870000000128,
+          "maximum": 0.8460089999999809
+        },
+        "peakActors": 301,
+        "candidates": 8055,
+        "narrowTests": 0,
+        "finalColliders": 301
+      },
+      {
+        "enemies": 100,
+        "shots": 1000,
+        "overlap": true,
+        "stepSeconds": 0.004166666666666667,
+        "milliseconds": {
+          "samples": 160,
+          "p50": 2.0251879999999574,
+          "p95": 3.461492000000021,
+          "p99": 4.44969500000002,
+          "maximum": 6.257460000000037
+        },
+        "peakActors": 1101,
+        "candidates": 66018,
+        "narrowTests": 120,
+        "finalColliders": 511
+      }
+    ],
+    "churn": {
+      "actorsCreatedAndDestroyed": 10000,
+      "milliseconds": 97.20878300000004,
+      "microsecondsPerActor": 9.720878300000004,
+      "heapBefore": 18050584,
+      "heapAfter": 17888512,
+      "remainingActors": 2
+    },
+    "accelerated": {
+      "rounds": 60,
+      "steps": 172796,
+      "simulatedSeconds": 1439.9666666666667,
+      "wallMilliseconds": 3417.2913500000004,
+      "kills": 1440,
+      "createdPlayerShotsAndEnemies": 18774,
+      "peakActors": 41,
+      "wins": 60,
+      "losses": 0,
+      "gcHeapSamples": [
+        {
+          "round": 0,
+          "heap": 18037240
+        },
+        {
+          "round": 10,
+          "heap": 18103224
+        },
+        {
+          "round": 20,
+          "heap": 18098032
+        },
+        {
+          "round": 30,
+          "heap": 18110464
+        },
+        {
+          "round": 40,
+          "heap": 18132784
+        },
+        {
+          "round": 50,
+          "heap": 18144000
+        },
+        {
+          "round": 60,
+          "heap": 18159976
+        }
+      ]
+    }
+  }
+}
