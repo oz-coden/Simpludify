@@ -7,7 +7,7 @@ Simpludify has an experimental Web runtime and a generic composition-based Core.
 - DOM-free Engine stepping, frozen frame input, managed seeded randomness and generic snapshots.
 - Synchronous Scene states, exclusive ownership, lifecycle hooks and aggregate cleanup.
 - Dynamic Actors/Components with deterministic membership and update rules, dependency diagnostics and enable flags.
-- Transform, Renderable (Box/Circle/Character/Triangle), Motion, ActionMovement and the Character composition preset.
+- Transform, Renderable (Box/Circle/Character/Triangle), live validated Motion speed/direction, optional scaled ActionMovement and the Character composition preset. Input/Update commands precede Integrate and LateUpdate.
 - Optional typed local/external events with owner-scoped subscriptions and simulation timers.
 - Single Camera/Viewport, logical resolution, pure World/Screen transforms, pointer/DPR handling and optional bounded CameraFollow.
 - Pixi shape/image rendering, dynamic component reconciliation, pending-image cancellation and resource diagnostics.

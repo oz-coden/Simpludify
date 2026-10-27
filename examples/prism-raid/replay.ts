@@ -6,7 +6,7 @@ import {
 } from "@simpludify/core";
 import { autopilot } from "./autoplay";
 import { Raid, RaidFinished } from "./logic";
-export const replayGameVersion = "prism-raid-replay-1";
+export const replayGameVersion = "prism-raid-replay-2";
 /** Runs the ordinary game and input-only pilot; no drawing or wall-clock wait. */
 export function recordMission(
   options: { seed?: number; automatic?: boolean } = {},

@@ -74,12 +74,12 @@ scene.events.emit(ScoreChanged, { score: 1 });
 
 1. 入力をそのステップ用に固定する。
 2. 全ActorのInputフェーズComponentを実行する。
-3. UpdateフェーズComponentを実行する。
-4. post-updateフックで衝突判定・位置補正・接触通知を行う。
+3. Updateで移動指示などを計算し、IntegrateでMotionが位置へ反映する。
+4. LateUpdateでクランプや移動後処理を行い、その後post-updateフックで衝突判定・位置補正・接触通知を行う。
 5. Sceneのシミュレーションタイマー、Scene.onUpdateを実行する。
 6. Webが現在の状態を描画する。
 
-同一フェーズではActor・Componentの追加順です。追加したActor/Componentの更新は次のステップから、削除・無効化は後続実行を即時抑止します。`onUpdate`で動かした座標への接触判定は次のステップになります。通常の移動はComponentに配置してください。
+同一フェーズではActor・Componentの追加順です。追加したActor/Componentの更新は次のステップから、削除・無効化は後続実行を即時抑止します。`onUpdate`で動かした座標への接触判定は次のステップになります。通常の移動はComponentに配置してください。[標準移動と独自Component](guides/movement.html)も参照してください。
 
 ## ゲーム固有のモデル
 

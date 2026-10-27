@@ -52,7 +52,7 @@ game.scene("menu", ({ scene, ui, onActivate }) => {
           "Intercept three waves. Shoot coral scouts, amber drifters and violet gunners before they escape.",
         ),
         Label(
-          "Five HP. Hold Space or FIRE. WASD / arrows or the touch direction buttons move your ship.",
+          "Five HP. Hold Space or FIRE. WASD / arrows move; hold Shift or DASH for double speed.",
           { muted: true },
         ),
         Button("Start mission", () => start(false)),
@@ -133,6 +133,12 @@ game.scene("play", ({ scene, onActivate, onDispose, onUpdate }) => {
           HoldButton("↓ Down", (held) => move("down", held)),
           HoldButton("Right →", (held) => move("right", held)),
           HoldButton("FIRE", (held) => fire(held)),
+          HoldButton("DASH", (held) =>
+            source.set(
+              RaidActions.Sprint,
+              held && !game.paused && round.status === "playing",
+            ),
+          ),
         ],
         { layout: Layout.Row },
       ),

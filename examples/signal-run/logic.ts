@@ -1,7 +1,6 @@
 import {
   Action,
   ActionController,
-  ActionMovement,
   type ActionReader,
   type ActionSource,
   Actor,
@@ -12,7 +11,6 @@ import {
   CollisionShape,
   CollisionWorld,
   Component,
-  ComponentPhase,
   type ComponentType,
   ContactEnter,
   ContactStay,
@@ -89,28 +87,46 @@ export class Danger extends Component {
     defineComponent<Danger>("Danger");
   readonly type = Danger.type;
 }
-class PointControl extends Component {
-  static readonly type: ComponentType<PointControl> =
-    defineComponent<PointControl>("PointControl", [
+export class SignalMovement extends Component {
+  static readonly type: ComponentType<SignalMovement> =
+    defineComponent<SignalMovement>("SignalMovement", [
       Transform.type,
       Motion.type,
-      ActionMovement.type,
     ]);
-  readonly type = PointControl.type;
-  readonly phase = ComponentPhase.Update;
+  readonly type = SignalMovement.type;
   target: WorldPoint | undefined;
   constructor(private readonly input: ActionReader<"axis2d">) {
     super();
   }
-  update({ delta }: UpdateContext): void {
-    if (!this.target) return;
+  protected onDisable(): void {
+    const motion = this.actor.require(Motion.type);
+    motion.direction.x = 0;
+    motion.direction.y = 0;
+  }
+  protected onDestroy(): void {
+    this.onDisable();
+    this.target = undefined;
+  }
+  update({ delta, scene }: UpdateContext): void {
+    if (this.input.scene !== scene)
+      throw new Error("Signal movement Action belongs to another Scene");
+    const motion = this.actor.require(Motion.type);
+    if (this.input.disposed) {
+      this.onDisable();
+      return;
+    }
     const movement = this.input.value();
     if (movement.x !== 0 || movement.y !== 0) {
       this.target = undefined;
+      motion.direction.x = movement.x;
+      motion.direction.y = movement.y;
+      return;
+    }
+    if (!this.target) {
+      this.onDisable();
       return;
     }
     const t = this.actor.require(Transform.type),
-      motion = this.actor.require(Motion.type),
       dx = this.target.x - t.x,
       dy = this.target.y - t.y,
       distance = Math.hypot(dx, dy);
@@ -229,12 +245,13 @@ export class Round {
         y: 225,
         size: 28,
         speed: 190,
-        movement: this.controls.reader(SignalActions.Move),
       }),
     );
     this.player.require(Renderable.type).zIndex = 10;
     this.health = this.player.add(new Health(options.hp ?? 3));
-    this.player.add(new PointControl(this.controls.reader(SignalActions.Move)));
+    this.player.add(
+      new SignalMovement(this.controls.reader(SignalActions.Move)),
+    );
     this.player.add(new CollisionBody());
     this.player.add(new DamageFlash());
     const collider = this.player.add(
@@ -313,7 +330,7 @@ export class Round {
   }
   setTarget(point: WorldPoint): void {
     if (this.scene.disposed || this.phase !== RoundStatus.Playing) return;
-    this.player.require(PointControl.type).target = worldPoint(
+    this.player.require(SignalMovement.type).target = worldPoint(
       Math.max(16, Math.min(784, point.x)),
       Math.max(28, Math.min(422, point.y)),
     );
@@ -348,8 +365,7 @@ export class Round {
     if (this.phase !== RoundStatus.Playing) return;
     this.phase = status;
     this.player.require(Motion.type).enabled = false;
-    this.player.require(ActionMovement.type).enabled = false;
-    this.player.require(PointControl.type).enabled = false;
+    this.player.require(SignalMovement.type).enabled = false;
     for (const actor of this.hazards) {
       const patrol = actor.get(Patrol.type);
       if (patrol) patrol.enabled = false;

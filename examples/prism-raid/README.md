@@ -9,6 +9,7 @@
 | 操作             | PC                    | タッチ                    |
 | ---------------- | --------------------- | ------------------------- |
 | 移動             | WASD／矢印            | 下部の4方向ボタンを長押し |
+| ダッシュ         | Shiftを長押し         | DASHを長押し              |
 | 連射             | Spaceを長押し         | FIREを長押し              |
 | 一時停止・再開   | P／Esc、Pause／Resume | Pause／Resume             |
 | 再開始・メニュー | Restart／Menu         | Restart／Menu             |
@@ -92,11 +93,13 @@ npm run test:site
 
 ## Action入力とリバインド
 
-RaidActions.MoveはAxis2D、FireとPauseはButtonです。new Raid(scene, engine.input, random)で構成し、移動Componentと戦闘ルールは物理キーを参照しません。キーボードはcontrolsのbindings、タッチは独立ActionSource、自動プレイヤーはround.inputへMove/Fireを設定します。controls.rebindで物理キーを変更しても、タッチ・自動プレイや戦闘ロジックは変わりません。pause/resumeは停止中も捕捉するonPressedを利用します。[詳細な入力契約](../../docs/action-input.md)には所有権・合成・設定保存をまとめています。
+RaidActions.MoveはAxis2D、Fire・Sprint・PauseはButtonです。new Raid(scene, engine.input, random)で構成し、移動Componentと戦闘ルールは物理キーを参照しません。キーボードはcontrolsのbindings、タッチは独立ActionSource、自動プレイヤーはround.inputへMove/Fireを設定します。controls.rebindで物理キーを変更しても、タッチ・自動プレイや戦闘ロジックは変わりません。pause/resumeは停止中も捕捉するonPressedを利用します。[詳細な入力契約](../../docs/action-input.md)には所有権・合成・設定保存をまとめています。
+
+移動は標準ActionMovementが担当し、Inputフェーズのゲーム固有SprintScaleがscaleを1／2へ設定します。Motion.speedは基準速度220で、ダッシュ倍率とは別の責務です。移動後のクランプ・射撃・寿命判定はLateUpdateで接触判定より前に行います。
 
 ## 記録と再生
 
-`replay.ts`は同じゲームロジックを名前付き`enemy`乱数ストリームで動かし、論理Actionを記録・JSON往復・再生して状態を比較します。通常のブラウザプレイでは記録を有効にしません。
+`replay.ts`は同じゲームロジックを名前付き`enemy`乱数ストリームで動かし、論理Actionを記録・JSON往復・再生して状態を比較します。通常のブラウザプレイでは記録を有効にしません。Sprint Action追加後のサンプルゲーム版はprism-raid-replay-2です。旧版はAction定義が一致しないため再記録してください。ReplayData形式はv1のままです。
 
 ```sh
 npm run replay:demo

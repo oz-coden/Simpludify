@@ -55,7 +55,7 @@ An Actor is Detached, Attached to exactly one Scene, or terminally Disposed. Exp
 
 Components attach to exactly one Actor and cannot be reused after destruction. Actor.add requires dependencies to have been added first. Requirements are structural presence constraints, not a general scheduler or automatic factory. Missing/duplicate requirements, dependency cycles, instance sharing and removal of a required dependency are diagnosed. Structural add/remove calls from onAttach are rejected so failed attachment can roll back without orphan dependents; onAttach can read dependencies and register resources. The Actor destroys components in reverse attachment order, which also disposes dependents before dependencies under the dependency-first addition rule. Dependencies remain readable during dependent cleanup/onDestroy; each Component is removed from lookup after its destruction. The Actor is already disposed and rejects structural mutation or new resources.
 
-Transform and Renderable are passive data. Motion owns movement and caches its required Transform. ActionMovement copies an explicitly injected Axis2D ActionReader into Motion.direction during the Input phase. Character is a composition preset with these components; Engine does not import or update Character. Custom Components can be entirely nonvisual.
+Transform and Renderable are passive data. Motion owns movement and caches its required Transform. ActionMovement applies its explicitly injected Axis2D ActionReader and scale to Motion.direction during Update. Motion integrates direction × its mutable speed during Integrate, after every command-producing Update Component. Character is a composition preset with these components; Engine does not import or update Character. Custom Components can be entirely nonvisual.
 
 An Actor's enabled flag gates all its updates and visibility. A Component's enabled flag gates its own update; Renderable.enabled additionally gates its visual. Disabling a passive Transform does not disable dependent behavior. ActionMovement clears its direction when disabled/removed. Structural dependencies remain available even when disabled.
 
@@ -66,12 +66,13 @@ Each Engine step performs:
 1. Validate delta and complete initial activation if needed. Capture Actor/Component/timer eligibility and every active logical Action frame from the collected device/logical contributions.
 2. Deliver logical onPressed controls, including while paused. New Actors/Components/timers wait for the next step; writes affect the next input boundary.
 3. Run Input-phase components for all captured Actors, in Scene insertion order and Component insertion order.
-4. Run Update-phase components in the same ordering. Motion and custom Components use this phase by default.
-5. Run registered post-update hooks, including the optional Scene-owned CollisionWorld.
-6. Advance active scene simulation timers, then Scene update callbacks.
-7. Return to the host, which reconciles changed render structure and draws current state.
+4. Run Update-phase components in the same ordering. Custom movement policies and ActionMovement produce commands here.
+5. Run Integrate components (including Motion), then LateUpdate components for clamps, firing and position-dependent cleanup before collision.
+6. Run registered post-update hooks, including the optional Scene-owned CollisionWorld.
+7. Advance active scene simulation timers, then Scene update callbacks.
+8. Return to the host, which reconciles changed render structure and draws current state.
 
-Membership/component changes are immediately visible to lookup APIs. New Actors and new Components start updating on the **next** step. Removing/disabling Actors or Components prevents subsequent execution immediately; old snapshots are checked for disposal/membership. An Actor disabled at step start remains ineligible until the next step even if enabled mid-step. Changes cannot invalidate iteration or cause double updates. There is no configurable system graph or archetype storage.
+Membership/component changes are immediately visible to lookup APIs. New Actors and new Components start updating on the **next** step. Removing/disabling Actors or Components prevents subsequent execution immediately; old snapshots are checked for disposal/membership. An Actor disabled at step start remains ineligible until the next step even if enabled mid-step. Changes cannot invalidate iteration or cause double updates. There is no configurable system graph or archetype storage. Requirements do not reorder peers. Use one direction writer per Motion; replace ActionMovement with a custom Update Component rather than depending on two writers overwriting each other. Input-phase scale policies precede the standard Update adapter. [Movement contracts](movement.md) explain the phase migration and ownership.
 
 Action values are recomputed when contributions or bindings change, then captured once per step. ActionMovement writes into Motion's existing vector without allocating a direction per Actor per frame. There is no second raw-key frame or key-to-movement path. Actor rosters and Component execution plans are rebuilt only when structurally changed. Passive Actors are omitted from the Component dispatch roster; they still participate in rendering and optional contact detection. Frame contexts are reused; do not retain a context for future frames. Snapshot exports intentionally allocate copies for inspection.
 

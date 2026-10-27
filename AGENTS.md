@@ -10,7 +10,7 @@ Simpludify is an experimental code-first TypeScript 2D engine. Read `README.md`,
 - Keep Core lifecycle synchronous; Web owns asynchronous preparation, cancellation and presentation commit.
 - Actor/Component additions start updating next step; removals/disables suppress later execution immediately. Preserve captured roster/component iteration safety.
 - Collider policy/geometry and CollisionBody correction weight are separate. Motion owns movement intent; position correction runs before contact delivery. Keep the default Trigger policy explicit in migrations.
-- Dependencies are explicit structural requirements, not an implicit scheduler. Maintain Input → Update → post-update contacts → timers → Scene callback order.
+- Dependencies are explicit structural requirements, not an implicit scheduler. Maintain Input → Update (commands) → Integrate (Motion) → LateUpdate → post-update contacts → timers → Scene callback order.
 - Engine must not know Character behavior. Prefer Actor/Component composition over another entity hierarchy.
 - Scope event subscriptions, timers, textures and pending loads to owners; test disposal during unfinished preparation.
 - Keep World/Screen/physical coordinates and logical resolution/Viewport/Camera separate. DPR belongs only to presentation.

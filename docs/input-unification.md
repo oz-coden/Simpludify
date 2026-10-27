@@ -30,7 +30,7 @@ KeyboardSource is still public so a non-DOM keyboard adapter and physical-bindin
 
 ## Samples
 
-All six gallery entries retain their existing presentation and game rules. Character, UI/Scenes and Beacon Field explicitly create an ActionController and inject its reader. Signal Run uses ActionMovement, reads the same Move Action to cancel pointer destinations, and writes touch/automation as logical vectors. Blockfall retains ordered command Buttons and game-owned repeat timing. Prism Raid removes its redundant Steering Component in favor of ActionMovement; continuous/short-tap fire and its logical-input autopilot remain game rules. Headless and maintained benchmark entry points were migrated too.
+All six gallery entries retain their existing presentation and game rules. Character, UI/Scenes and Beacon Field explicitly create an ActionController and inject its reader. Signal Run now uses one custom SignalMovement Component for both Move Actions and pointer destinations, replacing the earlier two-writer ActionMovement/PointControl composition. Touch/automation still write logical vectors. See [movement composition](movement.md). Blockfall retains ordered command Buttons and game-owned repeat timing. Prism Raid removes its redundant Steering Component in favor of ActionMovement; continuous/short-tap fire and its logical-input autopilot remain game rules. Headless and maintained benchmark entry points were migrated too.
 
 ## Remaining review topics
 

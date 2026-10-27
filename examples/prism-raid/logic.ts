@@ -2,6 +2,7 @@ import {
   Action,
   ActionController,
   ActionMovement,
+  type ActionReader,
   type ActionSource,
   Actor,
   Collider,
@@ -28,6 +29,7 @@ export const arena = { width: 360, height: 540 } as const;
 export const RaidActions = defineActions({
   Move: Action.axis2D(),
   Fire: Action.button(),
+  Sprint: Action.button(),
   Pause: Action.button(),
 });
 export const Layers = {
@@ -72,6 +74,33 @@ class Clock extends Component {
   }
   update({ delta }: UpdateContext): void {
     this.round.advance(delta);
+  }
+}
+/** Game-owned policy; the standard adapter still owns the only Motion direction writes. */
+class SprintScale extends Component {
+  static readonly type: ComponentType<SprintScale> =
+    defineComponent<SprintScale>("RaidSprint", [ActionMovement.type]);
+  readonly type = SprintScale.type;
+  readonly phase = ComponentPhase.Input;
+  private movement: ActionMovement | undefined;
+  constructor(private readonly input: ActionReader<"button">) {
+    super();
+  }
+  protected onAttach(): void {
+    this.movement = this.actor.require(ActionMovement.type);
+  }
+  protected onDisable(): void {
+    if (this.movement) this.movement.scale = 1;
+  }
+  protected onDestroy(): void {
+    this.onDisable();
+    this.movement = undefined;
+  }
+  update({ scene }: UpdateContext): void {
+    if (this.input.scene !== scene)
+      throw new Error("Sprint Action belongs to another Scene");
+    if (this.movement)
+      this.movement.scale = !this.input.disposed && this.input.value() ? 2 : 1;
   }
 }
 class Pilot extends Component {
@@ -260,6 +289,7 @@ export class Raid {
           },
         },
         Fire: { keys: [KeyCode.Space] },
+        Sprint: { keys: [KeyCode.ShiftLeft, KeyCode.ShiftRight] },
         Pause: { keys: [KeyCode.P, KeyCode.Escape] },
       },
     });
@@ -275,6 +305,7 @@ export class Raid {
     );
     this.player.add(new Motion({ speed: 220 }));
     this.player.add(new ActionMovement(this.controls.reader(RaidActions.Move)));
+    this.player.add(new SprintScale(this.controls.reader(RaidActions.Sprint)));
     this.player.add(new Pilot(this));
     const collider = this.player.add(
       new Collider({

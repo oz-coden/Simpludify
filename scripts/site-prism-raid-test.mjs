@@ -63,11 +63,13 @@ export async function testPrismRaid(frame, page, context, width) {
   await frame.getByRole("button", { name: "Resume", exact: true }).click();
   await frame.waitForFunction(() => !window.prismRaid.game.paused);
   const left = frame.getByRole("button", { name: "← Left", exact: true }),
-    fire = frame.getByRole("button", { name: "FIRE", exact: true });
+    fire = frame.getByRole("button", { name: "FIRE", exact: true }),
+    dash = frame.getByRole("button", { name: "DASH", exact: true });
   await left.scrollIntoViewIfNeeded();
   const l = await left.boundingBox(),
-    f = await fire.boundingBox();
-  assert(l && f);
+    f = await fire.boundingBox(),
+    d = await dash.boundingBox();
+  assert(l && f && d);
   assert(l.width >= 44 && l.height >= 44 && f.width >= 44 && f.height >= 44);
   const x = await frame.evaluate(
     () =>
@@ -82,6 +84,7 @@ export async function testPrismRaid(frame, page, context, width) {
     touchPoints: [
       { id: 1, x: l.x + l.width / 2, y: l.y + l.height / 2 },
       { id: 2, x: f.x + f.width / 2, y: f.y + f.height / 2 },
+      { id: 3, x: d.x + d.width / 2, y: d.y + d.height / 2 },
     ],
   });
   await frame.waitForFunction(
@@ -89,7 +92,11 @@ export async function testPrismRaid(frame, page, context, width) {
       window.prismRaid.round
         .snapshot()
         .units.find((unit) => unit.kind === "player").x <
-        x - 10 && window.prismRaid.round.shotsFired > shots,
+        x - 10 &&
+      window.prismRaid.round.shotsFired > shots &&
+      window.prismRaid.round.controls.value(
+        window.prismRaid.round.controls.actions.Sprint,
+      ),
     { x, shots },
   );
   await touch.send("Input.dispatchTouchEvent", {
@@ -103,7 +110,8 @@ export async function testPrismRaid(frame, page, context, width) {
       c &&
       c.value(c.actions.Move).x === 0 &&
       c.value(c.actions.Move).y === 0 &&
-      !c.value(c.actions.Fire)
+      !c.value(c.actions.Fire) &&
+      !c.value(c.actions.Sprint)
     );
   });
   assert.deepEqual(

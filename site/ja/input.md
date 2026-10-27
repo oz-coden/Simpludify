@@ -145,7 +145,7 @@ engine.dispose();
 
 ## Component・Characterへの入力注入
 
-通常のゲーム制作で理解する入力経路はActionControllerだけです。Characterのmovementへ `controls.reader(Actions.Move)` を渡すと、ActionMovementがInputフェーズでMotion.directionへ値を反映します。任意のAction名を使えます。movementを省略したCharacterは入力で動きません。
+通常のゲーム制作で理解する入力経路はActionControllerだけです。Characterのmovementへ `controls.reader(Actions.Move)` を渡すと、ActionMovementがUpdateフェーズで入力値×scaleをMotion.directionへ反映し、MotionがIntegrateフェーズで位置へ適用します。[移動とComponent](movement.md)では倍率・独自Component・更新順序を説明しています。任意のAction名を使えます。movementを省略したCharacterは入力で動きません。
 
 readerは種類・所有Scene・破棄状態を保持する読み取り専用参照です。同じreaderを複数Componentで共有しても、押下イベントを消費しません。ActionMovementにはAxis2Dだけを渡せます。異なるSceneの参照は診断し、Controller破棄後は移動を停止します。独自Componentには必要なreaderまたは型付きControllerをconstructorで明示的に渡します。
 

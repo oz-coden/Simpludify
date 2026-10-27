@@ -7,3 +7,7 @@ Collect six amber signals in 30 simulation seconds. Red circles and rotated bars
 Move with WASD/arrows after focusing the world, click/tap a destination, or hold the bottom controls (including two directions together). Directional input cancels the destination. Pause freezes simulation; Restart, Menu and Zoom use ordinary public APIs.
 
 The world uses 800×450 logical units with Fit. DOM UI remains independent of Camera. Blue walls are fixed Solid colliders, while the player has a dynamic CollisionBody. The position solver stops or slides the player along walls; amber items and red hazards remain nonblocking Triggers. These are discrete contacts, so very large headless steps or teleports can cross thin walls. Zoom enables world-bounded CameraFollow, updated after response and immediately when zoom changes. `logic.ts` is DOM-free; `main.ts` supplies UI and browser input. `window.signalRun` exposes public inspection state for browser tests. Deterministic end-condition tests control positions and time; they are distinct from real keyboard/pointer input tests.
+
+## 移動Component
+
+Characterにはmovementを渡さず、独自のSignalMovementを追加します。単一のUpdate処理がMove Actionとポインター目的地を選び、Motion.directionへ指示します。キー入力は目的地をキャンセルし、目的地への最後の移動はdtとMotion.speedから距離を制限します。標準ActionMovementによる先行書き込みや、その上書き順には依存しません。MotionがIntegrateで同じステップの指示を反映し、CollisionBodyとSolidの位置補正はその後です。

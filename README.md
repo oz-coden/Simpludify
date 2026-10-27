@@ -142,6 +142,7 @@ This integrates documentation and all six browser examples into `site-dist/`, in
 
 ## Documentation
 
+- [Movement composition and sprint](docs/movement.md)
 - [Random, Replay and fixed steps](docs/replay.md)
 - [API and defaults](docs/api.md)
 - [Architecture and lifecycle decisions](docs/architecture.md)

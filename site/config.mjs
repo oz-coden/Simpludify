@@ -45,7 +45,7 @@ export const examples = [
     title: "Prism Raid",
     summary: "Triangle機体で3ウェーブを迎撃するシューティング",
     controls:
-      "Start missionで開始。WASD／矢印で移動、Space長押しで連射。タッチは下部の方向ボタンとFIREを同時に長押し。P／EscまたはPauseで停止。Watch autopilotで入力APIによる自動プレイを観察できます。",
+      "Start missionで開始。WASD／矢印で移動、Space長押しで連射、Shift／DASHで移動速度2倍。タッチは下部の方向ボタンとFIREを同時に長押し。P／EscまたはPauseで停止。Watch autopilotで入力APIによる自動プレイを観察できます。",
     guide: "guides/prism-raid.html",
   },
 ];
@@ -59,6 +59,7 @@ export const pages = [
   ],
   ["concepts.html", "site/ja/concepts.md", "基本概念", "はじめに"],
   ["guides/input.html", "site/ja/input.md", "入力とゲームループ", "ガイド"],
+  ["guides/movement.html", "site/ja/movement.md", "移動とComponent", "ガイド"],
   [
     "guides/replay.html",
     "site/ja/replay.md",
@@ -114,6 +115,7 @@ export const pages = [
   ["en/index.html", "site/en.md", "English documentation", "English"],
   ["en/api.html", "docs/api.md", "API contracts", "English"],
   ["en/actions.html", "docs/action-input.md", "Typed Action input", "English"],
+  ["en/movement.html", "docs/movement.md", "Movement composition", "English"],
   [
     "en/replay.html",
     "docs/replay.md",
