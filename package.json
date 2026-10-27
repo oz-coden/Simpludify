@@ -28,7 +28,8 @@
     "site:build": "node scripts/site-build.mjs",
     "site:check": "node scripts/site-check.mjs",
     "site:serve": "node scripts/site-serve.mjs",
-    "test:site": "node scripts/site-smoke.mjs"
+    "test:site": "node scripts/site-smoke.mjs",
+    "bench:shooter": "node --expose-gc scripts/benchmark-shooter.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.3",
