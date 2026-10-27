@@ -1,0 +1,51 @@
+{
+  "environment": {
+    "date": "2026-10-27T15:45:26.488Z",
+    "node": "v24.22.1",
+    "platform": "linux",
+    "cpu": "AMD EPYC 9V74 80-Core Processor",
+    "sourceCommit": "0b89defd66118036c015ff699adf19fdbf0553ba",
+    "trackedSourceChanges": ""
+  },
+  "scope": "Isolated Core/SSR, no Actors/rendering, 100000 repeated logical boundaries; forced GC stage observations are not true peak memory or leak proof. No other local tests/builds during recording.",
+  "profiles": [
+    {
+      "recording": false,
+      "steps": 100000,
+      "simulationSeconds": 833.3333333333334,
+      "steppingMs": 48.54449999999997,
+      "finishMs": 0.0005200000000513683,
+      "jsonBytes": 0,
+      "heapBytes": {
+        "before": 18252896,
+        "heldAfterSteps": 18319400,
+        "afterFinish": 18290840,
+        "afterSerialization": 18290856,
+        "afterRelease": 18259024
+      },
+      "remainingSources": 0
+    },
+    {
+      "recording": true,
+      "steps": 100000,
+      "simulationSeconds": 833.3333333333334,
+      "steppingMs": 184.5200809999999,
+      "finishMs": 0.08857100000000173,
+      "jsonBytes": 17594936,
+      "heapBytes": {
+        "before": 18269880,
+        "heldAfterSteps": 45703976,
+        "afterFinish": 45618856,
+        "afterSerialization": 63213824,
+        "afterRelease": 18262680
+      },
+      "remainingSources": 0
+    }
+  ],
+  "random": {
+    "cachedLookups": 1000000,
+    "lookupMs": 10.283165000000054,
+    "createdNamedStreams": 10000,
+    "createMs": 5.036356000000069
+  }
+}
