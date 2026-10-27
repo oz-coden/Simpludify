@@ -63,7 +63,7 @@ An Actor's enabled flag gates all its updates and visibility. A Component's enab
 
 Each Engine step performs:
 
-1. Validate delta and complete initial activation if needed. Capture Actor/Component/timer eligibility, physical input and every active logical Action frame.
+1. Validate delta and complete initial activation if needed. Capture Actor/Component/timer eligibility and every active logical Action frame from the collected device/logical contributions.
 2. Deliver logical onPressed controls, including while paused. New Actors/Components/timers wait for the next step; writes affect the next input boundary.
 3. Run Input-phase components for all captured Actors, in Scene insertion order and Component insertion order.
 4. Run Update-phase components in the same ordering. Motion and custom Components use this phase by default.

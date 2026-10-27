@@ -62,7 +62,7 @@ The known-code table follows [UI Events code values](https://www.w3.org/TR/uieve
 
 ## Input boundaries and buttons
 
-Engine.step first performs implicit initial activation if needed, then captures Actor/Component/timer eligibility and freezes physical input and every active ActionController, then delivers onPressed callbacks, then runs simulation unless paused/disposed. All controllers are captured before the first callback. Input writes and rebinds during a callback/component affect the next boundary. Captured values/vectors/ButtonState are immutable for that boundary; repeated reads do not consume edges. Engine.step(0) is still an input boundary. Invalid/reentrant steps do not consume input.
+Engine.step first performs implicit initial activation if needed, then captures Actor/Component/timer eligibility and freezes every active ActionController from the collected device/logical contributions, then delivers onPressed callbacks, then runs simulation unless paused/disposed. All controllers are captured before the first callback. Input writes and rebinds during a callback/component affect the next boundary. Captured values/vectors/ButtonState are immutable for that boundary; repeated reads do not consume edges. Engine.step(0) is still an input boundary. Invalid/reentrant steps do not consume input.
 
 Action input capture and onPressed controls also run while the Engine is paused, so the same Pause action can resume it. Simulation components, contacts, timers and Scene.onUpdate remain suspended. A resume in an input callback permits that step's supplied delta to simulate; a pause skips it. Pause from a running simulation component still takes effect on the next step. Web Game.pause/resume resets the RAF timestamp as before.
 
