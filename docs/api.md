@@ -50,7 +50,7 @@ Actor options are optional id and enabled (true). An omitted ID is assigned by i
 
 actor.add(component) returns it. actor.get(ComponentType) returns a typed instance or undefined; actor.require throws COMPONENT_MISSING. actor.remove(ComponentType) returns a boolean and destroys the removed instance. Add dependencies first and remove dependents first. One Component type per Actor and one Actor per Component instance are enforced. Component tokens are identity-based, with a debugging name. actor.enabled gates updates and visibility. component.enabled gates that component's update; Renderable.enabled gates visibility. Dependencies are structural, not an automatic update scheduler.
 
-New Actors/Components update from the next step. Removal/disable takes effect immediately for remaining updates; lookups reflect structural changes immediately. Component plans and Actor membership are captured at step start. An Actor disabled at step start cannot start updating mid-step. Do not mutate returned readonly rosters.
+New Actors/Components update from the next step. An Actor created during an update is already a Scene member: a newly added Collider can therefore participate in that step's later collision pass, even before the new Actor's first component update. Removal/disable takes effect immediately for remaining updates; lookups reflect structural changes immediately. Component plans and Actor membership are captured at step start. An Actor disabled at step start cannot start updating mid-step. Do not mutate returned readonly rosters.
 
 ### Built-in Components
 
@@ -237,6 +237,26 @@ engine.dispose();
 ```
 
 Engine.step takes finite nonnegative seconds without a cap. InputState supports set/clear/isPressed/direction/writeDirection/snapshot. `input.createSource(owner?)` returns a disposable InputSource with set/clear/dispose and disposed. Pressed keys are the union of all sources: releasing one does not release another source holding the same code. InputState.set uses a separate scripted source. Source.clear releases only its keys; InputState.clear releases every source's keys while keeping source handles alive. sourceCount counts live explicit sources, excluding the scripted source. Owner destruction releases and disposes its source. Engine disposal disposes every source. A disposed source rejects new presses with OWNER_DISPOSED; late releases are harmless. capture returns a cached immutable InputReader until input changes. Engine.pause/resume and Web Game.pause/resume are idempotent state changes; paused is readable. Paused steps validate the delta but skip activation, movement, contacts, timers, callbacks and elapsed time. Transitions remain possible and pause state persists until explicitly resumed. Pause/resume clear all pressed keys on a state change. A pause called during a step takes effect on the next step. Game continues rendering and operating DOM UI, and resets its frame timestamp to avoid a large resume delta. Engine.random is a seeded uint32 LCG. snapshots copy scene ID/state, elapsed time, PRNG state, input and generic Actor IDs/enable flags/optional Transform values. Custom component data and renderer state are not automatically serialized/restorable.
+
+### Custom browser action keys
+
+Game's default browser keyboard source accepts keys from enabled KeyboardController mappings in the active Scene. A custom Component reading `input.isPressed("Space")` does not by itself register Space with the browser host. Use the exported `BrowserInput(host, input, accepts)` adapter for additional continuous actions, and dispose it with its Scene:
+
+```ts verify
+import { BrowserInput, Game } from "@simpludify/web";
+const game = new Game();
+game.scene("play", ({ scene, onDispose }) => {
+  const fire = new BrowserInput(
+    game.element,
+    game.engine.input,
+    (code) => code === "Space",
+  );
+  onDispose(() => fire.dispose());
+  // Components in scene read input.isPressed("Space") in their update context.
+});
+```
+
+BrowserInput owns an independent source, listens on the focused host, preserves native control keys and clears on focus loss, blur and hiding. HoldButton plus a Scene-owned InputSource supplies the same keys for touch. Do not attach a second adapter for already mapped movement keys unless both independent sources are intentional. InputState records held state; queue short discrete commands in the application when down/up may both occur between Engine steps (as Blockfall does).
 
 ## DOM UI and styling
 

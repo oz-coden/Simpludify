@@ -8,6 +8,22 @@ Coreはキー状態と明示的なステップ、Webはブラウザイベント�
 
 ゲーム領域へクリックまたはTabでフォーカスすると入力できます。ページ全体のキーボードを常時奪いません。blur、ページ非表示、Scene切り替え、一時停止への変更時にはキーを解放します。
 
+### 射撃などの独自キー
+
+Gameの標準ブラウザ入力は、有効なKeyboardControllerのキー設定を参照します。独自ComponentでSpaceを読むだけではブラウザ側へ登録されません。公開BrowserInputで受け付けるキーを明示し、Sceneと一緒に破棄します。
+
+```ts
+import { BrowserInput } from "@simpludify/web";
+const fire = new BrowserInput(
+  game.element,
+  game.engine.input,
+  (code) => code === "Space",
+);
+scene.onDispose(() => fire.dispose());
+```
+
+Componentのupdateで`input.isPressed("Space")`を読みます。長押しはこの経路、フレーム間の短い押下も残す必要がある操作はゲーム側のキューを使います。タッチも同じInputSourceのキーへ接続できます。[Prism Raid](../../examples/prism-raid/README.md)が移動・射撃の同時入力を実装しています。
+
 ## タッチと独立入力
 
 `HoldButton`と所有されたInputSourceでキーボードとタッチを併用できます。1つの入力元を解放しても、他の入力元が保持するキーは解放されません。

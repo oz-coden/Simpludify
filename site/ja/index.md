@@ -29,7 +29,7 @@ await game.run();
 
 ## 試してから、仕組みを読む
 
-[サンプルギャラリー](examples.md)には5つの実行例があります。最小のCharacter、UI / Scenes、Beacon Field、30秒の収集ゲームSignal Run、落ち物パズルBlockfallから選べます。Signal RunとBlockfallはスマートフォンのタッチ操作に対応します。
+[サンプルギャラリー](examples.md)には6つの実行例があります。最小のCharacter、UI / Scenes、Beacon Field、30秒の収集ゲームSignal Run、落ち物パズルBlockfall、シューティングPrism Raidから選べます。Signal Run・Blockfall・Prism Raidはスマートフォンのタッチ操作に対応します。
 
 [基本概念](concepts.md) → [入力](input.md) → [SceneとUI](scenes-ui.md) → [衝突判定](collision.md)の順に読むと、サンプルを自分のゲームへ展開できます。
 

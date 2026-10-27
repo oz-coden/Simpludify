@@ -22,8 +22,10 @@ npm ci
 npm run dev -- --example character
 ```
 
-Use Node.js 22.12+; CI uses Node 24. Open the printed localhost URL, focus the game area and use WASD. WebGL is the primary verified rendering path. The pinned Pixi can select a fallback; a no-WebGL Character Canvas2D startup is covered, not full fallback compatibility. Chromium is the automated browser target. The sample gallery launches each game in a separate iframe; Signal Run and Blockfall also support touch controls. Blockfall demonstrates integer-grid puzzle rules, seeded bags, hold, ghost pieces and headless replay without Collider physics. Character and Beacon Field require a keyboard for movement.
+Use Node.js 22.12+; CI uses Node 24. Open the printed localhost URL, focus the game area and use WASD. WebGL is the primary verified rendering path. The pinned Pixi can select a fallback; a no-WebGL Character Canvas2D startup is covered, not full fallback compatibility. Chromium is the automated browser target. The sample gallery launches each game in a separate iframe; Signal Run, Blockfall and Prism Raid also support touch controls. Blockfall demonstrates integer-grid puzzle rules, seeded bags, hold, ghost pieces and headless replay without Collider physics. Character and Beacon Field require a keyboard for movement.
 
 ## Scope
 
 Trigger/Solid contacts and bounded inverse-mass position correction are implemented. This is not a force/impulse rigid-body engine or continuous collision detection. Audio, sprite animation, networking, Windows packaging and a full falling-block puzzle are not implemented. API semantics may change before stabilization.
+
+Prism Raid uses the new upward Triangle shape with independent circle Triggers. See the [shooter API review and measurements](../docs/shooter-validation.md) for reproduction commands, supported rendering paths and measured limits.

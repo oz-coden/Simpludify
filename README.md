@@ -2,7 +2,7 @@
 
 [公式ドキュメント・サンプル](https://oz-coden.github.io/Simpludify/) · [日本語ガイドのソース](site/ja/index.md) · [English API](docs/api.md)
 
-TypeScriptのコードで2Dゲームを合理的につくる実験的なエンジンです。理解しやすく、一貫性があり、保守しやすいAPIを優先します。公開npm SDKではなく、ソースワークスペースを取得して利用します。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できる5つのサンプルを公式サイトにまとめています。
+TypeScriptのコードで2Dゲームを合理的につくる実験的なエンジンです。理解しやすく、一貫性があり、保守しやすいAPIを優先します。公開npm SDKではなく、ソースワークスペースを取得して利用します。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できる6つのサンプルを公式サイトにまとめています。
 
 A code-first TypeScript 2D game engine. Create a visible character, responsive UI, and scene navigation using ordinary code and browser tooling.
 
@@ -60,6 +60,12 @@ npm run dev -- --example blockfall
 ```
 
 **[Blockfall](examples/blockfall/README.md)** is a complete falling-block puzzle with a 10×20 grid, seven-piece bags, rotation and simple kicks, line scoring, levels, hold, ghost, pause and restart. Keyboard and touch controls share the same model. Integer grid rules and seeded headless tests remain game code; Actor/Renderable supply presentation without Collider physics. The sample guide documents its rotation, lock-delay and scoring rules.
+
+```sh
+npm run dev -- --example prism-raid
+```
+
+**[Prism Raid](examples/prism-raid/README.md)** uses Triangle ships, circle Trigger approximations, twin shots and three enemy waves. It supports keyboard/touch movement and continuous fire, HP/invulnerability, pause, restart and an input-only autopilot. Game rules run headlessly; [API usability and validation](docs/shooter-validation.md) records concrete findings and measurement limits.
 
 ## Create a separate game workspace
 
@@ -119,7 +125,7 @@ npm run site:check
 npm run site:serve
 ```
 
-This integrates documentation and all five browser examples into `site-dist/`, independently of the existing game-only `dist/`. Use `--base /` for root/custom-domain hosting. `npm run test:site` validates production pages, gallery controls and cleanup at desktop/narrow sizes. [Site build, deployment and validation](docs/site-validation.md) explains Pages Actions and language coverage. No domain or DNS settings are changed by the build.
+This integrates documentation and all six browser examples into `site-dist/`, independently of the existing game-only `dist/`. Use `--base /` for root/custom-domain hosting. `npm run test:site` validates production pages, gallery controls and cleanup at desktop/narrow sizes. [Site build, deployment and validation](docs/site-validation.md) explains Pages Actions and language coverage. No domain or DNS settings are changed by the build.
 
 ## Documentation
 

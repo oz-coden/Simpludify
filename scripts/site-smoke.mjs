@@ -3,6 +3,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { chromium } from "playwright";
 import { examples, pages } from "../site/config.mjs";
 import { testBlockfall } from "./site-blockfall-test.mjs";
+import { testPrismRaid } from "./site-prism-raid-test.mjs";
 import { serveSite } from "./site-server.mjs";
 import { testSiteTheme } from "./site-theme-test.mjs";
 
@@ -104,7 +105,9 @@ try {
       const element = await page.locator("iframe").elementHandle();
       const frame = await element.contentFrame();
       await frame.waitForSelector("canvas");
-      if (example.id === "blockfall") {
+      if (example.id === "prism-raid") {
+        await testPrismRaid(frame, page, context, viewport.width);
+      } else if (example.id === "blockfall") {
         await testBlockfall(frame, page, context, viewport.width);
       } else if (example.id === "signal-run") {
         await frame
@@ -175,7 +178,10 @@ try {
         });
         await targetFrame.evaluate(() => {
           const game =
-            window.blockfall?.game ?? window.signalRun?.game ?? window.demo;
+            window.prismRaid?.game ??
+            window.blockfall?.game ??
+            window.signalRun?.game ??
+            window.demo;
           window.addEventListener(
             "simpludify:dispose",
             () => {
@@ -233,7 +239,12 @@ try {
       syntheticTouch: true,
       theme: true,
       hostCleanupAll: true,
-      inspectedEngineCleanup: ["blockfall", "ui-scenes", "signal-run"],
+      inspectedEngineCleanup: [
+        "prism-raid",
+        "blockfall",
+        "ui-scenes",
+        "signal-run",
+      ],
       failures,
     });
     await context.close();

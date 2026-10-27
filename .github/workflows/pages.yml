@@ -1,7 +1,13 @@
 name: Documentation and Pages
 on:
   push:
-    branches: [main, codex/docs-site, codex/site-recovery-blockfall]
+    branches:
+      [
+        main,
+        codex/docs-site,
+        codex/site-recovery-blockfall,
+        codex/triangle-shooter,
+      ]
   pull_request:
   workflow_dispatch:
 permissions:

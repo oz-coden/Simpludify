@@ -7,7 +7,7 @@ Simpludify has an experimental Web runtime and a generic composition-based Core.
 - DOM-free Engine stepping, frozen frame input, managed seeded randomness and generic snapshots.
 - Synchronous Scene states, exclusive ownership, lifecycle hooks and aggregate cleanup.
 - Dynamic Actors/Components with deterministic membership and update rules, dependency diagnostics and enable flags.
-- Transform, Renderable, Motion, KeyboardController and the Character composition preset.
+- Transform, Renderable (Box/Circle/Character/Triangle), Motion, KeyboardController and the Character composition preset.
 - Optional typed local/external events with owner-scoped subscriptions and simulation timers.
 - Single Camera/Viewport, logical resolution, pure World/Screen transforms, pointer/DPR handling and optional bounded CameraFollow.
 - Pixi shape/image rendering, dynamic component reconciliation, pending-image cancellation and resource diagnostics.
@@ -15,10 +15,10 @@ Simpludify has an experimental Web runtime and a generic composition-based Core.
 - DOM labels/buttons/panels, two themes, responsive Flexbox/Grid and independent world aspect policies.
 - Scene-owned circle/oriented-box Trigger/Solid contacts, filtering, deterministic events/queries, and bounded inverse-mass position correction through CollisionBody.
 - Owned independent input sources, pause/resume, live depth/opacity/visibility, aspect-preserving images and keyboard/touch hold controls.
-- Character, UI/scenes, headless, Beacon field the complete Signal Run collection/survival game, and Blockfall falling-block puzzle with deterministic grid logic, hold/ghost and keyboard/touch controls.
+- Character, UI/scenes, headless, Beacon field the complete Signal Run collection/survival game, and Blockfall falling-block puzzle with deterministic grid logic, hold/ghost and keyboard/touch controls; Prism Raid adds Triangle ships, Trigger combat and input-only automatic play.
 - Noninteractive source scaffold/dev/check/test/build/doctor, JSON diagnostics, unit/browser/production-subpath tests, baseline scripts and automatic licensing notices.
 
-- Japanese-first static documentation, English technical reference, isolated playable five-sample gallery, integrated root/project-base builds and Pages workflow. See site-validation for deployment evidence.
+- Japanese-first static documentation, English technical reference, isolated playable six-sample gallery, integrated root/project-base builds and Pages workflow. See site-validation for deployment evidence.
 
 ## Pending and limits
 

@@ -40,6 +40,14 @@ export const examples = [
       "← →移動、↑ / X・Z回転、↓ソフトドロップ、Spaceハードドロップ、C / Shiftホールド、P / Esc一時停止。スマートフォンは下部ボタンで全操作に対応。",
     guide: "guides/blockfall.html",
   },
+  {
+    id: "prism-raid",
+    title: "Prism Raid",
+    summary: "Triangle機体で3ウェーブを迎撃するシューティング",
+    controls:
+      "Start missionで開始。WASD／矢印で移動、Space長押しで連射。タッチは下部の方向ボタンとFIREを同時に長押し。P／EscまたはPauseで停止。Watch autopilotで入力APIによる自動プレイを観察できます。",
+    guide: "guides/prism-raid.html",
+  },
 ];
 export const pages = [
   ["index.html", "site/ja/index.md", "ホーム", "はじめに"],
@@ -72,6 +80,12 @@ export const pages = [
   ["api.html", "site/ja/api.md", "APIリファレンス", "リファレンス"],
   ["examples.html", "site/ja/examples.md", "サンプルギャラリー", "サンプル"],
   [
+    "guides/prism-raid.html",
+    "examples/prism-raid/README.md",
+    "Prism Raidの遊び方と実装",
+    "サンプル",
+  ],
+  [
     "guides/blockfall.html",
     "examples/blockfall/README.md",
     "Blockfallのルールと実装",
@@ -95,6 +109,12 @@ export const pages = [
   ["en/api.html", "docs/api.md", "API contracts", "English"],
   ["en/architecture.html", "docs/architecture.md", "Architecture", "English"],
   ["en/roadmap.html", "docs/roadmap.md", "Roadmap", "English"],
+  [
+    "en/shooter-validation.html",
+    "docs/shooter-validation.md",
+    "Triangle / shooter validation",
+    "English",
+  ],
   ["en/performance.html", "docs/performance.md", "Performance", "English"],
   ["en/licensing.html", "docs/licensing.md", "Licensing", "English"],
 ].map(([route, source, title, section]) => ({
