@@ -59,7 +59,7 @@ Documentation-first use established ownership, update order, geometry approximat
 - 171 unit tests pass, including 18 shooter cases. They exercise motion/diagonal normalization/bounds, held fire, projectile ownership/expiry, enemy HP/defeat, simultaneous contacts, invulnerability, body contact, breaches, survivor Exit after an actual consumed projectile, pause, Scene replacement, seeded trace replay, terminal win/loss and stress.
 - The automatic player wins all 24 enemy kills for seeds 1, 42 and 2026 through InputState alone. A separate identical input trace reproduces both game and Engine snapshots. Normal no-input play reaches loss. A 100,000-step repeated-round test and a 100-enemy/1000-shot fixture pass.
 - Existing 52 browser cases, four Triangle cases and ten initial shooter cases pass at 1440×900 and 390×844 (66 total). Two additional shooter Canvas2D cases also pass; together the current suite has 68 cases. Keyboard/focus/blur, simultaneous two-finger movement/fire, pause, restart, menu, normal-input terminal states, twelve consecutive Scene replacements and zero owned resources after disposal are covered.
-- The production-subpath integrated site test passes for 22 documentation pages and all six samples, including the original five. It checks themes, links/assets, visible keyboard/touch progress, game outcomes, iframe restart/stop, focus return and explicit Engine/source disposal. The complete suite also passes with base `/`, including reference/anchor checks and nine standalone code examples compiled against the current public APIs. Published evidence is recorded separately after deployment.
+- The production-subpath integrated site test passes for 22 documentation pages and all six samples, including the original five. It checks themes, links/assets, visible keyboard/touch progress, game outcomes, iframe restart/stop, focus return and explicit Engine/source disposal. The complete suite also passes with base `/`, including reference/anchor checks and nine standalone code examples compiled against the current public APIs. The published suite also passed independently, as recorded below.
 
 ## Measured performance and memory (2026-10-27)
 
@@ -111,6 +111,22 @@ npm run bench:shooter -- --mode browser --seconds 120 --out test-results/shooter
 
 ## Hosting and remaining limits
 
-The existing static generator, isolated iframe host, notices and Pages workflow are reused. Six samples remain independent build roots. No Pages visibility, custom-domain or DNS settings are changed. Main integration will use a fresh remote-head check and a non-forced ref update.
+The existing static generator, isolated iframe host, notices and Pages workflow are reused. Six samples remain independent build roots. No Pages visibility, custom-domain or DNS settings are changed. Main integration used a fresh remote-head check and a non-forced update, preserving the existing history.
 
 Physical mobile devices, Safari/Firefox, WebGPU, arbitrary hardware GPUs, long GPU/native-memory retention and universal no-tunneling behavior remain unverified. No audio, networking, Electron host, new Collider type, ECS replacement or pooling contract was introduced. The reviewed game demonstrates ordinary code composition for a bounded shooter; it is not a claim of universal engine completeness or comparative superiority.
+
+## Published validation
+
+Main implementation commit [`700ba58228b7f4fe983d0b539e8bc8587e37b04c`](https://github.com/oz-coden/Simpludify/commit/700ba58228b7f4fe983d0b539e8bc8587e37b04c) passed [CI](https://github.com/oz-coden/Simpludify/actions/runs/40453060306) and [Documentation and Pages](https://github.com/oz-coden/Simpludify/actions/runs/40453060311), including its deploy job.
+
+After deployment, the full site smoke suite passed independently against **https://github.oz-coden.com/Simpludify/** using Chrome 156.0.8078.4 at 1440×900 and 390×844. It checked all 22 documentation pages and six sample games, both themes, keyboard/synthetic touch, pause/restart, Prism Raid wins/losses through ordinary inputs, iframe disposal and focus return. No failed requests, HTTP errors or uncaught page errors were observed in those crawls. Existing renderer-unavailable startup help and the limited Character Canvas2D fallback also passed. This evidence comes from the actual public host, not an inference from Actions success.
+
+Verified entry points:
+
+- [Official documentation](https://github.oz-coden.com/Simpludify/)
+- [Sample gallery](https://github.oz-coden.com/Simpludify/examples.html)
+- [Play Prism Raid](https://github.oz-coden.com/Simpludify/play/prism-raid/index.html)
+- [Controls and source guide](https://github.oz-coden.com/Simpludify/guides/prism-raid.html)
+- [API review and measurements](https://github.oz-coden.com/Simpludify/en/shooter-validation.html)
+
+Additional local 320×568 and 844×390 layout checks observed no horizontal overflow, all game controls at least 44×44 CSS pixels, and zero input sources after disposal. They are synthetic viewport checks, not physical-device coverage.
