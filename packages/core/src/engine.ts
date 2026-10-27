@@ -1,5 +1,6 @@
 import { Transform } from "./components";
 import { EngineError } from "./diagnostics";
+import type { ExecutionPort } from "./execution";
 import { InputSystem } from "./input";
 import { cleanupAll } from "./lifetime";
 import { RandomManager } from "./random";
@@ -12,6 +13,24 @@ export class Engine {
   private transitioning = false;
   private suspended = false;
   private elapsed = 0;
+  private count = 0;
+  private execution: ExecutionPort | undefined;
+  get stepCount(): number {
+    return this.count;
+  }
+  /** @internal Replay owns this single optional execution boundary. */
+  attachExecution(port: ExecutionPort): () => void {
+    this.assertAlive();
+    if (this.execution || this.stepping || this.transitioning)
+      throw new EngineError(
+        "REPLAY_STATE",
+        "An execution driver is already attached or Engine is stepping",
+      );
+    this.execution = port;
+    return () => {
+      if (this.execution === port) this.execution = undefined;
+    };
+  }
   readonly random: RandomManager;
   private readonly context: {
     delta: number;
@@ -60,6 +79,7 @@ export class Engine {
         "Cannot activate during a synchronous update or transition",
       );
     scene.validateOwner(this);
+    this.execution?.validateScene(scene);
     if (scene === this.active && scene.state === SceneState.Active) return;
     if (scene.state === SceneState.Preparing) scene.markReady();
     if (scene.state !== SceneState.Ready)
@@ -109,22 +129,31 @@ export class Engine {
       if (this.dead || this.active.disposed) return;
     }
     this.stepping = true;
+    const execution = this.execution;
     try {
+      execution?.beforeStep(seconds);
+      this.count++;
       if (!this.suspended || this.active.state === SceneState.Active)
         this.active.beginStep();
       this.context.delta = seconds;
-      this.input.beginStep();
+      this.input.beginStep(execution?.captured);
       this.context.scene = this.active;
       // Logical input callbacks remain available for pause/resume controls.
-      if (this.dead || this.suspended || this.active.disposed) return;
-      this.elapsed += seconds;
-      this.active.step(this.context);
+      if (!this.dead && !this.suspended && !this.active.disposed) {
+        this.elapsed += seconds;
+        this.active.step(this.context);
+      }
+      execution?.afterStep();
+    } catch (error) {
+      execution?.failed(error);
+      throw error;
     } finally {
       this.stepping = false;
     }
   }
   snapshot() {
     return {
+      stepCount: this.count,
       sceneId: this.active.id,
       sceneState: this.active.state,
       elapsed: this.elapsed,
@@ -156,6 +185,7 @@ export class Engine {
     this.dead = true;
     cleanupAll(
       [
+        () => this.execution?.dispose(),
         () => this.input.dispose(),
         () => this.active.dispose(),
         () => this.random.dispose(),

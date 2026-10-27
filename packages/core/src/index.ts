@@ -1,3 +1,4 @@
+export type { ActionFrame, ActionSchema } from "./action-frame";
 export * from "./actions";
 export * from "./actor";
 export * from "./camera-follow";
@@ -14,4 +15,6 @@ export * from "./key-code";
 export * from "./lifetime";
 export * from "./ports";
 export * from "./random";
+export * from "./replay";
 export * from "./scene";
+export * from "./version";

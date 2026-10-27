@@ -9,6 +9,11 @@ import {
   editBinding,
   keyLists,
 } from "./action-bindings";
+import {
+  type ActionFrame,
+  type ActionSchema,
+  checkedActionValue,
+} from "./action-frame";
 import type {
   ActionInputValue,
   ActionKind,
@@ -94,39 +99,6 @@ function neutral(action: ActionToken): Value {
   if (action.kind === "axis1d") return 0;
   return Object.freeze(
     action.kind === "axis2d" ? { x: 0, y: 0 } : { x: 0, y: 0, z: 0 },
-  );
-}
-function checkedValue(action: ActionToken, value: unknown): Value {
-  if (action.kind === "button") {
-    if (typeof value !== "boolean")
-      throw new EngineError(
-        "INVALID_ACTION_VALUE",
-        "Button requires a boolean",
-      );
-    return value;
-  }
-  const number = (v: unknown) => {
-    if (typeof v !== "number" || !Number.isFinite(v) || Math.abs(v) > 1)
-      throw new EngineError(
-        "INVALID_ACTION_VALUE",
-        "Axis components must be finite and between -1 and 1",
-      );
-    return v;
-  };
-  if (action.kind === "axis1d") return number(value);
-  if (!value || typeof value !== "object")
-    throw new EngineError("INVALID_ACTION_VALUE", "Axis requires a vector");
-  const v = value as Record<string, unknown>;
-  const expected = action.kind === "axis2d" ? ["x", "y"] : ["x", "y", "z"];
-  if (Object.keys(v).some((k) => !expected.includes(k)))
-    throw new EngineError(
-      "INVALID_ACTION_VALUE",
-      "Unexpected vector component",
-    );
-  return Object.freeze(
-    action.kind === "axis2d"
-      ? { x: number(v.x), y: number(v.y) }
-      : { x: number(v.x), y: number(v.y), z: number(v.z) },
   );
 }
 function isNeutral(value: Value): boolean {
@@ -222,6 +194,34 @@ export class ActionController<A extends ActionSet>
   value<T extends Token<A>>(action: T): ActionValue<T["kind"]> {
     return this.entry(action).frame as ActionValue<T["kind"]>;
   }
+  schema(): readonly ActionSchema[] {
+    return Object.freeze(
+      [...this.entries.keys()]
+        .map(({ name, kind, normalize }) =>
+          Object.freeze({ name, kind, normalize }),
+        )
+        .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0)),
+    );
+  }
+  frame(): ActionFrame {
+    if (this.disposed)
+      throw new EngineError(
+        "OWNER_DISPOSED",
+        "Action controller has been disposed",
+      );
+    return Object.freeze({
+      values: Object.freeze(
+        Object.fromEntries(
+          [...this.entries].map(([a, e]) => [a.name, e.frame]),
+        ),
+      ),
+      events: Object.freeze(
+        this.transitions.map((e) =>
+          Object.freeze({ name: e.action.name, down: e.down }),
+        ),
+      ),
+    });
+  }
   reader<T extends Token<A>>(action: T): ActionReader<T["kind"]> {
     this.entry(action);
     const controller = this;
@@ -283,6 +283,7 @@ export class ActionController<A extends ActionSet>
     action: ActionToken,
     value: Value,
   ): void {
+    this.options.input.assertWrite(isNeutral(value));
     this.entry(action);
     const values = this.sources.get(source);
     if (!values)
@@ -371,12 +372,26 @@ export class ActionController<A extends ActionSet>
       )
     );
   }
-  /** @internal */ capture(): void {
+  /** @internal */ capture(override?: ActionFrame): void {
     if (!this.active) return;
-    this.transitions = Object.freeze(this.pending);
+    const tokens = override
+      ? new Map([...this.entries.keys()].map((a) => [a.name, a]))
+      : undefined;
+    this.transitions = override
+      ? Object.freeze(
+          override.events.map((e) =>
+            Object.freeze({
+              action: tokens?.get(e.name) as ActionToken<"button">,
+              down: e.down,
+            }),
+          ),
+        )
+      : Object.freeze(this.pending);
     this.pending = [];
     for (const [action, entry] of this.entries) {
-      entry.frame = entry.value;
+      entry.frame = override
+        ? (override.values[action.name] as Value)
+        : entry.value;
       if (action.kind === "button") {
         let pressCount = 0,
           releaseCount = 0;
@@ -386,7 +401,7 @@ export class ActionController<A extends ActionSet>
             else releaseCount++;
           }
         entry.button = Object.freeze({
-          held: entry.value as boolean,
+          held: entry.frame as boolean,
           pressed: pressCount > 0,
           released: releaseCount > 0,
           pressCount,
@@ -560,7 +575,7 @@ export class ActionSource<A extends ActionSet> extends OwnedInputSource {
     action: T,
     value: NoInfer<ActionInputValue<T["kind"]>>,
   ): void {
-    const checked = checkedValue(action, value);
+    const checked = checkedActionValue(action, value);
     if (this.writable(isNeutral(checked)))
       this.controller.write(this, action, checked);
   }

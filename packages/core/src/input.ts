@@ -1,3 +1,4 @@
+import type { ActionFrame } from "./action-frame";
 import { EngineError } from "./diagnostics";
 import { OwnedInputSource } from "./input-source";
 import { type KeyCode, parseKeyCode } from "./key-code";
@@ -8,7 +9,7 @@ export interface ActionInputPort {
   readonly sourceCount: number;
   accepts(code: KeyCode): boolean;
   keyChanged(): void;
-  capture(): void;
+  capture(frame?: ActionFrame): void;
   dispatch(): void;
   reset(): void;
   dispose(): void;
@@ -34,6 +35,8 @@ export class InputSystem {
   private readonly actions = new Set<ActionInputPort>();
   private readonly keyboards = new Map<KeyboardSource, Set<KeyCode>>();
   private dead = false;
+  private playback = false;
+  private frames: ReadonlyMap<object, ActionFrame> | undefined;
   get sourceCount(): number {
     let count = this.keyboards.size;
     for (const actions of this.actions) count += actions.sourceCount;
@@ -48,6 +51,7 @@ export class InputSystem {
     };
   }
   acceptsKey(code: KeyCode): boolean {
+    if (this.playback) return false;
     for (const actions of this.actions) if (actions.accepts(code)) return true;
     return false;
   }
@@ -60,10 +64,14 @@ export class InputSystem {
     return false;
   }
   /** @internal Freeze every controller before invoking any callbacks. */
-  beginStep(): void {
-    if (!this.actions.size) return;
+  beginStep(captured?: () => void): void {
+    if (!this.actions.size) {
+      captured?.();
+      return;
+    }
     const plan = [...this.actions].filter((actions) => actions.active);
-    for (const actions of plan) actions.capture();
+    for (const actions of plan) actions.capture(this.frames?.get(actions));
+    captured?.();
     const errors: unknown[] = [];
     for (const actions of plan) {
       if (!this.actions.has(actions) || !actions.active) continue;
@@ -94,6 +102,7 @@ export class InputSystem {
     code: KeyCode,
     pressed: boolean,
   ): void {
+    this.assertWrite(!pressed);
     const keys = this.keyboards.get(source);
     if (!keys || this.dead)
       throw new EngineError("OWNER_DISPOSED", "Input has been disposed");
@@ -113,6 +122,48 @@ export class InputSystem {
     keys.clear();
     if (remove) this.keyboards.delete(source);
     if (changed && !this.dead) this.notify();
+  }
+  /** @internal */ hasController(controller: object): boolean {
+    return this.actions.has(controller as ActionInputPort);
+  }
+  /** @internal */ verifyControllers(controllers: readonly object[]): void {
+    const active = [...this.actions].filter((a) => a.active);
+    if (
+      active.length !== controllers.length ||
+      active.some((a) => !controllers.includes(a))
+    )
+      throw new EngineError(
+        "REPLAY_CONTROLLERS",
+        "Replay must bind exactly the active Scene controllers",
+      );
+  }
+  /** @internal */ assertWrite(neutral: boolean): void {
+    if (this.playback && !neutral)
+      throw new EngineError(
+        "REPLAY_INPUT_LOCKED",
+        "Live Action/device writes are disabled during Replay playback",
+      );
+  }
+  /** @internal */ lockPlayback(): void {
+    if (this.playback)
+      throw new EngineError(
+        "REPLAY_STATE",
+        "Input already has a playback driver",
+      );
+    this.clear();
+    this.playback = true;
+  }
+  /** @internal */ playbackFrames(
+    frames: ReadonlyMap<object, ActionFrame>,
+  ): void {
+    if (!this.playback)
+      throw new EngineError("REPLAY_STATE", "Playback is not active");
+    this.frames = frames;
+  }
+  /** @internal */ unlockPlayback(): void {
+    this.frames = undefined;
+    this.playback = false;
+    this.clear();
   }
   clear(): void {
     for (const keys of this.keyboards.values()) keys.clear();

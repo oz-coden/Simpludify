@@ -46,3 +46,13 @@ for (const folder of ["core", "web"]) {
     throw new Error(`ELECTRON_BOUNDARY: ${folder}`);
 }
 console.log("Architecture and required-file validation passed.");
+
+const workspaceVersion = JSON.parse(
+  readFileSync("package.json", "utf8"),
+).version;
+const sourceVersion = readFileSync(
+  "packages/core/src/version.ts",
+  "utf8",
+).match(/ENGINE_VERSION = "([^"]+)"/)?.[1];
+if (workspaceVersion !== sourceVersion)
+  throw new Error("ENGINE_VERSION does not match package.json");
