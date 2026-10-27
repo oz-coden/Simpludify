@@ -56,7 +56,18 @@ Theme initialization writes `data-theme` on the root HTML element. The former ge
 
 ## Remote validation and deployment
 
-For `c758b168d96f1dc04b57767107bc7c5b5d2a9507`, main CI and Documentation and Pages both succeeded. The published theme regression suite also passed against `https://github.oz-coden.com/Simpludify/`, independently of local builds and Actions. The Blockfall integration is checkpointed on `codex/site-recovery-blockfall`; deployment evidence is recorded separately from local test results.
+Main commit [`c69429703bea94a2c368aa85cea0d6d24e7b426a`](https://github.com/oz-coden/Simpludify/commit/c69429703bea94a2c368aa85cea0d6d24e7b426a) passed [CI](https://github.com/oz-coden/Simpludify/actions/runs/40446215093) and [Documentation and Pages](https://github.com/oz-coden/Simpludify/actions/runs/40446214989), including a successful deploy job. The same work is saved on `codex/site-recovery-blockfall`.
+
+The full site smoke suite then passed independently against **https://github.oz-coden.com/Simpludify/**, with Chrome 156.0.8078.4, desktop 1440×900 and narrow 390×844. It crawled all 20 documentation pages, exercised both themes and all five sample games, checked keyboard/synthetic touch controls, pause/restart, Blockfall game over, iframe disposal and focus return, and observed no failed requests, HTTP errors or uncaught page errors. Renderer-unavailable startup messaging and the limited no-WebGL Character fallback also passed at the published URL. This is live browser evidence, not a conclusion inferred from Actions alone.
+
+Verified public entry points:
+
+- [Documentation](https://github.oz-coden.com/Simpludify/)
+- [Sample gallery](https://github.oz-coden.com/Simpludify/examples.html)
+- [Blockfall directly](https://github.oz-coden.com/Simpludify/play/blockfall/index.html)
+- [Blockfall rules and implementation](https://github.oz-coden.com/Simpludify/guides/blockfall.html)
+
+Additional local Blockfall layout/cleanup checks passed at 320×568, 844×390 and 1440×900. Every Blockfall control met a 44×44 CSS-pixel minimum; these are browser viewport checks, not physical-device tests.
 
 ## Hosting and language limits
 
