@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { chromium } from "playwright";
 import { examples, pages } from "../site/config.mjs";
+import { testBlockfall } from "./site-blockfall-test.mjs";
 import { serveSite } from "./site-server.mjs";
 import { testSiteTheme } from "./site-theme-test.mjs";
 
@@ -37,6 +38,7 @@ try {
       reducedMotion: "reduce",
     });
     const page = await context.newPage();
+    page.setDefaultTimeout(15_000);
     const failures = [];
     page.on("pageerror", (error) => failures.push(error.message));
     page.on("response", (response) => {
@@ -58,11 +60,24 @@ try {
         true,
         `overflow ${item.route} ${viewport.width}`,
       );
-      if (item.route === "index.html")
-        await page.screenshot({
-          path: `test-results/site/home-${viewport.width}.png`,
-          fullPage: true,
-        });
+      for (const theme of ["light", "dark"]) {
+        if ((await page.locator("html").getAttribute("data-theme")) !== theme)
+          await page
+            .getByRole("button", { name: "テーマを切り替える" })
+            .click();
+        assert.equal(
+          await page.evaluate(
+            () => document.documentElement.scrollWidth <= innerWidth + 1,
+          ),
+          true,
+          `overflow ${theme} ${item.route}`,
+        );
+        if (item.route === "index.html")
+          await page.screenshot({
+            path: `test-results/site/home-${theme}-${viewport.width}.png`,
+            fullPage: true,
+          });
+      }
     }
     await page.goto(site);
     if (viewport.width < 760) {
@@ -89,7 +104,9 @@ try {
       const element = await page.locator("iframe").elementHandle();
       const frame = await element.contentFrame();
       await frame.waitForSelector("canvas");
-      if (example.id === "signal-run") {
+      if (example.id === "blockfall") {
+        await testBlockfall(frame, page, context, viewport.width);
+      } else if (example.id === "signal-run") {
         await frame
           .getByRole("button", { name: "Start run", exact: true })
           .click();
@@ -157,7 +174,8 @@ try {
           delete document.body.dataset.sampleCleanup;
         });
         await targetFrame.evaluate(() => {
-          const game = window.signalRun?.game ?? window.demo;
+          const game =
+            window.blockfall?.game ?? window.signalRun?.game ?? window.demo;
           window.addEventListener(
             "simpludify:dispose",
             () => {
@@ -215,7 +233,7 @@ try {
       syntheticTouch: true,
       theme: true,
       hostCleanupAll: true,
-      inspectedEngineCleanup: ["ui-scenes", "signal-run"],
+      inspectedEngineCleanup: ["blockfall", "ui-scenes", "signal-run"],
       failures,
     });
     await context.close();
@@ -252,6 +270,7 @@ try {
   await noGl.close();
   const context = await browser.newContext();
   const page = await context.newPage();
+  page.setDefaultTimeout(15_000);
   await page.addInitScript(() => {
     Object.defineProperty(navigator, "gpu", { get: () => undefined });
     HTMLCanvasElement.prototype.getContext = () => null;

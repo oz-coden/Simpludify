@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Blockfall — Simpludify</title></head><body>
+<main id="app">
+<header><div><span class="kicker">SIMPLUDIFY / GRID LOGIC</span><h1>Blockfall</h1></div><p id="status" role="status">Stack. Clear. Repeat.</p></header>
+<div class="arena"><div id="board"></div><aside>
+<dl><div><dt>SCORE</dt><dd id="score">0</dd></div><div><dt>LINES</dt><dd id="lines">0</dd></div><div><dt>LEVEL</dt><dd id="level">1</dd></div></dl>
+<h2>NEXT</h2><div id="next" class="preview" role="img" aria-label="Next piece"></div><p id="queue"></p>
+<h2>HOLD</h2><div id="hold" class="preview" role="img" aria-label="Hold empty"></div>
+</aside></div>
+<div id="controls"></div>
+<p class="help">Focus the board: ← → move · ↑ / X rotate · Z reverse · ↓ soft drop · Space drop · C / Shift hold · P / Esc pause. Touch buttons work below.</p>
+</main><script type="module" src="./main.ts"></script></body></html>

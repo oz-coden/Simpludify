@@ -15,10 +15,10 @@ Simpludify has an experimental Web runtime and a generic composition-based Core.
 - DOM labels/buttons/panels, two themes, responsive Flexbox/Grid and independent world aspect policies.
 - Scene-owned circle/oriented-box Trigger/Solid contacts, filtering, deterministic events/queries, and bounded inverse-mass position correction through CollisionBody.
 - Owned independent input sources, pause/resume, live depth/opacity/visibility, aspect-preserving images and keyboard/touch hold controls.
-- Character, UI/scenes, headless, Beacon field and the complete Signal Run collection/survival game.
+- Character, UI/scenes, headless, Beacon field the complete Signal Run collection/survival game, and Blockfall falling-block puzzle with deterministic grid logic, hold/ghost and keyboard/touch controls.
 - Noninteractive source scaffold/dev/check/test/build/doctor, JSON diagnostics, unit/browser/production-subpath tests, baseline scripts and automatic licensing notices.
 
-- Japanese-first static documentation, English technical reference, isolated playable four-sample gallery, integrated root/project-base builds and Pages workflow. See site-validation for deployment evidence.
+- Japanese-first static documentation, English technical reference, isolated playable five-sample gallery, integrated root/project-base builds and Pages workflow. See site-validation for deployment evidence.
 
 ## Pending and limits
 

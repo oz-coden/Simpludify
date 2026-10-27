@@ -95,11 +95,17 @@ try {
         2,
       );
     if (
-      !["character", "ui-scenes", "composition", "signal-run"].includes(example)
+      ![
+        "character",
+        "ui-scenes",
+        "composition",
+        "signal-run",
+        "blockfall",
+      ].includes(example)
     )
       fail(
         "EXAMPLE_NOT_FOUND",
-        "Choose character, ui-scenes, composition or signal-run",
+        "Choose character, ui-scenes, composition, signal-run or blockfall",
         2,
       );
     if (!(base.startsWith("/") || base.startsWith("./")) || base.includes(".."))

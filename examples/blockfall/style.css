@@ -1,0 +1,147 @@
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: #101922;
+  color: #eff7f6;
+  font-family: system-ui, sans-serif;
+}
+* {
+  box-sizing: border-box;
+}
+#app {
+  max-width: 580px;
+  margin: auto;
+  padding: 14px;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+h1 {
+  margin: 0;
+  font-size: 26px;
+  letter-spacing: -1px;
+}
+.kicker {
+  color: #73e3c0;
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+#status {
+  max-width: 180px;
+  margin: 0;
+  font-size: 13px;
+  text-align: right;
+}
+.arena {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 100px;
+  gap: 14px;
+  max-width: 380px;
+  margin: auto;
+}
+#board {
+  height: clamp(240px, 48dvh, 480px);
+  min-width: 0;
+  border: 1px solid #54727a;
+  background: #0a121b;
+}
+#board .simpludify {
+  min-height: 0;
+}
+aside {
+  padding: 0 4px;
+}
+dl {
+  margin: 0 0 14px;
+  display: grid;
+  gap: 8px;
+}
+dt,
+h2 {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #afc4ca;
+  margin: 0 0 5px;
+}
+dd {
+  margin: 0;
+  font-size: 23px;
+  font-variant-numeric: tabular-nums;
+}
+.preview {
+  display: grid;
+  grid-template-columns: repeat(4, 16px);
+  grid-template-rows: repeat(4, 16px);
+  gap: 2px;
+  margin-bottom: 8px;
+}
+.preview span {
+  border-radius: 2px;
+}
+#queue {
+  margin: 0 0 12px;
+  font-size: 12px;
+  color: #afc4ca;
+  letter-spacing: 3px;
+}
+#controls {
+  margin-top: 12px;
+}
+#controls .s-ui {
+  position: static;
+  padding: 0;
+  gap: 8px;
+}
+#controls .s-panel {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  max-width: none;
+  gap: 6px;
+}
+#controls .s-ui button {
+  padding: 10px 8px;
+  font-size: 13px;
+  overflow-wrap: normal;
+  min-height: 44px;
+  min-width: 44px;
+  flex: 1;
+}
+#controls .s-hold {
+  touch-action: none;
+  user-select: none;
+}
+#controls .s-hold[aria-pressed="true"] {
+  filter: brightness(0.75);
+}
+.help {
+  font-size: 11px;
+  color: #afc4ca;
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+@media (max-height: 560px) and (min-width: 600px) {
+  #app {
+    max-width: 740px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 18px;
+  }
+  header {
+    grid-column: 1 / -1;
+  }
+  .arena {
+    grid-row: 2 / 4;
+    width: 100%;
+  }
+  #board {
+    height: 330px;
+  }
+}

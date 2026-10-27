@@ -2,7 +2,7 @@
 
 [公式ドキュメント・サンプル](https://oz-coden.github.io/Simpludify/) · [日本語ガイドのソース](site/ja/index.md) · [English API](docs/api.md)
 
-TypeScriptのコードで2Dゲームを合理的につくる実験的なエンジンです。理解しやすく、一貫性があり、保守しやすいAPIを優先します。公開npm SDKではなく、ソースワークスペースを取得して利用します。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できる4つのサンプルを公式サイトにまとめています。
+TypeScriptのコードで2Dゲームを合理的につくる実験的なエンジンです。理解しやすく、一貫性があり、保守しやすいAPIを優先します。公開npm SDKではなく、ソースワークスペースを取得して利用します。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できる5つのサンプルを公式サイトにまとめています。
 
 A code-first TypeScript 2D game engine. Create a visible character, responsive UI, and scene navigation using ordinary code and browser tooling.
 
@@ -54,6 +54,12 @@ npm run dev -- --example signal-run
 ```
 
 **[Signal Run](examples/signal-run/README.md)** is a complete short game: collect six signals before the timer expires, avoid hazards, track HP, pause, restart and replay. It exercises circle/rotated-box Trigger and Solid contacts, independent keyboard/touch input, typed state events and live visual properties. The same round logic runs without a browser. Blue walls use inverse-mass position correction; items and hazards remain nonblocking Triggers. Camera tracking follows the player within world bounds when zoomed. The solver does not simulate rigid-body forces or continuous collisions.
+
+```sh
+npm run dev -- --example blockfall
+```
+
+**[Blockfall](examples/blockfall/README.md)** is a complete falling-block puzzle with a 10×20 grid, seven-piece bags, rotation and simple kicks, line scoring, levels, hold, ghost, pause and restart. Keyboard and touch controls share the same model. Integer grid rules and seeded headless tests remain game code; Actor/Renderable supply presentation without Collider physics. The sample guide documents its rotation, lock-delay and scoring rules.
 
 ## Create a separate game workspace
 
@@ -113,7 +119,7 @@ npm run site:check
 npm run site:serve
 ```
 
-This integrates documentation and all four browser examples into `site-dist/`, independently of the existing game-only `dist/`. Use `--base /` for root/custom-domain hosting. `npm run test:site` validates production pages, gallery controls and cleanup at desktop/narrow sizes. [Site build, deployment and validation](docs/site-validation.md) explains Pages Actions and language coverage. No domain or DNS settings are changed by the build.
+This integrates documentation and all five browser examples into `site-dist/`, independently of the existing game-only `dist/`. Use `--base /` for root/custom-domain hosting. `npm run test:site` validates production pages, gallery controls and cleanup at desktop/narrow sizes. [Site build, deployment and validation](docs/site-validation.md) explains Pages Actions and language coverage. No domain or DNS settings are changed by the build.
 
 ## Documentation
 

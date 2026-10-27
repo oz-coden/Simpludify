@@ -6,6 +6,7 @@ export async function testSiteTheme(browser, site) {
   for (const colorScheme of ["light", "dark"]) {
     const context = await browser.newContext({ colorScheme });
     const page = await context.newPage();
+    page.setDefaultTimeout(15_000);
     await page.goto(site);
     assert.equal(await read(page), colorScheme, "OS preference is the default");
     await page.locator("article h1").click();
@@ -48,6 +49,12 @@ export async function testSiteTheme(browser, site) {
       "explicit preference survives reload",
     );
     await page.emulateMedia({ colorScheme });
+    await page.goto(`${site}en/index.html`);
+    assert.equal(
+      await read(page),
+      other,
+      "explicit preference survives navigation and OS default",
+    );
     await toggle.focus();
     await page.keyboard.press("Enter");
     assert.equal(await read(page), colorScheme, "native Enter activation");

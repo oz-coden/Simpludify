@@ -22,7 +22,7 @@ npm ci
 npm run dev -- --example character
 ```
 
-Use Node.js 22.12+; CI uses Node 24. Open the printed localhost URL, focus the game area and use WASD. WebGL is the primary verified rendering path. The pinned Pixi can select a fallback; a no-WebGL Character Canvas2D startup is covered, not full fallback compatibility. Chromium is the automated browser target. The sample gallery launches each game in a separate iframe; Signal Run also supports touch controls. Character and Beacon Field require a keyboard for movement.
+Use Node.js 22.12+; CI uses Node 24. Open the printed localhost URL, focus the game area and use WASD. WebGL is the primary verified rendering path. The pinned Pixi can select a fallback; a no-WebGL Character Canvas2D startup is covered, not full fallback compatibility. Chromium is the automated browser target. The sample gallery launches each game in a separate iframe; Signal Run and Blockfall also support touch controls. Blockfall demonstrates integer-grid puzzle rules, seeded bags, hold, ghost pieces and headless replay without Collider physics. Character and Beacon Field require a keyboard for movement.
 
 ## Scope
 

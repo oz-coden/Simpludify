@@ -10,7 +10,7 @@
 - Character、Motion、キーボード、独立入力元、タッチ用HoldButton、ポーズ。
 - 形状・画像描画、表示制御・深度、単一Camera/Viewport、座標変換・追従。
 - 円・回転矩形、layer/mask、Trigger/Solid、接触イベント・問い合わせ、逆質量による位置補正。
-- 4つのWebサンプル、Headless実行例、CLI、型検査・単体・ブラウザ・本番ビルド検証。
+- 5つのWebサンプル（落ち物パズルBlockfallを含む）、Headless実行例、CLI、型検査・単体・ブラウザ・本番ビルド検証。
 - 日本語中心の静的ドキュメントとサンプルの統合ビルド、GitHub Pages向けActions。
 
 ## 衝突と実行時の制約
@@ -30,7 +30,6 @@
 | アセットmanifest・font管理      | 未実装。通常のVite/ブラウザ機能を使用 |
 | 通信・対戦・保存データ形式      | 未実装                                |
 | Colliderの自動近似・複合形状    | 将来候補。今回追加しない              |
-| テトリス相当の完成ゲーム        | 将来の実用性評価候補                  |
 | Safari/Firefox・実機全般        | 自動検証対象外                        |
 | WebGL context復旧               | 未対応／未検証                        |
 | 複数時間の実機メモリ・GPU追跡   | 未実施                                |

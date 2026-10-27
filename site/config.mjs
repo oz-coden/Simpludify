@@ -1,6 +1,14 @@
 export const repository = "https://github.com/oz-coden/Simpludify";
 export const examples = [
   {
+    id: "blockfall",
+    title: "Blockfall",
+    summary: "整数グリッドの落ち物パズル・seed付き7-bag・ホールド・ゴースト",
+    controls:
+      "← →移動、↑ / X・Z回転、↓ソフトドロップ、Spaceハードドロップ、C / Shiftホールド、P / Esc一時停止。スマートフォンは下部ボタンで全操作に対応。",
+    guide: "guides/blockfall.html",
+  },
+  {
     id: "character",
     title: "Character",
     summary: "最小のキャラクター移動",
@@ -34,6 +42,12 @@ export const examples = [
   },
 ];
 export const pages = [
+  [
+    "guides/blockfall.html",
+    "examples/blockfall/README.md",
+    "Blockfallのルールと実装",
+    "サンプル",
+  ],
   ["index.html", "site/ja/index.md", "ホーム", "はじめに"],
   [
     "getting-started.html",
