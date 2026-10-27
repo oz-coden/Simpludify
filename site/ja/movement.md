@@ -68,7 +68,7 @@ CollisionBodyはSolid補正の重みです。速度や入力の別の正本で�
 
 一定の指示なら同じ実行dt合計で同じ距離を得られますが、衝突やタイマーは時間分割に依存します。固定ステップの追いつき上限で捨てた実時間は、実行したシミュレーション時間と区別してください。
 
-Replay形式はv1のままです。記録対象はActionとdtであり、外部から勝手に変更したspeed／scaleそのものは記録しません。同じゲーム方針を再実行するか、その変更をActionとして表現します。Prism RaidはSprint Action追加に伴いゲーム版をprism-raid-replay-2へ変更しています。旧Action定義の記録は再記録してください。
+Replay形式はv1のままです。記録対象はActionとdtであり、外部から勝手に変更したspeed／scaleそのものは記録しません。同じゲーム方針を再実行するか、その変更をActionとして表現します。Signal Runのキー・タッチMove Actionは再生できますが、setTargetによるポインター目的地はゲーム側の外部状態で、自動記録しません。目的地の記録には別途明示的なゲーム入力の契約が必要です。Prism RaidはSprint Action追加に伴いゲーム版をprism-raid-replay-2へ変更しています。旧Action定義の記録は再記録してください。
 
 ## 移行と今回の範囲
 

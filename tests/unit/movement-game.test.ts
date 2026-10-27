@@ -131,3 +131,35 @@ it("replays Prism Raid sprint, movement and firing without changing Replay forma
   a.engine.dispose();
   b.engine.dispose();
 });
+
+it("replays Signal Run custom movement from logical keyboard/touch Actions", () => {
+  const create = () => {
+    const engine = new Engine({ seed: 42 });
+    return {
+      engine,
+      round: new Round(engine.scene, engine.input, { hazards: false }),
+    };
+  };
+  const a = create(),
+    recorder = new ReplayRecorder(a.engine, {
+      controllers: { run: a.round.controls },
+    });
+  for (let i = 0; i < 40; i++) {
+    a.round.input.set(SignalActions.Move, {
+      x: i < 20 ? 1 : 0,
+      y: i < 20 ? 0 : -1,
+    });
+    a.engine.step(1 / 120);
+  }
+  const b = create(),
+    data = JSON.parse(JSON.stringify(recorder.finish())),
+    replay = new ReplayPlayer(b.engine, data, {
+      controllers: { run: b.round.controls },
+    });
+  while (replay.step()) {}
+  expect(b.round.snapshot()).toEqual(a.round.snapshot());
+  expect(b.engine.snapshot()).toEqual(a.engine.snapshot());
+  replay.dispose();
+  a.engine.dispose();
+  b.engine.dispose();
+});
