@@ -6,7 +6,7 @@ Implement the first vertical slice of the code-first TypeScript 2D game engine d
 
 1. Read `SPEC.md` completely. Identify any technical contradictions before coding. Choose the minimum sustainable architecture; document decisions in `docs/architecture.md`.
 2. Initialize a TypeScript workspace with strict typechecking, package manager lockfile, scripts, Vitest tests, eslint (or equivalent), and CI-ready noninteractive commands. Keep runtime core independent of DOM, Node, Electron, and PixiJS.
-3. Implement a working **web vertical slice**: `Game`, `Character`, and enum-like `Movement.WASD` API; frame-rate-independent movement; diagonal normalization; default visible character; a minimal PixiJS renderer adapter. The simple usage sample must work without manually authored sprites or a visual editor.
+3. Implement a working **web vertical slice**: `Game`, `Character`, and explicit typed Action input (`ActionController`, Axis2D reader, KeyboardBindings.WASD); frame-rate-independent movement; diagonal normalization; default visible character; a minimal PixiJS renderer adapter. The simple usage sample must work without manually authored sprites or a visual editor.
 4. Implement a minimal DOM UI overlay for a label and clickable button, scene switching, and a simple adaptive layout/aspect policy. Use existing browser layout capabilities rather than writing an unnecessary custom layout engine.
 5. Provide demonstrative examples and unit tests for core/inputs/scene lifecycle; a browser smoke test at two viewport dimensions; explicit cleanup/disposal tests.
 6. Add initial CLI commands or scripts for noninteractive `dev`, `check`, `test`, and `build --target web`; meaningful exit codes. Prefer a thin working tool over a speculative full CLI framework.

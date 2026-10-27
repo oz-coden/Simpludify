@@ -5,9 +5,23 @@
 ## Minimal game and defaults
 
 ```ts verify
-import { Game, Character, Movement } from "@simpludify/web";
+import {
+  Action,
+  ActionController,
+  Character,
+  defineActions,
+  Game,
+  KeyboardBindings,
+} from "@simpludify/web";
+
 const game = new Game();
-game.add(Character({ movement: Movement.WASD }));
+const Actions = defineActions({ Move: Action.axis2D() });
+const controls = new ActionController(Actions, {
+  scene: game.engine.scene,
+  input: game.engine.input,
+  bindings: { Move: KeyboardBindings.WASD },
+});
+game.add(Character({ movement: controls.reader(Actions.Move) }));
 await game.run();
 ```
 
@@ -54,16 +68,16 @@ New Actors/Components update from the next step. An Actor created during an upda
 
 ### Built-in Components
 
-| Component          | Defaults and behavior                                        | Required components |
-| ------------------ | ------------------------------------------------------------ | ------------------- |
-| Transform          | x/y=0, rotation=0 radians, scaleX/Y=1; finite initial values | none                |
-| Renderable         | width/height=32, color=0x73e3c0, shape=Shape.Box, no sprite  | Transform           |
-| Motion             | speed=180 units/second, direction x/y=0                      | Transform           |
-| KeyboardController | KeyMaps.wasd; physical key codes; normalized diagonals       | Motion              |
+| Component      | Defaults and behavior                                            | Required components |
+| -------------- | ---------------------------------------------------------------- | ------------------- |
+| Transform      | x/y=0, rotation=0 radians, scaleX/Y=1; finite initial values     | none                |
+| Renderable     | width/height=32, color=0x73e3c0, shape=Shape.Box, no sprite      | Transform           |
+| Motion         | speed=180 units/second, direction x/y=0                          | Transform           |
+| ActionMovement | explicit Axis2D ActionReader; copies captured values into Motion | Motion              |
 
-Motion.direction is an explicit velocity direction/multiplier; arbitrary user vectors are not normalized. KeyboardController normalizes its own input vector and writes into Motion. Renderable shape is Box, Character, Circle or Triangle; sprite is an image URL, centered in its width/height box. Images default to SpriteFit.Contain, preserving their aspect inside width/height; SpriteFit.Stretch explicitly fills those bounds. Shape.Circle uses half the smaller dimension as its radius. Shape.Triangle is an upward-pointing isosceles triangle with local vertices `(0,-height/2)`, `(width/2,height/2)` and `(-width/2,height/2)`. Its pivot is the bounding-box center `(0,0)`, matching the other shapes; it is not the triangle centroid. Width and height are independent, and normal Transform rotation/scales (including reflections) apply. Shape selection does not create or change a Collider; use a separate circle/box approximation. Renderable.visible (true), opacity (1, between 0 and 1) and zIndex (0, finite) are live properties; higher depth draws above lower depth, with Actor insertion order breaking ties. Dimensions, image, shape, color and fit are immutable; remove/re-add the component to change them. Rendering visibility does not disable contacts. Animation remains deferred. CameraFollow and bounded Solid position correction are described below. Transform and Motion.direction are live mutable numeric data; callers must preserve finite values when changing them.
+Motion.direction is an explicit velocity direction/multiplier; arbitrary user vectors are not normalized. ActionMovement reads its injected logical Action; Axis2D normalizes by default in ActionController. Renderable shape is Box, Character, Circle or Triangle; sprite is an image URL, centered in its width/height box. Images default to SpriteFit.Contain, preserving their aspect inside width/height; SpriteFit.Stretch explicitly fills those bounds. Shape.Circle uses half the smaller dimension as its radius. Shape.Triangle is an upward-pointing isosceles triangle with local vertices `(0,-height/2)`, `(width/2,height/2)` and `(-width/2,height/2)`. Its pivot is the bounding-box center `(0,0)`, matching the other shapes; it is not the triangle centroid. Width and height are independent, and normal Transform rotation/scales (including reflections) apply. Shape selection does not create or change a Collider; use a separate circle/box approximation. Renderable.visible (true), opacity (1, between 0 and 1) and zIndex (0, finite) are live properties; higher depth draws above lower depth, with Actor insertion order breaking ties. Dimensions, image, shape, color and fit are immutable; remove/re-add the component to change them. Rendering visibility does not disable contacts. Animation remains deferred. CameraFollow and bounded Solid position correction are described below. Transform and Motion.direction are live mutable numeric data; callers must preserve finite values when changing them.
 
-Character(options) returns a CharacterActor preset with Transform, Renderable(Shape.Character), Motion and KeyboardController. Its options retain id, x/y (400/225), speed (180), size (32), color (0x73e3c0), movement (Movement.None), keys and sprite. Movement.WASD/Arrows/None select mappings; explicit keys overrides movement. CharacterActor.x/y are convenience accessors for Transform. It has no separate simulation/storage path. Position is not automatically clamped or recentered for another resolution.
+Character(options) returns a CharacterActor preset with Transform, Renderable(Shape.Character), Motion and, when `movement` is supplied, ActionMovement. Options are id, x/y (400/225), speed (180), size (32), color (0x73e3c0), sprite and `movement?: ActionReader<"axis2d">`. No input is enabled implicitly. Pass `controls.reader(Actions.Move)`; the Action name is defined by the game. CharacterActor.x/y are convenience accessors for Transform. It has no separate input/storage path. Position is not automatically clamped or recentered for another resolution.
 
 Use Vite imports or `import.meta.env.BASE_URL + 'player.svg'` for subpath-safe images. Runtime images require same-origin or CORS-enabled sources.
 
@@ -226,41 +240,43 @@ The view's center follows the target, clamped using camera.zoom so visible edges
 
 ## Headless execution
 
-```ts
-import { Engine, Character, Movement } from "@simpludify/core";
+```ts verify
+import {
+  Action,
+  ActionController,
+  Character,
+  defineActions,
+  Engine,
+} from "@simpludify/core";
 const engine = new Engine(42);
-engine.scene.add(Character({ movement: Movement.WASD }));
-engine.input.set("KeyD", true);
+const Actions = defineActions({ Move: Action.axis2D() });
+const controls = new ActionController(Actions, {
+  scene: engine.scene,
+  input: engine.input,
+});
+engine.scene.add(Character({ movement: controls.reader(Actions.Move) }));
+const automatic = controls.createSource();
+automatic.set(Actions.Move, { x: 1, y: 0 });
 engine.step(1 / 60);
 console.log(engine.snapshot().actors);
 engine.dispose();
 ```
 
-Engine.step takes finite nonnegative seconds without a cap. InputState supports set/clear/isPressed/direction/writeDirection/snapshot. `input.createSource(owner?)` returns a disposable InputSource with set/clear/dispose and disposed. Pressed keys are the union of all sources: releasing one does not release another source holding the same code. InputState.set uses a separate scripted source. Source.clear releases only its keys; InputState.clear releases every source's keys while keeping source handles alive. sourceCount counts live explicit sources, excluding the scripted source. Owner destruction releases and disposes its source. Engine disposal disposes every source. A disposed source rejects new presses with OWNER_DISPOSED; late releases are harmless. capture returns a cached immutable InputReader until input changes. Engine.pause/resume and Web Game.pause/resume are idempotent state changes; paused is readable. Paused steps validate the delta and capture logical Action input/onPressed controls, but skip simulation activation, movement, contacts, timers, Scene.onUpdate and elapsed time unless resumed at that input boundary. Transitions remain possible and pause state persists until explicitly resumed. Pause/resume clear all pressed keys on a state change. A pause called during a step takes effect on the next step. Game continues rendering and operating DOM UI, and resets its frame timestamp to avoid a large resume delta. Engine.random is a seeded uint32 LCG. snapshots copy scene ID/state, elapsed time, PRNG state, input and generic Actor IDs/enable flags/optional Transform values. Custom component data and renderer state are not automatically serialized/restorable.
+Engine.step takes finite nonnegative seconds without a cap. It captures all active ActionControllers before delivering any onPressed callbacks. UpdateContext supplies delta and scene; input dependencies are explicitly injected rather than read from a global raw frame. Read ActionController.value/button/events or inject a kind-typed reader into a Component. [Action input](action-input.md) defines buttons, axes, composition, binding changes, ownership and boundary semantics.
 
-### Low-level custom browser keys
+Engine.pause/resume and Web Game.pause/resume are idempotent. Paused steps capture Action input and dispatch onPressed controls but skip simulation unless resumed at that boundary. State changes clear held contributions and pending edges. Game continues rendering/DOM UI and resets its frame timestamp. Scene replacement clears input; disposal releases controllers and sources. Engine.random is a seeded uint32 LCG. Engine.snapshot copies scene state, elapsed time, PRNG state, device-key diagnostics and generic Actor/Transform state. Logical state is available from controls.snapshot(); neither snapshot is a restorable custom-Component save format.
 
-Game's default browser keyboard source accepts active ActionController bindings and enabled KeyboardController mappings. Prefer ActionController for logical game controls; it automatically registers its keyboard bindings. A custom Component reading `input.isPressed("Space")` does not by itself register Space with the browser host. Use the exported `BrowserInput(host, input, accepts)` adapter for additional continuous actions, and dispose it with its Scene:
+### Device adapters and text input
 
-```ts verify
-import { BrowserInput, Game } from "@simpludify/web";
-const game = new Game();
-game.scene("play", ({ scene, onDispose }) => {
-  const fire = new BrowserInput(
-    game.element,
-    game.engine.input,
-    (code) => code === "Space",
-  );
-  onDispose(() => fire.dispose());
-  // Components in scene read input.isPressed("Space") in their update context.
-});
-```
+Game automatically owns one BrowserInput, routing focused physical KeyboardEvent.code values to **active Action bindings only**. Native controls/contenteditable and IME composition are excluded; blur/hiding/focus changes release the browser's contribution. No Actor/controller scan or independent raw movement reader remains. Touch and AI use controls.createSource(), never synthetic keyboard keys.
 
-BrowserInput owns an independent source, listens on the focused host, preserves native control keys and clears on focus loss, blur and hiding. HoldButton plus a Scene-owned InputSource supplies the same keys for touch. Do not attach a second adapter for already mapped movement keys unless both independent sources are intentional. Raw InputState records held state. Prefer ActionController for short presses, counts and ordered Button events, as Blockfall now does; raw adapters remain useful for physical-input integration.
+InputSystem.createKeyboardSource(owner?) is for implementing a keyboard adapter or testing physical bindings. It accepts only validated KeyCode values, is independently disposable and cannot read game state. InputSystem.snapshot() reports physical-key diagnostics; sourceCount counts device and logical handles. There is no implicit scripted source. InputSystem.clear() silently flushes all sources and pending edges while preserving live handles. InputSystem.keyDown and registration/capture methods are internal routing, not another gameplay input API. Do not attach a second BrowserInput to a Game; it already owns the adapter. Custom keys are ordinary Button Actions with bindings.
+
+Text and IME commits use native input/textarea value, input and composition events, rather than KeyCode. See the working [typing recipe and current limitations](action-input.md#text-and-typing-games). A future TextInput helper belongs in Web and must preserve native editing, selection and composition; it must not introduce another movement/Action state system.
 
 ## DOM UI and styling
 
-Label(text, {muted?}) exposes setText and only updates subscribers when text changes. Button(text, handler) is a native button; the handler receives the mounted overlay's AbortSignal, aborted on unmount. It disables itself while an async handler runs and reports failures. HoldButton(text, onHold) reports a boolean held state across mouse/touch pointers and Enter/Space, including simultaneous pointers. Repeated presses do not repeat callbacks. Release, pointer cancellation, lost capture, blur, hiding and UI disposal release the relevant hold. Errors reach the UI observer. Use a separate owned InputSource for each independently releasable control group. Panel(children, {title?,layout?,placement?}) defaults to Layout.Column and Placement.Top; Placement.Center/Bottom align an outer panel within the overlay. Row wraps and Grid auto-fits. Panels use intrinsic sizing, a 30rem maximum width, safe-area spacing and native overlay scrolling. Text is inserted with textContent. Empty overlay space passes pointer events to the world.
+Label(text, {muted?}) exposes setText and only updates subscribers when text changes. Button(text, handler) is a native button; the handler receives the mounted overlay's AbortSignal, aborted on unmount. It disables itself while an async handler runs and reports failures. HoldButton(text, onHold) reports a boolean held state across mouse/touch pointers and Enter/Space, including simultaneous pointers. Repeated presses do not repeat callbacks. Release, pointer cancellation, lost capture, blur, hiding and UI disposal release the relevant hold. Errors reach the UI observer. Use a separate owned ActionSource for each independently releasable control group. Panel(children, {title?,layout?,placement?}) defaults to Layout.Column and Placement.Top; Placement.Center/Bottom align an outer panel within the overlay. Row wraps and Grid auto-fits. Panels use intrinsic sizing, a 30rem maximum width, safe-area spacing and native overlay scrolling. Text is inserted with textContent. Empty overlay space passes pointer events to the world.
 
 Theme.Dark/Light and partial tokens override typography/colors. Packaged fonts use ordinary @font-face; await document.fonts.load before run when needed for first-frame font readiness. DOM layout follows browser text/font/viewport invalidation; no custom font or layout manager is required. Application token overrides must preserve accessibility. Tab/Enter/Space retain native button interaction.
 
@@ -272,14 +288,14 @@ EngineError carries code/message/details and toJSON. Ownership/state diagnostics
 
 This experimental revision intentionally removes obsolete storage APIs:
 
-| Previous API                                          | Current API / reason                                                                   |
-| ----------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| CharacterState plain object                           | CharacterActor composition preset; custom objects use Actor + Components               |
-| Scene.characters / Scene.seal                         | Scene.actors with dynamic membership; no sealed roster                                 |
-| Character direct keys/speed/size/color/sprite fields  | get/require KeyboardController, Motion or Renderable; x/y convenience accessors remain |
-| snapshot().characters                                 | snapshot().actors with optional transform                                              |
-| GameOptions.world                                     | resolution + aspect + camera + viewport, separated by responsibility                   |
-| viewTransform / WorldView                             | createViewTransform with explicit logical resolution, camera and viewport              |
-| Renderer.prepare(characterList), resize(...worldView) | prepare(scene), resize(cssWidth,cssHeight,dpr), render(view)                           |
+| Previous API                                          | Current API / reason                                                                       |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| CharacterState plain object                           | CharacterActor composition preset; custom objects use Actor + Components                   |
+| Scene.characters / Scene.seal                         | Scene.actors with dynamic membership; no sealed roster                                     |
+| Character direct keys/speed/size/color/sprite fields  | inject an ActionReader; get/require Motion or Renderable; x/y convenience accessors remain |
+| snapshot().characters                                 | snapshot().actors with optional transform                                                  |
+| GameOptions.world                                     | resolution + aspect + camera + viewport, separated by responsibility                       |
+| viewTransform / WorldView                             | createViewTransform with explicit logical resolution, camera and viewport                  |
+| Renderer.prepare(characterList), resize(...worldView) | prepare(scene), resize(cssWidth,cssHeight,dpr), render(view)                               |
 
-The minimal Game/Character/Movement example remains unchanged. See `examples/composition` for a runnable game exercising custom Components, typed events, scoped timers/listeners, spawning, removal and Camera zoom.
+This experimental revision also removes InputState, InputSource, InputReader, KeyMap/KeyMaps, Movement and KeyboardController. Character now accepts an explicit Axis2D ActionReader. UpdateContext no longer contains raw input. See `examples/composition` for a runnable game exercising custom Components, typed events, scoped timers/listeners, spawning, removal and Camera zoom.

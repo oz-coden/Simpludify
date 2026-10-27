@@ -13,6 +13,7 @@ import {
   Scene,
 } from "@simpludify/core";
 import { expect, it } from "vitest";
+import { keyboard } from "../helpers/keyboard";
 
 const Actions = defineActions({
   Fire: Action.button(),
@@ -92,8 +93,8 @@ it("keeps multiple fast taps and cross-action event order", () => {
 });
 it("uses the union of keys and physical input sources without spurious releases", () => {
   const { engine, controller: c } = fixture();
-  const a = engine.input.createSource(),
-    b = engine.input.createSource();
+  const a = engine.input.createKeyboardSource(),
+    b = engine.input.createKeyboardSource();
   a.set(KeyCode.Space, true);
   b.set(KeyCode.Enter, true);
   engine.step(0);
@@ -109,7 +110,7 @@ it("uses the union of keys and physical input sources without spurious releases"
 it("composes keyboard, touch and automatic input and releases only the departing source", () => {
   const { engine, controller: c, source } = fixture();
   const touch = c.createSource();
-  engine.input.set(KeyCode.Space, true);
+  keyboard(engine).set(KeyCode.Space, true);
   source.set(Actions.Fire, true);
   touch.set(Actions.Fire, true);
   engine.step(0);
@@ -121,10 +122,10 @@ it("composes keyboard, touch and automatic input and releases only the departing
     pressed: false,
     released: false,
   });
-  engine.input.set(KeyCode.Space, true);
+  keyboard(engine).set(KeyCode.Space, true);
   touch.set(Actions.Fire, true);
   engine.step(0);
-  engine.input.set(KeyCode.Space, false);
+  keyboard(engine).set(KeyCode.Space, false);
   engine.step(0);
   expect(c.value(Actions.Fire)).toBe(true);
   touch.dispose();
@@ -147,8 +148,8 @@ it("clamps axis sums, cancels opposites and preserves analog magnitude", () => {
   expect(c.value(Actions.Raw)).toEqual({ x: 1, y: 1 });
   source.clear();
   other.clear();
-  engine.input.set(KeyCode.Q, true);
-  engine.input.set(KeyCode.E, true);
+  keyboard(engine).set(KeyCode.Q, true);
+  keyboard(engine).set(KeyCode.E, true);
   source.set(Actions.Move, { x: 0.2, y: 0.1 });
   engine.step(0);
   expect(c.value(Actions.Yaw)).toBe(0);
@@ -178,20 +179,20 @@ it("rejects invalid values and foreign action identities at runtime", () => {
 });
 it("rebinds held keys without creating a button press, and preserves logical sources", () => {
   const { engine, controller: c, source } = fixture();
-  engine.input.set(KeyCode.Q, true);
+  keyboard(engine).set(KeyCode.Q, true);
   engine.step(0);
   expect(c.value(Actions.Yaw)).toBe(-1);
   c.rebind(Actions.Yaw, { negative: [KeyCode.Y], positive: [KeyCode.I] });
   engine.step(0);
   expect(c.value(Actions.Yaw)).toBe(0);
-  engine.input.set(KeyCode.I, true);
+  keyboard(engine).set(KeyCode.I, true);
   engine.step(0);
   expect(c.value(Actions.Yaw)).toBe(1);
-  engine.input.set(KeyCode.I, false);
+  keyboard(engine).set(KeyCode.I, false);
   source.set(Actions.Yaw, -0.5);
   engine.step(0);
   expect(c.value(Actions.Yaw)).toBe(-0.5);
-  engine.input.set(KeyCode.X, true);
+  keyboard(engine).set(KeyCode.X, true);
   c.rebind(Actions.Fire, { keys: [KeyCode.X] });
   engine.step(0);
   expect(c.value(Actions.Fire)).toBe(true);
@@ -314,7 +315,7 @@ it("does not route keyboard input to a preparing scene and resets staged contrib
   const source = c.createSource(candidate);
   source.set(Actions.Fire, true);
   expect(engine.input.acceptsKey(KeyCode.F)).toBe(false);
-  engine.input.set(KeyCode.F, true);
+  keyboard(engine).set(KeyCode.F, true);
   engine.step(0);
   expect(c.value(Actions.Fire)).toBe(false);
   engine.activate(candidate);
@@ -331,7 +332,7 @@ it("retains synthetic keys injected before the implicit default activation", () 
     input: engine.input,
     bindings,
   });
-  engine.input.set(KeyCode.Space, true);
+  keyboard(engine).set(KeyCode.Space, true);
   engine.step(0);
   expect(c.pressed(Actions.Fire)).toBe(true);
   engine.dispose();
@@ -355,8 +356,8 @@ it("retains physical taps before the first implicit activation without routing a
     input: engine.input,
     bindings,
   });
-  engine.input.set(KeyCode.Space, true);
-  engine.input.set(KeyCode.Space, false);
+  keyboard(engine).set(KeyCode.Space, true);
+  keyboard(engine).set(KeyCode.Space, false);
   engine.step(0);
   expect(c.button(Actions.Fire)).toMatchObject({
     held: false,
@@ -365,7 +366,7 @@ it("retains physical taps before the first implicit activation without routing a
   });
   engine.dispose();
 });
-it("InputState disposal also destroys registered logical controllers and sources", () => {
+it("InputSystem disposal also destroys registered logical controllers and sources", () => {
   const { engine, controller: c, source } = fixture();
   engine.input.dispose();
   expect(c.disposed).toBe(true);
@@ -395,7 +396,7 @@ it("reports one key mapped to opposite axis directions while permitting cancella
       .find((x) => x.key === KeyCode.E)
       ?.bindings.map((b) => b.path),
   ).toEqual(["negative", "positive"]);
-  engine.input.set(KeyCode.E, true);
+  keyboard(engine).set(KeyCode.E, true);
   engine.step(0);
   expect(c.value(Actions.Yaw)).toBe(0);
   engine.dispose();

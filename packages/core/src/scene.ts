@@ -3,7 +3,7 @@ import { ComponentPhase, type UpdateContext } from "./component";
 import { EngineError } from "./diagnostics";
 import type { Engine } from "./engine";
 import { EventBus } from "./events";
-import type { InputState } from "./input";
+import type { InputSystem } from "./input";
 import { cleanupAll, Lifetime, type LifetimeOwner } from "./lifetime";
 import { SimulationTimers } from "./timers";
 export const SceneState = {
@@ -17,7 +17,7 @@ export type SceneState = (typeof SceneState)[keyof typeof SceneState];
 export class Scene {
   private phase: SceneState = SceneState.Preparing;
   private engineOwner: Engine | undefined;
-  private inputScope: InputState | undefined;
+  private inputScope: InputSystem | undefined;
   private readonly members = new Map<string, Actor>();
   private roster: readonly Actor[] = [];
   private rosterDirty = false;
@@ -185,10 +185,10 @@ export class Scene {
       );
     this.phase = SceneState.Ready;
   }
-  /** @internal */ get inputOwner(): InputState | undefined {
+  /** @internal */ get inputOwner(): InputSystem | undefined {
     return this.engineOwner?.input;
   }
-  /** @internal */ claimInput(input: InputState): void {
+  /** @internal */ claimInput(input: InputSystem): void {
     this.assertAlive();
     if (
       (this.inputScope && this.inputScope !== input) ||

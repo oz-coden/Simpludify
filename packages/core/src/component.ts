@@ -1,7 +1,6 @@
 import type { Actor } from "./actor";
 import { EngineError } from "./diagnostics";
 import { EventBus, type EventType } from "./events";
-import type { InputReader } from "./input";
 import { cleanupAll, Lifetime } from "./lifetime";
 import type { Scene } from "./scene";
 export const ComponentPhase = { Input: "input", Update: "update" } as const;
@@ -9,7 +8,6 @@ export type ComponentPhase =
   (typeof ComponentPhase)[keyof typeof ComponentPhase];
 export interface UpdateContext {
   readonly delta: number;
-  readonly input: InputReader;
   readonly scene: Scene;
 }
 export interface ComponentType<T extends Component = Component> {

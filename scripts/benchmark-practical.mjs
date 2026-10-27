@@ -99,13 +99,19 @@ if (mode === "core") {
     const session = (active) => {
       const engine = new Engine(42),
         round = active
-          ? new Round(engine.scene, { duration: 601, hp: 1000000 })
+          ? new Round(engine.scene, engine.input, {
+              duration: 601,
+              hp: 1000000,
+            })
           : undefined;
       const start = performance.now();
       for (let frame = 0; frame < 36000; frame++) {
         if (active && frame % 300 === 0) {
           engine.input.clear();
-          engine.input.set(frame % 600 === 0 ? "KeyW" : "KeyS", true);
+          round.input.set(round.controls.actions.Move, {
+            x: 0,
+            y: frame % 600 === 0 ? -1 : 1,
+          });
         }
         engine.step(1 / 60);
       }
@@ -127,9 +133,9 @@ if (mode === "core") {
     const sessions = [session(false), session(true)];
     const cycle = () => {
       const engine = new Engine(42),
-        round = new Round(engine.scene),
-        source = engine.input.createSource(engine.scene);
-      source.set("KeyD", true);
+        round = new Round(engine.scene, engine.input),
+        source = round.controls.createSource(engine.scene);
+      source.set(round.controls.actions.Move, { x: 1, y: 0 });
       for (let i = 0; i < 60; i++) engine.step(1 / 60);
       engine.dispose();
       assert.equal(engine.input.sourceCount, 0);
@@ -211,7 +217,11 @@ if (mode === "core") {
     for (const active of [false, true]) {
       await page.evaluate(async (active) => {
         await window.signalRun.game.goTo(active ? "play" : "menu");
-        if (active) window.signalRun.game.engine.input.set("KeyS", true);
+        if (active)
+          window.signalRun.round.input.set(
+            window.signalRun.round.controls.actions.Move,
+            { x: 0, y: 1 },
+          );
       }, active);
       const frames = await page.evaluate(
         () =>
@@ -239,7 +249,10 @@ if (mode === "core") {
         for (let i = 0; i < count; i++) {
           const game = window.signalRun.game;
           await game.goTo("play");
-          game.engine.input.set("KeyD", true);
+          window.signalRun.round.input.set(
+            window.signalRun.round.controls.actions.Move,
+            { x: 1, y: 0 },
+          );
           for (let step = 0; step < 60; step++) game.engine.step(1 / 60);
           await game.goTo("menu");
         }

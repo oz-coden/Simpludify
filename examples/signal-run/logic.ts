@@ -1,4 +1,9 @@
 import {
+  Action,
+  ActionController,
+  ActionMovement,
+  type ActionReader,
+  type ActionSource,
   Actor,
   Character,
   Collider,
@@ -11,10 +16,11 @@ import {
   type ComponentType,
   ContactEnter,
   ContactStay,
+  defineActions,
   defineComponent,
   defineEvent,
-  KeyboardController,
-  KeyMaps,
+  type InputSystem,
+  KeyboardBindings,
   Motion,
   Renderable,
   type Scene,
@@ -44,18 +50,7 @@ export interface RoundSnapshot {
 export const RoundChanged = defineEvent<RoundSnapshot>("RoundChanged");
 export const RoundFinished = defineEvent<RoundSnapshot>("RoundFinished");
 const Layers = { Player: 1, Hazard: 2, Signal: 4, Wall: 8 } as const;
-export const Controls = {
-  up: [...KeyMaps.wasd.up, ...KeyMaps.arrows.up],
-  down: [...KeyMaps.wasd.down, ...KeyMaps.arrows.down],
-  left: [...KeyMaps.wasd.left, ...KeyMaps.arrows.left],
-  right: [...KeyMaps.wasd.right, ...KeyMaps.arrows.right],
-};
-const movementCodes = [
-  ...Controls.up,
-  ...Controls.down,
-  ...Controls.left,
-  ...Controls.right,
-];
+export const SignalActions = defineActions({ Move: Action.axis2D() });
 export class Health extends Component {
   static readonly type: ComponentType<Health> =
     defineComponent<Health>("Health");
@@ -99,14 +94,18 @@ class PointControl extends Component {
     defineComponent<PointControl>("PointControl", [
       Transform.type,
       Motion.type,
-      KeyboardController.type,
+      ActionMovement.type,
     ]);
   readonly type = PointControl.type;
   readonly phase = ComponentPhase.Input;
   target: WorldPoint | undefined;
-  update({ delta, input }: UpdateContext): void {
+  constructor(private readonly input: ActionReader<"axis2d">) {
+    super();
+  }
+  update({ delta }: UpdateContext): void {
     if (!this.target) return;
-    if (movementCodes.some((code) => input.isPressed(code))) {
+    const movement = this.input.value();
+    if (movement.x !== 0 || movement.y !== 0) {
       this.target = undefined;
       return;
     }
@@ -171,6 +170,8 @@ class Clock extends Component {
   }
 }
 export class Round {
+  readonly controls: ActionController<typeof SignalActions>;
+  readonly input: ActionSource<typeof SignalActions>;
   readonly player: ReturnType<typeof Character>;
   readonly health: Health;
   readonly world: CollisionWorld;
@@ -188,6 +189,7 @@ export class Round {
   private publishedStatus: RoundStatus | undefined;
   constructor(
     readonly scene: Scene,
+    input: InputSystem,
     options: {
       hazards?: boolean;
       duration?: number;
@@ -195,6 +197,13 @@ export class Round {
       hp?: number;
     } = {},
   ) {
+    this.controls = new ActionController(SignalActions, {
+      scene,
+      input,
+      bindings: { Move: KeyboardBindings.WASD },
+    });
+    this.controls.addBindings(SignalActions.Move, KeyboardBindings.Arrows);
+    this.input = this.controls.createSource(scene);
     this.duration = options.duration ?? 30;
     this.goal = options.goal ?? 6;
     if (
@@ -220,12 +229,12 @@ export class Round {
         y: 225,
         size: 28,
         speed: 190,
-        keys: Controls,
+        movement: this.controls.reader(SignalActions.Move),
       }),
     );
     this.player.require(Renderable.type).zIndex = 10;
     this.health = this.player.add(new Health(options.hp ?? 3));
-    this.player.add(new PointControl());
+    this.player.add(new PointControl(this.controls.reader(SignalActions.Move)));
     this.player.add(new CollisionBody());
     this.player.add(new DamageFlash());
     const collider = this.player.add(
@@ -339,7 +348,7 @@ export class Round {
     if (this.phase !== RoundStatus.Playing) return;
     this.phase = status;
     this.player.require(Motion.type).enabled = false;
-    this.player.require(KeyboardController.type).enabled = false;
+    this.player.require(ActionMovement.type).enabled = false;
     this.player.require(PointControl.type).enabled = false;
     for (const actor of this.hazards) {
       const patrol = actor.get(Patrol.type);

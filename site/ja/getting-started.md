@@ -22,15 +22,24 @@ npm run dev -- --example character
 `examples/character/main.ts`の本体です。サンプル共通の起動補助を除いたSDKの使い方は次のとおりです。
 
 ```ts verify
-import { Character, Game, Movement } from "@simpludify/web";
+import {
+  Action,
+  ActionController,
+  Character,
+  defineActions,
+  Game,
+  KeyboardBindings,
+} from "@simpludify/web";
 
-const parent = document.querySelector<HTMLElement>("#app")!;
-const game = new Game({ parent });
-game.add(Character({ movement: Movement.WASD }));
+const game = new Game();
+const Actions = defineActions({ Move: Action.axis2D() });
+const controls = new ActionController(Actions, {
+  scene: game.engine.scene,
+  input: game.engine.input,
+  bindings: { Move: KeyboardBindings.WASD },
+});
+game.add(Character({ movement: controls.reader(Actions.Move) }));
 await game.run();
-
-// ページからゲームを取り除くときに呼ぶ。
-window.addEventListener("pagehide", () => game.dispose(), { once: true });
 ```
 
 `examples/character/index.html`がページの高さとエントリーポイントを用意しています。既存例のHTMLをそのまま使えます。
@@ -43,7 +52,7 @@ window.addEventListener("pagehide", () => game.dispose(), { once: true });
 <script type="module" src="./main.ts"></script>
 ```
 
-`Character`はTransform・Renderable・Motion・KeyboardControllerのプリセットです。画像なしでもプレースホルダーを表示できます。既定位置は世界座標(400,225)、速度は180単位/秒、サイズは32です。`Game`の既定の論理解像度は800×450です。
+`Character`はTransform・Renderable・Motionと、明示的に注入したActionMovementのプリセットです。画像なしでもプレースホルダーを表示できます。既定位置は世界座標(400,225)、速度は180単位/秒、サイズは32です。`Game`の既定の論理解像度は800×450です。
 
 ## 別のゲーム用ディレクトリをつくる
 

@@ -8,7 +8,7 @@ WebGLの描画経路を中心に検証しています。固定したPixi版に�
 
 ## 学習の順番
 
-1. Character：Game・Character・Movementの最小構成。
+1. Character：Game・Character・型付きActionの最小構成。
 2. UI / Scenes：型付きScene ID、DOM UI、非同期遷移。
 3. Beacon Field：独自Component、イベント、タイマー、ポインター座標、生成・削除。
 4. Signal Run：Triggerで取得・被弾、Solidで壁沿いの移動、HP・制限時間・勝敗・ポーズ・再プレイ・カメラ追従。

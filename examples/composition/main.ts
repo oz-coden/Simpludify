@@ -13,7 +13,7 @@ const game = new Game<"field">({
   parent: document.querySelector<HTMLElement>("#app") ?? document.body,
 });
 game.scene("field", ({ scene, ui, signal, onActivate }) => {
-  createPlayer(scene);
+  createPlayer(scene, game.engine.input);
   const score = Label("Beacons collected: 0");
   const spawn = () => {
     if (scene.actors.filter((actor) => actor.get(Beacon.type)).length < 24)

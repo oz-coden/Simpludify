@@ -6,36 +6,36 @@
 
 `@simpludify/core`はDOM/Node/Pixiに依存しません。`@simpludify/web`はCoreを再exportし、Game・PixiRenderer・BrowserInput・DOM UI・CSSを追加します。どちらもprivateなソースワークスペースです。
 
-| 用途             | 主な公開API                                                                                                       | 詳細                                                                |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| Web起動・遷移    | Game, GameOptions, SceneContext                                                                                   | [英語API](../en/api.html#minimal-game-and-defaults)                 |
-| Actor構成        | Actor, Component, defineComponent, ComponentPhase                                                                 | [基本概念](concepts.md)                                             |
-| 標準Component    | Transform, Renderable, Motion, KeyboardController                                                                 | [英語API](../en/api.html#built-in-components)                       |
-| 高水準プリセット | Character, CharacterActor, Movement                                                                               | [最初のゲーム](getting-started.md)                                  |
-| Scene・通知      | Scene, SceneState, EventBus, defineEvent, Lifetime                                                                | [SceneとUI](scenes-ui.md)                                           |
-| 時間・入力       | Engine, Action, defineActions, ActionController, ActionSource, KeyCode, InputState, InputSource, KeyMaps          | [入力ガイド](input.md)                                              |
-| 衝突             | Collider, CollisionShape, CollisionResponse, CollisionBody, BodyType, CollisionWorld                              | [衝突ガイド](collision.md)                                          |
-| 接触通知         | ContactEnter, ContactStay, ContactExit, Contact                                                                   | [接触契約](../en/api.html#contact-lifecycle-and-observation)        |
-| 座標・追従       | Camera, CameraFollow, WorldBounds, Viewport, LogicalResolution, Aspect                                            | [描画ガイド](rendering.md)                                          |
-| 空間変換         | worldPoint, screenPoint, createViewTransform, worldToScreen, screenToWorld, containsScreenPoint, screenToPhysical | [座標契約](../en/api.html#camera-and-coordinate-spaces)             |
-| DOM UI           | Label, Button, HoldButton, Panel, Layout, Placement, Theme                                                        | [UI契約](../en/api.html#dom-ui-and-styling)                         |
-| 拡張・診断       | RendererPort, PreparedScene, FrameDriver, EngineError, PixiRenderer                                               | [拡張契約](../en/api.html#renderer-ports-diagnostics-and-migration) |
+| 用途             | 主な公開API                                                                                                         | 詳細                                                                |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Web起動・遷移    | Game, GameOptions, SceneContext                                                                                     | [英語API](../en/api.html#minimal-game-and-defaults)                 |
+| Actor構成        | Actor, Component, defineComponent, ComponentPhase                                                                   | [基本概念](concepts.md)                                             |
+| 標準Component    | Transform, Renderable, Motion, ActionMovement                                                                       | [英語API](../en/api.html#built-in-components)                       |
+| 高水準プリセット | Character, CharacterActor                                                                                           | [最初のゲーム](getting-started.md)                                  |
+| Scene・通知      | Scene, SceneState, EventBus, defineEvent, Lifetime                                                                  | [SceneとUI](scenes-ui.md)                                           |
+| 時間・入力       | Engine, Action, defineActions, ActionController, ActionSource, KeyCode, ActionReader, KeyboardBindings, InputSystem | [入力ガイド](input.md)                                              |
+| 衝突             | Collider, CollisionShape, CollisionResponse, CollisionBody, BodyType, CollisionWorld                                | [衝突ガイド](collision.md)                                          |
+| 接触通知         | ContactEnter, ContactStay, ContactExit, Contact                                                                     | [接触契約](../en/api.html#contact-lifecycle-and-observation)        |
+| 座標・追従       | Camera, CameraFollow, WorldBounds, Viewport, LogicalResolution, Aspect                                              | [描画ガイド](rendering.md)                                          |
+| 空間変換         | worldPoint, screenPoint, createViewTransform, worldToScreen, screenToWorld, containsScreenPoint, screenToPhysical   | [座標契約](../en/api.html#camera-and-coordinate-spaces)             |
+| DOM UI           | Label, Button, HoldButton, Panel, Layout, Placement, Theme                                                          | [UI契約](../en/api.html#dom-ui-and-styling)                         |
+| 拡張・診断       | RendererPort, PreparedScene, FrameDriver, EngineError, PixiRenderer                                                 | [拡張契約](../en/api.html#renderer-ports-diagnostics-and-migration) |
 
 ## よく使う既定値
 
-| 設定                                  | 既定                                  |
-| ------------------------------------- | ------------------------------------- |
-| Game resolution / aspect              | 800×450 / Aspect.Fit                  |
-| Camera x / y / zoom                   | 0 / 0 / 1                             |
-| Web maxDelta                          | 0.05秒                                |
-| Character x / y / speed / size        | 400 / 225 / 180単位毎秒 / 32          |
-| Character movement                    | Movement.None（明示して操作を有効化） |
-| Collider shape / response             | Box / Trigger                         |
-| Collider box / circle                 | 幅・高さ32 / 半径16                   |
-| Collider layer / mask                 | 1 / 0xffffffff                        |
-| CollisionBody motion / mass           | Dynamic / 1                           |
-| CollisionWorld iterations / tolerance | 6 / 1e-7世界単位                      |
-| CameraFollow responsiveness           | 0（即時追従）                         |
+| 設定                                  | 既定                                        |
+| ------------------------------------- | ------------------------------------------- |
+| Game resolution / aspect              | 800×450 / Aspect.Fit                        |
+| Camera x / y / zoom                   | 0 / 0 / 1                                   |
+| Web maxDelta                          | 0.05秒                                      |
+| Character x / y / speed / size        | 400 / 225 / 180単位毎秒 / 32                |
+| Character movement                    | 省略（Axis2D ActionReaderを明示して有効化） |
+| Collider shape / response             | Box / Trigger                               |
+| Collider box / circle                 | 幅・高さ32 / 半径16                         |
+| Collider layer / mask                 | 1 / 0xffffffff                              |
+| CollisionBody motion / mass           | Dynamic / 1                                 |
+| CollisionWorld iterations / tolerance | 6 / 1e-7世界単位                            |
+| CameraFollow responsiveness           | 0（即時追従）                               |
 
 ## 寿命と失敗の扱い
 

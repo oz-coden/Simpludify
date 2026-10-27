@@ -60,7 +60,9 @@ if (mode === "core") {
         CollisionBody,
         Motion,
         Character,
-        Movement,
+        Action,
+        ActionController,
+        defineActions,
         ContactEnter,
         ContactExit,
       } = sdk;
@@ -117,12 +119,19 @@ if (mode === "core") {
         if (moving) a.add(new Motion({ x: 1, speed: 100 }));
         return a;
       };
+      const actions = defineActions({ Move: Action.axis2D() });
+      const controls = new ActionController(actions, {
+        scene: engine.scene,
+        input: engine.input,
+      });
       if (name.includes("passive"))
         for (let i = 0; i < 1000; i++) engine.scene.add(new Actor());
       else if (name.includes("Characters")) {
         for (let i = 0; i < 1000; i++)
-          engine.scene.add(Character({ movement: Movement.WASD }));
-        engine.input.set("KeyD", true);
+          engine.scene.add(
+            Character({ movement: controls.reader(actions.Move) }),
+          );
+        controls.createSource().set(actions.Move, { x: 1, y: 0 });
       } else if (name.includes("sparse"))
         for (let i = 0; i < 1000; i++) add(i * 20, 0);
       else if (name.includes("grid Triggers"))
@@ -253,8 +262,8 @@ if (mode === "core") {
     );
     const cycle = () => {
       const e = new Engine(),
-        r = new Round(e.scene);
-      e.input.set("KeyD", true);
+        r = new Round(e.scene, e.input);
+      r.input.set(r.controls.actions.Move, { x: 1, y: 0 });
       for (let i = 0; i < 60; i++) e.step(1 / 60);
       e.dispose();
       assert.equal(r.world.diagnostics.contacts, 0);
@@ -348,9 +357,10 @@ if (mode === "core") {
         }
         await page.evaluate(
           (down) => {
-            const input = window.signalRun.game.engine.input;
+            const round = window.signalRun.round;
+            const input = round.input;
             input.clear();
-            input.set(down ? "KeyS" : "KeyW", true);
+            input.set(round.controls.actions.Move, { x: 0, y: down ? 1 : -1 });
           },
           Math.floor(elapsed / 5) % 2 === 0,
         );
@@ -393,7 +403,10 @@ if (mode === "core") {
         "simulation + render",
       ]) {
         await game.goTo("play");
-        game.engine.input.set("KeyS", true);
+        window.signalRun.round.input.set(
+          window.signalRun.round.controls.actions.Move,
+          { x: 0, y: 1 },
+        );
         const intervals = [],
           logic = [],
           draw = [];

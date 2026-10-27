@@ -1,6 +1,7 @@
 import {
   Action,
   ActionController,
+  ActionMovement,
   type ActionSource,
   Actor,
   Collider,
@@ -15,7 +16,7 @@ import {
   defineActions,
   defineComponent,
   defineEvent,
-  type InputState,
+  type InputSystem,
   KeyCode,
   Motion,
   type Scene,
@@ -71,38 +72,6 @@ class Clock extends Component {
   }
   update({ delta }: UpdateContext): void {
     this.round.advance(delta);
-  }
-}
-class Steering extends Component {
-  static readonly type: ComponentType<Steering> = defineComponent<Steering>(
-    "RaidSteering",
-    [Motion.type],
-  );
-  readonly type = Steering.type;
-  readonly phase = ComponentPhase.Input;
-  private motion: Motion | undefined;
-  constructor(private readonly controls: ActionController<typeof RaidActions>) {
-    super();
-  }
-  protected onAttach(): void {
-    this.motion = this.actor.require(Motion.type);
-  }
-  protected onDisable(): void {
-    if (this.motion) {
-      this.motion.direction.x = 0;
-      this.motion.direction.y = 0;
-    }
-  }
-  protected onDestroy(): void {
-    this.onDisable();
-    this.motion = undefined;
-  }
-  update(): void {
-    const value = this.controls.value(RaidActions.Move);
-    if (this.motion) {
-      this.motion.direction.x = value.x;
-      this.motion.direction.y = value.y;
-    }
   }
 }
 class Pilot extends Component {
@@ -252,7 +221,7 @@ export class Raid {
   private readonly stopSpawning: () => void;
   constructor(
     readonly scene: Scene,
-    input: InputState,
+    input: InputSystem,
     private readonly random: () => number,
     options: RaidOptions = {},
   ) {
@@ -303,7 +272,7 @@ export class Raid {
       this.hp,
     );
     this.player.add(new Motion({ speed: 220 }));
-    this.player.add(new Steering(this.controls));
+    this.player.add(new ActionMovement(this.controls.reader(RaidActions.Move)));
     this.player.add(new Pilot(this));
     const collider = this.player.add(
       new Collider({

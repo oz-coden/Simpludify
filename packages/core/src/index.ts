@@ -9,7 +9,7 @@ export * from "./coordinates";
 export * from "./diagnostics";
 export * from "./engine";
 export * from "./events";
-export * from "./input";
+export { InputSystem, KeyboardSource } from "./input";
 export * from "./key-code";
 export * from "./lifetime";
 export * from "./ports";

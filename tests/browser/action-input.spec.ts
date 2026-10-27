@@ -420,3 +420,154 @@ test("real touch and keyboard contributions coexist and releasing either source 
   await touch.detach();
   await page.evaluate(() => window.actionProbe.game.dispose());
 });
+
+test("uses native text input without intercepting typing, paste or IME commits", async ({
+  page,
+}) => {
+  await probe(page);
+  await page.evaluate(() => {
+    const { game } = window.actionProbe;
+    const field = document.createElement("textarea");
+    field.id = "typing";
+    field.setAttribute("aria-label", "Typing answer");
+    field.style.cssText =
+      "position:absolute;bottom:0;left:0;z-index:999;width:200px;height:70px";
+    game.element.append(field);
+    const commits: string[] = [];
+    let committed = "";
+    const commit = () => {
+      if (field.value !== committed) {
+        committed = field.value;
+        commits.push(committed);
+      }
+    };
+    field.addEventListener("input", (event) => {
+      if (!(event as InputEvent).isComposing) commit();
+    });
+    field.addEventListener("compositionend", () => queueMicrotask(commit));
+    field.dataset.commits = "[]";
+    field.addEventListener("input", () =>
+      queueMicrotask(() => {
+        field.dataset.commits = JSON.stringify(commits);
+      }),
+    );
+  });
+  await page.locator(".simpludify").focus();
+  await page.keyboard.down("d");
+  await page.evaluate(() => window.actionProbe.game.engine.step(0));
+  expect(
+    await page.evaluate(
+      () =>
+        window.actionProbe.controls.value(window.actionProbe.actions.Move).x,
+    ),
+  ).toBe(1);
+  await page.getByRole("textbox", { name: "Typing answer" }).focus();
+  await page.keyboard.up("d");
+  await page.keyboard.type("wasd space romaji");
+  await page.evaluate(() => window.actionProbe.game.engine.step(0));
+  await expect(page.locator("#typing")).toHaveValue("wasd space romaji");
+  expect(
+    await page.evaluate(() => window.actionProbe.controls.snapshot()),
+  ).toMatchObject({ Move: { value: { x: 0, y: 0 } }, Fire: { value: false } });
+  const ime = await page.evaluate(async () => {
+    const field = document.querySelector<HTMLTextAreaElement>("#typing");
+    if (!field) throw new Error("No typing field");
+    field.value = "";
+    field.dispatchEvent(
+      new InputEvent("input", {
+        bubbles: true,
+        inputType: "deleteContentBackward",
+      }),
+    );
+    field.dispatchEvent(
+      new CompositionEvent("compositionstart", { bubbles: true }),
+    );
+    field.value = "にほ";
+    field.dispatchEvent(
+      new InputEvent("input", {
+        bubbles: true,
+        inputType: "insertCompositionText",
+        data: "にほ",
+        isComposing: true,
+      }),
+    );
+    const intermediate = JSON.parse(field.dataset.commits ?? "[]");
+    field.value = "日本語";
+    field.dispatchEvent(
+      new CompositionEvent("compositionend", { bubbles: true, data: "日本語" }),
+    );
+    field.dispatchEvent(
+      new InputEvent("input", {
+        bubbles: true,
+        inputType: "insertText",
+        data: "日本語",
+      }),
+    );
+    await Promise.resolve();
+    const commits = JSON.parse(field.dataset.commits ?? "[]");
+    const suppressed = new KeyboardEvent("keydown", {
+      bubbles: true,
+      cancelable: true,
+      code: "Space",
+      key: "Process",
+      isComposing: true,
+    });
+    field.dispatchEvent(suppressed);
+    window.actionProbe.game.engine.step(0);
+    return {
+      intermediate,
+      commits,
+      prevented: suppressed.defaultPrevented,
+      fire: window.actionProbe.controls.value(window.actionProbe.actions.Fire),
+    };
+  });
+  expect(ime.intermediate).not.toContain("にほ");
+  expect(ime.commits.filter((s: string) => s === "日本語")).toHaveLength(1);
+  expect(ime).toMatchObject({ prevented: false, fire: false });
+  await page.keyboard.insertText("🙂"); // input event without a physical key, as with paste/soft keyboards
+  await expect(page.locator("#typing")).toHaveValue("日本語🙂");
+  await page.locator(".simpludify").focus();
+  await page.keyboard.press("Space");
+  await page.evaluate(() => window.actionProbe.game.engine.step(0));
+  expect(
+    await page.evaluate(
+      () =>
+        window.actionProbe.controls.button(window.actionProbe.actions.Fire)
+          .pressCount,
+    ),
+  ).toBe(1);
+});
+
+test("suppresses composing game-surface keys and resumes only after composition finishes", async ({
+  page,
+}) => {
+  await probe(page);
+  await page.locator(".simpludify").focus();
+  const result = await page.evaluate(() => {
+    const { game, controls, actions } = window.actionProbe;
+    game.element.dispatchEvent(
+      new CompositionEvent("compositionstart", { bubbles: true }),
+    );
+    const event = new KeyboardEvent("keydown", {
+      code: "Space",
+      key: " ",
+      bubbles: true,
+      cancelable: true,
+    });
+    game.element.dispatchEvent(event);
+    game.engine.step(0);
+    const during = controls.pressed(actions.Fire);
+    game.element.dispatchEvent(
+      new CompositionEvent("compositionend", { bubbles: true }),
+    );
+    return { during, prevented: event.defaultPrevented };
+  });
+  expect(result).toEqual({ during: false, prevented: false });
+  await page.keyboard.press("Space");
+  await page.evaluate(() => window.actionProbe.game.engine.step(0));
+  expect(
+    await page.evaluate(() =>
+      window.actionProbe.controls.pressed(window.actionProbe.actions.Fire),
+    ),
+  ).toBe(true);
+});

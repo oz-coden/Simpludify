@@ -8,6 +8,7 @@ on:
         codex/site-recovery-blockfall,
         codex/triangle-shooter,
         codex/action-input,
+        codex/unified-input,
       ]
   pull_request:
   workflow_dispatch:

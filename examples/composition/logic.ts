@@ -1,11 +1,15 @@
 import {
+  Action,
+  ActionController,
   Actor,
   Character,
   Component,
   type ComponentType,
+  defineActions,
   defineComponent,
   defineEvent,
-  Movement,
+  type InputSystem,
+  KeyboardBindings,
   Renderable,
   type Scene,
   Transform,
@@ -59,10 +63,16 @@ export function spawnBeacon(scene: Scene, x: number, y: number): Actor {
   actor.add(new Beacon());
   return scene.add(actor);
 }
-export function createPlayer(scene: Scene) {
+export const BeaconActions = defineActions({ Move: Action.axis2D() });
+export function createPlayer(scene: Scene, input: InputSystem) {
+  const controls = new ActionController(BeaconActions, {
+    scene,
+    input,
+    bindings: { Move: KeyboardBindings.WASD },
+  });
   const player = Character({
     id: "player",
-    movement: Movement.WASD,
+    movement: controls.reader(BeaconActions.Move),
     speed: 200,
   });
   player.add(new Inventory());

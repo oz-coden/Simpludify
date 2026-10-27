@@ -6,7 +6,6 @@ import {
   Engine,
   EngineError,
   type FrameDriver,
-  KeyboardController,
   type LogicalResolution,
   type PreparedScene,
   positive,
@@ -153,23 +152,7 @@ export class Game<SceneId extends string = string> {
       request: (callback) => requestAnimationFrame(callback),
       cancel: (handle) => cancelAnimationFrame(handle),
     };
-    this.keyboard = new BrowserInput(
-      this.element,
-      this.engine.input,
-      (code) => {
-        if (this.engine.input.acceptsKey(code)) return true;
-        for (const actor of this.engine.scene.actors) {
-          const controller = actor.get(KeyboardController.type);
-          if (
-            actor.enabled &&
-            controller?.enabled &&
-            Object.values(controller.keys).some((codes) => codes.includes(code))
-          )
-            return true;
-        }
-        return false;
-      },
-    );
+    this.keyboard = new BrowserInput(this.element, this.engine.input);
     document.addEventListener(
       "visibilitychange",
       () => {

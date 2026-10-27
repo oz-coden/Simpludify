@@ -1,6 +1,6 @@
 import type { ActionKind, ActionSet, ActionToken } from "./action-types";
 import { EngineError } from "./diagnostics";
-import { type KeyCode, parseKeyCode } from "./key-code";
+import { KeyCode, parseKeyCode } from "./key-code";
 export interface ButtonBinding {
   readonly keys?: readonly KeyCode[];
 }
@@ -90,3 +90,27 @@ export function editBinding(
   }
   return result as Binding;
 }
+
+/** Physical keyboard presets for any user-defined Axis2D Action. */
+export const KeyboardBindings = Object.freeze({
+  WASD: Object.freeze({
+    x: Object.freeze({
+      negative: Object.freeze([KeyCode.A]),
+      positive: Object.freeze([KeyCode.D]),
+    }),
+    y: Object.freeze({
+      negative: Object.freeze([KeyCode.W]),
+      positive: Object.freeze([KeyCode.S]),
+    }),
+  }),
+  Arrows: Object.freeze({
+    x: Object.freeze({
+      negative: Object.freeze([KeyCode.ArrowLeft]),
+      positive: Object.freeze([KeyCode.ArrowRight]),
+    }),
+    y: Object.freeze({
+      negative: Object.freeze([KeyCode.ArrowUp]),
+      positive: Object.freeze([KeyCode.ArrowDown]),
+    }),
+  }),
+});

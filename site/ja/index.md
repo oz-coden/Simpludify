@@ -18,10 +18,23 @@ Simpludifyは、TypeScriptを中心に2Dゲームをつくる実験的なゲー�
 ## 小さく始める
 
 ```ts verify
-import { Character, Game, Movement } from "@simpludify/web";
+import {
+  Action,
+  ActionController,
+  Character,
+  defineActions,
+  Game,
+  KeyboardBindings,
+} from "@simpludify/web";
 
 const game = new Game();
-game.add(Character({ movement: Movement.WASD }));
+const Actions = defineActions({ Move: Action.axis2D() });
+const controls = new ActionController(Actions, {
+  scene: game.engine.scene,
+  input: game.engine.input,
+  bindings: { Move: KeyboardBindings.WASD },
+});
+game.add(Character({ movement: controls.reader(Actions.Move) }));
 await game.run();
 ```
 

@@ -7,7 +7,7 @@ import {
   type ComponentType,
   defineActions,
   defineComponent,
-  type InputState,
+  type InputSystem,
   KeyCode,
   type Scene,
   type UpdateContext,
@@ -345,7 +345,7 @@ export class PuzzleController extends Component {
 }
 export function createPuzzle(
   scene: Scene,
-  input: InputState,
+  input: InputSystem,
   random: () => number,
 ) {
   const puzzle = new Puzzle(random);

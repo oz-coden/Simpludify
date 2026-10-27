@@ -10,16 +10,25 @@ import {
   Character,
   Game,
   Label,
-  Movement,
+  Action,
+  ActionController,
+  defineActions,
+  KeyboardBindings,
   Panel,
 } from "@simpludify/web";
 
 const game = new Game<"menu" | "play">();
+const Actions = defineActions({ Move: Action.axis2D() });
 game.scene("menu", ({ ui }) => {
   ui(Panel([Label("Ready?"), Button("Start", () => game.goTo("play"))]));
 });
-game.scene("play", ({ add, ui }) => {
-  add(Character({ movement: Movement.WASD }));
+game.scene("play", ({ scene, add, ui }) => {
+  const controls = new ActionController(Actions, {
+    scene,
+    input: game.engine.input,
+    bindings: { Move: KeyboardBindings.WASD },
+  });
+  add(Character({ movement: controls.reader(Actions.Move) }));
   ui(Panel([Button("Menu", () => game.goTo("menu"))]));
 });
 await game.run("menu");
@@ -59,6 +68,6 @@ Buttonはネイティブ要素でTab・Enter/Spaceに対応します。非同期
 
 ## 所有権とエラー
 
-購読・タイマー・InputSourceはScene/Actor/Componentへ所有させます。独自DOMリスナーはsetupのsignal、または明示的なcleanupを使います。破棄は冪等で、あるcleanupが失敗しても他を実行します。
+購読・タイマー・ActionSourceはScene/Actor/Componentへ所有させます。独自DOMリスナーはsetupのsignal、または明示的なcleanupを使います。破棄は冪等で、あるcleanupが失敗しても他を実行します。
 
 切り替えの準備前エラーは旧Sceneを維持しますが、コミット後のライフサイクル通知エラーは新Sceneを巻き戻しません。更新中の変更も自動ロールバックしません。詳細は[英語のArchitecture](../en/architecture.html)に記載しています。

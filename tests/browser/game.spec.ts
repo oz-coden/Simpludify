@@ -73,7 +73,7 @@ test("releases input on blur, protects control focus, and removes disposed liste
   await page.locator(".simpludify").focus();
   await page.keyboard.down("w");
   expect(
-    await page.evaluate(() => window.demo.engine.input.isPressed("KeyW")),
+    await page.evaluate(() => window.demo.engine.input.keyDown("KeyW")),
   ).toBe(true);
   await page.evaluate(() => window.dispatchEvent(new Event("blur")));
   expect(
@@ -322,9 +322,14 @@ test("runs the minimal default scene and clamps stalled frames with one owned fr
   await page.goto("/");
   await expect(page.getByRole("heading")).toBeVisible();
   const result = await page.evaluate(async (url) => {
-    const { Game, Character, Movement } = (await import(
-      url
-    )) as typeof import("@simpludify/web");
+    const {
+      Game,
+      Character,
+      Action,
+      ActionController,
+      defineActions,
+      KeyboardBindings,
+    } = (await import(url)) as typeof import("@simpludify/web");
     window.demo.dispose();
     let next = 0;
     const callbacks = new Map<number, (time: number) => void>();
@@ -340,11 +345,19 @@ test("runs the minimal default scene and clamps stalled frames with one owned fr
         },
       },
     });
-    const player = game.add(Character({ movement: Movement.WASD }));
+    const actions = defineActions({ Move: Action.axis2D() });
+    const controls = new ActionController(actions, {
+      scene: game.engine.scene,
+      input: game.engine.input,
+      bindings: { Move: KeyboardBindings.WASD },
+    });
+    const player = game.add(
+      Character({ movement: controls.reader(actions.Move) }),
+    );
     const ready = game.run(),
       sameReadiness = ready === game.run();
     await ready;
-    game.engine.input.set("KeyD", true);
+    game.engine.input.createKeyboardSource(game.engine.scene).set("KeyD", true);
     const advance = (time: number) => {
       const pending = callbacks.entries().next().value;
       if (!pending) throw new Error("No pending frame");

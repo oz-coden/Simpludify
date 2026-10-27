@@ -1,4 +1,6 @@
 import {
+  Action,
+  ActionController,
   Actor,
   ActorState,
   Aspect,
@@ -8,10 +10,12 @@ import {
   type ComponentType,
   containsScreenPoint,
   createViewTransform,
+  defineActions,
   defineComponent,
   defineEvent,
   Engine,
   EventBus,
+  KeyCode,
   Lifetime,
   Motion,
   Renderable,
@@ -155,18 +159,26 @@ describe("update consistency", () => {
     engine.step(0);
     expect(calls).toEqual(["input", "simulation", "scene"]);
   });
-  it("freezes input for the entire frame and observes changes on the next frame", () => {
+  it("freezes Actions for the entire frame and observes writes on the next frame", () => {
     const engine = new Engine();
+    const actions = defineActions({ Fire: Action.button() });
+    const controls = new ActionController(actions, {
+      scene: engine.scene,
+      input: engine.input,
+      bindings: { Fire: { keys: [KeyCode.A] } },
+    });
+    const source = controls.createSource();
     const seen: boolean[] = [];
     engine.scene
       .add(new Actor())
-      .add(new Probe(() => engine.input.set("KeyA", true)));
+      .add(new Probe(() => source.set(actions.Fire, true)));
     engine.scene
       .add(new Actor())
-      .add(new Probe((context) => seen.push(context.input.isPressed("KeyA"))));
+      .add(new Probe(() => seen.push(controls.value(actions.Fire))));
     engine.step(0);
     engine.step(0);
     expect(seen).toEqual([false, true]);
+    engine.dispose();
   });
   it("adds actors during update without updating them twice or early", () => {
     const engine = new Engine();

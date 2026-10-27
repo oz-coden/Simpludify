@@ -108,6 +108,12 @@ export const pages = [
   ["en/index.html", "site/en.md", "English documentation", "English"],
   ["en/api.html", "docs/api.md", "API contracts", "English"],
   ["en/actions.html", "docs/action-input.md", "Typed Action input", "English"],
+  [
+    "en/input-unification.html",
+    "docs/input-unification.md",
+    "Input unification validation",
+    "English",
+  ],
   ["en/architecture.html", "docs/architecture.md", "Architecture", "English"],
   ["en/roadmap.html", "docs/roadmap.md", "Roadmap", "English"],
   [

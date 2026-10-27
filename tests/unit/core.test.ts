@@ -1,23 +1,33 @@
 import {
+  Action,
+  ActionController,
   Aspect,
   Character,
   createViewTransform,
+  defineActions,
   Engine,
-  InputState,
-  KeyboardController,
-  KeyMaps,
-  Movement,
+  KeyboardBindings,
+  KeyCode,
   Scene,
 } from "@simpludify/core";
 import { describe, expect, it } from "vitest";
+import { keyboard } from "../helpers/keyboard";
 
+const Actions = defineActions({ Move: Action.axis2D() });
+function controls(engine: Engine) {
+  return new ActionController(Actions, {
+    scene: engine.scene,
+    input: engine.input,
+    bindings: { Move: KeyboardBindings.WASD },
+  });
+}
 function travel(steps: number, diagonal = false) {
-  const engine = new Engine();
+  const engine = new Engine(),
+    input = controls(engine);
   const player = engine.scene.add(
-    Character({ movement: Movement.WASD, x: 0, y: 0, speed: 180 }),
+    Character({ movement: input.reader(Actions.Move), x: 0, y: 0, speed: 180 }),
   );
-  engine.input.set("KeyD", true);
-  if (diagonal) engine.input.set("KeyS", true);
+  input.createSource().set(Actions.Move, { x: 1, y: diagonal ? 1 : 0 });
   for (let i = 0; i < steps; i++) engine.step(1 / steps);
   const distance = Math.hypot(player.x, player.y);
   engine.dispose();
@@ -30,16 +40,17 @@ describe("simulation", () => {
   });
   it("normalizes diagonal speed", () =>
     expect(travel(60, true)).toBeCloseTo(travel(60), 10));
-  it("does not move without an explicit movement preset", () => {
-    const engine = new Engine();
-    const player = engine.scene.add(Character());
-    engine.input.set("KeyD", true);
+  it("does not move without an explicit Action reader", () => {
+    const engine = new Engine(),
+      player = engine.scene.add(Character());
+    keyboard(engine).set(KeyCode.D, true);
     engine.step(1);
     expect(player.x).toBe(400);
+    engine.dispose();
   });
   it("rejects invalid configuration and time", () => {
     expect(() => Character({ speed: -1 })).toThrow();
-    expect(() => Character({ x: Number.NaN })).toThrow();
+    expect(() => Character({ x: NaN })).toThrow();
     expect(() => Character({ size: 0 })).toThrow();
     expect(() => new Engine().step(-1)).toThrow();
     expect(() => new Engine().step(Infinity)).toThrow();
@@ -48,41 +59,53 @@ describe("simulation", () => {
     const a = new Engine(42),
       b = new Engine(42);
     for (const engine of [a, b]) {
-      engine.scene.add(Character({ movement: Movement.WASD }));
-      engine.input.set("KeyW", true);
+      const input = controls(engine);
+      engine.scene.add(Character({ movement: input.reader(Actions.Move) }));
+      input.createSource().set(Actions.Move, { x: 0, y: -1 });
       engine.step(0.5);
     }
     expect(a.random()).toBe(b.random());
     expect(a.snapshot()).toEqual(b.snapshot());
+    a.dispose();
+    b.dispose();
   });
-  it("keeps character key mappings independent from user arrays", () => {
-    const right: import("@simpludify/core").KeyCode[] = ["KeyL"];
-    const player = Character({ keys: { up: [], down: [], left: [], right } });
+  it("copies bindings independently from user arrays", () => {
+    const engine = new Engine(),
+      input = controls(engine),
+      right: KeyCode[] = [KeyCode.L];
+    input.rebind(Actions.Move, { x: { positive: right } });
     right.length = 0;
-    const input = new InputState();
-    input.set("KeyL", true);
-    expect(
-      input.direction(player.require(KeyboardController.type).keys),
-    ).toEqual({ x: 1, y: 0 });
+    keyboard(engine).set(KeyCode.L, true);
+    engine.step(0);
+    expect(input.value(Actions.Move)).toEqual({ x: 1, y: 0 });
+    engine.dispose();
   });
 });
 describe("input", () => {
-  it("repeat keydown is idempotent and keyup clears movement", () => {
-    const input = new InputState();
-    input.set("KeyW", true);
-    input.set("KeyW", true);
-    expect(input.snapshot()).toEqual(["KeyW"]);
-    expect(input.direction(KeyMaps.wasd).y).toBe(-1);
-    input.set("KeyW", false);
-    expect(input.direction(KeyMaps.wasd)).toEqual({ x: 0, y: 0 });
+  it("repeated writes are idempotent and release clears movement", () => {
+    const engine = new Engine(),
+      input = controls(engine),
+      source = input.createSource();
+    source.set(Actions.Move, { x: 0, y: -1 });
+    source.set(Actions.Move, { x: 0, y: -1 });
+    engine.step(0);
+    expect(input.value(Actions.Move).y).toBe(-1);
+    source.clear();
+    engine.step(0);
+    expect(input.value(Actions.Move)).toEqual({ x: 0, y: 0 });
+    engine.dispose();
   });
-  it("opposite directions cancel and clear releases all", () => {
-    const input = new InputState();
-    input.set("ArrowLeft", true);
-    input.set("ArrowRight", true);
-    expect(input.direction(KeyMaps.arrows).x).toBe(0);
-    input.clear();
-    expect(input.snapshot()).toEqual([]);
+  it("opposite device directions cancel and clear releases all", () => {
+    const engine = new Engine(),
+      input = controls(engine),
+      device = keyboard(engine);
+    device.set(KeyCode.A, true);
+    device.set(KeyCode.D, true);
+    engine.step(0);
+    expect(input.value(Actions.Move).x).toBe(0);
+    engine.input.clear();
+    expect(engine.input.snapshot()).toEqual([]);
+    engine.dispose();
   });
 });
 describe("scene ownership", () => {
@@ -92,7 +115,7 @@ describe("scene ownership", () => {
     engine.scene.onDispose(() => calls.push("first"));
     engine.scene.onDispose(() => calls.push("second"));
     engine.scene.onUpdate(() => calls.push("old-update"));
-    engine.input.set("KeyW", true);
+    keyboard(engine).set("KeyW", true);
     const next = new Scene("next");
     next.onUpdate(() => calls.push("new-update"));
     engine.activate(next);

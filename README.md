@@ -30,10 +30,23 @@ npm run dev -- --example character
 `examples/character/main.ts` contains the working SDK entry point:
 
 ```ts verify
-import { Game, Character, Movement } from "@simpludify/web";
+import {
+  Action,
+  ActionController,
+  Character,
+  defineActions,
+  Game,
+  KeyboardBindings,
+} from "@simpludify/web";
 
 const game = new Game();
-game.add(Character({ movement: Movement.WASD }));
+const Actions = defineActions({ Move: Action.axis2D() });
+const controls = new ActionController(Actions, {
+  scene: game.engine.scene,
+  input: game.engine.input,
+  bindings: { Move: KeyboardBindings.WASD },
+});
+game.add(Character({ movement: controls.reader(Actions.Move) }));
 await game.run();
 ```
 
@@ -41,7 +54,7 @@ The browser entry imports the default stylesheet automatically. With no parent s
 
 ## Actors, Components and the sample game
 
-Game objects are generic Actors composed from reusable Components. Transform, Renderable, Motion and KeyboardController implement the Character preset. Typed events and simulation timers can be scoped to Scenes, Actors or Components. [Typed Action input](docs/action-input.md) separates game controls from keyboard bindings, combines touch/program sources, retains short presses and supports runtime rebinding. Camera, Viewport, logical resolution and physical pixels are separate concepts.
+Game objects are generic Actors composed from reusable Components. Transform, Renderable, Motion and an explicitly injected ActionMovement implement the Character preset. Typed events and simulation timers can be scoped to Scenes, Actors or Components. [Typed Action input](docs/action-input.md) separates game controls from keyboard bindings, combines touch/program sources, retains short presses and supports runtime rebinding. Camera, Viewport, logical resolution and physical pixels are separate concepts.
 
 ```sh
 npm run dev -- --example composition

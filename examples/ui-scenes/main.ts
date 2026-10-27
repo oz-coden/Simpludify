@@ -1,10 +1,13 @@
 import {
+  Action,
+  ActionController,
   Button,
   Character,
+  defineActions,
   Game,
+  KeyboardBindings,
   Label,
   Layout,
-  Movement,
   Panel,
   Theme,
 } from "@simpludify/web";
@@ -15,12 +18,18 @@ const game = new Game<SceneId>({
   parent: document.querySelector<HTMLElement>("#app") ?? document.body,
   theme: Theme.Dark,
 });
+const Actions = defineActions({ Move: Action.axis2D() });
 for (const id of ["garden", "studio"] as const) {
-  game.scene(id, ({ add, ui }) => {
+  game.scene(id, ({ scene, add, ui }) => {
+    const controls = new ActionController(Actions, {
+      scene,
+      input: game.engine.input,
+      bindings: { Move: KeyboardBindings.WASD },
+    });
     add(
       Character({
         id: "player",
-        movement: Movement.WASD,
+        movement: controls.reader(Actions.Move),
         color: id === "garden" ? 0x73e3c0 : 0xffc87a,
       }),
     );

@@ -1,11 +1,10 @@
-import type { UpdateContext } from "./component";
 import { Transform } from "./components";
 import { EngineError } from "./diagnostics";
-import { InputState } from "./input";
+import { InputSystem } from "./input";
 import { cleanupAll } from "./lifetime";
 import { Scene, SceneState } from "./scene";
 export class Engine {
-  readonly input = new InputState();
+  readonly input = new InputSystem();
   private active = new Scene("default");
   private dead = false;
   private stepping = false;
@@ -15,7 +14,6 @@ export class Engine {
   private randomState: number;
   private readonly context: {
     delta: number;
-    input: UpdateContext["input"];
     scene: Scene;
   };
   constructor(seed = 1) {
@@ -23,7 +21,6 @@ export class Engine {
     this.active.claim(this);
     this.context = {
       delta: 0,
-      input: this.input.capture(),
       scene: this.active,
     };
   }
@@ -115,7 +112,7 @@ export class Engine {
       if (!this.suspended || this.active.state === SceneState.Active)
         this.active.beginStep();
       this.context.delta = seconds;
-      this.context.input = this.input.beginStep();
+      this.input.beginStep();
       this.context.scene = this.active;
       // Logical input callbacks remain available for pause/resume controls.
       if (this.dead || this.suspended || this.active.disposed) return;

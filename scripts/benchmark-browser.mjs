@@ -36,16 +36,32 @@ try {
   await page.goto("http://127.0.0.1:4174");
   await page.waitForFunction(() => window.demo);
   const results = await page.evaluate(async (url) => {
-    const { Game, Character, Movement, Label, Panel } = await import(url);
+    const {
+      Game,
+      Character,
+      Action,
+      ActionController,
+      defineActions,
+      Label,
+      Panel,
+    } = await import(url);
     window.demo.dispose();
     const results = [];
     const sample = async (name, setup, count = 180) => {
       const game = new Game();
       const labels = [];
       let tick = 0;
-      game.scene("bench", (context) => setup(context, labels));
+      const actions = defineActions({ Move: Action.axis2D() });
+      let controls;
+      game.scene("bench", (context) => {
+        controls = new ActionController(actions, {
+          scene: context.scene,
+          input: game.engine.input,
+        });
+        setup(context, labels, controls.reader(actions.Move));
+      });
       await game.run("bench");
-      game.engine.input.set("KeyD", true);
+      controls.createSource().set(actions.Move, { x: 1, y: 0 });
       const heapBefore = performance.memory?.usedJSHeapSize ?? null;
       let previous;
       const durations = [];
@@ -83,7 +99,7 @@ try {
       });
     };
     await sample("idle/empty scene", () => {});
-    await sample("1000 moving image sprites", ({ add }) => {
+    await sample("1000 moving image sprites", ({ add }, _labels, movement) => {
       for (let i = 0; i < 1000; i++)
         add(
           Character({
@@ -91,7 +107,7 @@ try {
             y: Math.floor(i / 40) * 18,
             size: 12,
             speed: 1,
-            movement: Movement.WASD,
+            movement,
             sprite: "./player.svg",
           }),
         );
@@ -131,7 +147,7 @@ try {
     await sample("short idle memory sample (not a soak test)", () => {}, 300);
     await sample(
       "short active memory sample (not a soak test)",
-      ({ add }) => add(Character({ movement: Movement.WASD })),
+      ({ add }, _labels, movement) => add(Character({ movement })),
       300,
     );
     return results;

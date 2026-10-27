@@ -11,6 +11,7 @@ import {
 } from "./action-bindings";
 import type {
   ActionInputValue,
+  ActionKind,
   ActionSet,
   ActionToken,
   ActionValue,
@@ -26,6 +27,7 @@ export type {
   Axis3DBinding,
   ButtonBinding,
 } from "./action-bindings";
+export { KeyboardBindings } from "./action-bindings";
 export type {
   ActionDefinition,
   ActionInputValue,
@@ -40,7 +42,8 @@ export { Action, defineActions } from "./action-types";
 
 import { EngineError } from "./diagnostics";
 import { defineEvent, EventBus } from "./events";
-import type { ActionInputPort, InputState } from "./input";
+import type { ActionInputPort, InputSystem } from "./input";
+import { OwnedInputSource } from "./input-source";
 import type { KeyCode } from "./key-code";
 import { cleanupAll, Lifetime, type LifetimeOwner } from "./lifetime";
 import { type Scene, SceneState } from "./scene";
@@ -150,7 +153,7 @@ export class ActionController<A extends ActionSet>
     readonly actions: A,
     private readonly options: {
       scene: Scene;
-      input: InputState;
+      input: InputSystem;
       bindings?: ActionBindings<A>;
     },
   ) {
@@ -183,6 +186,7 @@ export class ActionController<A extends ActionSet>
       throw error;
     }
     this.lifetime.onDispose(off);
+    this.keyChanged();
   }
   get disposed(): boolean {
     return this.lifetime.disposed;
@@ -217,6 +221,18 @@ export class ActionController<A extends ActionSet>
   }
   value<T extends Token<A>>(action: T): ActionValue<T["kind"]> {
     return this.entry(action).frame as ActionValue<T["kind"]>;
+  }
+  reader<T extends Token<A>>(action: T): ActionReader<T["kind"]> {
+    this.entry(action);
+    const controller = this;
+    return Object.freeze({
+      scene: this.options.scene,
+      kind: action.kind,
+      get disposed() {
+        return controller.disposed;
+      },
+      value: () => controller.value(action),
+    });
   }
   button(action: ButtonToken<A>): ButtonState {
     return this.entry(action).button;
@@ -265,7 +281,7 @@ export class ActionController<A extends ActionSet>
   /** @internal */ write(
     source: ActionSource<A>,
     action: ActionToken,
-    value: unknown,
+    value: Value,
   ): void {
     this.entry(action);
     const values = this.sources.get(source);
@@ -274,7 +290,7 @@ export class ActionController<A extends ActionSet>
         "OWNER_DISPOSED",
         "Action source has been disposed",
       );
-    values.set(action, checkedValue(action, value));
+    values.set(action, value);
     this.recompute(action);
   }
   /** @internal */ clearSource(source: ActionSource<A>, remove: boolean): void {
@@ -288,7 +304,7 @@ export class ActionController<A extends ActionSet>
   private keyboard(action: ActionToken): Value {
     const binding = this.entry(action).binding;
     const held = (keys: readonly KeyCode[] | undefined) =>
-      keys?.some((k) => this.options.input.isPressed(k)) ?? false;
+      keys?.some((k) => this.options.input.keyDown(k)) ?? false;
     const axis = (b: Axis1DBinding | undefined) =>
       Number(held(b?.positive)) - Number(held(b?.negative));
     if (action.kind === "button") return held((binding as ButtonBinding).keys);
@@ -347,17 +363,16 @@ export class ActionController<A extends ActionSet>
     )
       for (const action of this.entries.keys()) this.recompute(action);
   }
-  /** @internal */ accepts(code: string): boolean {
+  /** @internal */ accepts(code: KeyCode): boolean {
     return (
       this.active &&
       [...this.entries.values()].some((e) =>
-        keyLists(e.binding).some((list) => list.keys.includes(code as KeyCode)),
+        keyLists(e.binding).some((list) => list.keys.includes(code)),
       )
     );
   }
   /** @internal */ capture(): void {
     if (!this.active) return;
-    this.keyChanged();
     this.transitions = Object.freeze(this.pending);
     this.pending = [];
     for (const [action, entry] of this.entries) {
@@ -528,42 +543,28 @@ export class ActionController<A extends ActionSet>
   }
 }
 
-export class ActionSource<A extends ActionSet> {
-  private dead = false;
-  private removeOwner: (() => void) | undefined;
+/** Read-only, typed dependency injected into Components; no hidden global lookup. */
+export interface ActionReader<K extends ActionKind> {
+  readonly kind: K;
+  readonly scene: Scene;
+  readonly disposed: boolean;
+  value(): ActionValue<K>;
+}
+export class ActionSource<A extends ActionSet> extends OwnedInputSource {
   /** @internal */ constructor(
     private readonly controller: ActionController<A>,
-  ) {}
-  get disposed(): boolean {
-    return this.dead;
-  }
-  /** @internal */ own(owner: LifetimeOwner): void {
-    this.removeOwner = owner.onDispose(() => this.dispose());
+  ) {
+    super();
   }
   set<T extends Token<A>>(
     action: T,
     value: NoInfer<ActionInputValue<T["kind"]>>,
   ): void {
-    if (this.dead) {
-      if (isNeutral(checkedValue(action, value))) return;
-      throw new EngineError(
-        "OWNER_DISPOSED",
-        "Action source has been disposed",
-      );
-    }
-    this.controller.write(this, action, value);
+    const checked = checkedValue(action, value);
+    if (this.writable(isNeutral(checked)))
+      this.controller.write(this, action, checked);
   }
-  clear(): void {
-    if (!this.dead) this.controller.clearSource(this, false);
-  }
-  dispose(): void {
-    if (this.dead) return;
-    this.dead = true;
-    const remove = this.removeOwner;
-    this.removeOwner = undefined;
-    cleanupAll(
-      [() => this.controller.clearSource(this, true), () => remove?.()],
-      "Action source cleanup failed",
-    );
+  protected release(remove: boolean): void {
+    this.controller.clearSource(this, remove);
   }
 }

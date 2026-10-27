@@ -16,10 +16,11 @@ import {
   RoundFinished,
   RoundStatus,
 } from "../../examples/signal-run/logic";
+import { keyboard } from "../helpers/keyboard";
 
 it("collects signals through contacts and freezes terminal motion", () => {
   const engine = new Engine(),
-    round = new Round(engine.scene, { hazards: false });
+    round = new Round(engine.scene, engine.input, { hazards: false });
   const ended: string[] = [];
   engine.scene.events.on(RoundFinished, (state) => ended.push(state.status));
   for (const actor of [...round.pickups]) {
@@ -36,14 +37,14 @@ it("collects signals through contacts and freezes terminal motion", () => {
   expect(ended).toEqual(["won"]);
   expect(round.world.disposed).toBe(true);
   const x = round.player.x;
-  engine.input.set("KeyD", true);
+  keyboard(engine).set("KeyD", true);
   engine.step(1);
   expect(round.player.x).toBe(x);
   engine.dispose();
 });
 it("applies contact cooldown and game over with a rotated obstacle", () => {
   const engine = new Engine(),
-    round = new Round(engine.scene),
+    round = new Round(engine.scene, engine.input),
     hazard = [...round.hazards].find(
       (actor) => actor.require(Collider.type).shape === CollisionShape.Box,
     );
@@ -63,7 +64,11 @@ it("applies contact cooldown and game over with a rotated obstacle", () => {
 });
 it("times out before late pickup delivery", () => {
   const engine = new Engine(),
-    round = new Round(engine.scene, { hazards: false, duration: 1, goal: 1 }),
+    round = new Round(engine.scene, engine.input, {
+      hazards: false,
+      duration: 1,
+      goal: 1,
+    }),
     item = [...round.pickups][0];
   if (!item) throw new Error("No pickup");
   const t = item.require(Transform.type);
@@ -76,7 +81,7 @@ it("times out before late pickup delivery", () => {
 });
 it("supports target movement, keyboard override, bounds and pause", () => {
   const engine = new Engine(),
-    round = new Round(engine.scene, { hazards: false });
+    round = new Round(engine.scene, engine.input, { hazards: false });
   round.setTarget(worldPoint(220, 225));
   engine.step(0.5);
   expect(round.player.x).toBe(175);
@@ -84,7 +89,7 @@ it("supports target movement, keyboard override, bounds and pause", () => {
   engine.step(10);
   expect(round.elapsed).toBe(0.5);
   engine.resume();
-  engine.input.set("KeyA", true);
+  keyboard(engine).set("KeyA", true);
   engine.step(0.1);
   expect(round.player.x).toBe(156);
   engine.input.clear();
@@ -98,14 +103,14 @@ it("supports target movement, keyboard override, bounds and pause", () => {
 });
 it("publishes coarse UI changes and cleans round resources on restart", () => {
   const engine = new Engine(),
-    round = new Round(engine.scene);
+    round = new Round(engine.scene, engine.input);
   let updates = 0;
   engine.scene.events.on(RoundChanged, () => updates++);
   for (let i = 0; i < 60; i++) engine.step(1 / 60);
   expect(updates).toBeLessThan(5);
   const fresh = new Scene("restart");
   engine.activate(fresh);
-  const next = new Round(fresh, { hazards: false });
+  const next = new Round(fresh, engine.input, { hazards: false });
   engine.step(0);
   expect(round.world.disposed).toBe(true);
   expect(round.pickups.size).toBe(0);
@@ -115,10 +120,10 @@ it("publishes coarse UI changes and cleans round resources on restart", () => {
 it("replays controlled input deterministically", () => {
   const run = () => {
     const engine = new Engine(42),
-      round = new Round(engine.scene);
-    engine.input.set("KeyD", true);
+      round = new Round(engine.scene, engine.input);
+    keyboard(engine).set("KeyD", true);
     for (let i = 0; i < 240; i++) {
-      if (i === 60) engine.input.set("KeyS", true);
+      if (i === 60) keyboard(engine).set("KeyS", true);
       if (i === 120) engine.input.clear();
       engine.step(1 / 60);
     }
@@ -131,7 +136,7 @@ it("replays controlled input deterministically", () => {
 
 it("completes the route through ordinary movement before the deadline", () => {
   const engine = new Engine(),
-    round = new Round(engine.scene);
+    round = new Round(engine.scene, engine.input);
   for (const target of [
     [220, 225],
     [340, 90],
@@ -152,7 +157,7 @@ it("completes the route through ordinary movement before the deadline", () => {
 
 it("blocks continuous player movement with solid walls while pickups remain triggers", () => {
   const engine = new Engine(),
-    round = new Round(engine.scene, { hazards: false });
+    round = new Round(engine.scene, engine.input, { hazards: false });
   const wall = [...round.walls].find(
     (a) => a.require(Transform.type).x === 270,
   );
@@ -172,14 +177,14 @@ it("blocks continuous player movement with solid walls while pickups remain trig
   });
   round.player.x = 270;
   round.player.y = 255;
-  engine.input.set("KeyS", true);
+  keyboard(engine).set("KeyS", true);
   for (let i = 0; i < 60; i++) engine.step(1 / 60);
   expect(round.player.y).toBeCloseTo(273);
   expect(enters).toBe(1);
   expect(stays).toBeGreaterThan(0);
   expect(round.health.hp).toBe(3);
   engine.input.clear();
-  engine.input.set("KeyD", true);
+  keyboard(engine).set("KeyD", true);
   for (let i = 0; i < 60; i++) engine.step(1 / 60);
   expect(exits).toBe(1);
   engine.dispose();

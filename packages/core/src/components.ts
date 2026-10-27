@@ -1,3 +1,4 @@
+import type { ActionReader } from "./actions";
 import {
   Component,
   ComponentPhase,
@@ -6,7 +7,6 @@ import {
   type UpdateContext,
 } from "./component";
 import { EngineError, positive } from "./diagnostics";
-import { type Direction, type KeyMap, KeyMaps } from "./input";
 
 function finite(value: number, field: string): number {
   if (!Number.isFinite(value))
@@ -142,7 +142,7 @@ export class Motion extends Component {
     [Transform.type],
   );
   readonly type: ComponentType<Motion> = Motion.type;
-  readonly direction: Direction = { x: 0, y: 0 };
+  readonly direction: { x: number; y: number } = { x: 0, y: 0 };
   readonly speed: number;
   private transform: Transform | undefined;
   constructor(options: { speed?: number; x?: number; y?: number } = {}) {
@@ -163,21 +163,15 @@ export class Motion extends Component {
     this.transform = undefined;
   }
 }
-export class KeyboardController extends Component {
-  static readonly type: ComponentType<KeyboardController> =
-    defineComponent<KeyboardController>("KeyboardController", [Motion.type]);
-  readonly type: ComponentType<KeyboardController> = KeyboardController.type;
+/** Applies an explicitly supplied Axis2D Action to Motion during the input phase. */
+export class ActionMovement extends Component {
+  static readonly type: ComponentType<ActionMovement> =
+    defineComponent<ActionMovement>("ActionMovement", [Motion.type]);
+  readonly type = ActionMovement.type;
   readonly phase = ComponentPhase.Input;
-  readonly keys: KeyMap;
   private motion: Motion | undefined;
-  constructor(keys: KeyMap = KeyMaps.wasd) {
+  constructor(readonly input: ActionReader<"axis2d">) {
     super();
-    this.keys = {
-      up: [...keys.up],
-      down: [...keys.down],
-      left: [...keys.left],
-      right: [...keys.right],
-    };
   }
   protected onAttach(): void {
     this.motion = this.actor.require(Motion.type);
@@ -189,8 +183,20 @@ export class KeyboardController extends Component {
     }
   }
   update(context: UpdateContext): void {
-    if (this.motion)
-      context.input.writeDirection(this.keys, this.motion.direction);
+    if (this.input.scene !== context.scene)
+      throw new EngineError(
+        "INPUT_SCENE",
+        "Movement Action belongs to another Scene",
+      );
+    if (this.input.disposed) {
+      this.onDisable();
+      return;
+    }
+    const value = this.input.value();
+    if (this.motion) {
+      this.motion.direction.x = value.x;
+      this.motion.direction.y = value.y;
+    }
   }
   protected onDestroy(): void {
     this.onDisable();

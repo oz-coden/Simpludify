@@ -108,7 +108,7 @@ game.scene("play", ({ scene, ui }) => {
 
 Buttonは全キー・全sourceのORです。一つを解放しても別のsourceが保持していれば解放されません。Axisは成分ごとに加算して[-1,1]へ制限します。Axis2D/3Dは既定で長さ1以下に制限し、1未満のアナログ値は保ちます。`{ normalize: false }`では各成分だけを制限します。反対方向は加算により相殺されます。
 
-source.clear/disposeは、そのsourceだけを解放します。Scene破棄はControllerと全sourceを破棄します。Engineのpause/resumeへの状態変更、Scene置換、InputState.clearは、保持と未消費イベントを全sourceから静かに破棄し、人工的な押下・解放イベントは作りません。ブラウザのキー自動リピートで再押下されないよう、新しい押下を必要とします。
+source.clear/disposeは、そのsourceだけを解放します。Scene破棄はControllerと全sourceを破棄します。Engineのpause/resumeへの状態変更、Scene置換、InputSystem.clearは、保持と未消費イベントを全sourceから静かに破棄し、人工的な押下・解放イベントは作りません。ブラウザのキー自動リピートで再押下されないよう、新しい押下を必要とします。
 
 キーボードのfocusout/blurはその物理入力元だけを解放します。HoldButtonはタッチ・マウス・Enter/Spaceと、キャンセル・blur・UI破棄時の解放を扱います。ゲームパッドAdapterは未実装ですが、将来も独立sourceへアナログ値を書き込む方式を利用できます。
 
@@ -143,11 +143,27 @@ engine.dispose();
 
 変更後の保持状態は次境界から反映し、変更対象の未消費Buttonイベントは破棄します。割り当て変更だけでは新しい押下・解放を生成せず、論理sourceの値は保ちます。保存形式はversion 1とAction名によるbindingsです。読み込みは全件検証後に適用し、Action改名時は設定の移行が必要です。Coreはストレージや設定画面を持ちません。
 
-## 既存の低レベル入力
+## Component・Characterへの入力注入
 
-CharacterのMovement.WASD／Arrows／None、KeyboardController、KeyMap、InputState、InputSource、BrowserInputも利用できます。KeyMapの静的キーはKeyCode型です。InputState/InputSource.set(string, boolean)は任意の識別子を受け付ける低レベルAPIとして残し、キーボード以外をKeyCodeへ押し込みません。
+通常のゲーム制作で理解する入力経路はActionControllerだけです。Characterのmovementへ `controls.reader(Actions.Move)` を渡すと、ActionMovementがInputフェーズでMotion.directionへ値を反映します。任意のAction名を使えます。movementを省略したCharacterは入力で動きません。
 
-独自の物理キーをBrowserInputで直接扱う場合は、明示的に受理キーと所有者によるdisposeを定義します。通常のActionゲームでは専用Adapterは不要です。
+readerは種類・所有Scene・破棄状態を保持する読み取り専用参照です。同じreaderを複数Componentで共有しても、押下イベントを消費しません。ActionMovementにはAxis2Dだけを渡せます。異なるSceneの参照は診断し、Controller破棄後は移動を停止します。独自Componentには必要なreaderまたは型付きControllerをconstructorで明示的に渡します。
+
+KeyboardBindings.WASD／Arrowsは物理キーのAxis2D割り当てデータです。組み込みAction名はありません。旧KeyboardController、InputState、InputSource、InputReader、KeyMap／KeyMaps、MovementとUpdateContext.inputは削除しました。
+
+## デバイス層
+
+Engine.inputはInputSystemです。更新境界・デバイス経路・全体クリアを担当し、ゲーム用の別の状態読み取り方式は提供しません。GameはBrowserInputを1つ所有し、有効なActionの割り当てだけを受け取ります。新しい操作もButton等のActionとして定義でき、別Adapterを追加する必要はありません。
+
+独自キーボードAdapterや割り当ての専用テストだけで `engine.input.createKeyboardSource(owner?)` を使います。KeyCodeを受け取る書き込み専用ハンドルで、ゲーム用の物理キーフレームや移動判定はありません。タッチ・AI・通常テストはActionSourceへ論理値を渡します。入力元の寿命・clear・disposeの共通実装を共有し、片方の解放で他方を取り消しません。snapshotはデバイス診断で、ゲーム状態にはcontrols.snapshot()を使います。
+
+## 文字入力・タイピングゲーム
+
+KeyboardEvent.codeは操作キーの位置です。入力された文字、貼り付け、ソフトウェアキーボード、IME確定文字列にはネイティブinput／textareaのvalueとinput・compositionイベントを使います。英語・ローマ字の正解判定やローマ字→かなの対応はゲーム側のルールです。IME変換中の候補を確定入力として採点しません。
+
+BrowserInputはネイティブ編集欄・contenteditable・IME変換中を除外し、編集欄へのフォーカス移動でキーボード由来の操作を解放します。文字をActionや削除した旧入力へ押し込みません。DOM編集欄のリスナーはSceneのsignal、要素の削除はonDisposeへ結び付けます。compositionend.dataとinput.dataの両方を追加すると重複し得るため、確定後のvalueを比較して一度だけ更新します。入力途中の削除や選択範囲置換も通常の編集として扱います。
+
+実行可能なコード例は[英語ガイド](../en/actions.html#text-and-typing-games)を参照してください。専用TextInputウィジェットは未実装です。必要になった段階でWeb側に編集欄・選択・変換中／確定の状態を扱う独立した補助を追加できます。モバイルでは表示された入力欄をユーザーがタップしてフォーカスできるようにし、毎フレームの強制フォーカスやキーボードイベントへの依存を避けます。実機ソフトウェアキーボードとOSのIME候補UIは未検証です。
 
 ## ポインター・時間・ヘッドレス
 

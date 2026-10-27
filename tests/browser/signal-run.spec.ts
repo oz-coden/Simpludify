@@ -123,7 +123,7 @@ test("releases cancelled holds while preserving independent input", async ({
         (b) => b.textContent === "Up",
       );
     if (!up) throw new Error("No Up");
-    game.engine.input.set("KeyD", true);
+    game.engine.input.createKeyboardSource(game.engine.scene).set("KeyD", true);
     up.dispatchEvent(
       new KeyboardEvent("keydown", {
         code: "Space",
@@ -131,7 +131,8 @@ test("releases cancelled holds while preserving independent input", async ({
         cancelable: true,
       }),
     );
-    const combined = game.engine.input.snapshot();
+    game.engine.step(0);
+    const combined = window.signalRun.round?.controls.snapshot().Move.value;
     up.dispatchEvent(
       new KeyboardEvent("keyup", {
         code: "Space",
@@ -139,24 +140,33 @@ test("releases cancelled holds while preserving independent input", async ({
         cancelable: true,
       }),
     );
-    const released = game.engine.input.snapshot();
+    game.engine.step(0);
+    const released = window.signalRun.round?.controls.snapshot().Move.value;
     game.engine.input.clear();
     return { combined, released };
   });
-  expect(state).toEqual({ combined: ["KeyD", "KeyW"], released: ["KeyD"] });
+  expect(state.combined?.x).toBeCloseTo(Math.SQRT1_2);
+  expect(state.combined?.y).toBeCloseTo(-Math.SQRT1_2);
+  expect(state.released).toEqual({ x: 1, y: 0 });
   const right = page.getByRole("button", { name: "Right", exact: true });
   await right.hover();
   await page.mouse.down();
   await expect
     .poll(() =>
-      page.evaluate(() => window.signalRun.game.engine.input.isPressed("KeyD")),
+      page.evaluate(
+        () =>
+          (window.signalRun.round?.controls.snapshot().Move.value.x ?? 0) > 0,
+      ),
     )
     .toBe(true);
   await right.dispatchEvent("pointercancel", { pointerId: 1 });
   await page.mouse.up();
   await expect
     .poll(() =>
-      page.evaluate(() => window.signalRun.game.engine.input.isPressed("KeyD")),
+      page.evaluate(
+        () =>
+          (window.signalRun.round?.controls.snapshot().Move.value.x ?? 0) > 0,
+      ),
     )
     .toBe(false);
 });
@@ -237,27 +247,33 @@ test("composes simultaneous touch holds", async ({ page }) => {
   });
   await expect
     .poll(() =>
-      page.evaluate(() => window.signalRun.game.engine.input.snapshot()),
+      page.evaluate(
+        () => window.signalRun.round?.controls.snapshot().Move.value,
+      ),
     )
-    .toEqual(["KeyD", "KeyW"]);
+    .toEqual({ x: Math.SQRT1_2, y: -Math.SQRT1_2 });
   await cdp.send("Input.dispatchTouchEvent", {
     type: "touchEnd",
     touchPoints: [a],
   });
   await expect
     .poll(() =>
-      page.evaluate(() => window.signalRun.game.engine.input.snapshot()),
+      page.evaluate(
+        () => window.signalRun.round?.controls.snapshot().Move.value,
+      ),
     )
-    .toEqual(["KeyD"]);
+    .toEqual({ x: 1, y: 0 });
   await cdp.send("Input.dispatchTouchEvent", {
     type: "touchEnd",
     touchPoints: [],
   });
   await expect
     .poll(() =>
-      page.evaluate(() => window.signalRun.game.engine.input.snapshot()),
+      page.evaluate(
+        () => window.signalRun.round?.controls.snapshot().Move.value,
+      ),
     )
-    .toEqual([]);
+    .toEqual({ x: 0, y: 0 });
 });
 test("renders live depth, visibility, opacity, transforms and image proportions", async ({
   page,
@@ -570,14 +586,14 @@ test("slides against Solid walls and exposes post-response contacts through publ
       },
       round.scene,
     );
-    game.engine.input.set("KeyS", true);
+    game.engine.input.createKeyboardSource(game.engine.scene).set("KeyS", true);
     for (let frame = 0; frame < 60; frame++) game.engine.step(1 / 60);
     const y = round.player.y,
       contacts = round.world
         .contactsFor(collider)
         .filter((c) => c.response === CollisionResponse.Solid).length;
     game.engine.input.clear();
-    game.engine.input.set("KeyD", true);
+    game.engine.input.createKeyboardSource(game.engine.scene).set("KeyD", true);
     for (let frame = 0; frame < 60; frame++) game.engine.step(1 / 60);
     game.engine.input.clear();
     return { y, contacts, enters, stays, exits, hp: round.health.hp };

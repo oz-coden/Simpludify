@@ -18,6 +18,7 @@ import {
   Transform,
 } from "@simpludify/core";
 import { describe, expect, it } from "vitest";
+import { keyboard } from "../helpers/keyboard";
 
 function setup() {
   const engine = new Engine();
@@ -247,11 +248,11 @@ describe("safety and input sources", () => {
   it("composes input sources and releases only their own keys", () => {
     const engine = new Engine(),
       owner = new Lifetime(),
-      a = engine.input.createSource(owner),
-      b = engine.input.createSource();
+      a = engine.input.createKeyboardSource(owner),
+      b = engine.input.createKeyboardSource();
     a.set("KeyW", true);
     b.set("KeyW", true);
-    engine.input.set("KeyD", true);
+    keyboard(engine).set("KeyD", true);
     a.clear();
     expect(engine.input.snapshot()).toEqual(["KeyD", "KeyW"]);
     owner.dispose();
@@ -274,7 +275,7 @@ describe("safety and input sources", () => {
     engine.step(0.25);
     const before = engine.snapshot();
     engine.pause();
-    engine.input.set("KeyW", true);
+    keyboard(engine).set("KeyW", true);
     engine.step(10);
     expect(engine.snapshot().elapsed).toBe(before.elapsed);
     expect(actor.position.x).toBe(2.5);

@@ -8,15 +8,19 @@ const server = await createServer({
   server: { middlewareMode: true },
 });
 try {
-  const { Engine, Character, Movement } = await server.ssrLoadModule(
-    "/packages/core/src/index.ts",
-  );
+  const { Engine, Character, Action, ActionController, defineActions } =
+    await server.ssrLoadModule("/packages/core/src/index.ts");
   const results = [];
   for (const count of [0, 1000]) {
     const engine = new Engine(42);
-    for (let i = 0; i < count; i++)
-      engine.scene.add(Character({ movement: Movement.WASD }));
-    engine.input.set("KeyD", true);
+    const actions = defineActions({ Move: Action.axis2D() });
+    const controls = new ActionController(actions, {
+      scene: engine.scene,
+      input: engine.input,
+    });
+    const movement = controls.reader(actions.Move);
+    for (let i = 0; i < count; i++) engine.scene.add(Character({ movement }));
+    controls.createSource().set(actions.Move, { x: 1, y: 0 });
     for (let i = 0; i < 1000; i++) engine.step(1 / 60);
     const durations = [],
       before = process.memoryUsage().heapUsed;

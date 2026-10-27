@@ -1,6 +1,6 @@
 # Typed Action input
 
-Action input separates physical keyboard positions from game meaning. Core owns typed tokens, bindings, source composition and explicit input boundaries. Web reuses the focused BrowserInput adapter; no DOM type enters Core. Character/KeyboardController and raw InputState remain available for small presets and physical-input tests.
+Action input separates physical keyboard positions from game meaning. Core owns typed tokens, bindings, source composition and explicit input boundaries. Web reuses the focused BrowserInput adapter; no DOM type enters Core. ActionController is the only standard gameplay input path; Character and custom Components consume the same logical Actions.
 
 ## Define and use actions
 
@@ -58,7 +58,7 @@ Definitions contain kinds, not default game actions. Tokens carry a literal name
 
 The known-code table follows [UI Events code values](https://www.w3.org/TR/uievents-code/) and also accepts common F13–F24 codes; Unidentified is not bindable.
 
-`KeyCode.W` means `KeyboardEvent.code === "KeyW"`, the physical key position. `KeyboardEvent.key` is layout/modifier-dependent text and is not a binding identifier. Static KeyMap and Action bindings accept the finite KeyCode union, including known literal code values. `isKeyCode(unknown)` narrows external data; `parseKeyCode(unknown)` throws INVALID_KEY_CODE. Raw InputState/InputSource.set(string, boolean) and BrowserInput remain low-level escape hatches; device axes are logical ActionSource values rather than invented keyboard codes.
+`KeyCode.W` means `KeyboardEvent.code === "KeyW"`, the physical key position. `KeyboardEvent.key` is layout/modifier-dependent text and is not a binding identifier. Static Action bindings accept the finite KeyCode union, including known literal code values. `isKeyCode(unknown)` narrows external data; `parseKeyCode(unknown)` throws INVALID_KEY_CODE. InputSystem.createKeyboardSource(owner?) is the typed device-adapter/testing boundary. It is not a raw gameplay reader. Device axes are logical ActionSource values rather than invented keyboard codes.
 
 ## Input boundaries and buttons
 
@@ -68,13 +68,13 @@ Action input capture and onPressed controls also run while the Engine is paused,
 
 `button(token)` returns held, pressed, released, pressCount and releaseCount. A down/up between steps yields held=false, pressed=true, released=true. Multiple presses are counted; `events` preserves cross-button transition order and tokens. onPressed runs for each recorded logical press, synchronously, at the boundary (not inside a DOM handler). Errors aggregate after other eligible callbacks; async handlers are rejected like other Core events. Use the ordered events for commands where rotate/drop order matters. Axis values are continuous state; an axis excursion completed between steps is not a queued command.
 
-One button is the OR of its keyboard keys and all logical sources. Releasing one key/source while another holds it creates no release. Source clear/dispose produces a normal logical release if the last contribution disappears. Global InputState.clear, Engine.pause/resume state changes and Scene replacement instead flush all held contributions and pending transitions silently, without artificial release/press events. The previous captured frame remains unchanged until the next boundary. Web ignores keyboard autorepeat down events, preventing a still-held pause key from immediately toggling again after a clear; a fresh press is required.
+One button is the OR of its keyboard keys and all logical sources. Releasing one key/source while another holds it creates no release. Source clear/dispose produces a normal logical release if the last contribution disappears. Global InputSystem.clear, Engine.pause/resume state changes and Scene replacement instead flush all held contributions and pending transitions silently, without artificial release/press events. The previous captured frame remains unchanged until the next boundary. Web ignores keyboard autorepeat down events, preventing a still-held pause key from immediately toggling again after a clear; a fresh press is required.
 
 ## Axes and device sources
 
 Axis1D sources supply finite numbers in [-1,1]. Axis2D/3D supply exactly x/y or x/y/z, each finite and in [-1,1]. Inputs are copied, not retained by reference. Axis2D writes reject a third component at compile time, including values held in Axis3D variables, and validate their exact runtime shape. Keyboard negative/positive groups each contribute -1/0/+1; opposites cancel. All sources add componentwise, then each component clamps to [-1,1]. Axis2D/3D default to clamping vector length to 1; analog magnitudes below 1 are preserved. `{ normalize: false }` retains independent clamped components, allowing diagonal length sqrt(2) or sqrt(3). No rotation, camera or movement rule is implied.
 
-createSource(owner?) returns an independently releasable logical source. The controller always owns its sources; an optional Actor/Component/Lifetime owner may shorten their lifetime. A Scene's controllers must use the same Engine InputState; cross-Engine activation is rejected before commit. Scene disposal destroys the controller, its callbacks and every source. Disposed sources permit harmless neutral writes/releases, but reject new non-neutral values. InputState.sourceCount includes explicit physical and logical sources, excluding the legacy implicit scripted keyboard source.
+createSource(owner?) returns an independently releasable logical source. The controller always owns its sources; an optional Actor/Component/Lifetime owner may shorten their lifetime. A Scene's controllers must use the same Engine InputSystem; cross-Engine activation is rejected before commit. Scene disposal destroys the controller, its callbacks and every source. Disposed sources permit harmless neutral writes/releases, but reject new non-neutral values. InputSystem.sourceCount includes every keyboard and logical handle. There is no implicit scripted keyboard source.
 
 In Web Game, active controller bindings are automatically accepted by the existing focused keyboard source; no extra BrowserInput is needed. Preparing Scene bindings do not capture browser keys. Replacement clears staged contributions at commit; default headless initial activation preserves pre-injected synthetic input. Native buttons/editable controls keep their keyboard interaction. Keyboard focus/blur releases only that physical source; independent touch/program contributions remain until their own release or a global clear.
 
@@ -154,10 +154,101 @@ engine.dispose();
 
 Action controllers are not an input-context/priority stack, a gamepad adapter or a full replay/save system. Gamepad adapters may write analog values into their own source later. snapshot copies captured logical state; events/tokens and user component state are not a restorable save format. Reproducibility requires controlled seed, step sequence and inputs, including command order.
 
-Existing raw key tests and Character/KeyboardController continue to work. Action-based games should read logical values/edges, register bindings once, feed touch/AI through ActionSource and remove per-game keydown command queues. Changing bindings then does not change game logic. No Engine movement behavior depends on an action name.
+InputState, InputSource, InputReader, KeyMap/KeyMaps, Movement and KeyboardController have been removed, along with UpdateContext.input and the implicit scripted-key writer. All six samples, headless entry points and maintained benchmarks use the unified path. Physical binding tests explicitly create a KeyboardSource. No Engine movement behavior depends on an Action name.
+
+## Component dependencies and Character
+
+```ts verify
+import {
+  Action,
+  ActionController,
+  ActionMovement,
+  Actor,
+  Character,
+  defineActions,
+  Engine,
+  KeyboardBindings,
+  Motion,
+  Transform,
+} from "@simpludify/core";
+const engine = new Engine();
+const Actions = defineActions({ Steer: Action.axis2D() });
+const controls = new ActionController(Actions, {
+  scene: engine.scene,
+  input: engine.input,
+  bindings: { Steer: KeyboardBindings.WASD },
+});
+const movement = controls.reader(Actions.Steer);
+engine.scene.add(Character({ movement }));
+const second = engine.scene.add(new Actor());
+second.add(new Transform());
+second.add(new Motion());
+second.add(new ActionMovement(movement));
+controls.createSource().set(Actions.Steer, { x: 1, y: 0 });
+engine.step(1 / 60);
+engine.dispose();
+```
+
+reader(token) returns a read-only ActionReader<K> containing kind, owning Scene, disposed and value(). It preserves Button/Axis dimensions at compile time; a 3D reader cannot be injected into ActionMovement. Custom Components may accept a reader or the specifically typed controller and tokens they need. Readers share the same captured frame and never consume it. Create controllers with the target Scene in its factory and inject dependencies explicitly. Do not retain a reader for a replacement Scene. ActionMovement requires Motion, checks Scene identity before reading, clears Motion when disabled/removed, and becomes neutral after controller disposal. Character without movement remains visible but does not read input. KeyboardBindings.WASD/Arrows are frozen physical Axis2D binding data, not hardcoded game Actions.
+
+## Text and typing games
+
+Action values describe controls; text is an independent Web editing stream. English spelling and romanized Japanese answers should normally compare the native field's text, not physical key positions. Romaji-to-kana matching, alternate spellings and scoring stay game rules. Japanese IME games should compare committed text after composition; intermediate candidates are not submissions. KeyboardEvent.key may help display a shortcut but does not replace input events for IME, paste, handwriting or software keyboards.
+
+The existing Web API can host native DOM fields inside game.element. BrowserInput ignores native editors, contenteditable, composing events and legacy IME process-key events, and releases keyboard movement when focus enters the editor. No TextInput UI widget or dedicated text stream is currently exported. This is a deliberate independent responsibility rather than a fallback to removed raw-key APIs.
+
+```ts verify
+import { Game } from "@simpludify/web";
+const game = new Game();
+game.scene("typing", ({ signal, onDispose }) => {
+  const field = document.createElement("textarea");
+  field.setAttribute("aria-label", "Typing answer");
+  field.inputMode = "text";
+  field.autocomplete = "off";
+  field.spellcheck = false;
+  game.element.append(field);
+  onDispose(() => field.remove());
+  let composing = false,
+    committed = field.value;
+  const commit = () => {
+    if (signal.aborted || composing || field.value === committed) return;
+    committed = field.value;
+    // Compare the full committed value with the game's target here.
+  };
+  field.addEventListener(
+    "compositionstart",
+    () => {
+      composing = true;
+    },
+    { signal },
+  );
+  field.addEventListener(
+    "compositionend",
+    () => {
+      composing = false;
+      queueMicrotask(commit); // also handles a final composing input before compositionend
+    },
+    { signal },
+  );
+  field.addEventListener(
+    "input",
+    (event) => {
+      if (!(event as InputEvent).isComposing) commit();
+    },
+    { signal },
+  );
+});
+await game.run("typing");
+```
+
+Do not append both compositionend.data and input.data: final commits can otherwise be counted twice. Read/deduplicate the full field value and treat deletion/selection replacement/paste as edits. Do not force focus every frame; focus a visible native field from a user tap for mobile keyboards, keep the field accessible and allow browser scrolling/selection. Browser code/key events are not guaranteed for software keyboards. A future optional Web TextInput helper can own the field, report editing/composition/committed snapshots, and release listeners through the Scene signal. It should not map Unicode text onto Button Actions or add a parallel action-controller system. Text replay and OS IME automation are not implemented.
+
+The native typing browser fixture covers ordinary English/romaji keys, text insertion without key events, composing-key suppression and synthetic Japanese commit deduplication. Actual OS IME candidate UI and physical mobile software keyboards still require manual/device testing. The event model follows [W3C UI Events](https://www.w3.org/TR/uievents/) and [Input Events](https://w3c.github.io/input-events/).
 
 
-## Validation and measured scope
+## Historical Action-foundation validation
+
+The figures in this section describe the earlier Action foundation, not the unified-input revision. See [unification validation](input-unification.md) for the current run.
 
 The integrated source checkpoint is [`1017c25`](https://github.com/oz-coden/Simpludify/commit/1017c259598b47dde823970264473196a08b2428). Lifecycle/timer fixes are independently saved in `335d93d`, and the initial Action foundation in `94f0df8`.
 

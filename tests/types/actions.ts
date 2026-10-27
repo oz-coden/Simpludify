@@ -1,13 +1,13 @@
 import {
   Action,
   ActionController,
+  ActionMovement,
   defineActions,
-  type InputState,
+  type InputSystem,
   KeyCode,
-  type KeyMap,
   type Scene,
 } from "@simpludify/core";
-export function actionTypeContracts(scene: Scene, input: InputState): void {
+export function actionTypeContracts(scene: Scene, input: InputSystem): void {
   const actions = defineActions({
     Move: Action.axis2D(),
     Fire: Action.button(),
@@ -33,9 +33,13 @@ export function actionTypeContracts(scene: Scene, input: InputState): void {
   void KeyCode.Spcae;
   // @ts-expect-error invalid static binding code
   c.rebind(actions.Fire, { keys: ["Spcae"] });
-  // @ts-expect-error legacy static mappings are typed too
-  const invalidMap: KeyMap = { up: ["Invalid"], down: [], left: [], right: [] };
-  void invalidMap;
+  // @ts-expect-error physical device injection also rejects unknown codes
+  input.createKeyboardSource().set("Invalid", true);
+  new ActionMovement(c.reader(actions.Move));
+  // @ts-expect-error movement requires an Axis2D reader
+  new ActionMovement(c.reader(actions.Aim));
+  // @ts-expect-error movement requires an Axis2D reader
+  new ActionMovement(c.reader(actions.Fire));
   // @ts-expect-error nonexistent action
   c.value(actions.Jump);
   // @ts-expect-error action tokens cannot be replaced by arbitrary strings

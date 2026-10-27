@@ -1,13 +1,12 @@
+import type { ActionReader } from "./actions";
 import { Actor } from "./actor";
 import {
-  KeyboardController,
+  ActionMovement,
   Motion,
   Renderable,
   Shape,
   Transform,
 } from "./components";
-import { EngineError } from "./diagnostics";
-import { type KeyMap, KeyMaps, Movement } from "./input";
 export interface CharacterOptions {
   id?: string;
   x?: number;
@@ -15,8 +14,7 @@ export interface CharacterOptions {
   speed?: number;
   size?: number;
   color?: number;
-  movement?: Movement;
-  keys?: KeyMap;
+  movement?: ActionReader<"axis2d">;
   sprite?: string;
 }
 export class CharacterActor extends Actor {
@@ -35,8 +33,6 @@ export class CharacterActor extends Actor {
 }
 /** Composition preset; the simulation has no knowledge of characters. */
 export function Character(options: CharacterOptions = {}): CharacterActor {
-  const keys = options.keys ?? KeyMaps[options.movement ?? Movement.None];
-  if (!keys) throw new EngineError("INVALID_MOVEMENT", "Unknown movement mode");
   const actor = new CharacterActor(
     options.id === undefined ? {} : { id: options.id },
   );
@@ -52,7 +48,7 @@ export function Character(options: CharacterOptions = {}): CharacterActor {
       }),
     );
     actor.add(new Motion({ speed: options.speed ?? 180 }));
-    actor.add(new KeyboardController(keys));
+    if (options.movement) actor.add(new ActionMovement(options.movement));
     return actor;
   } catch (error) {
     actor.dispose();

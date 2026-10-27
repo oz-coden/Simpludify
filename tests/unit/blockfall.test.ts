@@ -9,6 +9,7 @@ import {
   type Puzzle,
   PuzzleActions,
 } from "../../examples/blockfall/logic";
+import { keyboard } from "../helpers/keyboard";
 
 function fixture(seed = 42) {
   const engine = new Engine(seed);
@@ -172,19 +173,19 @@ describe("Blockfall integer-grid rules", () => {
 it("drives movement, repeat, rotation and drops through public Engine input", () => {
   const { engine, puzzle } = fixture();
   puzzle.active = piece("T");
-  engine.input.set("ArrowLeft", true);
+  keyboard(engine).set("ArrowLeft", true);
   engine.step(0);
   expect(puzzle.active.x).toBe(2);
   engine.step(0.2);
   expect(puzzle.active.x).toBeLessThan(2);
   engine.input.clear();
   engine.step(0);
-  engine.input.set("KeyX", true);
+  keyboard(engine).set("KeyX", true);
   engine.step(0);
   expect(puzzle.active.rotation).toBe(1);
   engine.step(0);
   expect(puzzle.active.rotation).toBe(1);
-  engine.input.set("Space", true);
+  keyboard(engine).set("Space", true);
   engine.step(0);
   expect(puzzle.locked).toBe(1);
   engine.step(0.1);
@@ -193,7 +194,7 @@ it("drives movement, repeat, rotation and drops through public Engine input", ()
 });
 it("freezes and resumes simulation, then disposes old controllers and input sources on restart", () => {
   const { engine, puzzle, controller } = fixture();
-  const source = engine.input.createSource(engine.scene);
+  const source = engine.input.createKeyboardSource(engine.scene);
   engine.step(0.3);
   engine.pause();
   const before = puzzle.snapshot();
@@ -220,11 +221,11 @@ it("replays the same seed and input sequence with identical state at every step"
     b = fixture(2026);
   for (let index = 0; index < 1200; index++) {
     for (const { engine } of [a, b]) {
-      engine.input.set("ArrowLeft", index % 70 < 15);
-      engine.input.set("ArrowRight", index % 70 > 50);
-      engine.input.set("KeyX", index % 41 === 0);
-      engine.input.set("Space", index % 53 === 0);
-      engine.input.set("KeyC", index % 97 === 0);
+      keyboard(engine).set("ArrowLeft", index % 70 < 15);
+      keyboard(engine).set("ArrowRight", index % 70 > 50);
+      keyboard(engine).set("KeyX", index % 41 === 0);
+      keyboard(engine).set("Space", index % 53 === 0);
+      keyboard(engine).set("KeyC", index % 97 === 0);
       engine.step(1 / 60);
     }
     expect(a.puzzle.snapshot()).toEqual(b.puzzle.snapshot());
@@ -245,9 +246,9 @@ it("simulates 100,000 headless steps with repeated live rounds and bounded scene
       puzzle = createPuzzle(scene, engine.input, () => engine.random()).puzzle;
       engine.activate(scene);
     }
-    engine.input.set("ArrowRight", index % 60 < 20);
-    engine.input.set("KeyX", index % 17 === 0);
-    engine.input.set("Space", index % 11 === 0);
+    keyboard(engine).set("ArrowRight", index % 60 < 20);
+    keyboard(engine).set("KeyX", index % 17 === 0);
+    keyboard(engine).set("Space", index % 11 === 0);
     const before = puzzle.locked;
     engine.step(1 / 60);
     locked += puzzle.locked - before;
@@ -298,12 +299,12 @@ it("changes keyboard bindings without changing puzzle commands and accepts multi
   const { engine, puzzle, controller } = fixture();
   puzzle.active = piece("T");
   controller.controls.rebind(PuzzleActions.RotateCW, { keys: ["KeyV"] });
-  engine.input.set("KeyX", true);
+  keyboard(engine).set("KeyX", true);
   engine.step(0);
   expect(puzzle.active.rotation).toBe(0);
   engine.input.clear();
-  engine.input.set("KeyV", true);
-  engine.input.set("KeyV", false);
+  keyboard(engine).set("KeyV", true);
+  keyboard(engine).set("KeyV", false);
   engine.step(0);
   expect(puzzle.active.rotation).toBe(1);
   for (let i = 0; i < 2; i++) {

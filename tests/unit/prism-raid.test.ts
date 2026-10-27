@@ -16,6 +16,7 @@ import {
   type RaidOptions,
   Unit,
 } from "../../examples/prism-raid/logic";
+import { keyboard } from "../helpers/keyboard";
 
 function fixture(
   options: RaidOptions = { spawnInterval: 100, duration: 100 },
@@ -33,15 +34,15 @@ function fixture(
 it("moves through normal input, normalizes diagonals, clamps bounds and fires while held", () => {
   const { engine, round } = fixture();
   const t = round.player.require(Transform.type);
-  engine.input.set("KeyD", true);
+  keyboard(engine).set("KeyD", true);
   engine.step(0.1);
   expect(t.x).toBe(202);
-  engine.input.set("KeyW", true);
+  keyboard(engine).set("KeyW", true);
   engine.step(0.1);
   expect(t.x - 202).toBeCloseTo(22 * Math.SQRT1_2);
   engine.input.clear();
   expect(round.shotsFired).toBe(0);
-  engine.input.set("Space", true);
+  keyboard(engine).set("Space", true);
   engine.step(0.01);
   expect(round.shotsFired).toBe(2);
   const shot = [...round.playerShots][0];
@@ -52,11 +53,11 @@ it("moves through normal input, normalizes diagonals, clamps bounds and fires wh
   for (let i = 0; i < 10; i++) engine.step(0.1);
   expect(round.shotsFired).toBeGreaterThan(10);
   engine.input.clear();
-  engine.input.set("ArrowLeft", true);
+  keyboard(engine).set("ArrowLeft", true);
   engine.step(5);
   expect(t.x).toBe(18);
   engine.input.clear();
-  engine.input.set("ArrowDown", true);
+  keyboard(engine).set("ArrowDown", true);
   engine.step(5);
   expect(t.y).toBe(arena.height - 22);
   engine.dispose();
@@ -222,7 +223,7 @@ it("keeps the shipped bullet speeds effective at the Web delta cap", () => {
 });
 it("freezes simulation and timers while paused and initializes a fresh Scene on restart", () => {
   const { engine, round } = fixture({});
-  engine.input.set("Space", true);
+  keyboard(engine).set("Space", true);
   engine.step(0.4);
   engine.pause();
   const frozen = round.snapshot();
@@ -232,7 +233,7 @@ it("freezes simulation and timers while paused and initializes a fresh Scene on 
   engine.step(0.4);
   expect(round.elapsed).toBeGreaterThan(frozen.elapsed);
   const old = engine.scene;
-  const source = engine.input.createSource(old);
+  const source = engine.input.createKeyboardSource(old);
   const next = new Scene("retry");
   const fresh = new Raid(next, engine.input, () => engine.random());
   engine.activate(next);
@@ -253,7 +254,7 @@ it("reaches loss through normal no-input play and freezes the terminal state", (
   expect(round.status).toBe("lost");
   expect(round.world.disposed).toBe(true);
   const before = round.snapshot();
-  engine.input.set("Space", true);
+  keyboard(engine).set("Space", true);
   engine.step(1);
   expect(round.snapshot()).toEqual(before);
   engine.dispose();
@@ -368,11 +369,11 @@ it("emits a survivor Exit after a production hit consumes its projectile", () =>
 it("uses rebound physical controls and logical AI controls with unchanged combat rules", () => {
   const { engine, round } = fixture();
   round.controls.rebind(RaidActions.Fire, { keys: ["KeyF"] });
-  engine.input.set("Space", true);
+  keyboard(engine).set("Space", true);
   engine.step(0.01);
   expect(round.shotsFired).toBe(0);
   engine.input.clear();
-  engine.input.set("KeyF", true);
+  keyboard(engine).set("KeyF", true);
   engine.step(0.01);
   expect(round.shotsFired).toBe(2);
   engine.input.clear();

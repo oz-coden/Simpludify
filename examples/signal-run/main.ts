@@ -16,6 +16,7 @@ import {
   RoundFinished,
   type RoundSnapshot,
   RoundStatus,
+  SignalActions,
 } from "./logic";
 
 type SceneId = "menu" | "play" | "result";
@@ -42,7 +43,7 @@ game.scene("menu", ({ ui, onActivate }) => {
   );
 });
 game.scene("play", ({ scene, ui, signal, onActivate, onDispose }) => {
-  const round = new Round(scene);
+  const round = new Round(scene, game.engine.input);
   const follow = new CameraFollow(game.camera, {
     bounds: { x: 0, y: 0, width: 800, height: 450 },
   });
@@ -113,14 +114,23 @@ game.scene("play", ({ scene, ui, signal, onActivate, onDispose }) => {
       { title: "Signal Run" },
     ),
   );
-  const source = game.engine.input.createSource(scene);
+  const source = round.controls.createSource(scene);
+  const directions = new Set<string>();
+  const move = (direction: string, held: boolean) => {
+    if (held) directions.add(direction);
+    else directions.delete(direction);
+    source.set(SignalActions.Move, {
+      x: Number(directions.has("right")) - Number(directions.has("left")),
+      y: Number(directions.has("down")) - Number(directions.has("up")),
+    });
+  };
   ui(
     Panel(
       [
-        HoldButton("Left", (held) => source.set("KeyA", held)),
-        HoldButton("Up", (held) => source.set("KeyW", held)),
-        HoldButton("Down", (held) => source.set("KeyS", held)),
-        HoldButton("Right", (held) => source.set("KeyD", held)),
+        HoldButton("Left", (held) => move("left", held)),
+        HoldButton("Up", (held) => move("up", held)),
+        HoldButton("Down", (held) => move("down", held)),
+        HoldButton("Right", (held) => move("right", held)),
       ],
       {
         title: "Touch / hold",
