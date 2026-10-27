@@ -45,6 +45,7 @@ export async function testBlockfall(frame, page, context, width) {
     locked,
   );
   await page.keyboard.press("KeyP");
+  await frame.waitForFunction(() => window.blockfall.game.paused);
   assert.equal(await frame.evaluate(() => window.blockfall.game.paused), true);
   const paused = await frame.evaluate(() => window.blockfall.puzzle.snapshot());
   await frame.evaluate(() => window.blockfall.game.engine.step(10));
@@ -53,6 +54,7 @@ export async function testBlockfall(frame, page, context, width) {
     paused,
   );
   await page.keyboard.press("Escape");
+  await frame.waitForFunction(() => !window.blockfall.game.paused);
   assert.equal(await frame.evaluate(() => window.blockfall.game.paused), false);
   await frame.getByRole("button", { name: "Restart", exact: true }).click();
   await frame.waitForFunction(
@@ -112,8 +114,10 @@ export async function testBlockfall(frame, page, context, width) {
     beforeDrop,
   );
   await touchButton("Pause");
+  await frame.waitForFunction(() => window.blockfall.game.paused);
   assert.equal(await frame.evaluate(() => window.blockfall.game.paused), true);
   await touchButton("Resume");
+  await frame.waitForFunction(() => !window.blockfall.game.paused);
   await touchButton("Restart");
   await frame.waitForFunction(() => window.blockfall.puzzle.locked === 0);
   // Restart repeatedly: no retained DOM control trees or extra input sources.

@@ -3,6 +3,7 @@ import { ComponentPhase, type UpdateContext } from "./component";
 import { EngineError } from "./diagnostics";
 import type { Engine } from "./engine";
 import { EventBus } from "./events";
+import type { InputState } from "./input";
 import { cleanupAll, Lifetime, type LifetimeOwner } from "./lifetime";
 import { SimulationTimers } from "./timers";
 export const SceneState = {
@@ -16,12 +17,14 @@ export type SceneState = (typeof SceneState)[keyof typeof SceneState];
 export class Scene {
   private phase: SceneState = SceneState.Preparing;
   private engineOwner: Engine | undefined;
+  private inputScope: InputState | undefined;
   private readonly members = new Map<string, Actor>();
   private roster: readonly Actor[] = [];
   private rosterDirty = false;
   private nextId = 0;
   private updateRevision = -1;
   private updateActors: readonly Actor[] = [];
+  private frameActors: readonly Actor[] = [];
   private readonly postUpdates = new Set<(seconds: number) => void>();
   private postPlan: readonly ((seconds: number) => void)[] = [];
   private version = 0;
@@ -182,9 +185,28 @@ export class Scene {
       );
     this.phase = SceneState.Ready;
   }
+  /** @internal */ get inputOwner(): InputState | undefined {
+    return this.engineOwner?.input;
+  }
+  /** @internal */ claimInput(input: InputState): void {
+    this.assertAlive();
+    if (
+      (this.inputScope && this.inputScope !== input) ||
+      (this.engineOwner && this.engineOwner.input !== input)
+    )
+      throw new EngineError(
+        "SCENE_OWNERSHIP",
+        "Action input must belong to the Scene's Engine",
+        { sceneId: this.id },
+      );
+    this.inputScope = input;
+  }
   /** @internal */ validateOwner(engine: Engine): void {
     this.assertAlive();
-    if (this.engineOwner && this.engineOwner !== engine)
+    if (
+      (this.engineOwner && this.engineOwner !== engine) ||
+      (this.inputScope && this.inputScope !== engine.input)
+    )
       throw new EngineError(
         "SCENE_OWNERSHIP",
         "Scene belongs to another engine",
@@ -207,7 +229,7 @@ export class Scene {
     this.phase = SceneState.Inactive;
     cleanupAll(this.deactivations, "Scene deactivation callbacks failed");
   }
-  /** @internal */ step(context: UpdateContext): void {
+  /** @internal */ beginStep(): void {
     if (this.phase !== SceneState.Active)
       throw new EngineError("SCENE_STATE", "Only active scenes can update", {
         sceneId: this.id,
@@ -217,8 +239,11 @@ export class Scene {
       this.updateActors = this.actors.filter((actor) => actor.hasUpdates);
       this.updateRevision = this.revision;
     }
-    const actors = this.updateActors;
-    for (const actor of actors) actor.beginStep();
+    this.frameActors = this.updateActors;
+    for (const actor of this.frameActors) actor.beginStep();
+  }
+  /** @internal */ step(context: UpdateContext): void {
+    const actors = this.frameActors;
     for (const actor of actors)
       actor.updatePhase(ComponentPhase.Input, context);
     for (const actor of actors)
@@ -243,6 +268,7 @@ export class Scene {
     this.phase = SceneState.Disposed;
     const actors = this.actors;
     this.engineOwner = undefined;
+    this.inputScope = undefined;
     this.members.clear();
     this.roster = [];
     this.rosterDirty = false;
@@ -268,6 +294,7 @@ export class Scene {
       );
     } finally {
       this.updateActors = [];
+      this.frameActors = [];
       this.postUpdates.clear();
       this.postPlan = [];
       this.updates.clear();

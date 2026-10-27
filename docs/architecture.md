@@ -63,20 +63,21 @@ An Actor's enabled flag gates all its updates and visibility. A Component's enab
 
 Each Engine step performs:
 
-1. Validate delta and freeze the current InputState for this step. Capture each existing Actor's update-component plan and initial eligibility.
-2. Run Input-phase components for all captured Actors, in Scene insertion order and Component insertion order.
-3. Run Update-phase components in the same ordering. Motion and custom Components use this phase by default.
-4. Run registered post-update hooks, including the optional Scene-owned CollisionWorld.
-5. Advance active scene simulation timers, then Scene update callbacks.
-6. Return to the host, which reconciles changed render structure and draws current state.
+1. Validate delta and complete initial activation if needed. Capture Actor/Component/timer eligibility, physical input and every active logical Action frame.
+2. Deliver logical onPressed controls, including while paused. New Actors/Components/timers wait for the next step; writes affect the next input boundary.
+3. Run Input-phase components for all captured Actors, in Scene insertion order and Component insertion order.
+4. Run Update-phase components in the same ordering. Motion and custom Components use this phase by default.
+5. Run registered post-update hooks, including the optional Scene-owned CollisionWorld.
+6. Advance active scene simulation timers, then Scene update callbacks.
+7. Return to the host, which reconciles changed render structure and draws current state.
 
 Membership/component changes are immediately visible to lookup APIs. New Actors and new Components start updating on the **next** step. Removing/disabling Actors or Components prevents subsequent execution immediately; old snapshots are checked for disposal/membership. An Actor disabled at step start remains ineligible until the next step even if enabled mid-step. Changes cannot invalidate iteration or cause double updates. There is no configurable system graph or archetype storage.
 
-Input capture is cached until input changes; KeyboardController writes into Motion's existing vector without allocating a direction per Actor per frame. Actor rosters and Component execution plans are rebuilt only when structurally changed. Passive Actors are omitted from the Component dispatch roster; they still participate in rendering and optional contact detection. Frame contexts are reused; do not retain a context for future frames. Snapshot exports intentionally allocate copies for inspection.
+Physical input capture is cached until input changes; KeyboardController writes into Motion's existing vector without allocating a direction per Actor per frame. Actor rosters and Component execution plans are rebuilt only when structurally changed. Passive Actors are omitted from the Component dispatch roster; they still participate in rendering and optional contact detection. Frame contexts are reused; do not retain a context for future frames. Snapshot exports intentionally allocate copies for inspection.
 
-Pause suspends subsequent Engine steps (including contacts/timers) while Web presentation and DOM controls continue. A state change clears input and Web resets its timestamp. Scene navigation remains available; scenes explicitly resume when appropriate.
+Pause suspends subsequent simulation phases (including contacts/timers), while logical Action capture/onPressed controls, Web presentation and DOM controls continue. A resume in an input callback permits simulation using that step's delta; pause from a Component takes effect on the following step. A state change clears input and Web resets its timestamp. Scene navigation remains available; scenes explicitly resume when appropriate.
 
-Independent InputSources compose into one frozen frame snapshot. Browser keyboard and scene-owned hold controls release their own contributions without cancelling other sources. Global input clearing releases all contributions but preserves live source handles.
+Independent physical InputSources compose into one frozen frame snapshot. [ActionController](action-input.md) adds Scene-owned typed Button/Axis definitions, bindings and independent logical sources. Keyboard, touch and scripted values combine before sampling; immutable Action frames and ordered Button transitions support headless tests without physical-key emulation. Browser keyboard and scene-owned hold controls release their own contributions without cancelling other sources. Global input clearing releases all contributions but preserves live source handles.
 
 `Engine.step` is uncapped and deterministic for fixed controlled inputs, steps, seed, and user code. Web uses variable RAF delta with a default 0.05-second cap, drops excess stalled time, clears keys when hidden and resets the timestamp on resume. External time/randomness, asynchronous asset ordering and GPU output are not deterministic guarantees.
 
@@ -98,7 +99,7 @@ Events are optional typed tokens with identity independent of their debugging na
 
 Scene/Actor/Component local buses are allocated lazily. Local bus disposal removes every listener. A subscription on any external bus can name a Scene/Actor/Component as its owner; manual unsubscription removes the ownership callback too. There is no global Game bus because no current use case requires global routing; applications may explicitly own an EventBus or Lifetime.
 
-Scene.after/every use simulation seconds, never host timers. They run only when their Scene steps. Repeating timers deliver at most once per step, drop missed repetitions and preserve the fractional interval remainder; zero-delay one-shots fire on the next step. Timer eligibility is captured before all Scene update phases. Timers added during components, contacts, timers or Scene callbacks wait until the next step. Actor/Component ownership optionally cancels timers on destruction; enable/disable does not pause timers. Timer handler failures are aggregated after other due callbacks run.
+Scene.after/every use simulation seconds, never host timers. They run only when their Scene steps. Repeating timers deliver at most once per step, drop missed repetitions and preserve the fractional interval remainder; zero-delay one-shots fire on the next step. Timer eligibility is captured before logical Action callbacks and all Scene update phases. Timers added during components, contacts, timers or Scene callbacks wait until the next step. Actor/Component ownership optionally cancels timers on destruction; enable/disable does not pause timers. Timer handler failures are aggregated after other due callbacks run.
 
 Disposal is idempotent. All registered cleanup runs even after failures. Scene disposal cancels timers and its event bus, destroys Actors/components, then runs Scene cleanup in reverse registration order. Actors run owned cleanup, close their bus and destroy Components in reverse attachment order. Components release their owned subscriptions/bus and invoke onDestroy. A cleanup registration returns a function that unregisters it; that function does not invoke cleanup.
 

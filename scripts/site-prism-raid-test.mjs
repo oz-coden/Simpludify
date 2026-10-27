@@ -31,6 +31,7 @@ export async function testPrismRaid(frame, page, context, width) {
   await page.keyboard.up("ArrowRight");
   await page.keyboard.up("Space");
   await frame.getByRole("button", { name: "Pause", exact: true }).click();
+  await frame.waitForFunction(() => window.prismRaid.game.paused);
   const frozen = await frame.evaluate(() => window.prismRaid.round.snapshot());
   await frame.evaluate(() => window.prismRaid.game.engine.step(10));
   assert.deepEqual(
@@ -38,6 +39,7 @@ export async function testPrismRaid(frame, page, context, width) {
     frozen,
   );
   await frame.getByRole("button", { name: "Resume", exact: true }).click();
+  await frame.waitForFunction(() => !window.prismRaid.game.paused);
   const left = frame.getByRole("button", { name: "← Left", exact: true }),
     fire = frame.getByRole("button", { name: "FIRE", exact: true });
   await left.scrollIntoViewIfNeeded();
@@ -73,6 +75,15 @@ export async function testPrismRaid(frame, page, context, width) {
     touchPoints: [],
   });
   await touch.detach();
+  await frame.waitForFunction(() => {
+    const c = window.prismRaid.round?.controls;
+    return (
+      c &&
+      c.value(c.actions.Move).x === 0 &&
+      c.value(c.actions.Move).y === 0 &&
+      !c.value(c.actions.Fire)
+    );
+  });
   assert.deepEqual(
     await frame.evaluate(() => window.prismRaid.game.engine.input.snapshot()),
     [],

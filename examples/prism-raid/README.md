@@ -26,12 +26,12 @@
 
 ## 公開APIでの構成
 
-| ソース                     | 責務とAPI                                                                                                                       |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| [logic.ts](logic.ts)       | Actor・Component・Transform・Motion・KeyboardController、Trigger、型付きイベント、Sceneタイマーで移動・発射・HP・ウェーブを実装 |
-| [view.ts](view.ts)         | 公開RenderableでTriangle・Box・Circleを配置し、透明度と背景を更新                                                               |
-| [main.ts](main.ts)         | Game・Scene、BrowserInput、InputSource、Button／HoldButton、Label、ポーズと破棄をブラウザへ結び付ける                           |
-| [autoplay.ts](autoplay.ts) | コピーされたゲーム状態を読むルールベースの照準・回避。書き込みは通常のInputState.setのみ                                        |
+| ソース                     | 責務とAPI                                                                                                                      |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| [logic.ts](logic.ts)       | Actor・Component・Transform・Motion・型付きRaidActions、Trigger、型付きイベント、Sceneタイマーで移動・発射・HP・ウェーブを実装 |
+| [view.ts](view.ts)         | 公開RenderableでTriangle・Box・Circleを配置し、透明度と背景を更新                                                              |
+| [main.ts](main.ts)         | Game・Scene、ActionController、ActionSource、Button／HoldButton、Label、ポーズと破棄をブラウザへ結び付ける                     |
+| [autoplay.ts](autoplay.ts) | コピーされたゲーム状態を読むルールベースの照準・回避。書き込みは通常のActionSource.setのみ                                     |
 
 ロジックはDOM・Pixi・Web実行環境をimportしません。描画の有無でゲーム用乱数の消費順が変わらないよう、背景の配置は別の固定パターンです。`Raid.snapshot()`が固有のHP・弾・敵・武器待機時間・ウェーブ等をコピーし、Engine.snapshot()が入力・seed状態・一般的なActor状態を提供します。復元APIではありません。
 
@@ -89,3 +89,7 @@ npm run test:site
 同じseed・入力列・時間刻みでゲーム状態を再現できます。ヘッドレス検証と自動プレイヤーは実時間を待たずに進めます。Webの可変フレームやGPU出力を含む全環境でのビット一致は保証しません。大きなステップはタイマーの欠落回数や接触経路を変えるため、高速検証でも小さな固定刻みを使います。
 
 [APIの使い勝手・性能・検証記録](../../docs/shooter-validation.md)を参照してください。自動ブラウザ検証はChromiumと合成タッチが対象であり、実機Safari／Firefoxや任意のGPUでの保証とは分けています。
+
+## Action入力とリバインド
+
+RaidActions.MoveはAxis2D、FireとPauseはButtonです。new Raid(scene, engine.input, random)で構成し、移動Componentと戦闘ルールは物理キーを参照しません。キーボードはcontrolsのbindings、タッチは独立ActionSource、自動プレイヤーはround.inputへMove/Fireを設定します。controls.rebindで物理キーを変更しても、タッチ・自動プレイや戦闘ロジックは変わりません。pause/resumeは停止中も捕捉するonPressedを利用します。[詳細な入力契約](../../docs/action-input.md)には所有権・合成・設定保存をまとめています。

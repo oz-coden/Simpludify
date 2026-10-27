@@ -54,6 +54,14 @@ export interface ButtonState {
   readonly pressCount: number;
   readonly releaseCount: number;
 }
+export type ActionSnapshot<A extends ActionSet> = {
+  readonly [N in keyof A]: {
+    readonly kind: A[N]["kind"];
+    readonly value: ActionValue<A[N]["kind"]>;
+  } & (A[N]["kind"] extends "button"
+    ? { readonly button: ButtonState }
+    : unknown);
+};
 export interface ButtonTransition<
   T extends ActionToken = ActionToken<"button">,
 > {
@@ -166,6 +174,7 @@ export class ActionController<A extends ActionSet>
       throw new EngineError("INVALID_ACTION", "Unknown action in bindings");
     const off = options.input.registerActions(this);
     try {
+      options.scene.claimInput(options.input);
       this.lifetime.onDispose(options.scene.onDispose(() => this.dispose()));
     } catch (error) {
       off();
@@ -177,7 +186,11 @@ export class ActionController<A extends ActionSet>
     return this.lifetime.disposed;
   }
   get active(): boolean {
-    return !this.disposed && this.options.scene.state === SceneState.Active;
+    return (
+      !this.disposed &&
+      this.options.scene.state === SceneState.Active &&
+      this.options.scene.inputOwner === this.options.input
+    );
   }
   get sourceCount(): number {
     return this.sources.size;
@@ -215,7 +228,7 @@ export class ActionController<A extends ActionSet>
   get events(): readonly ButtonTransition<ButtonToken<A>>[] {
     return this.transitions as readonly ButtonTransition<ButtonToken<A>>[];
   }
-  snapshot() {
+  snapshot(): ActionSnapshot<A> {
     return Object.fromEntries(
       [...this.entries].map(([action, entry]) => [
         action.name,
@@ -226,7 +239,7 @@ export class ActionController<A extends ActionSet>
           ...(action.kind === "button" ? { button: { ...entry.button } } : {}),
         },
       ]),
-    );
+    ) as ActionSnapshot<A>;
   }
   onPressed(action: ButtonToken<A>, handler: () => void): () => void {
     this.entry(action);
@@ -321,7 +334,15 @@ export class ActionController<A extends ActionSet>
     entry.value = value;
   }
   /** @internal */ keyChanged(): void {
-    if (this.active)
+    // Only the Engine-owned default Scene can retain pre-activation physical taps.
+    // Staged Scenes do not accumulate another Scene's keyboard history.
+    if (
+      this.active ||
+      (!this.disposed &&
+        this.options.scene.inputOwner === this.options.input &&
+        (this.options.scene.state === SceneState.Preparing ||
+          this.options.scene.state === SceneState.Ready))
+    )
       for (const action of this.entries.keys()) this.recompute(action);
   }
   /** @internal */ accepts(code: string): boolean {
@@ -461,7 +482,9 @@ export class ActionController<A extends ActionSet>
       value.version !== 1 ||
       !("bindings" in value) ||
       !value.bindings ||
-      typeof value.bindings !== "object"
+      typeof value.bindings !== "object" ||
+      Array.isArray(value.bindings) ||
+      Object.keys(value).some((key) => key !== "version" && key !== "bindings")
     )
       throw new EngineError(
         "INVALID_BINDING",

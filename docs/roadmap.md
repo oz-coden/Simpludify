@@ -14,7 +14,7 @@ Simpludify has an experimental Web runtime and a generic composition-based Core.
 - Queued/coalesced asynchronous Web scene readiness with before-commit recovery and prompt disposal cancellation.
 - DOM labels/buttons/panels, two themes, responsive Flexbox/Grid and independent world aspect policies.
 - Scene-owned circle/oriented-box Trigger/Solid contacts, filtering, deterministic events/queries, and bounded inverse-mass position correction through CollisionBody.
-- Owned independent input sources, pause/resume, live depth/opacity/visibility, aspect-preserving images and keyboard/touch hold controls.
+- Typed KeyCode and Scene-owned Button/Axis1D/Axis2D/Axis3D Actions with logical device sources, ordered short-press events, runtime bindings/conflicts/JSON configuration; independent input sources, pause/resume, live depth/opacity/visibility, aspect-preserving images and keyboard/touch hold controls.
 - Character, UI/scenes, headless, Beacon field the complete Signal Run collection/survival game, and Blockfall falling-block puzzle with deterministic grid logic, hold/ghost and keyboard/touch controls; Prism Raid adds Triangle ships, Trigger combat and input-only automatic play.
 - Noninteractive source scaffold/dev/check/test/build/doctor, JSON diagnostics, unit/browser/production-subpath tests, baseline scripts and automatic licensing notices.
 

@@ -66,7 +66,7 @@ if (mode === "browser") {
     );
     const workload = (enemies, shots, overlap) => {
       const engine = new Engine(42),
-        round = new Raid(engine.scene, () => engine.random(), {
+        round = new Raid(engine.scene, engine.input, () => engine.random(), {
           hp: 1000,
           spawnInterval: 1000,
           duration: 10000,
@@ -121,7 +121,7 @@ if (mode === "browser") {
       workload(100, 1000, true),
     ];
     const engine = new Engine(42),
-      round = new Raid(engine.scene, () => engine.random(), {
+      round = new Raid(engine.scene, engine.input, () => engine.random(), {
         spawnInterval: 1000,
         duration: 10000,
       });
@@ -150,9 +150,11 @@ if (mode === "browser") {
       losses = 0;
     const play = (seed) => {
       const simulation = new Engine(seed),
-        mission = new Raid(simulation.scene, () => simulation.random());
+        mission = new Raid(simulation.scene, simulation.input, () =>
+          simulation.random(),
+        );
       for (let i = 0; i < 120 * 76 && mission.status === "playing"; i++) {
-        if (i % 6 === 0) autopilot(mission, simulation.input);
+        if (i % 6 === 0) autopilot(mission);
         simulation.step(1 / 120);
         steps++;
         peakActors = Math.max(peakActors, mission.units.size);

@@ -13,7 +13,7 @@
 | 標準Component    | Transform, Renderable, Motion, KeyboardController                                                                 | [英語API](../en/api.html#built-in-components)                       |
 | 高水準プリセット | Character, CharacterActor, Movement                                                                               | [最初のゲーム](getting-started.md)                                  |
 | Scene・通知      | Scene, SceneState, EventBus, defineEvent, Lifetime                                                                | [SceneとUI](scenes-ui.md)                                           |
-| 時間・入力       | Engine, InputState, InputSource, KeyMaps                                                                          | [入力ガイド](input.md)                                              |
+| 時間・入力       | Engine, Action, defineActions, ActionController, ActionSource, KeyCode, InputState, InputSource, KeyMaps          | [入力ガイド](input.md)                                              |
 | 衝突             | Collider, CollisionShape, CollisionResponse, CollisionBody, BodyType, CollisionWorld                              | [衝突ガイド](collision.md)                                          |
 | 接触通知         | ContactEnter, ContactStay, ContactExit, Contact                                                                   | [接触契約](../en/api.html#contact-lifecycle-and-observation)        |
 | 座標・追従       | Camera, CameraFollow, WorldBounds, Viewport, LogicalResolution, Aspect                                            | [描画ガイド](rendering.md)                                          |

@@ -1,9 +1,14 @@
 import {
+  Action,
+  ActionController,
+  type ActionSource,
   Actor,
   Component,
   type ComponentType,
+  defineActions,
   defineComponent,
-  type InputReader,
+  type InputState,
+  KeyCode,
   type Scene,
   type UpdateContext,
 } from "@simpludify/core";
@@ -276,38 +281,58 @@ export class Puzzle {
   }
 }
 
+export const PuzzleActions = defineActions({
+  Left: Action.button(),
+  Right: Action.button(),
+  SoftDrop: Action.button(),
+  RotateCW: Action.button(),
+  RotateCCW: Action.button(),
+  Drop: Action.button(),
+  Hold: Action.button(),
+  Pause: Action.button(),
+});
 export class PuzzleController extends Component {
   static readonly type: ComponentType<PuzzleController> =
     defineComponent<PuzzleController>("PuzzleController");
   readonly type = PuzzleController.type;
-  private previous = new Set<string>();
+  readonly input: ActionSource<typeof PuzzleActions>;
   private direction = 0;
   private repeat = 0;
-  private readonly commands: Command[] = [];
-  constructor(readonly puzzle: Puzzle) {
+  constructor(
+    readonly puzzle: Puzzle,
+    readonly controls: ActionController<typeof PuzzleActions>,
+  ) {
     super();
+    this.input = controls.createSource(this);
   }
-  queue(command: Command): void {
-    if (!this.disposed) this.commands.push(command);
-  }
-  clearInput(): void {
-    this.previous.clear();
+  resetRepeat(): void {
     this.direction = 0;
     this.repeat = 0;
-    this.commands.length = 0;
   }
-  private edge(input: InputReader, keys: readonly string[]): boolean {
-    return keys.some((key) => input.isPressed(key) && !this.previous.has(key));
-  }
-  update({ input, delta }: UpdateContext): void {
-    const puzzle = this.puzzle;
+  update({ delta }: UpdateContext): void {
+    const puzzle = this.puzzle,
+      controls = this.controls;
+    let dropped = false;
+    // Preserve the order of short keyboard, touch and scripted commands.
+    for (const event of controls.events) {
+      if (!event.down) continue;
+      const action = event.action;
+      if (action === PuzzleActions.Left) puzzle.move(-1);
+      else if (action === PuzzleActions.Right) puzzle.move(1);
+      else if (action === PuzzleActions.RotateCW) puzzle.rotate(1);
+      else if (action === PuzzleActions.RotateCCW) puzzle.rotate(-1);
+      else if (action === PuzzleActions.Hold) puzzle.hold();
+      else if (action === PuzzleActions.Drop) {
+        puzzle.hardDrop();
+        dropped = true;
+      }
+    }
     const direction =
-      Number(input.isPressed("ArrowRight")) -
-      Number(input.isPressed("ArrowLeft"));
+      Number(controls.value(PuzzleActions.Right)) -
+      Number(controls.value(PuzzleActions.Left));
     if (direction !== this.direction) {
       this.direction = direction;
       this.repeat = 0.16;
-      if (direction) puzzle.move(direction);
     } else if (direction) {
       this.repeat -= delta;
       while (this.repeat <= 0) {
@@ -315,21 +340,31 @@ export class PuzzleController extends Component {
         this.repeat += 0.055;
       }
     }
-    if (this.edge(input, ["ArrowUp", "KeyX"])) puzzle.rotate(1);
-    if (this.edge(input, ["KeyZ"])) puzzle.rotate(-1);
-    if (this.edge(input, ["KeyC", "ShiftLeft", "ShiftRight"])) puzzle.hold();
-    const dropped =
-      this.edge(input, ["Space"]) || this.commands.includes("drop");
-    if (this.edge(input, ["Space"])) puzzle.hardDrop();
-    for (const command of this.commands.splice(0)) puzzle.command(command);
-    this.previous = new Set(input.snapshot());
-    if (!dropped) puzzle.tick(delta, input.isPressed("ArrowDown"));
+    if (!dropped) puzzle.tick(delta, controls.value(PuzzleActions.SoftDrop));
   }
 }
-export function createPuzzle(scene: Scene, random: () => number) {
+export function createPuzzle(
+  scene: Scene,
+  input: InputState,
+  random: () => number,
+) {
   const puzzle = new Puzzle(random);
+  const controls = new ActionController(PuzzleActions, {
+    scene,
+    input,
+    bindings: {
+      Left: { keys: [KeyCode.ArrowLeft] },
+      Right: { keys: [KeyCode.ArrowRight] },
+      SoftDrop: { keys: [KeyCode.ArrowDown] },
+      RotateCW: { keys: [KeyCode.ArrowUp, KeyCode.X] },
+      RotateCCW: { keys: [KeyCode.Z] },
+      Drop: { keys: [KeyCode.Space] },
+      Hold: { keys: [KeyCode.C, KeyCode.ShiftLeft, KeyCode.ShiftRight] },
+      Pause: { keys: [KeyCode.P, KeyCode.Escape] },
+    },
+  });
   const actor = new Actor();
-  const controller = actor.add(new PuzzleController(puzzle));
+  const controller = actor.add(new PuzzleController(puzzle, controls));
   scene.add(actor);
   return { puzzle, controller };
 }

@@ -1,5 +1,4 @@
 import {
-  BrowserInput,
   Button,
   Game,
   HoldButton,
@@ -9,9 +8,9 @@ import {
 } from "@simpludify/web";
 import { startExample } from "../shared/start";
 import {
-  type Command,
   createPuzzle,
   type Puzzle,
+  PuzzleActions,
   type PuzzleController,
 } from "./logic";
 import { BoardView, preview } from "./view";
@@ -33,28 +32,29 @@ game.element.setAttribute(
 );
 let current: Puzzle | undefined,
   currentController: PuzzleController | undefined;
-game.scene("play", ({ scene, onUpdate, onActivate, onDispose, signal }) => {
-  const { puzzle, controller } = createPuzzle(scene, () =>
+game.scene("play", ({ scene, onUpdate, onActivate, onDispose }) => {
+  const { puzzle, controller } = createPuzzle(scene, game.engine.input, () =>
     game.engine.random(),
   );
   const view = new BoardView(scene);
   current = puzzle;
   currentController = controller;
-  const source = game.engine.input.createSource(scene);
-  const keyboard = new BrowserInput(game.element, game.engine.input, (code) =>
-    ["ArrowLeft", "ArrowRight", "ArrowDown"].includes(code),
-  );
-  onDispose(() => keyboard.dispose());
+  const controls = controller.controls;
+  const source = controls.createSource(scene);
   onDispose(() => {
     if (current === puzzle) {
       current = undefined;
       currentController = undefined;
     }
   });
-  const command = (value: Command) => {
-    if (!game.paused) controller.queue(value);
+  const pulse = (
+    action: (typeof PuzzleActions)[keyof typeof PuzzleActions],
+  ) => {
+    if (action !== PuzzleActions.Pause && game.paused) return;
+    source.set(action, true);
+    source.set(action, false);
   };
-  const pause = Button("Pause", () => togglePause());
+  const pause = Button("Pause", () => pulse(PuzzleActions.Pause));
   const updateStatus = () => {
     element("status").textContent = game.paused
       ? "Paused"
@@ -67,31 +67,32 @@ game.scene("play", ({ scene, onUpdate, onActivate, onDispose, signal }) => {
     if (game.paused) game.resume();
     else game.pause();
     source.clear();
-    controller.clearInput();
+    controller.resetRepeat();
     updateStatus();
   }
-  const controls = mountUI(
+  controls.onPressed(PuzzleActions.Pause, togglePause);
+  const buttons = mountUI(
     [
       Panel(
         [
           HoldButton("Move left", (held) =>
-            source.set("ArrowLeft", held && !game.paused),
+            source.set(PuzzleActions.Left, held && !game.paused),
           ),
           HoldButton("Soft drop", (held) =>
-            source.set("ArrowDown", held && !game.paused),
+            source.set(PuzzleActions.SoftDrop, held && !game.paused),
           ),
           HoldButton("Move right", (held) =>
-            source.set("ArrowRight", held && !game.paused),
+            source.set(PuzzleActions.Right, held && !game.paused),
           ),
         ],
         { layout: Layout.Row },
       ),
       Panel(
         [
-          Button("Rotate left", () => command("ccw")),
-          Button("Rotate right", () => command("cw")),
-          Button("Hard drop", () => command("drop")),
-          Button("Hold", () => command("hold")),
+          Button("Rotate left", () => pulse(PuzzleActions.RotateCCW)),
+          Button("Rotate right", () => pulse(PuzzleActions.RotateCW)),
+          Button("Hard drop", () => pulse(PuzzleActions.Drop)),
+          Button("Hold", () => pulse(PuzzleActions.Hold)),
         ],
         { layout: Layout.Row },
       ),
@@ -104,44 +105,12 @@ game.scene("play", ({ scene, onUpdate, onActivate, onDispose, signal }) => {
     },
   );
   element("controls").style.cssText = game.element.style.cssText;
-  onDispose(() => controls.dispose());
+  onDispose(() => buttons.dispose());
   onActivate(() => {
     game.resume();
-    element("controls").append(controls.element);
+    element("controls").append(buttons.element);
     updateStatus();
   });
-  // Discrete commands are queued on keydown so taps shorter than a frame
-  // survive until the next public Component update. Held motion uses BrowserInput.
-  const actions: Record<string, Command> = {
-    ArrowUp: "cw",
-    KeyX: "cw",
-    KeyZ: "ccw",
-    Space: "drop",
-    KeyC: "hold",
-    ShiftLeft: "hold",
-    ShiftRight: "hold",
-  };
-  game.element.addEventListener(
-    "keydown",
-    (event) => {
-      if (
-        event.target instanceof HTMLElement &&
-        event.target.closest("button, input, textarea, select")
-      )
-        return;
-      if (event.code === "KeyP" || event.code === "Escape") {
-        event.preventDefault();
-        if (!event.repeat) togglePause();
-      } else {
-        const action = actions[event.code];
-        if (action) {
-          event.preventDefault();
-          if (!event.repeat) command(action);
-        }
-      }
-    },
-    { signal },
-  );
   let previousNext = "",
     previousHold = "";
   const refreshHUD = () => {

@@ -24,7 +24,8 @@ export function actionTypeContracts(scene: Scene, input: InputState): void {
     axis: number = c.value(actions.Yaw),
     vector: { readonly x: number; readonly y: number } = c.value(actions.Move),
     vector3: { readonly z: number } = c.value(actions.Aim);
-  void [button, axis, vector, vector3];
+  const snapshotBoolean: boolean = c.snapshot().Fire.value;
+  void [button, axis, vector, vector3, snapshotBoolean];
   source.set(actions.Fire, true);
   source.set(actions.Move, { x: 1, y: 0 });
   source.set(actions.Aim, { x: 0, y: 0, z: 1 });

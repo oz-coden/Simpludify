@@ -43,16 +43,20 @@ test("flies and fires with simultaneous keys, releases focus, pauses and restart
   await page.keyboard.up("KeyD");
   await page.keyboard.up("Space");
   await page.getByRole("button", { name: "Pause", exact: true }).click();
+  await page.waitForFunction(() => window.prismRaid.game.paused);
   const frozen = await page.evaluate(() => window.prismRaid.round?.snapshot());
   await page.evaluate(() => window.prismRaid.game.engine.step(10));
   expect(await page.evaluate(() => window.prismRaid.round?.snapshot())).toEqual(
     frozen,
   );
   await page.getByRole("button", { name: "Resume", exact: true }).click();
+  await page.waitForFunction(() => !window.prismRaid.game.paused);
   await page.locator(".simpludify").focus();
   await page.keyboard.press("KeyP");
+  await page.waitForFunction(() => window.prismRaid.game.paused);
   expect(await page.evaluate(() => window.prismRaid.game.paused)).toBe(true);
   await page.keyboard.press("Escape");
+  await page.waitForFunction(() => !window.prismRaid.game.paused);
   expect(await page.evaluate(() => window.prismRaid.game.paused)).toBe(false);
   await page.keyboard.down("ArrowLeft");
   await page.keyboard.down("Space");
@@ -118,6 +122,15 @@ test("composes movement and fire from real simultaneous touch points", async ({
     touchPoints: [],
   });
   await session.detach();
+  await page.waitForFunction(() => {
+    const c = window.prismRaid.round?.controls;
+    return (
+      c &&
+      c.value(c.actions.Move).x === 0 &&
+      c.value(c.actions.Move).y === 0 &&
+      !c.value(c.actions.Fire)
+    );
+  });
   expect(
     await page.evaluate(() => window.prismRaid.game.engine.input.snapshot()),
   ).toEqual([]);

@@ -7,6 +7,7 @@ on:
         codex/docs-site,
         codex/site-recovery-blockfall,
         codex/triangle-shooter,
+        codex/action-input,
       ]
   pull_request:
   workflow_dispatch:

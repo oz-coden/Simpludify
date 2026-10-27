@@ -1,5 +1,7 @@
 # Triangle / Prism Raid: API review and validation
 
+> Historical validation of the Triangle/shooter revision through `636014f`. Later [typed Action input](action-input.md) replaces the keyboard-oriented game bindings and autopilot described here; the recorded benchmark versions and results remain historical evidence.
+
 ## Scope and source
 
 Triangle extends the existing public `Shape` object and Pixi Graphics renderer. [Prism Raid](../examples/prism-raid/README.md) is a complete three-wave vertical shooter built with public Core/Web exports. Engine changes are limited to the Triangle Shape value and its Graphics polygon branch. CollisionWorld, Solid correction, Core lifecycle and package dependencies are unchanged.

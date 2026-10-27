@@ -1,5 +1,4 @@
 import {
-  BrowserInput,
   Button,
   Game,
   HoldButton,
@@ -12,7 +11,7 @@ import {
 } from "@simpludify/web";
 import { startExample } from "../shared/start";
 import { autopilot } from "./autoplay";
-import { arena, Raid, RaidChanged, RaidFinished } from "./logic";
+import { arena, Raid, RaidActions, RaidChanged, RaidFinished } from "./logic";
 import { presentRaid } from "./view";
 import "./style.css";
 
@@ -63,21 +62,15 @@ game.scene("menu", ({ scene, ui, onActivate }) => {
     ),
   );
 });
-game.scene("play", ({ scene, signal, onActivate, onDispose, onUpdate }) => {
-  const round = new Raid(scene, () => game.engine.random());
+game.scene("play", ({ scene, onActivate, onDispose, onUpdate }) => {
+  const round = new Raid(scene, game.engine.input, () => game.engine.random());
   current = round;
   result = undefined;
   presentRaid(scene, round);
   onDispose(() => {
     if (current === round) current = undefined;
   });
-  const source = game.engine.input.createSource(scene);
-  const shooting = new BrowserInput(
-    game.element,
-    game.engine.input,
-    (code) => code === "Space",
-  );
-  onDispose(() => shooting.dispose());
+  const source = round.controls.createSource(scene);
   const hp = Label("HP 5 / 5"),
     score = Label("SCORE 0"),
     wave = Label("WAVE 1 / 3");
@@ -86,7 +79,11 @@ game.scene("play", ({ scene, signal, onActivate, onDispose, onUpdate }) => {
     observeError,
   );
   onDispose(() => stats.dispose());
-  const pause = Button("Pause", () => togglePause());
+  const pause = Button("Pause", () => {
+    source.set(RaidActions.Pause, true);
+    source.set(RaidActions.Pause, false);
+  });
+  round.controls.onPressed(RaidActions.Pause, togglePause);
   const updateStatus = () => {
     element("status").textContent = game.paused
       ? "Paused"
@@ -103,10 +100,24 @@ game.scene("play", ({ scene, signal, onActivate, onDispose, onUpdate }) => {
     if (game.paused) game.resume();
     else game.pause();
     source.clear();
+    directions.clear();
     updateStatus();
   }
-  const hold = (code: string, held: boolean) =>
-    source.set(code, held && !game.paused && round.status === "playing");
+  const directions = new Set<"left" | "right" | "up" | "down">();
+  const move = (direction: "left" | "right" | "up" | "down", held: boolean) => {
+    if (held && !game.paused && round.status === "playing")
+      directions.add(direction);
+    else directions.delete(direction);
+    source.set(RaidActions.Move, {
+      x: Number(directions.has("right")) - Number(directions.has("left")),
+      y: Number(directions.has("down")) - Number(directions.has("up")),
+    });
+  };
+  const fire = (held: boolean) =>
+    source.set(
+      RaidActions.Fire,
+      held && !game.paused && round.status === "playing",
+    );
   const restart = async () => {
     await game.goTo("play");
     game.element.focus({ preventScroll: true });
@@ -115,11 +126,11 @@ game.scene("play", ({ scene, signal, onActivate, onDispose, onUpdate }) => {
     [
       Panel(
         [
-          HoldButton("← Left", (held) => hold("ArrowLeft", held)),
-          HoldButton("↑ Up", (held) => hold("ArrowUp", held)),
-          HoldButton("↓ Down", (held) => hold("ArrowDown", held)),
-          HoldButton("Right →", (held) => hold("ArrowRight", held)),
-          HoldButton("FIRE", (held) => hold("Space", held)),
+          HoldButton("← Left", (held) => move("left", held)),
+          HoldButton("↑ Up", (held) => move("up", held)),
+          HoldButton("↓ Down", (held) => move("down", held)),
+          HoldButton("Right →", (held) => move("right", held)),
+          HoldButton("FIRE", (held) => fire(held)),
         ],
         { layout: Layout.Row },
       ),
@@ -162,23 +173,8 @@ game.scene("play", ({ scene, signal, onActivate, onDispose, onUpdate }) => {
     updateStatus();
     game.element.focus({ preventScroll: true });
   });
-  game.element.addEventListener(
-    "keydown",
-    (event) => {
-      if (
-        event.target instanceof HTMLElement &&
-        event.target.closest("button,input,textarea,select")
-      )
-        return;
-      if (event.code === "KeyP" || event.code === "Escape") {
-        event.preventDefault();
-        if (!event.repeat) togglePause();
-      }
-    },
-    { signal },
-  );
   onUpdate(() => {
-    if (demo && round.status === "playing") autopilot(round, game.engine.input);
+    if (demo && round.status === "playing") autopilot(round);
   });
 });
 await startExample(game, "menu");
@@ -198,7 +194,7 @@ const inspection = {
     return demo;
   },
   autoStep() {
-    if (current?.status === "playing") autopilot(current, game.engine.input);
+    if (current?.status === "playing") autopilot(current);
   },
 };
 declare global {

@@ -1,4 +1,7 @@
 import {
+  Action,
+  ActionController,
+  type ActionSource,
   Actor,
   Collider,
   CollisionResponse,
@@ -9,11 +12,11 @@ import {
   type ComponentType,
   ContactEnter,
   ContactStay,
+  defineActions,
   defineComponent,
   defineEvent,
-  KeyboardController,
-  type KeyMap,
-  KeyMaps,
+  type InputState,
+  KeyCode,
   Motion,
   type Scene,
   Transform,
@@ -21,12 +24,11 @@ import {
 } from "@simpludify/core";
 
 export const arena = { width: 360, height: 540 } as const;
-export const Controls: KeyMap = {
-  up: [...KeyMaps.wasd.up, ...KeyMaps.arrows.up],
-  down: [...KeyMaps.wasd.down, ...KeyMaps.arrows.down],
-  left: [...KeyMaps.wasd.left, ...KeyMaps.arrows.left],
-  right: [...KeyMaps.wasd.right, ...KeyMaps.arrows.right],
-};
+export const RaidActions = defineActions({
+  Move: Action.axis2D(),
+  Fire: Action.button(),
+  Pause: Action.button(),
+});
 export const Layers = {
   Player: 1,
   PlayerShot: 2,
@@ -71,6 +73,38 @@ class Clock extends Component {
     this.round.advance(delta);
   }
 }
+class Steering extends Component {
+  static readonly type: ComponentType<Steering> = defineComponent<Steering>(
+    "RaidSteering",
+    [Motion.type],
+  );
+  readonly type = Steering.type;
+  readonly phase = ComponentPhase.Input;
+  private motion: Motion | undefined;
+  constructor(private readonly controls: ActionController<typeof RaidActions>) {
+    super();
+  }
+  protected onAttach(): void {
+    this.motion = this.actor.require(Motion.type);
+  }
+  protected onDisable(): void {
+    if (this.motion) {
+      this.motion.direction.x = 0;
+      this.motion.direction.y = 0;
+    }
+  }
+  protected onDestroy(): void {
+    this.onDisable();
+    this.motion = undefined;
+  }
+  update(): void {
+    const value = this.controls.value(RaidActions.Move);
+    if (this.motion) {
+      this.motion.direction.x = value.x;
+      this.motion.direction.y = value.y;
+    }
+  }
+}
 class Pilot extends Component {
   static readonly type: ComponentType<Pilot> = defineComponent<Pilot>(
     "RaidPilot",
@@ -81,13 +115,14 @@ class Pilot extends Component {
   constructor(private readonly round: Raid) {
     super();
   }
-  update({ input, delta }: UpdateContext): void {
+  update({ delta }: UpdateContext): void {
     const t = this.actor.require(Transform.type);
     t.x = Math.max(18, Math.min(arena.width - 18, t.x));
     t.y = Math.max(40, Math.min(arena.height - 22, t.y));
     this.cooldown = Math.max(0, this.cooldown - delta);
     if (
-      input.isPressed("Space") &&
+      (this.round.controls.value(RaidActions.Fire) ||
+        this.round.controls.pressed(RaidActions.Fire)) &&
       this.cooldown <= 1e-9 &&
       this.round.status === "playing"
     ) {
@@ -191,6 +226,8 @@ export interface RaidOptions {
   duration?: number;
 }
 export class Raid {
+  readonly controls: ActionController<typeof RaidActions>;
+  readonly input: ActionSource<typeof RaidActions>;
   readonly world: CollisionWorld;
   readonly player: Actor;
   readonly units = new Set<Actor>();
@@ -215,6 +252,7 @@ export class Raid {
   private readonly stopSpawning: () => void;
   constructor(
     readonly scene: Scene,
+    input: InputState,
     private readonly random: () => number,
     options: RaidOptions = {},
   ) {
@@ -236,6 +274,25 @@ export class Raid {
       throw new Error(
         "Raid needs positive HP, wave sizes, interval and duration",
       );
+    this.controls = new ActionController(RaidActions, {
+      scene,
+      input,
+      bindings: {
+        Move: {
+          x: {
+            negative: [KeyCode.A, KeyCode.ArrowLeft],
+            positive: [KeyCode.D, KeyCode.ArrowRight],
+          },
+          y: {
+            negative: [KeyCode.W, KeyCode.ArrowUp],
+            positive: [KeyCode.S, KeyCode.ArrowDown],
+          },
+        },
+        Fire: { keys: [KeyCode.Space] },
+        Pause: { keys: [KeyCode.P, KeyCode.Escape] },
+      },
+    });
+    this.input = this.controls.createSource(scene);
     const clock = new Actor({ id: "raid-clock" });
     clock.add(new Clock(this));
     scene.add(clock);
@@ -246,7 +303,7 @@ export class Raid {
       this.hp,
     );
     this.player.add(new Motion({ speed: 220 }));
-    this.player.add(new KeyboardController(Controls));
+    this.player.add(new Steering(this.controls));
     this.player.add(new Pilot(this));
     const collider = this.player.add(
       new Collider({

@@ -347,3 +347,123 @@ it("rejects synchronous reentrancy from input callbacks and still cleans every l
   engine.dispose();
   expect(source.disposed).toBe(true);
 });
+
+it("retains physical taps before the first implicit activation without routing a staged Scene", () => {
+  const engine = new Engine();
+  const c = new ActionController(Actions, {
+    scene: engine.scene,
+    input: engine.input,
+    bindings,
+  });
+  engine.input.set(KeyCode.Space, true);
+  engine.input.set(KeyCode.Space, false);
+  engine.step(0);
+  expect(c.button(Actions.Fire)).toMatchObject({
+    held: false,
+    pressed: true,
+    released: true,
+  });
+  engine.dispose();
+});
+it("InputState disposal also destroys registered logical controllers and sources", () => {
+  const { engine, controller: c, source } = fixture();
+  engine.input.dispose();
+  expect(c.disposed).toBe(true);
+  expect(source.disposed).toBe(true);
+  expect(() => source.set(Actions.Fire, true)).toThrow();
+  engine.dispose();
+});
+it("input callbacks may dispose the Engine without later simulation", () => {
+  const { engine, controller: c, source } = fixture();
+  let updates = 0;
+  engine.scene.onUpdate(() => updates++);
+  c.onPressed(Actions.Fire, () => engine.dispose());
+  source.set(Actions.Fire, true);
+  expect(() => engine.step(1)).not.toThrow();
+  expect(updates).toBe(0);
+  expect(engine.snapshot().elapsed).toBe(0);
+});
+it("reports one key mapped to opposite axis directions while permitting cancellation", () => {
+  const { engine, controller: c } = fixture();
+  c.rebind(Actions.Yaw, {
+    negative: [KeyCode.E, KeyCode.E],
+    positive: [KeyCode.E],
+  });
+  expect(
+    c
+      .conflicts()
+      .find((x) => x.key === KeyCode.E)
+      ?.bindings.map((b) => b.path),
+  ).toEqual(["negative", "positive"]);
+  engine.input.set(KeyCode.E, true);
+  engine.step(0);
+  expect(c.value(Actions.Yaw)).toBe(0);
+  engine.dispose();
+});
+
+it("defers Actors, Components and zero timers created by input callbacks until the next step", () => {
+  const { engine, controller: c, source } = fixture();
+  const calls: string[] = [];
+  class NewBehavior extends Component {
+    readonly type = defineComponent("NewBehavior");
+    update(): void {
+      calls.push("component");
+    }
+  }
+  c.onPressed(Actions.Fire, () => {
+    engine.scene.add(new Actor()).add(new NewBehavior());
+    engine.scene.after(0, () => calls.push("timer"));
+  });
+  source.set(Actions.Fire, true);
+  engine.step(0);
+  expect(calls).toEqual([]);
+  engine.step(0);
+  expect(calls).toEqual(["component", "timer"]);
+  engine.dispose();
+});
+it("keeps the disposed active Scene step error after the input-boundary refactor", () => {
+  const engine = new Engine();
+  engine.step(0);
+  engine.scene.dispose();
+  expect(() => engine.step(0)).toThrow("Only active scenes can update");
+  engine.dispose();
+});
+
+it("rejects cross-Engine input ownership before activation without replacing the old Scene", () => {
+  const a = new Engine(),
+    b = new Engine(),
+    candidate = new Scene("candidate");
+  new ActionController(Actions, { scene: candidate, input: a.input });
+  const old = b.scene;
+  expect(() => b.activate(candidate)).toThrow("another engine");
+  expect(b.scene).toBe(old);
+  expect(
+    () => new ActionController(Actions, { scene: a.scene, input: b.input }),
+  ).toThrow("Action input");
+  a.activate(candidate);
+  a.dispose();
+  b.dispose();
+});
+
+it("disposes a failed preparing controller without clearing the active Scene input", () => {
+  const { engine, controller: active, source } = fixture();
+  source.set(Actions.Fire, true);
+  engine.step(0);
+  const staged = new Scene("failed");
+  const c = new ActionController(Actions, {
+    scene: staged,
+    input: engine.input,
+    bindings,
+  });
+  const pending = c.createSource(staged);
+  pending.set(Actions.Fire, true);
+  staged.dispose();
+  engine.step(0);
+  expect(c.disposed).toBe(true);
+  expect(pending.disposed).toBe(true);
+  expect(active.button(Actions.Fire)).toMatchObject({
+    held: true,
+    released: false,
+  });
+  engine.dispose();
+});

@@ -112,6 +112,8 @@ export class Engine {
     }
     this.stepping = true;
     try {
+      if (!this.suspended || this.active.state === SceneState.Active)
+        this.active.beginStep();
       this.context.delta = seconds;
       this.context.input = this.input.beginStep();
       this.context.scene = this.active;

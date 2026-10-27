@@ -12,6 +12,7 @@ import { autopilot } from "../../examples/prism-raid/autoplay";
 import {
   arena,
   Raid,
+  RaidActions,
   type RaidOptions,
   Unit,
 } from "../../examples/prism-raid/logic";
@@ -21,7 +22,12 @@ function fixture(
   seed = 42,
 ) {
   const engine = new Engine(seed),
-    round = new Raid(engine.scene, () => engine.random(), options);
+    round = new Raid(
+      engine.scene,
+      engine.input,
+      () => engine.random(),
+      options,
+    );
   return { engine, round };
 }
 it("moves through normal input, normalizes diagonals, clamps bounds and fires while held", () => {
@@ -228,7 +234,7 @@ it("freezes simulation and timers while paused and initializes a fresh Scene on 
   const old = engine.scene;
   const source = engine.input.createSource(old);
   const next = new Scene("retry");
-  const fresh = new Raid(next, () => engine.random());
+  const fresh = new Raid(next, engine.input, () => engine.random());
   engine.activate(next);
   expect(old.disposed).toBe(true);
   expect(round.world.disposed).toBe(true);
@@ -256,7 +262,7 @@ for (const seed of [1, 42, 2026])
   it(`wins all waves using only public input (seed ${seed})`, () => {
     const { engine, round } = fixture({}, seed);
     for (let i = 0; i < 120 * 76 && round.status === "playing"; i++) {
-      if (i % 6 === 0) autopilot(round, engine.input);
+      if (i % 6 === 0) autopilot(round);
       engine.step(1 / 120);
     }
     expect(round.status).toBe("won");
@@ -270,11 +276,17 @@ it("replays a seeded input trace with identical game and Engine snapshots", () =
     b = fixture({}, 2026);
   for (let i = 0; i < 4000; i++) {
     if (i % 6 === 0) {
-      autopilot(a.round, a.engine.input);
-      for (const key of ["ArrowLeft", "ArrowRight", "Space"])
-        b.engine.input.set(key, a.engine.input.isPressed(key));
+      autopilot(a.round);
     }
     a.engine.step(1 / 120);
+    b.round.input.set(
+      RaidActions.Move,
+      a.round.controls.value(RaidActions.Move),
+    );
+    b.round.input.set(
+      RaidActions.Fire,
+      a.round.controls.value(RaidActions.Fire),
+    );
     b.engine.step(1 / 120);
     if (i % 17 === 0) {
       expect(a.round.snapshot()).toEqual(b.round.snapshot());
@@ -296,7 +308,7 @@ it("keeps spawn/remove churn bounded during accelerated repeated rounds", () => 
       i < 120 * 76 && round.status === "playing" && steps < 100_000;
       i++, steps++
     ) {
-      if (i % 6 === 0) autopilot(round, engine.input);
+      if (i % 6 === 0) autopilot(round);
       engine.step(1 / 120);
       peak = Math.max(peak, round.units.size);
     }
@@ -350,5 +362,36 @@ it("emits a survivor Exit after a production hit consumes its projectile", () =>
   engine.step(0);
   expect(exits).toBe(1);
   expect(enemy.disposed).toBe(false);
+  engine.dispose();
+});
+
+it("uses rebound physical controls and logical AI controls with unchanged combat rules", () => {
+  const { engine, round } = fixture();
+  round.controls.rebind(RaidActions.Fire, { keys: ["KeyF"] });
+  engine.input.set("Space", true);
+  engine.step(0.01);
+  expect(round.shotsFired).toBe(0);
+  engine.input.clear();
+  engine.input.set("KeyF", true);
+  engine.step(0.01);
+  expect(round.shotsFired).toBe(2);
+  engine.input.clear();
+  round.input.set(RaidActions.Move, { x: -1, y: 0 });
+  round.input.set(RaidActions.Fire, true);
+  const x = round.player.require(Transform.type).x;
+  engine.step(0.2);
+  expect(round.player.require(Transform.type).x).toBeLessThan(x);
+  expect(round.shotsFired).toBe(4);
+  engine.dispose();
+});
+
+it("fires a ready weapon for a logical tap completed between simulation steps", () => {
+  const { engine, round } = fixture();
+  round.input.set(RaidActions.Fire, true);
+  round.input.set(RaidActions.Fire, false);
+  engine.step(0.01);
+  expect(round.shotsFired).toBe(2);
+  engine.step(0.2);
+  expect(round.shotsFired).toBe(2);
   engine.dispose();
 });

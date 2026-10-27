@@ -10,7 +10,7 @@ A code-first TypeScript 2D game engine. Create a visible character, responsive U
 
 ## Quick start
 
-Use Node.js **22.12 or later** and npm. Node 24 is used by the initial CI configuration. The verified rendering path uses WebGL in a modern browser with ResizeObserver and ES2022 support; Chromium is the automated browser test target. Other browsers have not yet been verified. The pinned Pixi version can select a fallback renderer; only a limited no-WebGL Character startup check is included, not full fallback compatibility.
+Use Node.js **22.12 or later** and npm. Node 24 is used by the initial CI configuration. The verified rendering path uses WebGL in a modern browser with ResizeObserver and ES2022 support; Chromium is the automated browser test target. Other browsers have not yet been verified. The pinned Pixi version can select a fallback renderer; Character startup, Triangle and Prism Raid have Canvas2D fixtures, while general fallback compatibility remains unverified.
 
 ```sh
 git clone https://github.com/oz-coden/Simpludify.git
@@ -41,7 +41,7 @@ The browser entry imports the default stylesheet automatically. With no parent s
 
 ## Actors, Components and the sample game
 
-Game objects are generic Actors composed from reusable Components. Transform, Renderable, Motion and KeyboardController implement the Character preset. Typed events and simulation timers can be scoped to Scenes, Actors or Components. Camera, Viewport, logical resolution and physical pixels are separate concepts.
+Game objects are generic Actors composed from reusable Components. Transform, Renderable, Motion and KeyboardController implement the Character preset. Typed events and simulation timers can be scoped to Scenes, Actors or Components. [Typed Action input](docs/action-input.md) separates game controls from keyboard bindings, combines touch/program sources, retains short presses and supports runtime rebinding. Camera, Viewport, logical resolution and physical pixels are separate concepts.
 
 ```sh
 npm run dev -- --example composition

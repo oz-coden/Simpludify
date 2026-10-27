@@ -7,11 +7,12 @@ import {
   kinds,
   type Piece,
   type Puzzle,
+  PuzzleActions,
 } from "../../examples/blockfall/logic";
 
 function fixture(seed = 42) {
   const engine = new Engine(seed);
-  const { puzzle, controller } = createPuzzle(engine.scene, () =>
+  const { puzzle, controller } = createPuzzle(engine.scene, engine.input, () =>
     engine.random(),
   );
   return { engine, puzzle, controller };
@@ -203,7 +204,7 @@ it("freezes and resumes simulation, then disposes old controllers and input sour
   expect(puzzle.active.y).toBeGreaterThan(before.active.y);
   const old = engine.scene;
   const fresh = new Scene("restart");
-  const next = createPuzzle(fresh, () => engine.random());
+  const next = createPuzzle(fresh, engine.input, () => engine.random());
   engine.activate(fresh);
   expect(old.disposed).toBe(true);
   expect(controller.disposed).toBe(true);
@@ -241,7 +242,7 @@ it("simulates 100,000 headless steps with repeated live rounds and bounded scene
   for (let index = 0; index < 100_000; index++) {
     if (index === 0 || puzzle.over) {
       const scene = new Scene(`round-${++rounds}`);
-      puzzle = createPuzzle(scene, () => engine.random()).puzzle;
+      puzzle = createPuzzle(scene, engine.input, () => engine.random()).puzzle;
       engine.activate(scene);
     }
     engine.input.set("ArrowRight", index % 60 < 20);
@@ -266,16 +267,19 @@ it("simulates 100,000 headless steps with repeated live rounds and bounded scene
   engine.dispose();
 });
 
-it("queues sub-frame commands until a simulation step and discards input explicitly", () => {
+it("retains ordered Action taps until a simulation step and clears unconsumed input", () => {
   const { engine, puzzle, controller } = fixture();
   puzzle.active = piece("T");
-  controller.queue("cw");
-  controller.queue("left");
+  controller.input.set(PuzzleActions.RotateCW, true);
+  controller.input.set(PuzzleActions.RotateCW, false);
+  controller.input.set(PuzzleActions.Left, true);
+  controller.input.set(PuzzleActions.Left, false);
   expect(puzzle.active.rotation).toBe(0);
   engine.step(0);
   expect(puzzle.active).toMatchObject({ rotation: 1, x: 2 });
-  controller.queue("drop");
-  controller.clearInput();
+  controller.input.set(PuzzleActions.Drop, true);
+  controller.input.set(PuzzleActions.Drop, false);
+  engine.input.clear();
   engine.step(0);
   expect(puzzle.locked).toBe(0);
   engine.dispose();
@@ -287,5 +291,26 @@ it("does not apply accumulated natural-gravity time as a burst of soft drops", (
   puzzle.tick(0.035, true);
   expect(puzzle.active.y).toBe(1);
   expect(puzzle.score).toBe(1);
+  engine.dispose();
+});
+
+it("changes keyboard bindings without changing puzzle commands and accepts multiple logical taps", () => {
+  const { engine, puzzle, controller } = fixture();
+  puzzle.active = piece("T");
+  controller.controls.rebind(PuzzleActions.RotateCW, { keys: ["KeyV"] });
+  engine.input.set("KeyX", true);
+  engine.step(0);
+  expect(puzzle.active.rotation).toBe(0);
+  engine.input.clear();
+  engine.input.set("KeyV", true);
+  engine.input.set("KeyV", false);
+  engine.step(0);
+  expect(puzzle.active.rotation).toBe(1);
+  for (let i = 0; i < 2; i++) {
+    controller.input.set(PuzzleActions.RotateCW, true);
+    controller.input.set(PuzzleActions.RotateCW, false);
+  }
+  engine.step(0);
+  expect(puzzle.active.rotation).toBe(3);
   engine.dispose();
 });

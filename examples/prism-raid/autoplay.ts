@@ -1,8 +1,11 @@
-import type { InputState } from "@simpludify/core";
-import type { Raid } from "./logic";
+import type { ActionSource } from "@simpludify/core";
+import { type Raid, RaidActions } from "./logic";
 
 // Inspection is read-only. Every action uses the same public input path as a player.
-export function autopilot(round: Raid, input: Pick<InputState, "set">): void {
+export function autopilot(
+  round: Raid,
+  input: Pick<ActionSource<typeof RaidActions>, "set"> = round.input,
+): void {
   const state = round.snapshot();
   const player = state.units.find((unit) => unit.kind === "player");
   if (!player) return;
@@ -43,9 +46,9 @@ export function autopilot(round: Raid, input: Pick<InputState, "set">): void {
       ) < 24,
   );
   if (danger) destination = player.x + (player.x < danger.x ? -65 : 65);
-  input.set("ArrowLeft", destination < player.x - 7);
-  input.set("ArrowRight", destination > player.x + 7);
-  input.set("ArrowUp", false);
-  input.set("ArrowDown", false);
-  input.set("Space", true);
+  input.set(RaidActions.Move, {
+    x: destination < player.x - 7 ? -1 : destination > player.x + 7 ? 1 : 0,
+    y: 0,
+  });
+  input.set(RaidActions.Fire, true);
 }

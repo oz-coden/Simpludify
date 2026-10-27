@@ -1,6 +1,6 @@
 # Blockfall — 落ち物パズル
 
-Simpludifyの公開APIでつくる、10列×20行の整数グリッド型パズルです。7種類のテトロミノ、ライン消去、レベル、次の5個、ホールド、ゴースト、一時停止、再開始を備えます。固有のゲームルールはサンプル側に置き、Colliderやエンジン内部APIには依存しません。
+Simpludifyの公開APIでつくる、10列×20行の整数グリッド型パズルです。入力は型付きPuzzleActionsとActionControllerで受け、個別のkeydownキューを持ちません。7種類のテトロミノ、ライン消去、レベル、次の5個、ホールド、ゴースト、一時停止、再開始を備えます。固有のゲームルールはサンプル側に置き、Colliderやエンジン内部APIには依存しません。
 
 [サンプルギャラリー](../../site/ja/examples.md)から「Blockfall」を起動できます。
 
@@ -61,3 +61,7 @@ npm run test:site
 ゲーム単体の成果物は`dist/`、統合サイトは`site-dist/`です。どちらも静的HTTPホストで配信できます。ブラウザ入力は外部送信しません。画像・音声・外部フォント・商用作品のブランド素材は使用していません。
 
 単体テストでは回転・壁・積みブロック・行消去・得点・ゲームオーバー・ポーズ・seedと入力の再現・100,000ステップのヘッドレス実行を検証します。統合サイトのブラウザテストはキーボード、合成タッチ、再開始、iframe終了時のEngine／入力元の破棄を検証します。実機スマートフォンや全ブラウザでの動作保証とは分けて扱います。
+
+## Action入力と検証
+
+createPuzzle(scene, engine.input, random)がScene所有のActionControllerを構成します。Left/Right/SoftDrop、RotateCW/RotateCCW、Drop、Hold、Pauseはゲーム側の定義です。Controllerのeventsで複数の短押し順序を保ち、長押しのリピート時間はゲーム側が管理します。キーボードの割り当て変更はcontroller.controls.rebindで行い、盤面ルールは変更しません。controller.inputはヘッドレス操作用の論理sourceです。タッチも独立した論理sourceを使い、Scene再開始時に破棄されます。[入力契約](../../docs/action-input.md)を参照してください。
