@@ -227,8 +227,7 @@ if (mode === "browser") {
           recordedFrames,
           jsonBytes: replayBytes,
           bytesPerStep: recordedFrames ? replayBytes / recordedFrames : 0,
-          scope:
-            "record mode includes finish validation/copy and JSON serialization",
+          scope: "record mode includes completion and JSON serialization",
         },
       },
     };

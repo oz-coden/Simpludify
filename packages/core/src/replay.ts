@@ -2,14 +2,15 @@ import type { ActionFrame, ActionSchema } from "./action-frame";
 import { EngineError } from "./diagnostics";
 import type { Engine } from "./engine";
 import type { ExecutionPort } from "./execution";
-import type { RandomSnapshot } from "./random";
 import {
   copyJson,
   type JsonValue,
   parseReplayData,
+  parseReplayHeader,
   type ReplayControllerSchema,
   type ReplayData,
   type ReplayEvent,
+  type ReplayHeader,
   type ReplayStep,
 } from "./replay-data";
 import { ENGINE_VERSION } from "./version";
@@ -66,10 +67,9 @@ export class ReplayRecorder implements ExecutionPort {
   private readonly schemas: readonly ReplayControllerSchema[];
   private readonly metadata: Readonly<Record<string, JsonValue>>;
   private readonly maxSteps: number;
-  private readonly steps: ReplayStep[] = [];
-  private readonly events: ReplayEvent[] = [];
-  private initial: RandomSnapshot | undefined;
-  private sceneId: string | undefined;
+  private steps: ReplayStep[] = [];
+  private events: ReplayEvent[] = [];
+  private header: ReplayHeader | undefined;
   private scene: Engine["scene"] | undefined;
   private completed = 0;
   private current:
@@ -92,6 +92,13 @@ export class ReplayRecorder implements ExecutionPort {
   ) {
     this.bound = bindings(engine, options.controllers);
     this.schemas = this.bound.map(([id, c]) => ({ id, actions: c.schema() }));
+    if (
+      options.metadata !== undefined &&
+      (!options.metadata ||
+        typeof options.metadata !== "object" ||
+        Array.isArray(options.metadata))
+    )
+      state("Replay metadata must be a JSON object");
     this.metadata = copyJson(options.metadata ?? {}) as Readonly<
       Record<string, JsonValue>
     >;
@@ -123,10 +130,16 @@ export class ReplayRecorder implements ExecutionPort {
     if (this.steps.length >= this.maxSteps)
       state("Replay recording reached maxSteps; finish before advancing again");
     this.engine.input.verifyControllers(this.bound.map(([, c]) => c));
-    if (this.sceneId === undefined) {
-      this.sceneId = this.engine.scene.id;
+    if (!this.header) {
+      this.header = parseReplayHeader({
+        formatVersion: 1,
+        engineVersion: ENGINE_VERSION,
+        random: this.engine.random.snapshot(),
+        sceneId: this.engine.scene.id,
+        controllers: this.schemas,
+        metadata: this.metadata,
+      });
       this.scene = this.engine.scene;
-      this.initial = this.engine.random.snapshot();
     }
     if (this.scene !== this.engine.scene)
       state(
@@ -137,7 +150,14 @@ export class ReplayRecorder implements ExecutionPort {
   readonly captured = (): void => {
     if (this.closed || !this.current) return;
     this.current.inputs = Object.freeze(
-      Object.fromEntries(this.bound.map(([id, c]) => [id, c.frame()])),
+      Object.fromEntries(
+        this.bound.map(([id, c]) => {
+          const frame = c.frame();
+          if (frame.events.length > 10000)
+            state("Too many Button transitions in one Replay boundary");
+          return [id, frame];
+        }),
+      ),
     );
   };
   afterStep(): void {
@@ -182,22 +202,21 @@ export class ReplayRecorder implements ExecutionPort {
       this.current ||
       this.failure ||
       this.engine.scene.disposed ||
-      !this.initial ||
-      this.sceneId === undefined
+      !this.header ||
+      !this.steps.length
     )
       state(
         "Finish requires a healthy recording with completed steps, outside Engine.step",
       );
-    const result = parseReplayData({
-      formatVersion: 1,
-      engineVersion: ENGINE_VERSION,
-      random: this.initial,
-      sceneId: this.sceneId,
-      controllers: this.schemas,
-      metadata: this.metadata,
-      steps: this.steps,
-      events: this.events,
+    // Headers/payloads were validated once and captured Action frames are immutable.
+    // Transfer the frozen buffers rather than cloning the full recording on export.
+    const result: ReplayData = Object.freeze({
+      ...this.header,
+      steps: Object.freeze(this.steps),
+      events: Object.freeze(this.events),
     });
+    this.steps = [];
+    this.events = [];
     this.dispose();
     return result;
   }

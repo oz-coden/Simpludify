@@ -377,3 +377,85 @@ it("bounds playback host-time work without skipping recorded frames", () => {
   a.engine.dispose();
   b.engine.dispose();
 });
+
+it("exports immutable owned buffers without re-reading captured frames", () => {
+  const engine = new Engine({ seed: 42 }),
+    c = new ActionController(Actions, {
+      scene: engine.scene,
+      input: engine.input,
+    }),
+    a = { engine, c, source: c.createSource() },
+    rec = new ReplayRecorder(a.engine, { controllers: { player: a.c } });
+  let reads = 0;
+  const frame = a.c.frame.bind(a.c);
+  a.c.frame = () => {
+    reads++;
+    return frame();
+  };
+  a.source.set(Actions.Fire, true);
+  a.engine.step(1 / 60);
+  a.engine.step(1 / 60);
+  const data = rec.finish();
+  expect(reads).toBe(2);
+  expect(rec.disposed).toBe(true);
+  expect(rec.length).toBe(2);
+  for (const value of [
+    data,
+    data.steps,
+    data.events,
+    data.controllers,
+    data.random.streams,
+    data.steps[0]?.inputs.player?.values,
+  ])
+    expect(Object.isFrozen(value)).toBe(true);
+  expect(() => (data.steps as unknown[]).push({})).toThrow();
+  a.engine.step(1 / 60);
+  rec.dispose();
+  expect(data.steps).toHaveLength(2);
+  expect(parseReplayData(JSON.parse(JSON.stringify(data)))).toEqual(data);
+  a.engine.dispose();
+});
+it("rejects producer headers and event bursts outside the import format limits", () => {
+  const a = setup();
+  expect(
+    () =>
+      new ReplayRecorder(a.engine, {
+        controllers: { player: a.c },
+        metadata: [] as never,
+      }),
+  ).toThrow(/object/);
+  const rec = new ReplayRecorder(a.engine, { controllers: { player: a.c } });
+  const frame = a.c.frame.bind(a.c);
+  a.c.frame = () => ({
+    ...frame(),
+    events: Array.from({ length: 10001 }, (_, i) => ({
+      name: "Fire",
+      down: i % 2 === 0,
+    })),
+  });
+  expect(() => a.engine.step(0)).toThrow(/Too many Button/);
+  expect(() => rec.finish()).toThrow();
+  a.engine.dispose();
+  const b = new Engine({ seed: 42 });
+  const invalid = new ActionController(
+    defineActions({ ["X".repeat(257)]: Action.button() }),
+    { scene: b.scene, input: b.input },
+  );
+  new ReplayRecorder(b, { controllers: { player: invalid } });
+  expect(() => b.step(0)).toThrow(/Identifier/);
+  b.dispose();
+});
+it("accepts equivalent schemas regardless of serialized Action declaration order", () => {
+  const a = recording(),
+    b = setup();
+  const data = JSON.parse(JSON.stringify(a.data));
+  data.controllers[0].actions.reverse();
+  const player = new ReplayPlayer(b.engine, data, {
+    controllers: { player: b.c },
+  });
+  while (player.step()) {}
+  expect(b.log).toEqual(a.log);
+  player.dispose();
+  a.engine.dispose();
+  b.engine.dispose();
+});

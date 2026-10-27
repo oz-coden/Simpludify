@@ -133,7 +133,7 @@ try {
   };
   if (output) {
     mkdirSync(dirname(output), { recursive: true });
-    writeFileSync(output, JSON.stringify(report, null, 2) + "\n");
+    writeFileSync(output, `${JSON.stringify(report, null, 2)}\n`);
   }
   console.log(JSON.stringify(report, null, 2));
 } finally {

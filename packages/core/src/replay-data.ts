@@ -117,18 +117,10 @@ export function copyJson(value: unknown): JsonValue {
   };
   return copy(value, 0);
 }
-export function parseReplayData(value: unknown): ReplayData {
+/** @internal Shared one-time validation for recording headers and imported Replay data. */
+export type ReplayHeader = Omit<ReplayData, "steps" | "events">;
+export function parseReplayHeader(value: unknown): ReplayHeader {
   const d = object(value);
-  keys(d, [
-    "formatVersion",
-    "engineVersion",
-    "random",
-    "sceneId",
-    "controllers",
-    "metadata",
-    "steps",
-    "events",
-  ]);
   if (d.formatVersion !== 1) return bad("Unsupported Replay formatVersion");
   const engineVersion = text(d.engineVersion),
     sceneId = text(d.sceneId),
@@ -187,12 +179,41 @@ export function parseReplayData(value: unknown): ReplayData {
         normalize: a.normalize,
       });
     });
+    actions.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
     return Object.freeze({ id, actions: Object.freeze(actions) });
   });
   controllers.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   const metadata = copyJson(object(d.metadata)) as Readonly<
     Record<string, JsonValue>
   >;
+  return Object.freeze({
+    formatVersion: 1,
+    engineVersion,
+    random: Object.freeze({
+      algorithm: RANDOM_ALGORITHM,
+      seed,
+      streams: Object.freeze(streams),
+    }),
+    sceneId,
+    controllers: Object.freeze(controllers),
+    metadata,
+  });
+}
+export function parseReplayData(value: unknown): ReplayData {
+  const d = object(value);
+  keys(d, [
+    "formatVersion",
+    "engineVersion",
+    "random",
+    "sceneId",
+    "controllers",
+    "metadata",
+    "steps",
+    "events",
+  ]);
+  const header = parseReplayHeader(d),
+    controllers = header.controllers,
+    ids = controllers.map((c) => c.id);
   const steps = array(d.steps, 1000000).map((value, index) => {
     const s = object(value);
     keys(s, ["index", "dt", "pausedBefore", "pausedAfter", "inputs"]);
@@ -246,16 +267,7 @@ export function parseReplayData(value: unknown): ReplayData {
     });
   });
   return Object.freeze({
-    formatVersion: 1,
-    engineVersion,
-    random: Object.freeze({
-      algorithm: RANDOM_ALGORITHM,
-      seed,
-      streams: Object.freeze(streams),
-    }),
-    sceneId,
-    controllers: Object.freeze(controllers),
-    metadata,
+    ...header,
     steps: Object.freeze(steps),
     events: Object.freeze(events),
   });
