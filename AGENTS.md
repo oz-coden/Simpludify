@@ -34,3 +34,7 @@ Unit fixtures cover movement/input/determinism, generic Actors/Components/depend
 - Public docs, code comments and commit messages must make sense without private planning conversations. Match existing language/style and avoid unnecessary unrelated edits.
 
 The project and internal packages are private workspaces for now. Do not publish npm packages or create releases as part of routine implementation work.
+
+## Official documentation site
+
+`site/config.mjs` maps Japanese Markdown and existing English docs to static routes. Keep public API contracts in sync with source; SPEC proposals must not be described as implemented. `npm run site:build -- --base /Simpludify/`, `npm run site:check` and `npm run test:site` validate the integrated site without changing game CLI dist. Also test base `/` after build/config changes. Page content is trusted repository Markdown; do not accept arbitrary runtime HTML. Preserve first-party iframe disposal/focus behavior and include all notices. Pages must be enabled by an administrator before deploy; workflows must not enable visibility or configure DNS automatically.

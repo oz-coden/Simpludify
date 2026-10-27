@@ -8,6 +8,7 @@ import {
   Panel,
   Theme,
 } from "@simpludify/web";
+import { startExample } from "../shared/start";
 
 type SceneId = "garden" | "studio";
 const game = new Game<SceneId>({
@@ -51,7 +52,7 @@ for (const id of ["garden", "studio"] as const) {
     );
   });
 }
-await game.run("garden");
+await startExample(game, "garden");
 if (import.meta.hot) import.meta.hot.dispose(() => game.dispose());
 // The demo intentionally exposes a small inspection hook for smoke tests and learning.
 declare global {

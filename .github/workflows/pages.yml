@@ -1,0 +1,58 @@
+name: Documentation and Pages
+on:
+  push:
+    branches: [main, codex/docs-site]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SITE_BASE: /Simpludify/
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+      - run: npm run site:build
+      - run: npm run site:check
+      - run: npx playwright install --with-deps chromium --only-shell
+      - run: npm run test:browser
+      - run: npm run test:site
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: official-site-validation
+          path: test-results/site/
+          if-no-files-found: ignore
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site-dist
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      # Pages must already be enabled by an administrator. Do not expand visibility here.
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: false
+      - uses: actions/deploy-pages@v4
+        id: deployment

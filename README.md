@@ -1,5 +1,9 @@
 # Simpludify
 
+[公式ドキュメント・サンプル](https://oz-coden.github.io/Simpludify/) · [日本語ガイドのソース](site/ja/index.md) · [English API](docs/api.md)
+
+TypeScriptのコードで2Dゲームを合理的につくる実験的なエンジンです。理解しやすく、一貫性があり、保守しやすいAPIを優先します。公開npm SDKではなく、ソースワークスペースを取得して利用します。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できる4つのサンプルを公式サイトにまとめています。
+
 A code-first TypeScript 2D game engine. Create a visible character, responsive UI, and scene navigation using ordinary code and browser tooling.
 
 **Status: experimental Web engine with a composition-based Core.** The API can change before a stable release. Windows/Electron packaging is pending. No npm package or release is published.
@@ -100,6 +104,16 @@ npm run build -- --target web --base /Simpludify/
 ```
 
 Upload **all files in `dist/`**, including `LICENSE.txt`, `THIRD-PARTY-NOTICES.txt` and `sbom.json`, to the static host. The default base is `./`; use an explicit base for GitHub Pages project paths. Put images and local fonts in the selected example's `public/` directory, or import assets through Vite. For subpath-safe public assets use `import.meta.env.BASE_URL + 'player.svg'`. No cloud service or AI provider is required at runtime. Hosting is not enabled automatically.
+
+## Official site development
+
+```sh
+npm run site:build -- --base /Simpludify/
+npm run site:check
+npm run site:serve
+```
+
+This integrates documentation and all four browser examples into `site-dist/`, independently of the existing game-only `dist/`. Use `--base /` for root/custom-domain hosting. `npm run test:site` validates production pages, gallery controls and cleanup at desktop/narrow sizes. [Site build, deployment and validation](docs/site-validation.md) explains Pages Actions and language coverage. No domain or DNS settings are changed by the build.
 
 ## Documentation
 

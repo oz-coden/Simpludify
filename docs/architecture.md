@@ -121,3 +121,11 @@ Actor/component destruction cancels pending image work and releases its texture/
 DOM UI continues to use native Flexbox/Grid, textContent, focusable buttons and selective label subscriptions. The overlay has pointer-events disabled in empty space; visible controls/panels opt in. No UI layout engine, telemetry or mandatory editor is introduced.
 
 UI construction is transactional: a partial mount releases prior subscriptions and listeners before rethrowing. Unmount aborts button tasks and releases held pointer/keyboard controls. Late asynchronous UI or renderer cleanup failures reach the observer without preventing other teardown. A render failure after presentation commit disposes the Game; before-commit setup failures preserve the previous presentation.
+
+## Official site and future transport
+
+The official site is build tooling, not an engine dependency: existing Vite plus build-time Markdown conversion emits static pages and independently built sample documents. Sample bootstrapping owns pagehide/disposal and startup diagnostics outside Core. Japanese guides introduce current concepts; English API/lifecycle/performance documents remain detailed source contracts.
+
+Code-first means coherent, understandable and maintainable composition, not shortest syntax. High-level defaults and low-level access coexist, and typed events remain optional. A future falling-block puzzle should express its grid rules with ordinary game logic rather than mandatory physical Colliders. Circle/box approximations are sufficient where game feel permits; exact contours are not a requirement.
+
+Static hosting is independent from network capability. Standalone samples need no external game service after delivery. Future transport, simulation location and state authority must be separate decisions; P2P, player-hosted and dedicated-server designs are candidates, not implemented APIs. DOM-free simulation must remain reusable without committing to a transport.

@@ -18,6 +18,8 @@ Simpludify has an experimental Web runtime and a generic composition-based Core.
 - Character, UI/scenes, headless, Beacon field and the complete Signal Run collection/survival game.
 - Noninteractive source scaffold/dev/check/test/build/doctor, JSON diagnostics, unit/browser/production-subpath tests, baseline scripts and automatic licensing notices.
 
+- Japanese-first static documentation, English technical reference, isolated playable four-sample gallery, integrated root/project-base builds and Pages workflow. See site-validation for deployment evidence.
+
 ## Pending and limits
 
 Windows/Electron packaging and Windows executable smoke tests are pending. There is no portable executable guarantee or cross-language SDK. Public npm publication, compiled SDK packages and automated vendored-engine upgrades are deferred.

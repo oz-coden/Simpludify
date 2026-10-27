@@ -9,6 +9,7 @@ import {
   Panel,
   Placement,
 } from "@simpludify/web";
+import { startExample } from "../shared/start";
 import {
   Round,
   RoundChanged,
@@ -168,7 +169,7 @@ game.scene("result", ({ ui, onActivate }) => {
     ),
   );
 });
-await game.run("menu");
+await startExample(game, "menu");
 if (import.meta.hot) import.meta.hot.dispose(() => game.dispose());
 const inspection = {
   game,

@@ -31,7 +31,10 @@ for (const [location, item] of Object.entries(lock.packages)) {
     : item;
   const name = meta.name ?? location.split("node_modules/").at(-1);
   const license = meta.license ?? item.license;
-  if (!allowed.has(license) && !(item.dev && license === "MPL-2.0"))
+  if (
+    !allowed.has(license) &&
+    !(item.dev && ["MPL-2.0", "PSF-2.0"].includes(license))
+  )
     throw new Error(
       `LICENSE_REVIEW_REQUIRED: ${name}@${item.version}: ${license}`,
     );

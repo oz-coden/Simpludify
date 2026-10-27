@@ -37,3 +37,7 @@ Vite's optional Lightning CSS tooling appears in the lockfile under MPL-2.0. The
 ## Distribution checklist
 
 Keep the engine MIT notice and generated third-party notices with a distributed game. Review any newly added images, fonts, music and code separately, including attribution and redistribution rights. Re-run checks/inventory after dependency changes. Desktop packaging will additionally require review of Electron/Chromium/Node and all shipped native binaries. A compatible source license does not guarantee ownership of arbitrary supplied content or general operational safety.
+
+## Documentation site tooling
+
+The official site adds markdown-it 15.0.3 (MIT) as an exact development dependency. Its seven locked additions, including argparse, entities, linkify-it, mdurl, punycode.js and uc.micro, were reviewed from installed manifests and license files on 2026-10-27. argparse 3.0.4 declares PSF-2.0 and includes the Python Software Foundation license text; the complete file is retained by the notice generator. PSF-2.0 is permitted for development dependencies only. No Markdown parser is shipped as game runtime code. The generated site includes the conservative combined build/runtime inventory and notices, just like single-game output. The site uses system fonts, first-party CSS/JS and existing MIT sample assets; no remote font, analytics or CDN runtime is added.

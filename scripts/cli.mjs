@@ -145,6 +145,7 @@ try {
       fail("DESTINATION_EXISTS", "Choose a directory that does not exist", 2);
     mkdirSync(output, { recursive: true });
     for (const path of [
+      "site",
       "third-party",
       "benchmarks",
       "SPEC.md",

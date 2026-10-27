@@ -6,6 +6,7 @@ import {
   Layout,
   Panel,
 } from "@simpludify/web";
+import { startExample } from "../shared/start";
 import { Beacon, BeaconCollected, createPlayer, spawnBeacon } from "./logic";
 
 const game = new Game<"field">({
@@ -71,5 +72,5 @@ game.scene("field", ({ scene, ui, signal, onActivate }) => {
     { signal },
   );
 });
-await game.run("field");
+await startExample(game, "field");
 if (import.meta.hot) import.meta.hot.dispose(() => game.dispose());

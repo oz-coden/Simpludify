@@ -12,7 +12,7 @@ Enable developers, including AI coding agents, to create, test, package, and dis
 ### Guiding principles
 
 1. **Code is the source of truth.** Scenes, entities, UI, input, assets, styles, and build configuration are authorable in code. No mandatory GUI editor or interactive configuration wizard.
-2. **Simple tasks should be trivial.** Displaying and moving a character should need only a few lines of user code. Defaults are documented, overrideable, and predictable.
+2. **Coherent APIs before line counts.** Useful defaults and high-level presets make simple tasks accessible; lower-level composition remains available. Prioritize understandable, consistent, flexible and maintainable contracts over minimum code or maximum feature count. Events are optional, and lifecycle, ownership and update order must be predictable.
 3. **Good presentation by default.** Adaptive layout, sensible typography, spacing, controls, and themes work without manual pixel tuning.
 4. **Explicit when necessary.** All automatic decisions are overrideable. Absolute positioning is supported, but responsive behavior is not guaranteed for explicitly fixed placements.
 5. **Portable game logic.** The core does not depend on DOM, PixiJS, Electron, Node.js, or a specific OS. Platform and renderer integration happens through adapters.
@@ -232,3 +232,11 @@ Headless and browser tests must cover dynamic membership, lifecycle/cancellation
 ## 16. Contact response extension
 
 The implemented extension separates Collider Trigger/Solid policy from CollisionBody correction weight. Existing colliders default to Trigger. A Scene-owned world reuses circle/oriented-box geometry, performs bounded deterministic inverse-mass translation for movable Solid pairs, then delivers contact events. Motion retains movement intent; CameraFollow can run after correction. No impulse/angular physics or continuous collision detection is implied. API defaults, contact lifecycle and known convergence/tunneling limits are defined in docs/api.md; measured scope belongs in docs/performance.md.
+
+## 17. Practical collision, documentation and future networking
+
+Use circles and boxes as practical approximations of game art; exact image contours are not a requirement. Separate Trigger detection, Solid position correction and game-specific rules. Approximate geometry does not relax deterministic lifecycle/event contracts. Automatic approximate colliders and compound shapes are future candidates, not current features. A falling-block puzzle comparable to Tetris is a future usability criterion: board occupancy, rotations and line clearing belong to ordinary game logic, without mandatory physical Colliders or engine-specific puzzle systems. No completed falling-block game is claimed.
+
+The official static site combines Japanese onboarding/guides with detailed existing English documents and playable examples. The site must distinguish implemented APIs from this specification's proposals, keep sample documents isolated, release resources, preserve notices and test project-base and root hosting.
+
+Static delivery, standalone execution without external services, optional online communication and dedicated game servers are distinct. Future P2P/player-hosted/dedicated approaches must distinguish transport, simulation execution location and state authority. No networking implementation is part of the current scope; preserve DOM-free Core boundaries.
