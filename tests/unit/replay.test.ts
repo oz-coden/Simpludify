@@ -459,3 +459,27 @@ it("accepts equivalent schemas regardless of serialized Action declaration order
   a.engine.dispose();
   b.engine.dispose();
 });
+
+it("invalidates recording after initial Scene activation fails before input capture", () => {
+  const engine = new Engine({ seed: 42 });
+  let fail = true;
+  engine.scene.onActivate(() => {
+    if (fail) {
+      fail = false;
+      throw Error("activation failure");
+    }
+  });
+  const rec = new ReplayRecorder(engine, { controllers: {} });
+  expect(() => engine.step(0)).toThrow();
+  expect(() => engine.step(0)).toThrow(/Recording failed/);
+  expect(() => rec.finish()).toThrow();
+  rec.dispose();
+  engine.dispose();
+});
+it("rejects JSON arrays masquerading as Action kind strings", () => {
+  const a = recording();
+  const data = JSON.parse(JSON.stringify(a.data));
+  data.controllers[0].actions[0].kind = ["axis3d"];
+  expect(() => parseReplayData(data)).toThrow(/Action schema/);
+  a.engine.dispose();
+});

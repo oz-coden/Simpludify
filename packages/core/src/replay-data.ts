@@ -166,7 +166,8 @@ export function parseReplayHeader(value: unknown): ReplayHeader {
       const name = text(a.name);
       if (
         names.has(name) ||
-        !["button", "axis1d", "axis2d", "axis3d"].includes(String(a.kind)) ||
+        typeof a.kind !== "string" ||
+        !["button", "axis1d", "axis2d", "axis3d"].includes(a.kind) ||
         typeof a.normalize !== "boolean"
       )
         return bad("Invalid or duplicate Action schema");

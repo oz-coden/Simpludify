@@ -124,7 +124,12 @@ export class Engine {
       (this.active.state === SceneState.Preparing ||
         this.active.state === SceneState.Ready)
     ) {
-      this.activate(this.active);
+      try {
+        this.activate(this.active);
+      } catch (error) {
+        this.execution?.failed(error);
+        throw error;
+      }
       // Activation hooks may synchronously terminate this first step.
       if (this.dead || this.active.disposed) return;
     }
