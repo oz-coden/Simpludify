@@ -8,6 +8,12 @@ import { EngineError } from "./diagnostics";
 import { EventBus } from "./events";
 import { cleanupAll, Lifetime } from "./lifetime";
 import type { Scene } from "./scene";
+
+// Fixed identifiers are resolved once, outside per-Actor dispatch loops.
+const inputPhase = ComponentPhase.Input,
+  updatePhase = ComponentPhase.Update,
+  integratePhase = ComponentPhase.Integrate,
+  latePhase = ComponentPhase.LateUpdate;
 export const ActorState = {
   Detached: "detached",
   Attached: "attached",
@@ -199,19 +205,19 @@ export class Actor {
     for (const component of this.components.values())
       if (component.update !== Component.prototype.update) {
         switch (component.phase) {
-          case ComponentPhase.Input:
+          case inputPhase:
             input ??= [];
             input.push(component);
             break;
-          case ComponentPhase.Update:
+          case updatePhase:
             update ??= [];
             update.push(component);
             break;
-          case ComponentPhase.Integrate:
+          case integratePhase:
             integrate ??= [];
             integrate.push(component);
             break;
-          case ComponentPhase.LateUpdate:
+          case latePhase:
             late ??= [];
             late.push(component);
             break;
@@ -254,11 +260,11 @@ export class Actor {
     context: UpdateContext,
   ): void {
     const plan =
-      phase === ComponentPhase.Input
+      phase === inputPhase
         ? this.frameInput
-        : phase === ComponentPhase.Update
+        : phase === updatePhase
           ? this.frameUpdates
-          : phase === ComponentPhase.Integrate
+          : phase === integratePhase
             ? this.frameIntegrate
             : this.frameLate;
     if (!plan.length) return;

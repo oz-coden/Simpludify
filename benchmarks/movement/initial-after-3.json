@@ -1,0 +1,70 @@
+{
+  "environment": {
+    "date": "2026-10-27T16:32:01.765Z",
+    "node": "v24.22.1",
+    "platform": "linux",
+    "cpu": "AMD EPYC 9V74 80-Core Processor",
+    "sourceCommit": "939863bf93be3da688ee7564f9c7a05bf9a69069",
+    "trackedSourceChanges": ""
+  },
+  "scope": "Isolated Core/SSR, no renderer or colliders in microbenchmarks; one million Actor steps per mode after warmup. No other local tests/builds during recorded runs. Heap samples include tooling and are not peak/leak proof.",
+  "measurements": [
+    {
+      "mode": "autonomous",
+      "actors": 1000,
+      "warmupSteps": 300,
+      "measuredSteps": 1000,
+      "stepSeconds": 0.008333333333333333,
+      "milliseconds": 167.40853000000004,
+      "microsecondsPerActorStep": 0.16740853000000006,
+      "heapBefore": 20625768,
+      "heapAfter": 20436632,
+      "remainingSources": 0
+    },
+    {
+      "mode": "standard",
+      "actors": 1000,
+      "warmupSteps": 300,
+      "measuredSteps": 1000,
+      "stepSeconds": 0.008333333333333333,
+      "milliseconds": 703.2325969999999,
+      "microsecondsPerActorStep": 0.703232597,
+      "heapBefore": 21585216,
+      "heapAfter": 21552176,
+      "remainingSources": 0
+    },
+    {
+      "mode": "custom",
+      "actors": 1000,
+      "warmupSteps": 300,
+      "measuredSteps": 1000,
+      "stepSeconds": 0.008333333333333333,
+      "milliseconds": 404.4906310000001,
+      "microsecondsPerActorStep": 0.4044906310000001,
+      "heapBefore": 21579600,
+      "heapAfter": 21517280,
+      "remainingSources": 0
+    }
+  ],
+  "gameFingerprints": [
+    {
+      "options": {
+        "seed": 2026
+      },
+      "steps": 2707,
+      "status": "won",
+      "score": 3420,
+      "gameStateSha256": "259e26d669080b826e737232467f1fac80b0f2b9069336e2b70540a558b06d28"
+    },
+    {
+      "options": {
+        "seed": 42,
+        "automatic": false
+      },
+      "steps": 1385,
+      "status": "lost",
+      "score": 0,
+      "gameStateSha256": "69b4d183e17998b46068419509ec5b2c4e2366f3e6a0990ee004ab595efa0ef5"
+    }
+  ]
+}

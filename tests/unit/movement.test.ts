@@ -128,13 +128,17 @@ it("uses the constructor scale and rejects invalid numeric writes without changi
         new ActionMovement(a.controls.reader(Actions.Move), { scale: value }),
     ).toThrow();
   }
-  for (const value of [NaN, Infinity, -Infinity]) {
-    expect(() => {
-      a.motion.direction.x = value;
-    }).toThrow();
-    expect(() => {
-      a.motion.direction.y = value;
-    }).toThrow();
+  a.player.remove(ActionMovement.type);
+  for (const value of [NaN, Infinity, -Infinity, "1" as never]) {
+    a.motion.direction.x = value;
+    expect(() => a.engine.step(1)).toThrow(/Motion.direction.x/);
+    expect([a.player.x, a.player.y]).toEqual([0, 0]);
+    a.motion.direction.x = 0;
+    a.motion.direction.y = value;
+    expect(() => a.engine.step(1)).toThrow(/Motion.direction.y/);
+    expect([a.player.x, a.player.y]).toEqual([0, 0]);
+    a.motion.direction.y = 0;
+    expect(() => new Motion({ x: value })).toThrow();
   }
   expect(a.motion.speed).toBe(100);
   expect(a.movement.scale).toBe(1);

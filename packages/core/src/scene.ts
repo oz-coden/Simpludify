@@ -6,6 +6,12 @@ import { EventBus } from "./events";
 import type { InputSystem } from "./input";
 import { cleanupAll, Lifetime, type LifetimeOwner } from "./lifetime";
 import { SimulationTimers } from "./timers";
+
+// Fixed identifiers are resolved once, outside per-Actor dispatch loops.
+const inputPhase = ComponentPhase.Input,
+  updatePhase = ComponentPhase.Update,
+  integratePhase = ComponentPhase.Integrate,
+  latePhase = ComponentPhase.LateUpdate;
 export const SceneState = {
   Preparing: "preparing",
   Ready: "ready",
@@ -244,14 +250,10 @@ export class Scene {
   }
   /** @internal */ step(context: UpdateContext): void {
     const actors = this.frameActors;
-    for (const actor of actors)
-      actor.updatePhase(ComponentPhase.Input, context);
-    for (const actor of actors)
-      actor.updatePhase(ComponentPhase.Update, context);
-    for (const actor of actors)
-      actor.updatePhase(ComponentPhase.Integrate, context);
-    for (const actor of actors)
-      actor.updatePhase(ComponentPhase.LateUpdate, context);
+    for (const actor of actors) actor.updatePhase(inputPhase, context);
+    for (const actor of actors) actor.updatePhase(updatePhase, context);
+    for (const actor of actors) actor.updatePhase(integratePhase, context);
+    for (const actor of actors) actor.updatePhase(latePhase, context);
     if (this.disposed) return;
     for (const callback of this.postPlan) {
       if (this.disposed) return;

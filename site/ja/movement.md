@@ -33,7 +33,7 @@ engine.dispose();
 
 Motionはdirection×speedのモデルを維持しています。directionは有限の無次元ベクトルで、1より大きい倍率や負方向も許容し、自動正規化しません。speedは世界単位／秒、既定180、有限の0以上で、読み取り・変更できます。CharacterのspeedはMotion.speedを初期化するだけで、別の速度状態を持ちません。
 
-ActionMovement.scaleは既定1、有限の0以上です。Action側の合成・正規化後に倍率を掛けるため、2倍が[-1,1]へ潰されず、Action値そのものも変えません。`new ActionMovement(reader, { scale: 2 })`でも指定できます。不正値や計算結果のオーバーフローは拒否します。directionオブジェクトの交換はできませんが、x/yは変更できます。
+ActionMovement.scaleは既定1、有限の0以上です。Action側の合成・正規化後に倍率を掛けるため、2倍が[-1,1]へ潰されず、Action値そのものも変えません。`new ActionMovement(reader, { scale: 2 })`でも指定できます。speed／scaleは代入時、directionは構築時とIntegrate時に有限数を検証し、計算結果のオーバーフローも座標反映前に拒否します。directionオブジェクトの交換はできませんが、x/yは変更できます。
 
 ## ダッシュと独自移動
 

@@ -144,12 +144,10 @@ export class Motion extends Component {
   );
   readonly type: ComponentType<Motion> = Motion.type;
   readonly phase: ComponentPhase = ComponentPhase.Integrate;
-  private readonly vector: { x: number; y: number };
+  private readonly vector = { x: 0, y: 0 };
   get direction(): { x: number; y: number } {
     return this.vector;
   }
-  private horizontal = 0;
-  private vertical = 0;
   private rate = 180;
   private transform: Transform | undefined;
   get speed(): number {
@@ -165,36 +163,23 @@ export class Motion extends Component {
   }
   constructor(options: { speed?: number; x?: number; y?: number } = {}) {
     super();
-    const motion = this;
-    this.vector = {
-      get x() {
-        return motion.horizontal;
-      },
-      set x(value: number) {
-        motion.horizontal = finite(value, "Motion.direction.x");
-      },
-      get y() {
-        return motion.vertical;
-      },
-      set y(value: number) {
-        motion.vertical = finite(value, "Motion.direction.y");
-      },
-    };
     this.speed = options.speed ?? 180;
-    this.direction.x = options.x ?? 0;
-    this.direction.y = options.y ?? 0;
+    this.vector.x = finite(options.x ?? 0, "Motion.direction.x");
+    this.vector.y = finite(options.y ?? 0, "Motion.direction.y");
   }
   protected onAttach(): void {
     this.transform = this.actor.require(Transform.type);
   }
   update(context: UpdateContext): void {
     if (!this.transform) return;
+    const dx = finite(this.vector.x, "Motion.direction.x"),
+      dy = finite(this.vector.y, "Motion.direction.y");
     const x = finite(
-        this.transform.x + this.horizontal * this.rate * context.delta,
+        this.transform.x + dx * this.rate * context.delta,
         "Motion result x",
       ),
       y = finite(
-        this.transform.y + this.vertical * this.rate * context.delta,
+        this.transform.y + dy * this.rate * context.delta,
         "Motion result y",
       );
     this.transform.x = x;
@@ -251,10 +236,8 @@ export class ActionMovement extends Component {
     }
     const value = this.input.value();
     if (this.motion) {
-      const x = finite(value.x * this.factor, "scaled direction.x"),
-        y = finite(value.y * this.factor, "scaled direction.y");
-      this.motion.direction.x = x;
-      this.motion.direction.y = y;
+      this.motion.direction.x = value.x * this.factor;
+      this.motion.direction.y = value.y * this.factor;
     }
   }
   protected onDestroy(): void {

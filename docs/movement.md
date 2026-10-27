@@ -35,7 +35,7 @@ engine.dispose();
 
 Motion keeps **direction × speed**, rather than storing both that model and a second writable velocity. Existing projectile and AI code already uses unnormalized direction multipliers, while Character uses a useful base speed. Making speed mutable supplies the needed control without introducing conversion/synchronization between competing representations. Intended velocity is `(direction.x * speed, direction.y * speed)` in world units/second; displacement is that velocity times delta seconds. Collision correction can make actual displacement smaller: inspect Transform before/after the step if actual movement is required.
 
-Motion.speed defaults to 180, is mutable, finite and nonnegative; zero stops integration. direction defaults to (0,0), accepts any finite x/y including negative values and magnitudes above one, and is never automatically normalized. The direction object's identity cannot be replaced, but its components can be changed. Invalid assignments throw INVALID_VALUE without accepting the new scalar. Both derived coordinates are validated before either Transform coordinate is committed; overflow throws. Failure does not roll back unrelated Components or the whole step.
+Motion.speed defaults to 180, is mutable, finite and nonnegative; zero stops integration. direction defaults to (0,0), accepts any finite x/y including negative values and magnitudes above one, and is never automatically normalized. The direction object's identity cannot be replaced, but its components can be changed. Invalid speed/scale assignments throw INVALID_VALUE without accepting the new scalar. Direction remains ordinary mutable numeric data, like Transform: its constructor validates initial values, and Integrate rejects invalid x/y before changing position. Both derived coordinates are validated before either Transform coordinate is committed; overflow throws. Failure does not roll back unrelated Components or the whole step.
 
 `new ActionMovement(reader, { scale: 2 })` and `.scale = 2` use the same finite/nonnegative policy. The default is 1 and there is no arbitrary maximum; overflowing derived commands are rejected. Scale multiplies the captured vector **after** ActionController's composition/normalization. It never writes to ActionSource or clamps a doubled command back into [-1,1]. Negative scale is rejected; use an explicit direction transform for reversed controls. Character's speed option initializes Motion.speed only; Character stores no duplicate speed.
 
@@ -214,7 +214,7 @@ Constant intent produces the same displacement over equal accumulated simulation
 
 ## Migration and adjacent scope
 
-- Motion.speed is now mutable and accepts zero. Direction assignments now validate finite values; replacing its object is rejected.
+- Motion.speed is now mutable and accepts zero. Direction values are validated at construction and integration; replacing its object is rejected.
 - Motion moves from Update to Integrate. ActionMovement moves from Input to Update. Migrate custom post-motion Update Components to LateUpdate; scale policies use Input. Same-phase requirements still do not schedule peers.
 - Character's options and optional movement reader remain valid. No new Character speed field or mandatory adapter was introduced.
 - Signal Run replaces PointControl plus ActionMovement with one custom SignalMovement. Prism Raid's clamp/weapon/TTL Components use LateUpdate; normal non-sprint game state is checked against pre-refactor fingerprints.
