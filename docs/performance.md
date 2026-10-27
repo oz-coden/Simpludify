@@ -133,3 +133,7 @@ The checkpoint ran for 300 actual wall-clock seconds, with alternating movement 
 The initial heap increase may include warmup/caches, but this run does not distinguish those from all retention mechanisms. It must not be reported as proof of leak absence. Longer runs with heap-snapshot attribution, dynamic-image workloads and native/GPU memory tracking remain open. The final wall placement is sampled separately for 60 real-time seconds and the same isolated frame modes; see its raw report and the observations below.
 
 The final-placement report uses source revision 1aee1114407e976974e4f606faa5ae0e6d3172a2. It recorded normal RAF p50/p95 of 33.40/50.00ms. Over 60.14 actual seconds, forced-GC JS heap moved from 3.36MB to 4.12MB; menu-cycle DOM/input cleanup assertions also passed. Its separated CPU/RAF samples are preserved in the raw report rather than generalized to hardware FPS.
+
+## Movement composition
+
+[Movement validation](movement.md#measured-validation) compares isolated command/integration costs, complete Prism Raid rounds, Actor churn and Solid workloads against 49d98f5. It retains intermediate regressions and both sequential/interleaved series, explaining variance and limits rather than claiming universal speedups.

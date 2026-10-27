@@ -52,7 +52,7 @@ await game.run();
 <script type="module" src="./main.ts"></script>
 ```
 
-`Character`はTransform・Renderable・Motionと、明示的に注入したActionMovementのプリセットです。画像なしでもプレースホルダーを表示できます。既定位置は世界座標(400,225)、速度は180単位/秒、サイズは32です。`Game`の既定の論理解像度は800×450です。
+`Character`はTransform・Renderable・Motionのプリセットで、movementを渡した場合だけActionMovementを追加します。[移動とComponent](movement.md)では倍率変更と独自制御を説明します。画像なしでもプレースホルダーを表示できます。既定位置は世界座標(400,225)、速度は180単位/秒、サイズは32です。`Game`の既定の論理解像度は800×450です。
 
 ## 別のゲーム用ディレクトリをつくる
 

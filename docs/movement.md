@@ -221,3 +221,35 @@ Constant intent produces the same displacement over equal accumulated simulation
 - Renderable visibility, opacity, depth, enable flags and Transform are already live. Width/height/color/sprite/shape/fit remain immutable and require remove/re-add. Graphics geometry/fill is created once, and images have asynchronous ownership, so animation-style updates require a separate renderer contract. No renderer/asset/animation redesign is included here.
 
 Tests cover live scale/speed, numeric rejection/overflow, custom/default-phase commands, ownership, Solid/Static behavior, ordering, fixed stepping, JSON replay, real keys/touch and complete game outcomes.
+
+## Measured validation
+
+[Raw reports](../benchmarks/movement/) preserve all recorded series, including the slower intermediate implementation. The baseline is clean 01bb2fb (instrumentation only, Core/game code from 49d98f5), intermediate source is 939863b, and final measured source is clean 744e087. Node 24.22.1, Linux, AMD EPYC 9V74 shared host, Vite SSR and exposed GC were used. Every recorded command ran alone, without other local tests/builds. These are Core observations, not GPU/browser/native-memory results or a universal speed claim.
+
+```sh
+npm run bench:movement -- --out /tmp/movement.json
+npm run bench:shooter -- --out /tmp/shooter.json
+npm run bench:response -- --out /tmp/response.json
+```
+
+The movement fixture creates 1000 Actors, warms 300 steps, then measures 1000 steps at dt=1/120 (one million Actor steps). It checks total distance, source cleanup and complete real-game win/loss fingerprints. The custom cost fixture uses Input on both revisions so the baseline's old scheduling is valid; default-Update same-step behavior is tested separately. No Colliders or renderer enter that microbenchmark.
+
+Initial three-run medians were 80.94→66.79 ms autonomous, 398.85→417.50 ms standard, and 150.01→114.79 ms custom. An intermediate version reached 783.96 ms standard and 453.69 ms custom. Profiling and diagnostic substitutions implicated per-instance vector accessors and repeated phase-identifier access in dispatch. Keeping direction as ordinary data, validating at integration, sharing empty plans and caching fixed phase identifiers removed that large regression without adding another public movement API.
+
+A second comparison alternated baseline/final in three pairs, using an independent clean baseline checkout with the same lockfile and harness:
+
+| Workload                                 | Baseline median | Final median   |
+| ---------------------------------------- | --------------- | -------------- |
+| Autonomous, one million Actor steps      | 91.71 ms        | 72.76 ms       |
+| Standard ActionMovement, same workload   | 446.04 ms       | 416.61 ms      |
+| Custom Input writer, same workload       | 178.74 ms       | 144.09 ms      |
+| Create/destroy 10000 player-shot Actors  | 13.33 µs/Actor  | 12.25 µs/Actor |
+| Prism Raid: 60 complete automatic rounds | 3.82 s          | 4.56 s         |
+
+Each shooter invocation warms five rounds, then uses seeds 42–101, dt=1/120 and ordinary Action autopilot decisions every six steps. All invocations completed 172796 boundaries / 1439.97 simulated seconds, 60 wins, 1440 kills and identical shot/enemy counts; live round/world resources were asserted empty after disposal. The first non-interleaved final/baseline series had medians 3.57/3.67 seconds, while the interleaved series had 4.56/3.82 seconds (about 19% higher). Both series are retained; do not select the favorable one or infer zero overhead. Final samples ranged 3.20–4.60 seconds. The final game also executes the new Sprint Button/policy and additional phase work. The exact attribution of remaining end-to-end variance is unproven; this bounded Core workload still advances hundreds of simulated seconds per wall second.
+
+The interleaved shooter's per-step p50 medians at 1, 301 and peak-1101 game Units were 0.0124/0.3628/2.0661 ms baseline and 0.0141/0.3874/2.0799 ms final. These counts describe Units, not every Scene Actor. Dense-overlap sample tails varied more; raw reports retain p95/p99 rather than asserting a frame-time guarantee. No pooling or general scheduler optimization was justified by these measurements.
+
+The separate response fixture checks Motion plus CollisionBody/Transform: 100 moving dynamic Solids had p50 0.2337→0.2393 ms; 1000 static obstacles plus one dynamic Actor had 1.5522→1.7193 ms. These are single-run observations, not matched confidence intervals. Both versions completed 500 Scene disposal cycles. During 60-round final sessions forced-GC heap was approximately 19.65–19.76 MB including SSR/tooling; the standard movement microfixture retained no growing frame log and heap after GC stayed close to warmup. GC samples are not peak-memory measurements or proof of multi-hour leak freedom.
+
+Behavioral checks compare complete pre-refactor Prism Raid snapshots (not only scores), preserve normal win/loss outcomes, replay sprint through unchanged ReplayData v1, and cover custom Signal Run pointer/keyboard cancellation and destination arrival. Type tests reject wrong reader dimensions, nonnumeric speed/scale, replacement of the direction reference and unknown phases. Browser tests cover actual Shift events, simultaneous touch DASH, both viewport sizes, focus, pause, restart, Canvas2D/WebGL, replay and cleanup. Physical mobile hardware and Safari/Firefox remain unverified.

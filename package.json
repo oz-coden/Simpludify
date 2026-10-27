@@ -31,7 +31,8 @@
     "test:site": "node scripts/site-smoke.mjs",
     "bench:shooter": "node --expose-gc scripts/benchmark-shooter.mjs",
     "replay:demo": "node scripts/replay-demo.mjs",
-    "bench:replay-memory": "node --expose-gc scripts/benchmark-replay-memory.mjs"
+    "bench:replay-memory": "node --expose-gc scripts/benchmark-replay-memory.mjs",
+    "bench:movement": "node --expose-gc scripts/benchmark-movement.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.3",
