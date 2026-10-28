@@ -127,51 +127,51 @@ for (const fallback of [false, true])
       expect(r.references).toBe(1);
       expect(r.after).toEqual(empty);
     });
-  });
 
-test("actual tile trail moves camera, edits data and returns through Scenes", async ({
-  page,
-}) => {
-  const errors: string[] = [];
-  page.on("pageerror", (e) => errors.push(e.message));
-  page.on("console", (m) => {
-    if (m.type() === "error") errors.push(m.text());
+    test("actual tile trail moves camera, edits data and returns through Scenes", async ({
+      page,
+    }) => {
+      const errors: string[] = [];
+      page.on("pageerror", (e) => errors.push(e.message));
+      page.on("console", (m) => {
+        if (m.type() === "error") errors.push(m.text());
+      });
+      await page.goto("/");
+      await page.waitForFunction(() => !!window.demo);
+      const url = `/@fs/${process.cwd()}/examples/tilemap/main.ts`;
+      await page.evaluate(async (url) => {
+        window.demo.dispose();
+        await import(url);
+      }, url);
+      await page.locator(".simpludify").focus();
+      const start = await page.evaluate(
+        () => window.tilemapDemo.game.engine.scene.find("explorer")?.id,
+      );
+      expect(start).toBe("explorer");
+      await page.keyboard.down("KeyD");
+      await expect
+        .poll(() => page.evaluate(() => window.tilemapDemo.game.camera.x))
+        .toBeGreaterThan(5);
+      await page.keyboard.up("KeyD");
+      const previous = await page.evaluate(
+        () => window.tilemapDemo.terrain?.revision ?? 0,
+      );
+      await page.getByRole("button", { name: "Paint under player" }).click();
+      expect(
+        await page.evaluate(() => window.tilemapDemo.terrain?.revision),
+      ).toBe(previous + 1);
+      for (let i = 0; i < 3; i++) {
+        await page.getByRole("button", { name: "Leave field →" }).click();
+        await page.getByRole("button", { name: "← Return to field" }).click();
+        await expect(
+          page.getByRole("heading", { name: "Tile trail" }),
+        ).toBeVisible();
+      }
+      await page.screenshot({
+        path: `test-results/tilemap-sample-${test.info().project.name}.png`,
+      });
+      await page.evaluate(() => window.tilemapDemo.game.dispose());
+      expect(await page.locator("canvas").count()).toBe(0);
+      expect(errors).toEqual([]);
+    });
   });
-  await page.goto("/");
-  await page.waitForFunction(() => !!window.demo);
-  const url = `/@fs/${process.cwd()}/examples/tilemap/main.ts`;
-  await page.evaluate(async (url) => {
-    window.demo.dispose();
-    await import(url);
-  }, url);
-  await page.locator(".simpludify").focus();
-  const start = await page.evaluate(
-    () => window.tilemapDemo.game.engine.scene.find("explorer")?.id,
-  );
-  expect(start).toBe("explorer");
-  await page.keyboard.down("KeyD");
-  await expect
-    .poll(() => page.evaluate(() => window.tilemapDemo.game.camera.x))
-    .toBeGreaterThan(5);
-  await page.keyboard.up("KeyD");
-  const previous = await page.evaluate(
-    () => window.tilemapDemo.terrain?.revision ?? 0,
-  );
-  await page.getByRole("button", { name: "Paint under player" }).click();
-  expect(await page.evaluate(() => window.tilemapDemo.terrain?.revision)).toBe(
-    previous + 1,
-  );
-  for (let i = 0; i < 3; i++) {
-    await page.getByRole("button", { name: "Leave field →" }).click();
-    await page.getByRole("button", { name: "← Return to field" }).click();
-    await expect(
-      page.getByRole("heading", { name: "Tile trail" }),
-    ).toBeVisible();
-  }
-  await page.screenshot({
-    path: `test-results/tilemap-sample-${test.info().project.name}.png`,
-  });
-  await page.evaluate(() => window.tilemapDemo.game.dispose());
-  expect(await page.locator("canvas").count()).toBe(0);
-  expect(errors).toEqual([]);
-});

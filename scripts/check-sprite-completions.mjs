@@ -6,11 +6,14 @@ import { API } from "typescript/unstable/sync";
 // Use the workspace's pinned TypeScript completion implementation; no editor required.
 const root = resolve(".");
 const file = join(root, "tests/types/sprite-completions.ts");
-const source = `import { SpriteSheet, SpriteAnimation } from '@simpludify/core';
+const source = `import { SpriteSheet, SpriteAnimation, Tilemap } from '@simpludify/core';
 const sheet = SpriteSheet.grid('hero.png', { frameWidth:32, frameHeight:32, names:{idle:0, walk:2} });
 const animation = new SpriteAnimation({sheet, clips:{idle:{frames:[0]}, walk:{frames:[1]}}});
+const map=new Tilemap({sheet,tiles:[[0]],tileWidth:16,tileHeight:16});
 sheet.get('');
-animation.play('');`;
+animation.play('');
+map.set(0,0,'');
+map.fill('');`;
 const api = new API({
   cwd: root,
   fs: {
@@ -42,7 +45,12 @@ try {
     const project = snapshot.getDefaultProjectForFile(file);
     assert(project);
     const results = {};
-    for (const marker of ["sheet.get('", "animation.play('"]) {
+    for (const marker of [
+      "sheet.get('",
+      "animation.play('",
+      "map.set(0,0,'",
+      "map.fill('",
+    ]) {
       const position = source.indexOf(marker) + marker.length;
       const names = project.checker
         .getCompletionsAtPosition(file, position)

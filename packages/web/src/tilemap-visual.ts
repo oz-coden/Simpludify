@@ -1,4 +1,9 @@
-import type { Scene, Tilemap, ViewTransform } from "@simpludify/core";
+import {
+  cleanupAll,
+  type Scene,
+  type Tilemap,
+  type ViewTransform,
+} from "@simpludify/core";
 import { Container, Sprite, type Texture } from "pixi.js";
 import type { ImageLease } from "./shared-images";
 
@@ -194,16 +199,24 @@ export class TilemapVisual {
     this.disposed = true;
     this.controller?.abort();
     this.controller = undefined;
-    this.off();
-    this.offDispose();
+
     this.stats.destroyedSprites += this.sprites.size;
     this.sprites.clear();
     this.textures.clear();
     this.dirty.clear();
-    this.display.destroy({ children: true });
-    this.lease?.release();
+    const lease = this.lease;
     this.lease = undefined;
-    this.released();
-    this.changed();
+    cleanupAll(
+      [
+        this.off,
+        this.offDispose,
+        () => this.display.removeFromParent(),
+        () => this.display.destroy({ children: true }),
+        () => lease?.release(),
+        this.released,
+        this.changed,
+      ],
+      "Tilemap presentation cleanup failed",
+    );
   }
 }
