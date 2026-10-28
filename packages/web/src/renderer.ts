@@ -8,6 +8,7 @@ import {
   type RendererPort,
   type Scene,
   Shape,
+  TilemapLayer,
   Transform,
   type VisualSource,
 } from "@simpludify/core";
@@ -17,6 +18,8 @@ import {
   type ImageResource,
   SharedImages,
 } from "./shared-images";
+
+import { TilemapVisual } from "./tilemap-visual";
 
 interface Visual {
   actor: Actor;
@@ -48,6 +51,35 @@ export class PixiRenderer implements RendererPort {
   private readonly images = new SharedImages((url, signal) =>
     this.image(url, signal),
   );
+  private readonly tilemaps = new Set<TilemapVisual>();
+  get tilemapDiagnostics() {
+    let sprites = 0,
+      visibleTiles = 0,
+      visitedCells = 0,
+      updatedTiles = 0,
+      createdSprites = 0,
+      destroyedSprites = 0,
+      validatedFrames = 0;
+    for (const t of this.tilemaps) {
+      sprites += t.sprites.size;
+      if (t.display.visible) visibleTiles += t.sprites.size;
+      visitedCells += t.stats.visitedCells;
+      updatedTiles += t.stats.updatedTiles;
+      createdSprites += t.stats.createdSprites;
+      destroyedSprites += t.stats.destroyedSprites;
+      validatedFrames += t.stats.validatedFrames;
+    }
+    return {
+      maps: this.tilemaps.size,
+      sprites,
+      visibleTiles,
+      visitedCells,
+      updatedTiles,
+      createdSprites,
+      destroyedSprites,
+      validatedFrames,
+    };
+  }
   private ready = false;
   private dead = false;
   private visualCount = 0;
@@ -178,7 +210,12 @@ export class PixiRenderer implements RendererPort {
     root.addChild(world, mask);
     root.mask = mask;
     const visuals = new Map<Actor, Visual>();
-    const drawOrder: Visual[] = [];
+    const tilemaps = new Map<Actor, TilemapVisual>();
+    const drawOrder: {
+      display: Sprite | Graphics | Container;
+      order: number;
+      zIndex: number;
+    }[] = [];
     let depthDirty = true;
     let revision = -1,
       disposed = false,
@@ -461,8 +498,40 @@ export class PixiRenderer implements RendererPort {
           entry.dispose();
           visuals.delete(actor);
         }
+      for (const [actor, entry] of tilemaps)
+        if (
+          actor.disposed ||
+          actor.scene !== scene ||
+          !actor.get(TilemapLayer.type) ||
+          entry.disposed
+        ) {
+          entry.dispose();
+          this.tilemaps.delete(entry);
+          tilemaps.delete(actor);
+        }
       let order = 0;
       for (const actor of scene.actors) {
+        const layer = actor.get(TilemapLayer.type);
+        if (layer) {
+          let tile = tilemaps.get(actor);
+          if (!tile) {
+            tile = new TilemapVisual(
+              layer.map,
+              scene,
+              (url, signal) => this.acquireImage(url, signal),
+              changed,
+              this.onError,
+              () => {
+                if (tile) this.tilemaps.delete(tile);
+                depthDirty = true;
+              },
+            );
+            world.addChild(tile.display);
+            tilemaps.set(actor, tile);
+            this.tilemaps.add(tile);
+          }
+          tile.order = order;
+        }
         const component = actor.get(Renderable.type);
         if (component) {
           let entry = visuals.get(actor);
@@ -470,13 +539,15 @@ export class PixiRenderer implements RendererPort {
             entry = create(actor, component);
             visuals.set(actor, entry);
           }
-          entry.order = order++;
+          entry.order = order;
         }
+        order++;
       }
     };
     const sync = () => {
       reconcile();
       for (const entry of visuals.values()) update(entry);
+      for (const entry of tilemaps.values()) entry.sync();
     };
     const prepared: PreparedScene = {
       ready: async () => {
@@ -489,6 +560,10 @@ export class PixiRenderer implements RendererPort {
           sync();
           let pending = false;
           for (const entry of visuals.values()) {
+            if (entry.error) throw entry.error;
+            if (entry.controller) pending = true;
+          }
+          for (const entry of tilemaps.values()) {
             if (entry.error) throw entry.error;
             if (entry.controller) pending = true;
           }
@@ -539,14 +614,29 @@ export class PixiRenderer implements RendererPort {
             );
           }
         }
+        for (const entry of tilemaps.values()) {
+          entry.render(view);
+          if (entry.depth !== entry.map.zIndex) {
+            entry.depth = entry.map.zIndex;
+            depthDirty = true;
+          }
+        }
         if (depthDirty) {
           drawOrder.length = 0;
           for (const entry of visuals.values())
-            if (entry.display) drawOrder.push(entry);
-          drawOrder.sort(
-            (a, b) =>
-              a.component.zIndex - b.component.zIndex || a.order - b.order,
-          );
+            if (entry.display)
+              drawOrder.push({
+                display: entry.display,
+                order: entry.order,
+                zIndex: entry.component.zIndex,
+              });
+          for (const entry of tilemaps.values())
+            drawOrder.push({
+              display: entry.display,
+              order: entry.order,
+              zIndex: entry.map.zIndex,
+            });
+          drawOrder.sort((a, b) => a.zIndex - b.zIndex || a.order - b.order);
           for (let i = 0; i < drawOrder.length; i++) {
             const entry = drawOrder[i];
             if (entry?.display) entry.display.zIndex = i;
@@ -567,6 +657,13 @@ export class PixiRenderer implements RendererPort {
           [
             () => removeSceneCleanup?.(),
             ...entries.map((entry) => entry.dispose),
+            () => {
+              for (const entry of tilemaps.values()) {
+                entry.dispose();
+                this.tilemaps.delete(entry);
+              }
+              tilemaps.clear();
+            },
             () => root.destroy({ children: true, context: true }),
           ],
           "Presentation cleanup failed",
