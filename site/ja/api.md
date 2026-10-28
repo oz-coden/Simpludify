@@ -53,3 +53,7 @@
 - [Collider](https://github.com/oz-coden/Simpludify/blob/main/packages/core/src/collider.ts)、[CollisionBody](https://github.com/oz-coden/Simpludify/blob/main/packages/core/src/collision-body.ts)
 
 未実装の構想はAPI一覧へ混ぜず、[制約とロードマップ](limitations.md)へ記載します。
+
+## SpriteSheet・SpriteAnimation
+
+[フレームとアニメーションのガイド](sprites.md)に、型推論を使う定義・再生操作・画像共有・破棄・失敗時の契約をまとめています。

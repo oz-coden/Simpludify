@@ -167,7 +167,7 @@ After normal Game disposal these counters are zero. An external/non-abortable lo
 
 Preserve immutable sources, Component identity, revision/no-op semantics, latest-generation checks, independent pending/committed leases, retained displays, presentation-scoped readiness and simulation independence. The current URL API needs no migration for sharing. The diagnostic schema adds imageReferences/imageEntries and changes pendingImages to count unique loads.
 
-A future image-based game should exercise independent damage tint on shared sprites, bursts of enemies, sprite replacement during delayed/failed loads, scene handoff and repeated restart on real mobile devices. Sprite Sheet/frame references and explicit preloading may later build on this acquisition/release boundary; they are not implemented. Do not add Material or general Asset management until a concrete game needs their contracts.
+A future image-based game should exercise independent damage tint on shared sprites, bursts of enemies, sprite replacement during delayed/failed loads, scene handoff and repeated restart on real mobile devices. SpriteSheet frames and SpriteAnimation now build on this acquisition/release boundary; see [sprite contracts](sprites.md). Explicit preloading remains deferred. Do not add Material or general Asset management until a concrete game needs their contracts.
 
 ## Shared-image measurements
 

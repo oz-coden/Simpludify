@@ -139,7 +139,7 @@ baseURIや認証状態が変わっても、変更されていないsourceを自�
 
 通常のGame終了後はすべて0です。中断不能な外部処理が遅れて完了する場合、その結果を受け取って解放します。JSカウンターはブラウザ・GPUの物理メモリやキャッシュを測るものではありません。共有Mapの参照は画像要求の変更時だけ、診断の走査も診断取得時だけに行います。固定したPixiのCanvas2D経路ではTextureと色ごとの着色済みCanvasを追加保持することがあり、共有元画像1つがすべての経路で物理割り当て1つになるとは限りません。
 
-第3段階の画像を使う実ゲームでは、大量生成・個別被弾色・画像の遅延や失敗・Scene遷移・連続再開始を実機でも検証する方針です。Sprite Sheetや事前読み込みは、この利用参照の境界に追加できる余地を残し、今回は実装しません。[英語ガイドの検証・測定記録](../en/rendering.html)も参照してください。
+第3段階の画像を使う実ゲームでは、大量生成・個別被弾色・画像の遅延や失敗・Scene遷移・連続再開始を実機でも検証する方針です。[SpriteSheetとアニメーション](sprites.md)はこの利用参照の境界へ接続しています。事前読み込みは未実装です。[英語ガイドの検証・測定記録](../en/rendering.html)も参照してください。
 
 ## 画像共有の測定結果
 
@@ -169,7 +169,7 @@ JSヒープ増加はActor生成前と準備・初回描画後のforced-GC perfor
 - 寸法・色・画像のためのComponent差し替え → 同じRenderableのプロパティ変更
 - 画像への明示的なcolor指定は着色になるため、以前の無着色結果には白を指定
 
-図形と画像の暗黙の優先順位はありません。Signal Runは被弾色と透明度を同じRenderableへ反映し、Blockfallは盤面セルのActorを維持して色を更新します。画像はRenderer単位で自動共有します。公開TextureRef、Material、Sprite Sheet、アニメーションは導入していません。第1段階のsource APIは変更せず、通常のゲームコードの移行は不要です。診断にはimageReferences/imageEntriesを追加し、pendingImagesはVisual数ではなく共有ロード数を数えます。
+図形と画像の暗黙の優先順位はありません。Signal Runは被弾色と透明度を同じRenderableへ反映し、Blockfallは盤面セルのActorを維持して色を更新します。画像はRenderer単位で自動共有します。公開TextureRefとMaterialは導入していません。SpriteSheet・アニメーションは[専用ガイド](sprites.md)を参照してください。第1段階のsource APIは変更せず、通常のゲームコードの移行は不要です。診断にはimageReferences/imageEntriesを追加し、pendingImagesはVisual数ではなく共有ロード数を数えます。
 
 ## 三角形
 

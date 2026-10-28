@@ -4,6 +4,8 @@ Simpludify has an experimental Web runtime and a generic composition-based Core.
 
 ## Included
 
+- SpriteSheet grid/named/rectangle frames, shared cropped image textures and Actor-owned SpriteAnimation with simulation-time playback; [contracts and sample](sprites.md).
+
 - Independent fixed-size dense Grid with strict coordinates, shared/factory initialization and full/rectangle traversal; [contracts and data-only example](grid.md).
 - DOM-free Engine stepping, frozen frame input, managed seeded randomness and generic snapshots.
 - Synchronous Scene states, exclusive ownership, lifecycle hooks and aggregate cleanup.
@@ -19,13 +21,13 @@ Simpludify has an experimental Web runtime and a generic composition-based Core.
 - Character, UI/scenes, headless, Beacon field the complete Signal Run collection/survival game, and Blockfall falling-block puzzle with deterministic grid logic, hold/ghost and keyboard/touch controls; Prism Raid adds Triangle ships, Trigger combat and input-only automatic play.
 - Noninteractive source scaffold/dev/check/test/build/doctor, JSON diagnostics, unit/browser/production-subpath tests, baseline scripts and automatic licensing notices.
 
-- Japanese-first static documentation, English technical reference, isolated playable six-sample gallery, integrated root/project-base builds and Pages workflow. See site-validation for deployment evidence.
+- Japanese-first static documentation, English technical reference, isolated playable seven-sample gallery, integrated root/project-base builds and Pages workflow. See site-validation for deployment evidence.
 
 ## Pending and limits
 
 Windows/Electron packaging and Windows executable smoke tests are pending. There is no portable executable guarantee or cross-language SDK. Public npm publication, compiled SDK packages and automated vendored-engine upgrades are deferred.
 
-No impulse/angular rigid-body simulation or continuous collision detection, sprite animation, multiple cameras/viewports, tilemaps, audio, save-game format, networking, generic ECS, asset manifest/font manager or visual editor is implemented. Actors/components are destroyed on removal; reusable pooling and scene reactivation are not implicit features. Dynamic images load asynchronously and can fail independently of logical Actors.
+No impulse/angular rigid-body simulation or continuous collision detection, multiple cameras/viewports, tilemaps, audio, save-game format, networking, generic ECS, asset manifest/font manager or visual editor is implemented. Actors/components are destroyed on removal; reusable pooling and scene reactivation are not implicit features. Dynamic images load asynchronously and can fail independently of logical Actors.
 
 Generic control-right management was reviewed and is not being introduced. Grid does not acquire control handles for stored values, and no control-right API is being added to existing Components. NDArray and sparse/infinite/chunked grids are outside the fixed 2D Grid scope.
 
@@ -34,7 +36,7 @@ Viewport tests cover the supplied examples on Chromium, not arbitrary user layou
 ## Next milestones
 
 1. Extend the measured disposal cycles into a real-time soak with dynamic images, native/GPU memory tracking and controlled hardware; profile the known continuous resize/font workload.
-2. Add further game capabilities only when a concrete example requires them (such as animation or audio), keeping collision response/fast-object detection explicit and preserving ownership/update order.
+2. Add further game capabilities only when a concrete example requires them (such as audio), keeping collision response/fast-object detection explicit and preserving ownership/update order.
 3. Build a secure Windows host in a separate platform-electron package. Reuse the Web renderer loop without per-frame IPC, loading bundled local output only. Disable nodeIntegration, enable contextIsolation and sandbox, apply a restrictive CSP and deny unexpected navigation/windows/permissions. Add a narrow preload API only for an actual feature.
 4. Review Electron/electron-builder/Chromium/Node licenses and support before enabling build --target windows. In Windows CI launch the built portable artifact, verify a rendered frame, movement/navigation, offline behavior, process cleanup and temporary/extracted files. Report compressed and installed/extracted sizes separately before documenting verified OS/portable support.
 
@@ -44,4 +46,4 @@ Before comparative performance claims, implement equivalent Godot/Phaser workloa
 
 Implemented: standalone RandomManager, cached named streams, actual automatic seeds, opt-in JSON Action Replay from a fresh Engine/one Scene, auxiliary observations, and optional bounded fixed stepping. Deferred: seek/rewind, arbitrary state restoration, cross-Scene replay, compression, render interpolation and network determinism. See [contracts and validation](replay.md).
 
-[Live rendering](rendering.md) preserves Component identity and separates pending image requests from owned display resources. Renderer-local image sharing now coalesces pending loads and holds independently cancellable consumer leases across Visuals and overlapping Scenes. URL sources remain the public reference; TextureRef/Material, idle retention, preloading and animation remain deferred.
+[Live rendering](rendering.md) preserves Component identity and separates pending image requests from owned display resources. Renderer-local image sharing now coalesces pending loads and holds independently cancellable consumer leases across Visuals and overlapping Scenes. URL sources remain the public reference; TextureRef/Material, idle retention, preloading remain deferred.

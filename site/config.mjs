@@ -48,8 +48,34 @@ export const examples = [
       "Start missionで開始。WASD／矢印で移動、Space長押しで連射、Shift／DASHで移動速度2倍。タッチは下部の方向ボタンとFIREを同時に長押し。P／EscまたはPauseで停止。Watch autopilotで入力APIによる自動プレイを観察できます。",
     guide: "guides/prism-raid.html",
   },
+  {
+    id: "sprites",
+    title: "Sprite garden",
+    summary: "SpriteSheet・アニメーション・共有画像",
+    controls:
+      "ゲーム領域にフォーカスしてWASDで移動。ボタンで仲間の再生操作やScene往復ができます。移動にはキーボードが必要です。",
+    guide: "guides/sprites.html",
+  },
 ];
 export const pages = [
+  [
+    "guides/sprites.html",
+    "site/ja/sprites.md",
+    "SpriteSheetとアニメーション",
+    "ガイド",
+  ],
+  [
+    "en/sprites.html",
+    "docs/sprites.md",
+    "Sprite sheets / animation",
+    "English",
+  ],
+  [
+    "guides/sprite-garden.html",
+    "examples/sprites/README.md",
+    "Sprite garden",
+    "サンプル",
+  ],
   ["index.html", "site/ja/index.md", "ホーム", "はじめに"],
   [
     "getting-started.html",

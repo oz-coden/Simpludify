@@ -308,3 +308,7 @@ This experimental revision intentionally removes obsolete storage APIs:
 | Renderer.prepare(characterList), resize(...worldView) | prepare(scene), resize(cssWidth,cssHeight,dpr), render(view)                               |
 
 This experimental revision also removes InputState, InputSource, InputReader, KeyMap/KeyMaps, Movement and KeyboardController. Character now accepts an explicit Axis2D ActionReader. UpdateContext no longer contains raw input. See `examples/composition` for a runnable game exercising custom Components, typed events, scoped timers/listeners, spawning, removal and Camera zoom.
+
+## SpriteSheet and SpriteAnimation
+
+[Sprite contracts and examples](sprites.md) define grid/named/rectangular image sources, simulation-time playback, Renderable source ownership, deferred bounds checking and shared crop/source cleanup. Both APIs are exported by Core and Web. SpriteAnimation requires Renderable, runs in LateUpdate, and does not add host timers or an asynchronous Core lifecycle.
