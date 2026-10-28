@@ -1,10 +1,17 @@
-import { EngineError } from "@simpludify/core";
-import type { Texture } from "pixi.js";
+import {
+  EngineError,
+  type SpriteFrame,
+  spriteFrameBounds,
+} from "@simpludify/core";
+import { Rectangle, Texture } from "pixi.js";
 
 /** Internal ownership boundary: the loader owns a Texture and its TextureSource. */
 export interface ImageResource {
   readonly texture: Texture;
   release(): void;
+}
+export interface ImageLease extends ImageResource {
+  textureFor(frame?: SpriteFrame): Texture;
 }
 interface Consumer {
   ready(resource: ImageResource): void;
@@ -15,6 +22,7 @@ interface Entry {
   readonly key: string;
   readonly controller: AbortController;
   readonly consumers: Set<Consumer>;
+  readonly frames: Map<string, Texture>;
   resource?: ImageResource;
 }
 
@@ -38,7 +46,7 @@ export class SharedImages {
       pendingImages: pending,
     };
   }
-  acquire(key: string, signal: AbortSignal): Promise<ImageResource> {
+  acquire(key: string, signal: AbortSignal): Promise<ImageLease> {
     const cancelled = () =>
       new EngineError("GAME_DISPOSED", "Image use cancelled", { path: key });
     if (this.dead || signal.aborted) return Promise.reject(cancelled());
@@ -49,11 +57,12 @@ export class SharedImages {
         key,
         controller: new AbortController(),
         consumers: new Set(),
+        frames: new Map(),
       };
       this.entries.set(key, entry);
     }
     const current = entry;
-    const promise = new Promise<ImageResource>((resolve, reject) => {
+    const promise = new Promise<ImageLease>((resolve, reject) => {
       let released = false,
         settled = false;
       const release = () => {
@@ -71,6 +80,8 @@ export class SharedImages {
           current.controller.abort();
           const resource = current.resource;
           delete current.resource;
+          for (const texture of current.frames.values()) texture.destroy(false);
+          current.frames.clear();
           resource?.release();
         }
       };
@@ -81,7 +92,30 @@ export class SharedImages {
           signal.removeEventListener("abort", release);
           // A resolved lease survives request-controller cleanup. Its owner must
           // explicitly release it after replacing/destroying the displayed image.
-          resolve({ texture: resource.texture, release });
+          resolve({
+            texture: resource.texture,
+            release,
+            textureFor: (frame) => {
+              if (released)
+                throw new EngineError("GAME_DISPOSED", "Image lease released");
+              if (!frame) return resource.texture;
+              const rect = spriteFrameBounds(
+                frame,
+                resource.texture.width,
+                resource.texture.height,
+              );
+              const key = `${rect.x},${rect.y},${rect.width},${rect.height}`;
+              let texture = current.frames.get(key);
+              if (!texture) {
+                texture = new Texture({
+                  source: resource.texture.source,
+                  frame: new Rectangle(rect.x, rect.y, rect.width, rect.height),
+                });
+                current.frames.set(key, texture);
+              }
+              return texture;
+            },
+          });
         },
         fail: (error) => {
           if (released || settled) return;

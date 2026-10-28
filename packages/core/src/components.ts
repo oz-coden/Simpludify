@@ -7,6 +7,7 @@ import {
   type UpdateContext,
 } from "./component";
 import { EngineError, positive } from "./diagnostics";
+import { type SpriteFrame, spriteFrame } from "./sprite-sheet";
 
 function finite(value: number, field: string): number {
   if (!Number.isFinite(value))
@@ -70,7 +71,12 @@ export type Shape = (typeof Shape)[keyof typeof Shape];
 /** Immutable, backend-independent description. Image fit defaults to Contain. */
 export type VisualSource =
   | Readonly<{ kind: "shape"; shape: Shape }>
-  | Readonly<{ kind: "image"; url: string; fit?: SpriteFit }>;
+  | Readonly<{
+      kind: "image";
+      url: string;
+      fit?: SpriteFit;
+      frame?: SpriteFrame;
+    }>;
 
 function visualSource(value: VisualSource): VisualSource {
   if (!value || typeof value !== "object")
@@ -82,7 +88,8 @@ function visualSource(value: VisualSource): VisualSource {
     if (
       !Object.values(Shape).includes(value.shape) ||
       "url" in value ||
-      "fit" in value
+      "fit" in value ||
+      "frame" in value
     )
       throw new EngineError("INVALID_VALUE", "Invalid shape source");
     return Object.freeze({ kind: "shape", shape: value.shape });
@@ -96,14 +103,39 @@ function visualSource(value: VisualSource): VisualSource {
     const fit = value.fit === undefined ? SpriteFit.Contain : value.fit;
     if (!Object.values(SpriteFit).includes(fit))
       throw new EngineError("INVALID_VALUE", "Unknown sprite fit");
-    return Object.freeze({ kind: "image", url: value.url, fit });
+    return Object.freeze({
+      kind: "image",
+      url: value.url,
+      fit,
+      ...(value.frame === undefined ? {} : { frame: spriteFrame(value.frame) }),
+    });
   }
   throw new EngineError("INVALID_VALUE", "Unknown visual source kind");
+}
+function equalFrame(
+  a: SpriteFrame | undefined,
+  b: SpriteFrame | undefined,
+): boolean {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  return a.kind === "rect"
+    ? b.kind === "rect" &&
+        a.x === b.x &&
+        a.y === b.y &&
+        a.width === b.width &&
+        a.height === b.height
+    : b.kind === "grid" &&
+        a.index === b.index &&
+        a.frameWidth === b.frameWidth &&
+        a.frameHeight === b.frameHeight;
 }
 function equalSource(a: VisualSource, b: VisualSource): boolean {
   return a.kind === "shape"
     ? b.kind === "shape" && a.shape === b.shape
-    : b.kind === "image" && a.url === b.url && a.fit === b.fit;
+    : b.kind === "image" &&
+        a.url === b.url &&
+        a.fit === b.fit &&
+        equalFrame(a.frame, b.frame);
 }
 const defaultVisualSource: VisualSource = Object.freeze({
   kind: "shape",

@@ -12,7 +12,11 @@ import {
   type VisualSource,
 } from "@simpludify/core";
 import { Application, Container, Graphics, Sprite, Texture } from "pixi.js";
-import { type ImageResource, SharedImages } from "./shared-images";
+import {
+  type ImageLease,
+  type ImageResource,
+  SharedImages,
+} from "./shared-images";
 
 interface Visual {
   actor: Actor;
@@ -32,7 +36,8 @@ interface Visual {
   geometryWidth: number;
   geometryHeight: number;
   geometryColor: number;
-  image?: ImageResource;
+  image?: ImageLease;
+  requestedSource?: VisualSource;
   error?: unknown;
   disposed: boolean;
   dispose(): void;
@@ -149,10 +154,7 @@ export class PixiRenderer implements RendererPort {
     };
   }
 
-  private acquireImage(
-    url: string,
-    signal: AbortSignal,
-  ): Promise<ImageResource> {
+  private acquireImage(url: string, signal: AbortSignal): Promise<ImageLease> {
     // Image.src resolves against document.baseURI too. Retain query, fragment and
     // credentials; anonymous CORS is fixed for every request in this renderer.
     try {
@@ -214,7 +216,7 @@ export class PixiRenderer implements RendererPort {
       const { component, display, displayedSource: source } = entry;
       if (!display || !source) return;
       if (source.kind === "image" && display instanceof Sprite && entry.image) {
-        const texture = entry.image.texture;
+        const texture = display.texture;
         const size = imageSize(
           texture.width,
           texture.height,
@@ -286,11 +288,39 @@ export class PixiRenderer implements RendererPort {
       }
       entry.displayedSource = source;
     };
+    const fail = (entry: Visual, error: unknown) => {
+      entry.error = error;
+      try {
+        this.onError(error);
+      } catch {
+        /* Keep diagnostics separate from cleanup. */
+      }
+    };
+    const commitImage = (
+      entry: Visual,
+      resource: ImageLease,
+      source: VisualSource,
+    ) => {
+      if (source.kind !== "image") return;
+      // Resolve and validate before mutating the retained Sprite or releasing its lease.
+      const texture = resource.textureFor(source.frame);
+      const previous = entry.image;
+      const sprite =
+        entry.display instanceof Sprite ? entry.display : new Sprite(texture);
+      sprite.texture = texture;
+      sprite.anchor.set(0.5);
+      entry.image = resource;
+      replace(entry, sprite, source);
+      appearance(entry);
+      if (previous !== resource) previous?.release();
+    };
     const update = (entry: Visual) => {
       const component = entry.component;
       if (entry.revision === component.revision) return;
       entry.revision = component.revision;
       const source = component.source;
+      const sourceChanged = entry.requestedSource !== source;
+      entry.requestedSource = source;
       if (source.kind === "shape") {
         cancel(entry);
         delete entry.requestUrl;
@@ -304,7 +334,10 @@ export class PixiRenderer implements RendererPort {
         );
         previous?.release();
         changed();
-      } else if (entry.requestUrl !== source.url) {
+      } else if (
+        entry.requestUrl !== source.url ||
+        (sourceChanged && !entry.controller && !entry.image)
+      ) {
         cancel(entry);
         entry.requestUrl = source.url;
         delete entry.error;
@@ -314,7 +347,11 @@ export class PixiRenderer implements RendererPort {
           entry.displayedSource?.kind === "image" &&
           entry.displayedSource.url === source.url
         ) {
-          entry.displayedSource = source;
+          try {
+            commitImage(entry, entry.image, source);
+          } catch (error) {
+            fail(entry, error);
+          }
         } else {
           const controller = new AbortController(),
             generation = entry.generation;
@@ -331,26 +368,16 @@ export class PixiRenderer implements RendererPort {
                 resource.release();
                 return;
               }
-              const previous = entry.image;
-              const sprite =
-                entry.display instanceof Sprite
-                  ? entry.display
-                  : new Sprite(resource.texture);
-              sprite.texture = resource.texture;
-              sprite.anchor.set(0.5);
-              entry.image = resource;
-              replace(entry, sprite, component.source);
-              appearance(entry);
-              previous?.release();
+              try {
+                commitImage(entry, resource, component.source);
+              } catch (error) {
+                resource.release();
+                throw error;
+              }
             })
             .catch((error) => {
               if (current()) {
-                entry.error = error;
-                try {
-                  this.onError(error);
-                } catch {
-                  /* Diagnostics cannot invalidate cleanup. */
-                }
+                fail(entry, error);
               }
             })
             .finally(() => {
@@ -360,10 +387,16 @@ export class PixiRenderer implements RendererPort {
         }
         changed();
       } else if (
+        entry.image &&
         entry.displayedSource?.kind === "image" &&
         entry.displayedSource.url === source.url
       ) {
-        entry.displayedSource = source;
+        if (sourceChanged) delete entry.error;
+        try {
+          commitImage(entry, entry.image, source);
+        } catch (error) {
+          fail(entry, error);
+        }
       }
       // Layout/color changes also apply to the retained display while a new image loads.
       appearance(entry);

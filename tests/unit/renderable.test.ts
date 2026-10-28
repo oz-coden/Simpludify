@@ -179,3 +179,29 @@ for (const [property, values] of Object.entries({
       expect(() => new Renderable({ [property]: value })).toThrow();
     }
   });
+
+it("copies and compares immutable image frame descriptions without structural changes", () => {
+  const frame = { kind: "rect" as const, x: 2, y: 4, width: 8, height: 16 };
+  const view = new Renderable({
+    source: { kind: "image", url: "sheet", frame },
+  });
+  frame.x = 100;
+  expect(view.source.kind === "image" && view.source.frame).toMatchObject({
+    x: 2,
+  });
+  expect(
+    Object.isFrozen(view.source.kind === "image" && view.source.frame),
+  ).toBe(true);
+  view.source = { kind: "image", url: "sheet", frame: { ...frame, x: 2 } };
+  expect(view.revision).toBe(0);
+  view.source = { kind: "image", url: "sheet", frame: { ...frame, x: 3 } };
+  expect(view.revision).toBe(1);
+  expect(() => {
+    view.source = {
+      kind: "image",
+      url: "sheet",
+      frame: { ...frame, width: 0 },
+    };
+  }).toThrow();
+  expect(view.revision).toBe(1);
+});

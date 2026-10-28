@@ -203,3 +203,32 @@ it("handles a synchronous loader error and already-aborted consumers without lea
   });
   expect(load).toHaveBeenCalledTimes(1);
 });
+
+it("shares cropped textures by rectangle and destroys them before their shared source", async () => {
+  const { Texture, TextureSource } = await import("pixi.js");
+  const source = new TextureSource({ width: 32, height: 16 });
+  const texture = new Texture({ source });
+  const release = vi.fn(() => texture.destroy(true));
+  const pool = new SharedImages(async () => ({ texture, release }));
+  const a = await pool.acquire("sheet", new AbortController().signal);
+  const b = await pool.acquire("sheet", new AbortController().signal);
+  const { SpriteSheet } = await import("@simpludify/core");
+  const sheet = SpriteSheet.grid("sheet", { frameWidth: 16, frameHeight: 16 });
+  const first = a.textureFor(sheet.get(1).frame);
+  expect(b.textureFor(sheet.get(1).frame)).toBe(first);
+  expect(first.source).toBe(source);
+  expect(first.frame.x).toBe(16);
+  const rect = SpriteSheet.rects("sheet", {
+    right: { x: 16, y: 0, width: 16, height: 16 },
+  });
+  expect(a.textureFor(rect.get("right").frame)).toBe(first);
+  expect(() => a.textureFor(sheet.get(2).frame)).toThrow();
+  a.release();
+  expect(first.destroyed).toBe(false);
+  expect(source.destroyed).toBe(false);
+  b.release();
+  expect(first.destroyed).toBe(true);
+  expect(source.destroyed).toBe(true);
+  expect(release).toHaveBeenCalledTimes(1);
+  expect(() => b.textureFor(sheet.get(0).frame)).toThrow();
+});
