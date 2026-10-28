@@ -1,9 +1,9 @@
 {
-  "date": "2026-10-28T19:08:07.081Z",
+  "date": "2026-10-28T19:27:41.840Z",
   "node": "v24.22.1",
   "platform": "linux",
   "browser": "156.0.8078.4",
-  "commit": "9f83fbeec13fc47fc671aa8674d0256c3c29a8a7",
+  "commit": "124b3f76f4e5dda1204e04f100bfc6078ed897cc",
   "worktree": "",
   "viewport": {
     "width": 1440,
@@ -27,9 +27,9 @@
       "size": 32,
       "partial": false,
       "dynamic": false,
-      "construction": 1.1999999999534339,
-      "preparation": 17.700000000186265,
-      "disposal": 3.800000000046566,
+      "construction": 1.3000000002793968,
+      "preparation": 20.899999999906868,
+      "disposal": 2.900000000372529,
       "initial": {
         "maps": 1,
         "sprites": 1024,
@@ -53,11 +53,13 @@
       "visited": 0,
       "updated": 0,
       "samples": [
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999986030161,
-        0.10000000009313226, 0.19999999995343387, 0.19999999995343387,
-        0.20000000018626451
+        0, 0, 0, 0, 0, 0, 0, 0, 0.09999999962747097, 0.09999999962747097,
+        0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
+        0.10000000009313226, 0.10000000009313226, 0.19999999972060323,
+        0.20000000018626451, 0.20000000018626451, 0.20000000018626451,
+        0.2999999998137355
       ],
-      "p50": 0,
+      "p50": 0.09999999986030161,
       "p95": 0.20000000018626451,
       "resources": {
         "presentations": 1,
@@ -86,9 +88,9 @@
       "size": 32,
       "partial": false,
       "dynamic": false,
-      "construction": 0.5,
-      "preparation": 6.5,
-      "disposal": 1.3000000000465661,
+      "construction": 0.3000000002793968,
+      "preparation": 9.799999999813735,
+      "disposal": 1.5,
       "initial": {
         "maps": 1,
         "sprites": 1024,
@@ -112,12 +114,12 @@
       "visited": 0,
       "updated": 0,
       "samples": [
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999986030161,
-        0.09999999986030161, 0.10000000009313226, 0.10000000009313226,
-        0.10000000009313226, 0.10000000009313226
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999962747097,
+        0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
+        0.20000000018626451, 0.20000000018626451, 1, 1.3999999999068677
       ],
-      "p50": 0,
-      "p95": 0.10000000009313226,
+      "p50": 0.0,
+      "p95": 1,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -145,8 +147,8 @@
       "size": 32,
       "partial": false,
       "dynamic": false,
-      "construction": 0.2999999998137355,
-      "preparation": 7.2000000001862645,
+      "construction": 0.39999999990686774,
+      "preparation": 4.900000000372529,
       "disposal": 0.7999999998137355,
       "initial": {
         "maps": 1,
@@ -171,12 +173,13 @@
       "visited": 0,
       "updated": 0,
       "samples": [
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999986030161,
-        0.09999999986030161, 0.09999999986030161, 0.10000000009313226,
-        0.10000000009313226, 0.19999999995343387, 0.4000000001396984
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999962747097,
+        0.09999999962747097, 0.10000000009313226, 0.10000000009313226,
+        0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
+        0.10000000009313226
       ],
-      "p50": 0,
-      "p95": 0.4000000001396984,
+      "p50": 0.0,
+      "p95": 0.10000000009313226,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -204,9 +207,9 @@
       "size": 32,
       "partial": false,
       "dynamic": true,
-      "construction": 0.19999999995343387,
-      "preparation": 5,
-      "disposal": 1.1000000000931323,
+      "construction": 0.10000000009313226,
+      "preparation": 5.600000000093132,
+      "disposal": 1.2000000001862645,
       "initial": {
         "maps": 1,
         "sprites": 1024,
@@ -230,14 +233,15 @@
       "visited": 160,
       "updated": 160,
       "samples": [
-        0, 0, 0, 0, 0, 0.09999999986030161, 0.09999999986030161,
-        0.09999999986030161, 0.09999999986030161, 0.10000000009313226,
+        0, 0, 0, 0.09999999962747097, 0.10000000009313226, 0.10000000009313226,
         0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
-        0.10000000009313226, 0.19999999995343387, 0.19999999995343387,
-        0.19999999995343387, 0.20000000018626451, 0.30000000004656613, 0.5
+        0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
+        0.10000000009313226, 0.10000000009313226, 0.19999999972060323,
+        0.19999999972060323, 0.19999999972060323, 0.19999999972060323,
+        0.20000000018626451, 0.20000000018626451
       ],
       "p50": 0.10000000009313226,
-      "p95": 0.5,
+      "p95": 0.20000000018626451,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -265,9 +269,9 @@
       "size": 32,
       "partial": false,
       "dynamic": true,
-      "construction": 0.5,
-      "preparation": 8.199999999953434,
-      "disposal": 1.1999999999534339,
+      "construction": 0.2999999998137355,
+      "preparation": 5.899999999906868,
+      "disposal": 0.5,
       "initial": {
         "maps": 1,
         "sprites": 1024,
@@ -291,15 +295,15 @@
       "visited": 160,
       "updated": 160,
       "samples": [
-        0, 0, 0.09999999986030161, 0.09999999986030161, 0.09999999986030161,
-        0.09999999986030161, 0.09999999986030161, 0.09999999986030161,
+        0, 0, 0, 0.09999999962747097, 0.09999999962747097, 0.09999999962747097,
+        0.09999999962747097, 0.10000000009313226, 0.10000000009313226,
         0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
-        0.10000000009313226, 0.10000000009313226, 0.19999999995343387,
-        0.19999999995343387, 0.20000000018626451, 0.30000000004656613,
-        0.30000000004656613, 0.30000000004656613, 0.4000000001396984
+        0.10000000009313226, 0.19999999972060323, 0.20000000018626451,
+        0.20000000018626451, 0.20000000018626451, 0.20000000018626451,
+        0.20000000018626451, 0.3000000002793968
       ],
       "p50": 0.10000000009313226,
-      "p95": 0.4000000001396984,
+      "p95": 0.20000000018626451,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -327,9 +331,9 @@
       "size": 32,
       "partial": false,
       "dynamic": true,
-      "construction": 0.19999999995343387,
-      "preparation": 5.199999999953434,
-      "disposal": 0.6999999999534339,
+      "construction": 0.10000000009313226,
+      "preparation": 2.8999999999068677,
+      "disposal": 1.400000000372529,
       "initial": {
         "maps": 1,
         "sprites": 1024,
@@ -353,15 +357,15 @@
       "visited": 160,
       "updated": 160,
       "samples": [
-        0, 0, 0, 0, 0, 0.09999999986030161, 0.09999999986030161,
-        0.09999999986030161, 0.09999999986030161, 0.10000000009313226,
+        0, 0, 0.09999999962747097, 0.09999999962747097, 0.09999999962747097,
         0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
         0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
-        0.10000000009313226, 0.19999999995343387, 0.19999999995343387,
-        0.19999999995343387
+        0.19999999972060323, 0.19999999972060323, 0.20000000018626451,
+        0.20000000018626451, 0.20000000018626451, 0.20000000018626451,
+        0.20000000018626451, 0.2999999998137355, 0.3000000002793968
       ],
       "p50": 0.10000000009313226,
-      "p95": 0.19999999995343387,
+      "p95": 0.2999999998137355,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -389,9 +393,9 @@
       "size": 32,
       "partial": true,
       "dynamic": false,
-      "construction": 0.19999999995343387,
-      "preparation": 4.800000000046566,
-      "disposal": 0.5999999998603016,
+      "construction": 0.09999999962747097,
+      "preparation": 4.300000000279397,
+      "disposal": 0.2999999998137355,
       "initial": {
         "maps": 1,
         "sprites": 475,
@@ -415,12 +419,10 @@
       "visited": 0,
       "updated": 0,
       "samples": [
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999986030161,
-        0.09999999986030161, 0.09999999986030161, 0.10000000009313226,
-        0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
-        0.10000000009313226
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999962747097,
+        0.10000000009313226, 0.10000000009313226, 0.10000000009313226
       ],
-      "p50": 0,
+      "p50": 0.0,
       "p95": 0.10000000009313226,
       "resources": {
         "presentations": 1,
@@ -449,8 +451,8 @@
       "size": 32,
       "partial": true,
       "dynamic": false,
-      "construction": 0.2999999998137355,
-      "preparation": 2.2000000001862645,
+      "construction": 0.10000000009313226,
+      "preparation": 2.3000000002793968,
       "disposal": 0.5,
       "initial": {
         "maps": 1,
@@ -475,11 +477,11 @@
       "visited": 0,
       "updated": 0,
       "samples": [
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999986030161,
-        0.09999999986030161, 0.10000000009313226, 0.10000000009313226,
-        0.10000000009313226
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999962747097,
+        0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
+        0.10000000009313226, 0.10000000009313226, 0.10000000009313226
       ],
-      "p50": 0,
+      "p50": 0.0,
       "p95": 0.10000000009313226,
       "resources": {
         "presentations": 1,
@@ -508,9 +510,9 @@
       "size": 32,
       "partial": true,
       "dynamic": false,
-      "construction": 0.19999999995343387,
-      "preparation": 3.800000000046566,
-      "disposal": 0.6000000000931323,
+      "construction": 0.20000000018626451,
+      "preparation": 5.600000000093132,
+      "disposal": 0.5,
       "initial": {
         "maps": 1,
         "sprites": 475,
@@ -534,11 +536,11 @@
       "visited": 0,
       "updated": 0,
       "samples": [
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999986030161,
-        0.09999999986030161, 0.10000000009313226, 0.10000000009313226,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999962747097,
+        0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
         0.10000000009313226, 0.10000000009313226
       ],
-      "p50": 0,
+      "p50": 0.0,
       "p95": 0.10000000009313226,
       "resources": {
         "presentations": 1,
@@ -567,9 +569,9 @@
       "size": 32,
       "partial": true,
       "dynamic": true,
-      "construction": 0.19999999995343387,
-      "preparation": 2.9000000001396984,
-      "disposal": 0.39999999990686774,
+      "construction": 0.20000000018626451,
+      "preparation": 8.700000000186265,
+      "disposal": 0.5,
       "initial": {
         "maps": 1,
         "sprites": 475,
@@ -593,15 +595,14 @@
       "visited": 160,
       "updated": 160,
       "samples": [
-        0, 0, 0, 0, 0.09999999986030161, 0.09999999986030161,
-        0.09999999986030161, 0.09999999986030161, 0.10000000009313226,
+        0, 0, 0, 0.09999999962747097, 0.09999999962747097, 0.09999999962747097,
         0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
-        0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
-        0.19999999995343387, 0.19999999995343387, 0.19999999995343387,
-        0.19999999995343387, 0.20000000018626451
+        0.10000000009313226, 0.19999999972060323, 0.19999999972060323,
+        0.20000000018626451, 0.20000000018626451, 0.20000000018626451,
+        0.20000000018626451, 0.20000000018626451, 0.20000000018626451, 0.5, 1
       ],
-      "p50": 0.10000000009313226,
-      "p95": 0.20000000018626451,
+      "p50": 0.14999999990686774,
+      "p95": 0.5,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -630,8 +631,8 @@
       "partial": true,
       "dynamic": true,
       "construction": 0.10000000009313226,
-      "preparation": 6.599999999860302,
-      "disposal": 0.6000000000931323,
+      "preparation": 5,
+      "disposal": 0.3000000002793968,
       "initial": {
         "maps": 1,
         "sprites": 475,
@@ -655,14 +656,15 @@
       "visited": 160,
       "updated": 160,
       "samples": [
-        0, 0, 0, 0, 0, 0, 0, 0.09999999986030161, 0.09999999986030161,
+        0, 0, 0.09999999962747097, 0.09999999962747097, 0.10000000009313226,
         0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
-        0.10000000009313226, 0.19999999995343387, 0.19999999995343387,
-        0.19999999995343387, 0.2999999998137355, 0.30000000004656613,
-        0.30000000004656613, 0.4000000001396984
+        0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
+        0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
+        0.10000000009313226, 0.19999999972060323, 0.20000000018626451,
+        0.20000000018626451, 0.2999999998137355, 0.39999999990686774
       ],
       "p50": 0.10000000009313226,
-      "p95": 0.4000000001396984,
+      "p95": 0.2999999998137355,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -690,9 +692,9 @@
       "size": 32,
       "partial": true,
       "dynamic": true,
-      "construction": 0.09999999986030161,
-      "preparation": 5.2000000001862645,
-      "disposal": 0.5999999998603016,
+      "construction": 0.09999999962747097,
+      "preparation": 4.7000000001862645,
+      "disposal": 0.5,
       "initial": {
         "maps": 1,
         "sprites": 475,
@@ -716,603 +718,13 @@
       "visited": 160,
       "updated": 160,
       "samples": [
-        0, 0, 0, 0, 0.09999999986030161, 0.09999999986030161,
-        0.09999999986030161, 0.09999999986030161, 0.10000000009313226,
+        0, 0, 0, 0, 0, 0, 0.09999999962747097, 0.09999999962747097,
         0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
         0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
-        0.19999999995343387, 0.19999999995343387, 0.20000000018626451,
-        0.2999999998137355, 1.9000000001396984
+        0.10000000009313226, 0.10000000009313226, 0.19999999972060323,
+        0.20000000018626451, 0.20000000018626451, 0.20000000018626451
       ],
       "p50": 0.10000000009313226,
-      "p95": 1.9000000001396984,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 2,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "webgl",
-      "repeat": 0,
-      "size": 100,
-      "partial": false,
-      "dynamic": false,
-      "construction": 0.8000000000465661,
-      "preparation": 31.5999999998603,
-      "disposal": 11.400000000139698,
-      "initial": {
-        "maps": 1,
-        "sprites": 10000,
-        "visibleTiles": 10000,
-        "visitedCells": 10000,
-        "updatedTiles": 10000,
-        "createdSprites": 10000,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 10000,
-        "visibleTiles": 10000,
-        "visitedCells": 10000,
-        "updatedTiles": 10000,
-        "createdSprites": 10000,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "visited": 0,
-      "updated": 0,
-      "samples": [
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999986030161,
-        0.09999999986030161, 0.10000000009313226, 0.10000000009313226,
-        0.10000000009313226
-      ],
-      "p50": 0,
-      "p95": 0.10000000009313226,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 1,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "webgl",
-      "repeat": 1,
-      "size": 100,
-      "partial": false,
-      "dynamic": false,
-      "construction": 0.39999999990686774,
-      "preparation": 14.700000000186265,
-      "disposal": 10.099999999860302,
-      "initial": {
-        "maps": 1,
-        "sprites": 10000,
-        "visibleTiles": 10000,
-        "visitedCells": 10000,
-        "updatedTiles": 10000,
-        "createdSprites": 10000,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 10000,
-        "visibleTiles": 10000,
-        "visitedCells": 10000,
-        "updatedTiles": 10000,
-        "createdSprites": 10000,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "visited": 0,
-      "updated": 0,
-      "samples": [
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999986030161,
-        0.09999999986030161, 0.10000000009313226, 0.10000000009313226
-      ],
-      "p50": 0,
-      "p95": 0.10000000009313226,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 1,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "webgl",
-      "repeat": 2,
-      "size": 100,
-      "partial": false,
-      "dynamic": false,
-      "construction": 0.6999999999534339,
-      "preparation": 19.4000000001397,
-      "disposal": 9.600000000093132,
-      "initial": {
-        "maps": 1,
-        "sprites": 10000,
-        "visibleTiles": 10000,
-        "visitedCells": 10000,
-        "updatedTiles": 10000,
-        "createdSprites": 10000,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 10000,
-        "visibleTiles": 10000,
-        "visitedCells": 10000,
-        "updatedTiles": 10000,
-        "createdSprites": 10000,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "visited": 0,
-      "updated": 0,
-      "samples": [
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999986030161,
-        0.10000000009313226, 0.10000000009313226, 0.19999999995343387
-      ],
-      "p50": 0,
-      "p95": 0.19999999995343387,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 1,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "webgl",
-      "repeat": 0,
-      "size": 100,
-      "partial": false,
-      "dynamic": true,
-      "construction": 0.5,
-      "preparation": 13.199999999953434,
-      "disposal": 7.800000000046566,
-      "initial": {
-        "maps": 1,
-        "sprites": 10000,
-        "visibleTiles": 10000,
-        "visitedCells": 10000,
-        "updatedTiles": 10000,
-        "createdSprites": 10000,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 10000,
-        "visibleTiles": 10000,
-        "visitedCells": 10162,
-        "updatedTiles": 10162,
-        "createdSprites": 10000,
-        "destroyedSprites": 0,
-        "validatedFrames": 2
-      },
-      "visited": 160,
-      "updated": 160,
-      "samples": [
-        0, 0, 0, 0.19999999995343387, 0.39999999990686774, 0.4000000001396984,
-        0.4000000001396984, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
-        0.5999999998603016, 0.6000000000931323, 0.6000000000931323,
-        0.8999999999068677, 0.8999999999068677, 1.3999999999068677
-      ],
-      "p50": 0.5,
-      "p95": 1.3999999999068677,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 2,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "webgl",
-      "repeat": 1,
-      "size": 100,
-      "partial": false,
-      "dynamic": true,
-      "construction": 1.1000000000931323,
-      "preparation": 18.899999999906868,
-      "disposal": 10.300000000046566,
-      "initial": {
-        "maps": 1,
-        "sprites": 10000,
-        "visibleTiles": 10000,
-        "visitedCells": 10000,
-        "updatedTiles": 10000,
-        "createdSprites": 10000,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 10000,
-        "visibleTiles": 10000,
-        "visitedCells": 10162,
-        "updatedTiles": 10162,
-        "createdSprites": 10000,
-        "destroyedSprites": 0,
-        "validatedFrames": 2
-      },
-      "visited": 160,
-      "updated": 160,
-      "samples": [
-        0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
-        0.5999999998603016, 0.5999999998603016, 0.6000000000931323,
-        0.6000000000931323, 0.6000000000931323, 0.6999999999534339,
-        0.6999999999534339, 0.8000000000465661, 0.8999999999068677
-      ],
-      "p50": 0.5,
-      "p95": 0.8999999999068677,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 2,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "webgl",
-      "repeat": 2,
-      "size": 100,
-      "partial": false,
-      "dynamic": true,
-      "construction": 0.5,
-      "preparation": 33.699999999953434,
-      "disposal": 4.800000000046566,
-      "initial": {
-        "maps": 1,
-        "sprites": 10000,
-        "visibleTiles": 10000,
-        "visitedCells": 10000,
-        "updatedTiles": 10000,
-        "createdSprites": 10000,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 10000,
-        "visibleTiles": 10000,
-        "visitedCells": 10162,
-        "updatedTiles": 10162,
-        "createdSprites": 10000,
-        "destroyedSprites": 0,
-        "validatedFrames": 2
-      },
-      "visited": 160,
-      "updated": 160,
-      "samples": [
-        0.30000000004656613, 0.39999999990686774, 0.39999999990686774,
-        0.39999999990686774, 0.4000000001396984, 0.4000000001396984, 0.5, 0.5,
-        0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.6000000000931323,
-        0.9000000001396984, 4.599999999860302
-      ],
-      "p50": 0.5,
-      "p95": 4.599999999860302,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 2,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "webgl",
-      "repeat": 0,
-      "size": 100,
-      "partial": true,
-      "dynamic": false,
-      "construction": 0.39999999990686774,
-      "preparation": 1.5,
-      "disposal": 0.19999999995343387,
-      "initial": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "visited": 0,
-      "updated": 0,
-      "samples": [
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999986030161,
-        0.09999999986030161, 0.10000000009313226, 0.10000000009313226
-      ],
-      "p50": 0,
-      "p95": 0.10000000009313226,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 1,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "webgl",
-      "repeat": 1,
-      "size": 100,
-      "partial": true,
-      "dynamic": false,
-      "construction": 0.30000000004656613,
-      "preparation": 3.5,
-      "disposal": 0.6000000000931323,
-      "initial": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "visited": 0,
-      "updated": 0,
-      "samples": [
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999986030161,
-        0.09999999986030161, 0.10000000009313226, 0.10000000009313226
-      ],
-      "p50": 0,
-      "p95": 0.10000000009313226,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 1,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "webgl",
-      "repeat": 2,
-      "size": 100,
-      "partial": true,
-      "dynamic": false,
-      "construction": 0.2999999998137355,
-      "preparation": 1.8000000000465661,
-      "disposal": 0.39999999990686774,
-      "initial": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "visited": 0,
-      "updated": 0,
-      "samples": [
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999986030161,
-        0.10000000009313226, 0.10000000009313226
-      ],
-      "p50": 0,
-      "p95": 0.10000000009313226,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 1,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "webgl",
-      "repeat": 0,
-      "size": 100,
-      "partial": true,
-      "dynamic": true,
-      "construction": 0.2999999998137355,
-      "preparation": 2,
-      "disposal": 0.4000000001396984,
-      "initial": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 637,
-        "updatedTiles": 637,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 2
-      },
-      "visited": 160,
-      "updated": 160,
-      "samples": [
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999986030161, 0.09999999986030161,
-        0.09999999986030161, 0.10000000009313226, 0.10000000009313226,
-        0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
-        0.19999999995343387, 0.19999999995343387, 0.20000000018626451
-      ],
-      "p50": 0.09999999986030161,
       "p95": 0.20000000018626451,
       "resources": {
         "presentations": 1,
@@ -1337,12 +749,543 @@
     },
     {
       "backend": "webgl",
+      "repeat": 0,
+      "size": 100,
+      "partial": false,
+      "dynamic": false,
+      "construction": 0.7999999998137355,
+      "preparation": 29.899999999906868,
+      "disposal": 12.600000000093132,
+      "initial": {
+        "maps": 1,
+        "sprites": 10000,
+        "visibleTiles": 10000,
+        "visitedCells": 10000,
+        "updatedTiles": 10000,
+        "createdSprites": 10000,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 10000,
+        "visibleTiles": 10000,
+        "visitedCells": 10000,
+        "updatedTiles": 10000,
+        "createdSprites": 10000,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "visited": 0,
+      "updated": 0,
+      "samples": [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999962747097,
+        0.10000000009313226, 0.10000000009313226, 0.7000000001862645
+      ],
+      "p50": 0.0,
+      "p95": 0.10000000009313226,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 1,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "webgl",
       "repeat": 1,
+      "size": 100,
+      "partial": false,
+      "dynamic": false,
+      "construction": 0.3000000002793968,
+      "preparation": 14.399999999906868,
+      "disposal": 7.899999999906868,
+      "initial": {
+        "maps": 1,
+        "sprites": 10000,
+        "visibleTiles": 10000,
+        "visitedCells": 10000,
+        "updatedTiles": 10000,
+        "createdSprites": 10000,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 10000,
+        "visibleTiles": 10000,
+        "visitedCells": 10000,
+        "updatedTiles": 10000,
+        "createdSprites": 10000,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "visited": 0,
+      "updated": 0,
+      "samples": [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.10000000009313226,
+        0.10000000009313226, 0.10000000009313226, 0.10000000009313226
+      ],
+      "p50": 0.0,
+      "p95": 0.10000000009313226,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 1,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "webgl",
+      "repeat": 2,
+      "size": 100,
+      "partial": false,
+      "dynamic": false,
+      "construction": 0.5,
+      "preparation": 24.299999999813735,
+      "disposal": 4.7999999998137355,
+      "initial": {
+        "maps": 1,
+        "sprites": 10000,
+        "visibleTiles": 10000,
+        "visitedCells": 10000,
+        "updatedTiles": 10000,
+        "createdSprites": 10000,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 10000,
+        "visibleTiles": 10000,
+        "visitedCells": 10000,
+        "updatedTiles": 10000,
+        "createdSprites": 10000,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "visited": 0,
+      "updated": 0,
+      "samples": [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999962747097,
+        0.10000000009313226, 0.10000000009313226, 1.8999999999068677
+      ],
+      "p50": 0.0,
+      "p95": 0.10000000009313226,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 1,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "webgl",
+      "repeat": 0,
+      "size": 100,
+      "partial": false,
+      "dynamic": true,
+      "construction": 0.5,
+      "preparation": 17,
+      "disposal": 18,
+      "initial": {
+        "maps": 1,
+        "sprites": 10000,
+        "visibleTiles": 10000,
+        "visitedCells": 10000,
+        "updatedTiles": 10000,
+        "createdSprites": 10000,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 10000,
+        "visibleTiles": 10000,
+        "visitedCells": 10162,
+        "updatedTiles": 10162,
+        "createdSprites": 10000,
+        "destroyedSprites": 0,
+        "validatedFrames": 2
+      },
+      "visited": 160,
+      "updated": 160,
+      "samples": [
+        0, 0, 0.20000000018626451, 0.39999999990686774, 0.39999999990686774,
+        0.39999999990686774, 0.39999999990686774, 0.39999999990686774,
+        0.39999999990686774, 0.39999999990686774, 0.39999999990686774,
+        0.39999999990686774, 0.40000000037252903, 0.40000000037252903, 0.5, 0.5,
+        0.5, 0.5, 0.5, 0.7999999998137355
+      ],
+      "p50": 0.39999999990686774,
+      "p95": 0.5,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 2,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "webgl",
+      "repeat": 1,
+      "size": 100,
+      "partial": false,
+      "dynamic": true,
+      "construction": 0.3000000002793968,
+      "preparation": 13.5,
+      "disposal": 4.600000000093132,
+      "initial": {
+        "maps": 1,
+        "sprites": 10000,
+        "visibleTiles": 10000,
+        "visitedCells": 10000,
+        "updatedTiles": 10000,
+        "createdSprites": 10000,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 10000,
+        "visibleTiles": 10000,
+        "visitedCells": 10162,
+        "updatedTiles": 10162,
+        "createdSprites": 10000,
+        "destroyedSprites": 0,
+        "validatedFrames": 2
+      },
+      "visited": 160,
+      "updated": 160,
+      "samples": [
+        0.10000000009313226, 0.10000000009313226, 0.2999999998137355,
+        0.3000000002793968, 0.39999999990686774, 0.39999999990686774,
+        0.39999999990686774, 0.40000000037252903, 0.40000000037252903, 0.5, 0.5,
+        0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.599999999627471, 0.599999999627471,
+        0.8000000002793968
+      ],
+      "p50": 0.5,
+      "p95": 0.599999999627471,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 2,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "webgl",
+      "repeat": 2,
+      "size": 100,
+      "partial": false,
+      "dynamic": true,
+      "construction": 0.40000000037252903,
+      "preparation": 12.799999999813735,
+      "disposal": 4,
+      "initial": {
+        "maps": 1,
+        "sprites": 10000,
+        "visibleTiles": 10000,
+        "visitedCells": 10000,
+        "updatedTiles": 10000,
+        "createdSprites": 10000,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 10000,
+        "visibleTiles": 10000,
+        "visitedCells": 10162,
+        "updatedTiles": 10162,
+        "createdSprites": 10000,
+        "destroyedSprites": 0,
+        "validatedFrames": 2
+      },
+      "visited": 160,
+      "updated": 160,
+      "samples": [
+        0, 0.09999999962747097, 0.3000000002793968, 0.39999999990686774,
+        0.39999999990686774, 0.39999999990686774, 0.39999999990686774,
+        0.39999999990686774, 0.39999999990686774, 0.39999999990686774,
+        0.39999999990686774, 0.40000000037252903, 0.40000000037252903,
+        0.40000000037252903, 0.5, 0.5, 0.5, 0.5, 0.5, 0.6999999997206032
+      ],
+      "p50": 0.39999999990686774,
+      "p95": 0.5,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 2,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "webgl",
+      "repeat": 0,
+      "size": 100,
+      "partial": true,
+      "dynamic": false,
+      "construction": 0.5,
+      "preparation": 1.8000000002793968,
+      "disposal": 0.39999999990686774,
+      "initial": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "visited": 0,
+      "updated": 0,
+      "samples": [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.10000000009313226,
+        0.10000000009313226, 0.10000000009313226, 0.10000000009313226
+      ],
+      "p50": 0.0,
+      "p95": 0.10000000009313226,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 1,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "webgl",
+      "repeat": 1,
+      "size": 100,
+      "partial": true,
+      "dynamic": false,
+      "construction": 0.40000000037252903,
+      "preparation": 1.5,
+      "disposal": 0.2999999998137355,
+      "initial": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "visited": 0,
+      "updated": 0,
+      "samples": [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0.10000000009313226, 0.10000000009313226
+      ],
+      "p50": 0.0,
+      "p95": 0.10000000009313226,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 1,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "webgl",
+      "repeat": 2,
+      "size": 100,
+      "partial": true,
+      "dynamic": false,
+      "construction": 0.6000000000931323,
+      "preparation": 2.5,
+      "disposal": 0.2999999998137355,
+      "initial": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "visited": 0,
+      "updated": 0,
+      "samples": [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0.10000000009313226, 0.10000000009313226
+      ],
+      "p50": 0.0,
+      "p95": 0.10000000009313226,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 1,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "webgl",
+      "repeat": 0,
       "size": 100,
       "partial": true,
       "dynamic": true,
       "construction": 0.2999999998137355,
-      "preparation": 2.9000000001396984,
+      "preparation": 1.900000000372529,
       "disposal": 0.2999999998137355,
       "initial": {
         "maps": 1,
@@ -1367,12 +1310,72 @@
       "visited": 160,
       "updated": 160,
       "samples": [
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999986030161,
-        0.09999999986030161, 0.09999999986030161, 0.10000000009313226,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999962747097,
+        0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
         0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
         0.10000000009313226
       ],
-      "p50": 0,
+      "p50": 0.0,
+      "p95": 0.10000000009313226,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 2,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "webgl",
+      "repeat": 1,
+      "size": 100,
+      "partial": true,
+      "dynamic": true,
+      "construction": 0.40000000037252903,
+      "preparation": 2.3999999999068677,
+      "disposal": 0.40000000037252903,
+      "initial": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 637,
+        "updatedTiles": 637,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 2
+      },
+      "visited": 160,
+      "updated": 160,
+      "samples": [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999962747097,
+        0.09999999962747097, 0.10000000009313226, 0.10000000009313226,
+        0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
+        0.10000000009313226, 0.10000000009313226
+      ],
+      "p50": 0.0,
       "p95": 0.10000000009313226,
       "resources": {
         "presentations": 1,
@@ -1401,9 +1404,9 @@
       "size": 100,
       "partial": true,
       "dynamic": true,
-      "construction": 0.30000000004656613,
-      "preparation": 1.5999999998603016,
-      "disposal": 0.30000000004656613,
+      "construction": 0.2999999998137355,
+      "preparation": 1.6000000000931323,
+      "disposal": 0.2999999998137355,
       "initial": {
         "maps": 1,
         "sprites": 475,
@@ -1427,12 +1430,12 @@
       "visited": 160,
       "updated": 160,
       "samples": [
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999986030161,
-        0.09999999986030161, 0.10000000009313226, 0.10000000009313226,
-        0.10000000009313226, 0.10000000009313226, 0.19999999995343387
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999962747097,
+        0.09999999962747097, 0.10000000009313226, 0.10000000009313226,
+        0.10000000009313226, 0.10000000009313226, 0.20000000018626451
       ],
-      "p50": 0,
-      "p95": 0.19999999995343387,
+      "p50": 0.0,
+      "p95": 0.10000000009313226,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -1460,9 +1463,9 @@
       "size": 256,
       "partial": false,
       "dynamic": false,
-      "construction": 4.399999999906868,
-      "preparation": 179.30000000004657,
-      "disposal": 47.0999999998603,
+      "construction": 4.5,
+      "preparation": 195.39999999990687,
+      "disposal": 34.39999999990687,
       "initial": {
         "maps": 1,
         "sprites": 65536,
@@ -1487,10 +1490,10 @@
       "updated": 0,
       "samples": [
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0.09999999986030161, 0.10000000009313226
+        0.09999999962747097, 0.10000000009313226
       ],
-      "p50": 0,
-      "p95": 0.10000000009313226,
+      "p50": 0.0,
+      "p95": 0.09999999962747097,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -1518,9 +1521,9 @@
       "size": 256,
       "partial": false,
       "dynamic": false,
-      "construction": 3.9000000001396984,
-      "preparation": 149.0999999998603,
-      "disposal": 39,
+      "construction": 4.899999999906868,
+      "preparation": 154.29999999981374,
+      "disposal": 53.700000000186265,
       "initial": {
         "maps": 1,
         "sprites": 65536,
@@ -1545,9 +1548,9 @@
       "updated": 0,
       "samples": [
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0.09999999986030161, 0.10000000009313226
+        0.10000000009313226, 3.3000000002793968
       ],
-      "p50": 0,
+      "p50": 0.0,
       "p95": 0.10000000009313226,
       "resources": {
         "presentations": 1,
@@ -1576,67 +1579,67 @@
       "size": 256,
       "partial": false,
       "dynamic": false,
-      "construction": 3.5999999998603016,
-      "preparation": 131.4000000001397,
-      "disposal": 63.300000000046566,
-      "initial": {
-        "maps": 1,
-        "sprites": 65536,
-        "visibleTiles": 65536,
-        "visitedCells": 65536,
-        "updatedTiles": 65536,
-        "createdSprites": 65536,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 65536,
-        "visibleTiles": 65536,
-        "visitedCells": 65536,
-        "updatedTiles": 65536,
-        "createdSprites": 65536,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "visited": 0,
-      "updated": 0,
-      "samples": [
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0.09999999986030161, 0.10000000009313226
-      ],
-      "p50": 0,
-      "p95": 0.10000000009313226,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 1,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "webgl",
-      "repeat": 0,
-      "size": 256,
-      "partial": false,
-      "dynamic": true,
       "construction": 2.5,
-      "preparation": 156.69999999995343,
-      "disposal": 77.39999999990687,
+      "preparation": 140.3000000002794,
+      "disposal": 48.60000000009313,
+      "initial": {
+        "maps": 1,
+        "sprites": 65536,
+        "visibleTiles": 65536,
+        "visitedCells": 65536,
+        "updatedTiles": 65536,
+        "createdSprites": 65536,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 65536,
+        "visibleTiles": 65536,
+        "visitedCells": 65536,
+        "updatedTiles": 65536,
+        "createdSprites": 65536,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "visited": 0,
+      "updated": 0,
+      "samples": [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0.09999999962747097
+      ],
+      "p50": 0.0,
+      "p95": 0,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 1,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "webgl",
+      "repeat": 0,
+      "size": 256,
+      "partial": false,
+      "dynamic": true,
+      "construction": 2.6000000000931323,
+      "preparation": 205.70000000018626,
+      "disposal": 60.200000000186265,
       "initial": {
         "maps": 1,
         "sprites": 65536,
@@ -1660,14 +1663,14 @@
       "visited": 160,
       "updated": 160,
       "samples": [
-        0.39999999990686774, 0.39999999990686774, 0.39999999990686774, 0.5, 0.5,
-        0.5, 0.6000000000931323, 0.6000000000931323, 0.6999999999534339, 2.5,
-        2.699999999953434, 5.399999999906868, 5.800000000046566,
-        5.800000000046566, 5.800000000046566, 6, 6.100000000093132, 6.5,
-        7.400000000139698, 7.899999999906868
+        0.39999999990686774, 0.39999999990686774, 0.5, 0.5, 0.5, 0.5,
+        0.599999999627471, 0.6999999997206032, 0.7000000001862645, 3,
+        3.2999999998137355, 5.2000000001862645, 5.2000000001862645,
+        5.2999999998137355, 5.399999999906868, 5.400000000372529, 5.5,
+        5.600000000093132, 5.600000000093132, 6.899999999906868
       ],
-      "p50": 2.699999999953434,
-      "p95": 7.899999999906868,
+      "p50": 3.1499999999068677,
+      "p95": 5.600000000093132,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -1695,9 +1698,9 @@
       "size": 256,
       "partial": false,
       "dynamic": true,
-      "construction": 2.5999999998603016,
-      "preparation": 150.10000000009313,
-      "disposal": 56.699999999953434,
+      "construction": 2.3999999999068677,
+      "preparation": 136.60000000009313,
+      "disposal": 43.5,
       "initial": {
         "maps": 1,
         "sprites": 65536,
@@ -1721,15 +1724,14 @@
       "visited": 160,
       "updated": 160,
       "samples": [
-        0.4000000001396984, 0.5, 0.5, 0.5, 0.5999999998603016,
-        0.6000000000931323, 0.6000000000931323, 0.6000000000931323,
-        0.7000000001862645, 2.2000000001862645, 2.5999999998603016, 5.5,
-        5.600000000093132, 5.699999999953434, 5.699999999953434,
-        5.7999999998137355, 5.7999999998137355, 6, 6.099999999860302,
-        7.099999999860302
+        0.2999999998137355, 0.39999999990686774, 0.39999999990686774,
+        0.40000000037252903, 0.40000000037252903, 0.5, 0.5, 0.5,
+        0.6000000000931323, 2.7999999998137355, 2.8000000002793968,
+        5.199999999720603, 5.5, 5.599999999627471, 5.7000000001862645, 6, 6, 6,
+        6.5, 6.7999999998137355
       ],
-      "p50": 2.5999999998603016,
-      "p95": 7.099999999860302,
+      "p50": 2.800000000046566,
+      "p95": 6.5,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -1757,9 +1759,9 @@
       "size": 256,
       "partial": false,
       "dynamic": true,
-      "construction": 3.6000000000931323,
-      "preparation": 157.39999999990687,
-      "disposal": 63.89999999990687,
+      "construction": 2.1999999997206032,
+      "preparation": 146.20000000018626,
+      "disposal": 68.20000000018626,
       "initial": {
         "maps": 1,
         "sprites": 65536,
@@ -1783,15 +1785,15 @@
       "visited": 160,
       "updated": 160,
       "samples": [
-        0.39999999990686774, 0.39999999990686774, 0.39999999990686774,
-        0.4000000001396984, 0.5, 0.5999999998603016, 0.5999999998603016,
-        0.6999999999534339, 0.9000000001396984, 2.4000000001396984, 4,
-        5.300000000046566, 5.300000000046566, 5.300000000046566,
-        5.300000000046566, 5.399999999906868, 5.400000000139698, 5.5,
-        5.699999999953434, 6.600000000093132
+        0.40000000037252903, 0.5, 0.5, 0.599999999627471, 0.599999999627471,
+        0.6000000000931323, 0.6000000000931323, 0.7000000001862645,
+        0.7999999998137355, 2.2999999998137355, 2.7000000001862645,
+        5.7000000001862645, 5.900000000372529, 6.100000000093132,
+        6.2999999998137355, 6.5, 6.599999999627471, 6.699999999720603,
+        6.7000000001862645, 6.7000000001862645
       ],
-      "p50": 4,
-      "p95": 6.600000000093132,
+      "p50": 2.5,
+      "p95": 6.7000000001862645,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -1819,67 +1821,9 @@
       "size": 256,
       "partial": true,
       "dynamic": false,
-      "construction": 2.300000000046566,
-      "preparation": 1.9000000001396984,
-      "disposal": 0.19999999995343387,
-      "initial": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "visited": 0,
-      "updated": 0,
-      "samples": [
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.10000000009313226,
-        0.10000000009313226, 0.19999999995343387
-      ],
-      "p50": 0,
-      "p95": 0.19999999995343387,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 1,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "webgl",
-      "repeat": 1,
-      "size": 256,
-      "partial": true,
-      "dynamic": false,
-      "construction": 2.300000000046566,
-      "preparation": 1.6999999999534339,
-      "disposal": 0.19999999995343387,
+      "construction": 3.2999999998137355,
+      "preparation": 1.8999999999068677,
+      "disposal": 0.20000000018626451,
       "initial": {
         "maps": 1,
         "sprites": 475,
@@ -1904,10 +1848,68 @@
       "updated": 0,
       "samples": [
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0.09999999986030161, 0.10000000009313226
+        0.09999999962747097, 0.10000000009313226
       ],
-      "p50": 0,
-      "p95": 0.10000000009313226,
+      "p50": 0.0,
+      "p95": 0.09999999962747097,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 1,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "webgl",
+      "repeat": 1,
+      "size": 256,
+      "partial": true,
+      "dynamic": false,
+      "construction": 2.2999999998137355,
+      "preparation": 2.2000000001862645,
+      "disposal": 0.20000000018626451,
+      "initial": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "visited": 0,
+      "updated": 0,
+      "samples": [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0.10000000009313226
+      ],
+      "p50": 0.0,
+      "p95": 0,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -1935,9 +1937,9 @@
       "size": 256,
       "partial": true,
       "dynamic": false,
-      "construction": 3.5999999998603016,
-      "preparation": 2.199999999953434,
-      "disposal": 0.5,
+      "construction": 2.2999999998137355,
+      "preparation": 6.300000000279397,
+      "disposal": 0.39999999990686774,
       "initial": {
         "maps": 1,
         "sprites": 475,
@@ -1961,10 +1963,10 @@
       "visited": 0,
       "updated": 0,
       "samples": [
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999986030161,
-        0.09999999986030161, 0.10000000009313226, 0.10000000009313226
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0.10000000009313226, 0.10000000009313226
       ],
-      "p50": 0,
+      "p50": 0.0,
       "p95": 0.10000000009313226,
       "resources": {
         "presentations": 1,
@@ -1993,67 +1995,7 @@
       "size": 256,
       "partial": true,
       "dynamic": true,
-      "construction": 2.5,
-      "preparation": 1.8000000000465661,
-      "disposal": 0.19999999995343387,
-      "initial": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 637,
-        "updatedTiles": 637,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 2
-      },
-      "visited": 160,
-      "updated": 160,
-      "samples": [
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999986030161, 0.09999999986030161,
-        0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
-        0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
-        0.19999999995343387, 0.19999999995343387
-      ],
-      "p50": 0.09999999986030161,
-      "p95": 0.19999999995343387,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 2,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "webgl",
-      "repeat": 1,
-      "size": 256,
-      "partial": true,
-      "dynamic": true,
-      "construction": 3.5999999998603016,
+      "construction": 3.1999999997206032,
       "preparation": 2.5,
       "disposal": 0.5,
       "initial": {
@@ -2079,13 +2021,71 @@
       "visited": 160,
       "updated": 160,
       "samples": [
-        0, 0, 0, 0, 0, 0, 0, 0.09999999986030161, 0.09999999986030161,
-        0.09999999986030161, 0.09999999986030161, 0.09999999986030161,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999962747097, 0.09999999962747097,
         0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
-        0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
-        0.10000000009313226, 0.10000000009313226
+        0.19999999972060323, 0.20000000018626451, 0.20000000018626451,
+        0.20000000018626451, 0.39999999990686774, 0.5
       ],
-      "p50": 0.09999999986030161,
+      "p50": 0.09999999962747097,
+      "p95": 0.39999999990686774,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 2,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "webgl",
+      "repeat": 1,
+      "size": 256,
+      "partial": true,
+      "dynamic": true,
+      "construction": 3.1999999997206032,
+      "preparation": 1.6000000000931323,
+      "disposal": 0.3000000002793968,
+      "initial": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 637,
+        "updatedTiles": 637,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 2
+      },
+      "visited": 160,
+      "updated": 160,
+      "samples": [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999962747097,
+        0.09999999962747097, 0.10000000009313226, 0.10000000009313226,
+        0.10000000009313226, 0.10000000009313226, 0.10000000009313226
+      ],
+      "p50": 0.0,
       "p95": 0.10000000009313226,
       "resources": {
         "presentations": 1,
@@ -2114,9 +2114,9 @@
       "size": 256,
       "partial": true,
       "dynamic": true,
-      "construction": 2.199999999953434,
-      "preparation": 1.5,
-      "disposal": 0.19999999995343387,
+      "construction": 2.2999999998137355,
+      "preparation": 1.900000000372529,
+      "disposal": 0.40000000037252903,
       "initial": {
         "maps": 1,
         "sprites": 475,
@@ -2140,12 +2140,14 @@
       "visited": 160,
       "updated": 160,
       "samples": [
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.09999999986030161,
-        0.09999999986030161, 0.10000000009313226, 0.10000000009313226,
-        0.10000000009313226, 0.19999999995343387
+        0, 0, 0, 0, 0, 0, 0, 0, 0.09999999962747097, 0.09999999962747097,
+        0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
+        0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
+        0.10000000009313226, 0.10000000009313226, 0.10000000009313226,
+        0.10000000009313226
       ],
-      "p50": 0,
-      "p95": 0.19999999995343387,
+      "p50": 0.09999999986030161,
+      "p95": 0.10000000009313226,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -2173,9 +2175,9 @@
       "size": 32,
       "partial": false,
       "dynamic": false,
-      "construction": 1,
-      "preparation": 21.300000000046566,
-      "disposal": 2,
+      "construction": 1.1999999997206032,
+      "preparation": 24.300000000279397,
+      "disposal": 2.6000000000931323,
       "initial": {
         "maps": 1,
         "sprites": 1024,
@@ -2199,13 +2201,15 @@
       "visited": 0,
       "updated": 0,
       "samples": [
-        3.8999999999068677, 3.9000000001396984, 4, 4, 4, 4, 4.099999999860302,
-        4.099999999860302, 4.100000000093132, 4.2000000001862645,
-        4.400000000139698, 4.5, 4.5, 4.599999999860302, 4.599999999860302,
-        4.600000000093132, 4.899999999906868, 5, 5.5, 8.5
+        3.7000000001862645, 3.7999999998137355, 3.7999999998137355,
+        3.7999999998137355, 3.7999999998137355, 3.8000000002793968,
+        3.8000000002793968, 3.8000000002793968, 3.8999999999068677,
+        3.900000000372529, 4, 4.199999999720603, 4.199999999720603,
+        4.2999999998137355, 4.300000000279397, 4.5, 4.7000000001862645,
+        5.699999999720603, 5.900000000372529, 6.2999999998137355
       ],
-      "p50": 4.400000000139698,
-      "p95": 8.5,
+      "p50": 3.9500000001862645,
+      "p95": 5.900000000372529,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -2233,9 +2237,9 @@
       "size": 32,
       "partial": false,
       "dynamic": false,
-      "construction": 0.4000000001396984,
-      "preparation": 18.300000000046566,
-      "disposal": 1.9000000001396984,
+      "construction": 0.7999999998137355,
+      "preparation": 13.700000000186265,
+      "disposal": 1.5,
       "initial": {
         "maps": 1,
         "sprites": 1024,
@@ -2259,15 +2263,15 @@
       "visited": 0,
       "updated": 0,
       "samples": [
-        3.699999999953434, 3.7999999998137355, 3.8999999999068677,
-        3.8999999999068677, 3.9000000001396984, 4, 4, 4, 4.099999999860302,
-        4.100000000093132, 4.100000000093132, 4.100000000093132,
-        4.199999999953434, 4.199999999953434, 4.199999999953434,
-        4.399999999906868, 4.400000000139698, 4.900000000139698,
-        6.199999999953434, 6.2000000001862645
+        3.599999999627471, 3.6000000000931323, 3.6000000000931323,
+        3.6000000000931323, 3.6000000000931323, 3.6999999997206032,
+        3.7000000001862645, 3.7000000001862645, 3.7000000001862645,
+        3.7999999998137355, 3.8000000002793968, 3.8000000002793968,
+        3.8999999999068677, 3.8999999999068677, 3.8999999999068677,
+        3.8999999999068677, 3.8999999999068677, 3.8999999999068677, 4, 4
       ],
-      "p50": 4.100000000093132,
-      "p95": 6.2000000001862645,
+      "p50": 3.800000000046566,
+      "p95": 4,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -2296,8 +2300,8 @@
       "partial": false,
       "dynamic": false,
       "construction": 0.20000000018626451,
-      "preparation": 6.699999999953434,
-      "disposal": 0.6000000000931323,
+      "preparation": 7,
+      "disposal": 0.5,
       "initial": {
         "maps": 1,
         "sprites": 1024,
@@ -2321,15 +2325,15 @@
       "visited": 0,
       "updated": 0,
       "samples": [
-        4.100000000093132, 4.100000000093132, 4.199999999953434,
-        4.199999999953434, 4.300000000046566, 4.300000000046566,
-        4.399999999906868, 4.699999999953434, 4.800000000046566,
-        4.800000000046566, 4.899999999906868, 4.899999999906868, 5, 5,
-        5.100000000093132, 5.199999999953434, 5.2000000001862645,
-        5.399999999906868, 5.5, 5.5
+        3.6999999997206032, 3.6999999997206032, 3.6999999997206032,
+        3.7000000001862645, 3.7000000001862645, 3.7999999998137355,
+        3.7999999998137355, 3.7999999998137355, 3.8000000002793968,
+        3.8000000002793968, 3.8000000002793968, 3.8999999999068677, 4, 4, 4,
+        4.2000000001862645, 4.2999999998137355, 4.5, 4.600000000093132,
+        6.399999999906868
       ],
-      "p50": 4.899999999906868,
-      "p95": 5.5,
+      "p50": 3.8000000002793968,
+      "p95": 4.600000000093132,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -2357,9 +2361,9 @@
       "size": 32,
       "partial": false,
       "dynamic": true,
-      "construction": 0.09999999986030161,
-      "preparation": 7,
-      "disposal": 0.8000000000465661,
+      "construction": 0.20000000018626451,
+      "preparation": 7.600000000093132,
+      "disposal": 0.7000000001862645,
       "initial": {
         "maps": 1,
         "sprites": 1024,
@@ -2383,14 +2387,15 @@
       "visited": 160,
       "updated": 160,
       "samples": [
-        3.800000000046566, 3.9000000001396984, 4, 4, 4, 4, 4, 4.199999999953434,
-        4.199999999953434, 4.300000000046566, 4.300000000046566,
-        4.300000000046566, 4.300000000046566, 4.399999999906868,
-        4.399999999906868, 4.5, 4.599999999860302, 4.7000000001862645,
-        4.800000000046566, 4.899999999906868
+        3.6000000000931323, 3.6999999997206032, 3.6999999997206032,
+        3.7000000001862645, 3.7000000001862645, 3.7000000001862645,
+        3.7000000001862645, 3.7000000001862645, 3.7999999998137355,
+        3.7999999998137355, 3.7999999998137355, 3.8000000002793968,
+        3.8000000002793968, 3.8999999999068677, 4, 4, 4, 4.100000000093132,
+        4.100000000093132, 4.2999999998137355
       ],
-      "p50": 4.300000000046566,
-      "p95": 4.899999999906868,
+      "p50": 3.7999999998137355,
+      "p95": 4.100000000093132,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -2418,9 +2423,9 @@
       "size": 32,
       "partial": false,
       "dynamic": true,
-      "construction": 0.30000000004656613,
-      "preparation": 10.800000000046566,
-      "disposal": 0.8000000000465661,
+      "construction": 0.5,
+      "preparation": 7.5,
+      "disposal": 0.5,
       "initial": {
         "maps": 1,
         "sprites": 1024,
@@ -2444,15 +2449,16 @@
       "visited": 160,
       "updated": 160,
       "samples": [
-        4.2000000001862645, 4.5, 4.699999999953434, 4.699999999953434,
-        4.699999999953434, 4.699999999953434, 4.7000000001862645,
-        4.800000000046566, 5, 5.099999999860302, 5.199999999953434,
-        5.300000000046566, 5.599999999860302, 5.699999999953434,
-        5.699999999953434, 6.300000000046566, 6.400000000139698, 6.5, 6.5,
-        6.699999999953434
+        3.6000000000931323, 3.6000000000931323, 3.6000000000931323,
+        3.6000000000931323, 3.6999999997206032, 3.6999999997206032,
+        3.6999999997206032, 3.7000000001862645, 3.7000000001862645,
+        3.7999999998137355, 3.7999999998137355, 3.7999999998137355,
+        3.8999999999068677, 3.8999999999068677, 3.8999999999068677,
+        3.900000000372529, 3.900000000372529, 4, 4.100000000093132,
+        4.2000000001862645
       ],
-      "p50": 5.199999999953434,
-      "p95": 6.699999999953434,
+      "p50": 3.7999999998137355,
+      "p95": 4.100000000093132,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -2480,9 +2486,9 @@
       "size": 32,
       "partial": false,
       "dynamic": true,
-      "construction": 0.09999999986030161,
-      "preparation": 7.400000000139698,
-      "disposal": 0.4000000001396984,
+      "construction": 0.10000000009313226,
+      "preparation": 6.7000000001862645,
+      "disposal": 0.5,
       "initial": {
         "maps": 1,
         "sprites": 1024,
@@ -2506,15 +2512,15 @@
       "visited": 160,
       "updated": 160,
       "samples": [
-        3.6000000000931323, 3.699999999953434, 3.800000000046566,
-        3.800000000046566, 3.800000000046566, 3.800000000046566,
-        3.800000000046566, 3.8999999999068677, 3.8999999999068677,
-        3.8999999999068677, 3.8999999999068677, 4, 4, 4.099999999860302,
-        4.100000000093132, 4.100000000093132, 4.199999999953434,
-        4.300000000046566, 4.300000000046566, 4.900000000139698
+        3.5, 3.5, 3.599999999627471, 3.599999999627471, 3.6000000000931323,
+        3.6000000000931323, 3.6000000000931323, 3.6999999997206032,
+        3.7000000001862645, 3.7000000001862645, 3.7999999998137355,
+        3.7999999998137355, 3.8000000002793968, 3.8000000002793968,
+        3.8999999999068677, 3.8999999999068677, 3.900000000372529,
+        4.2000000001862645, 4.399999999906868, 4.5
       ],
-      "p50": 3.8999999999068677,
-      "p95": 4.900000000139698,
+      "p50": 3.75,
+      "p95": 4.399999999906868,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -2542,8 +2548,71 @@
       "size": 32,
       "partial": true,
       "dynamic": false,
-      "construction": 0.19999999995343387,
-      "preparation": 2.9000000001396984,
+      "construction": 0,
+      "preparation": 3,
+      "disposal": 0.8999999999068677,
+      "initial": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "visited": 0,
+      "updated": 0,
+      "samples": [
+        1.599999999627471, 1.6000000000931323, 1.6000000000931323,
+        1.6000000000931323, 1.6999999997206032, 1.6999999997206032,
+        1.7000000001862645, 1.7000000001862645, 1.7000000001862645,
+        1.7000000001862645, 1.7000000001862645, 1.7000000001862645,
+        1.7999999998137355, 1.7999999998137355, 1.7999999998137355,
+        1.7999999998137355, 1.7999999998137355, 1.8000000002793968,
+        1.8000000002793968, 1.8000000002793968
+      ],
+      "p50": 1.7000000001862645,
+      "p95": 1.8000000002793968,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 1,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "canvas",
+      "repeat": 1,
+      "size": 32,
+      "partial": true,
+      "dynamic": false,
+      "construction": 0.10000000009313226,
+      "preparation": 2.6999999997206032,
       "disposal": 0.39999999990686774,
       "initial": {
         "maps": 1,
@@ -2568,78 +2637,16 @@
       "visited": 0,
       "updated": 0,
       "samples": [
-        1.6000000000931323, 1.6999999999534339, 1.6999999999534339,
-        1.6999999999534339, 1.6999999999534339, 1.6999999999534339,
-        1.6999999999534339, 1.6999999999534339, 1.6999999999534339,
-        1.6999999999534339, 1.7000000001862645, 1.7000000001862645,
-        1.7999999998137355, 1.8000000000465661, 1.8000000000465661,
-        1.8000000000465661, 1.8000000000465661, 1.8999999999068677,
-        1.8999999999068677, 1.9000000001396984
+        1.6999999997206032, 1.7000000001862645, 1.7999999998137355,
+        1.7999999998137355, 1.7999999998137355, 1.8000000002793968,
+        1.8000000002793968, 1.8999999999068677, 1.8999999999068677,
+        1.8999999999068677, 2, 2.099999999627471, 2.1000000000931323,
+        2.1000000000931323, 2.1000000000931323, 2.2000000001862645,
+        2.2999999998137355, 2.7000000001862645, 3.2000000001862645,
+        8.100000000093132
       ],
-      "p50": 1.7000000001862645,
-      "p95": 1.9000000001396984,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 1,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "canvas",
-      "repeat": 1,
-      "size": 32,
-      "partial": true,
-      "dynamic": false,
-      "construction": 0,
-      "preparation": 2.699999999953434,
-      "disposal": 0.30000000004656613,
-      "initial": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "visited": 0,
-      "updated": 0,
-      "samples": [
-        1.5999999998603016, 1.5999999998603016, 1.6000000000931323,
-        1.6999999999534339, 1.6999999999534339, 1.6999999999534339,
-        1.6999999999534339, 1.6999999999534339, 1.7000000001862645,
-        1.7000000001862645, 1.7999999998137355, 1.8000000000465661,
-        1.8000000000465661, 1.8000000000465661, 1.8000000000465661,
-        1.8000000000465661, 1.9000000001396984, 2, 2, 2.0999999998603016
-      ],
-      "p50": 1.7999999998137355,
-      "p95": 2.0999999998603016,
+      "p50": 1.9499999999534339,
+      "p95": 3.2000000001862645,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -2667,71 +2674,8 @@
       "size": 32,
       "partial": true,
       "dynamic": false,
-      "construction": 0.6000000000931323,
-      "preparation": 4,
-      "disposal": 0.19999999995343387,
-      "initial": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "visited": 0,
-      "updated": 0,
-      "samples": [
-        1.6999999999534339, 1.6999999999534339, 1.6999999999534339,
-        1.6999999999534339, 1.7000000001862645, 1.7000000001862645,
-        1.8000000000465661, 1.8000000000465661, 1.8000000000465661,
-        1.8000000000465661, 1.8000000000465661, 1.8999999999068677,
-        1.8999999999068677, 1.8999999999068677, 1.8999999999068677,
-        1.9000000001396984, 2, 2.0999999998603016, 2.1000000000931323,
-        2.3999999999068677
-      ],
-      "p50": 1.8000000000465661,
-      "p95": 2.3999999999068677,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 1,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "canvas",
-      "repeat": 0,
-      "size": 32,
-      "partial": true,
-      "dynamic": true,
-      "construction": 0.19999999995343387,
-      "preparation": 3.0999999998603016,
+      "construction": 0.10000000009313226,
+      "preparation": 5.100000000093132,
       "disposal": 0.20000000018626451,
       "initial": {
         "maps": 1,
@@ -2747,6 +2691,67 @@
         "maps": 1,
         "sprites": 475,
         "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "visited": 0,
+      "updated": 0,
+      "samples": [
+        1.6999999997206032, 1.7999999998137355, 1.7999999998137355,
+        1.8000000002793968, 1.8999999999068677, 1.8999999999068677, 2, 2, 2, 2,
+        2.2000000001862645, 2.2000000001862645, 2.2999999998137355,
+        2.2999999998137355, 2.5, 2.6000000000931323, 2.8000000002793968,
+        3.1000000000931323, 3.3999999999068677, 6
+      ],
+      "p50": 2.1000000000931323,
+      "p95": 3.3999999999068677,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 1,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "canvas",
+      "repeat": 0,
+      "size": 32,
+      "partial": true,
+      "dynamic": true,
+      "construction": 0.20000000018626451,
+      "preparation": 3.2999999998137355,
+      "disposal": 0.3000000002793968,
+      "initial": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
         "visitedCells": 637,
         "updatedTiles": 637,
         "createdSprites": 475,
@@ -2756,15 +2761,14 @@
       "visited": 160,
       "updated": 160,
       "samples": [
-        1.6999999999534339, 1.6999999999534339, 1.6999999999534339,
-        1.6999999999534339, 1.6999999999534339, 1.7000000001862645,
-        1.7000000001862645, 1.7999999998137355, 1.7999999998137355,
-        1.7999999998137355, 1.8000000000465661, 1.8000000000465661,
-        1.8000000000465661, 1.8000000000465661, 1.8000000000465661,
-        1.8000000000465661, 1.9000000001396984, 2, 2, 2.4000000001396984
+        1.7999999998137355, 1.7999999998137355, 1.8999999999068677,
+        1.8999999999068677, 1.8999999999068677, 1.8999999999068677,
+        1.900000000372529, 2, 2, 2, 2, 2, 2.1000000000931323,
+        2.2999999998137355, 2.3000000002793968, 2.3999999999068677, 2.5,
+        2.6000000000931323, 3.1000000000931323, 3.6000000000931323
       ],
-      "p50": 1.8000000000465661,
-      "p95": 2.4000000001396984,
+      "p50": 2.0,
+      "p95": 3.1000000000931323,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -2792,8 +2796,8 @@
       "size": 32,
       "partial": true,
       "dynamic": true,
-      "construction": 0,
-      "preparation": 3.3999999999068677,
+      "construction": 0.10000000009313226,
+      "preparation": 4,
       "disposal": 0.39999999990686774,
       "initial": {
         "maps": 1,
@@ -2818,15 +2822,15 @@
       "visited": 160,
       "updated": 160,
       "samples": [
-        1.6000000000931323, 1.6999999999534339, 1.6999999999534339,
-        1.6999999999534339, 1.6999999999534339, 1.7000000001862645,
-        1.7000000001862645, 1.7000000001862645, 1.7999999998137355,
-        1.7999999998137355, 1.7999999998137355, 1.7999999998137355,
-        1.8000000000465661, 1.8000000000465661, 1.8000000000465661,
-        1.8999999999068677, 1.9000000001396984, 1.9000000001396984, 2, 2
+        1.6000000000931323, 1.6999999997206032, 1.6999999997206032,
+        1.7000000001862645, 1.7999999998137355, 1.7999999998137355,
+        1.8000000002793968, 1.8000000002793968, 1.8999999999068677,
+        1.8999999999068677, 2, 2.1000000000931323, 2.1000000000931323,
+        2.1000000000931323, 2.1000000000931323, 2.2999999998137355,
+        2.2999999998137355, 2.3999999999068677, 2.400000000372529, 2.5
       ],
-      "p50": 1.7999999998137355,
-      "p95": 2,
+      "p50": 1.9499999999534339,
+      "p95": 2.400000000372529,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -2854,9 +2858,9 @@
       "size": 32,
       "partial": true,
       "dynamic": true,
-      "construction": 0,
-      "preparation": 2.699999999953434,
-      "disposal": 0.19999999995343387,
+      "construction": 0.10000000009313226,
+      "preparation": 3.5,
+      "disposal": 0.19999999972060323,
       "initial": {
         "maps": 1,
         "sprites": 475,
@@ -2880,16 +2884,15 @@
       "visited": 160,
       "updated": 160,
       "samples": [
-        1.6000000000931323, 1.6999999999534339, 1.6999999999534339,
-        1.6999999999534339, 1.6999999999534339, 1.6999999999534339,
-        1.6999999999534339, 1.6999999999534339, 1.6999999999534339,
-        1.6999999999534339, 1.6999999999534339, 1.8000000000465661,
-        1.8000000000465661, 1.8000000000465661, 1.8000000000465661,
-        1.8000000000465661, 1.8000000000465661, 1.8000000000465661,
-        1.9000000001396984, 2
+        1.7000000001862645, 1.7999999998137355, 1.8000000002793968,
+        1.8999999999068677, 2, 2, 2.1000000000931323, 2.1999999997206032,
+        2.1999999997206032, 2.2000000001862645, 2.2000000001862645,
+        2.2000000001862645, 2.2999999998137355, 2.3000000002793968, 2.5,
+        2.6000000000931323, 2.7999999998137355, 3.5, 4.2999999998137355,
+        7.199999999720603
       ],
-      "p50": 1.6999999999534339,
-      "p95": 2,
+      "p50": 2.2000000001862645,
+      "p95": 4.2999999998137355,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -2918,8 +2921,8 @@
       "partial": false,
       "dynamic": false,
       "construction": 0.39999999990686774,
-      "preparation": 90.69999999995343,
-      "disposal": 5.699999999953434,
+      "preparation": 103.29999999981374,
+      "disposal": 5.2999999998137355,
       "initial": {
         "maps": 1,
         "sprites": 10000,
@@ -2943,16 +2946,15 @@
       "visited": 0,
       "updated": 0,
       "samples": [
-        44.9000000001397, 45, 45.300000000046566, 45.39999999990687,
-        45.5999999998603, 45.800000000046566, 45.800000000046566,
-        46.39999999990687, 47.199999999953434, 47.89999999990687,
-        48.199999999953434, 51.199999999953434, 51.60000000009313,
-        53.300000000046566, 53.89999999990687, 56.39999999990687,
-        82.4000000001397, 83.39999999990687, 89.30000000004657,
-        122.60000000009313
+        48.60000000009313, 49, 49.10000000009313, 49.1999999997206,
+        50.3000000002794, 50.6999999997206, 51.799999999813735,
+        54.700000000186265, 55, 55.39999999990687, 56.299999999813735,
+        57.799999999813735, 61.39999999990687, 64.60000000009313, 78.5,
+        85.70000000018626, 107.5, 107.60000000009313, 116.90000000037253,
+        142.79999999981374
       ],
-      "p50": 48.199999999953434,
-      "p95": 122.60000000009313,
+      "p50": 55.8499999998603,
+      "p95": 116.90000000037253,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -2980,9 +2982,9 @@
       "size": 100,
       "partial": false,
       "dynamic": false,
-      "construction": 0.5,
-      "preparation": 74.19999999995343,
-      "disposal": 4.5,
+      "construction": 0.3000000002793968,
+      "preparation": 82.5,
+      "disposal": 5.100000000093132,
       "initial": {
         "maps": 1,
         "sprites": 10000,
@@ -3006,15 +3008,15 @@
       "visited": 0,
       "updated": 0,
       "samples": [
-        46.39999999990687, 47.199999999953434, 47.199999999953434,
-        48.300000000046566, 48.5, 48.60000000009313, 48.699999999953434,
-        48.9000000001397, 48.9000000001397, 49.199999999953434, 50,
-        50.199999999953434, 50.39999999990687, 52, 56.0999999998603,
-        58.60000000009313, 60.89999999990687, 86.9000000001397,
-        110.60000000009313, 111.69999999995343
+        43.700000000186265, 43.799999999813735, 46.3000000002794,
+        47.6999999997206, 48.60000000009313, 48.700000000186265,
+        49.200000000186265, 49.40000000037253, 50.200000000186265,
+        51.10000000009313, 51.60000000009313, 52.5, 53.1999999997206, 53.5,
+        54.1999999997206, 63.1999999997206, 74.5, 93.10000000009313,
+        114.29999999981374, 120.5
       ],
-      "p50": 50,
-      "p95": 111.69999999995343,
+      "p50": 51.35000000009313,
+      "p95": 114.29999999981374,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -3042,9 +3044,9 @@
       "size": 100,
       "partial": false,
       "dynamic": false,
-      "construction": 0.5999999998603016,
-      "preparation": 57.5,
-      "disposal": 9.100000000093132,
+      "construction": 0.39999999990686774,
+      "preparation": 73.20000000018626,
+      "disposal": 9.700000000186265,
       "initial": {
         "maps": 1,
         "sprites": 10000,
@@ -3068,14 +3070,15 @@
       "visited": 0,
       "updated": 0,
       "samples": [
-        45.800000000046566, 60, 65.5, 66.5, 66.60000000009313,
-        70.69999999995343, 73, 73.60000000009313, 73.9000000001397,
-        75.19999999995343, 75.39999999990687, 75.4000000001397,
-        76.30000000004657, 76.5999999998603, 76.69999999995343,
-        79.69999999995343, 85.5, 112.5, 127.30000000004657, 131.29999999981374
+        49.200000000186265, 51.39999999990687, 56.799999999813735, 57,
+        60.6999999997206, 66.10000000009313, 67.5, 68.39999999990687,
+        72.40000000037253, 72.5, 72.60000000009313, 74.10000000009313,
+        74.1999999997206, 75.60000000009313, 77.29999999981374,
+        78.40000000037253, 79, 159.59999999962747, 166.70000000018626,
+        171.8000000002794
       ],
-      "p50": 75.39999999990687,
-      "p95": 131.29999999981374,
+      "p50": 72.55000000004657,
+      "p95": 166.70000000018626,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -3103,9 +3106,9 @@
       "size": 100,
       "partial": false,
       "dynamic": true,
-      "construction": 0.5999999998603016,
-      "preparation": 100.20000000018626,
-      "disposal": 4,
+      "construction": 0.7999999998137355,
+      "preparation": 105.8000000002794,
+      "disposal": 5.2999999998137355,
       "initial": {
         "maps": 1,
         "sprites": 10000,
@@ -3129,14 +3132,15 @@
       "visited": 160,
       "updated": 160,
       "samples": [
-        46.300000000046566, 47, 47.300000000046566, 47.39999999990687,
-        47.60000000009313, 48, 49.199999999953434, 49.699999999953434,
-        50.60000000009313, 51.300000000046566, 52.39999999990687,
-        54.800000000046566, 59, 60.5999999998603, 68.5, 75.89999999990687,
-        82.5999999998603, 112.20000000018626, 117.69999999995343, 125.5
+        47.10000000009313, 47.299999999813735, 47.60000000009313,
+        47.700000000186265, 48.10000000009313, 59, 59.6999999997206, 61.5,
+        66.60000000009313, 68.09999999962747, 69.20000000018626, 70,
+        74.8000000002794, 77.59999999962747, 79.5, 80.10000000009313,
+        96.90000000037253, 125.39999999990687, 133.29999999981374,
+        143.90000000037253
       ],
-      "p50": 52.39999999990687,
-      "p95": 125.5,
+      "p50": 68.64999999990687,
+      "p95": 133.29999999981374,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -3164,9 +3168,9 @@
       "size": 100,
       "partial": false,
       "dynamic": true,
-      "construction": 0.4000000001396984,
-      "preparation": 62.0999999998603,
-      "disposal": 6.100000000093132,
+      "construction": 0.39999999990686774,
+      "preparation": 61.200000000186265,
+      "disposal": 7.600000000093132,
       "initial": {
         "maps": 1,
         "sprites": 10000,
@@ -3190,15 +3194,14 @@
       "visited": 160,
       "updated": 160,
       "samples": [
-        45.799999999813735, 48.89999999990687, 54.800000000046566,
-        56.299999999813735, 56.300000000046566, 64, 72.39999999990687,
-        72.70000000018626, 73.60000000009313, 74.5, 74.69999999995343,
-        74.70000000018626, 75.29999999981374, 76.30000000004657,
-        80.29999999981374, 82.19999999995343, 116.70000000018626, 124.5,
-        135.69999999995343, 174.20000000018626
+        46.5, 47.10000000009313, 47.59999999962747, 47.799999999813735,
+        47.89999999990687, 49.89999999990687, 50.3000000002794,
+        69.79999999981374, 72.10000000009313, 73, 74.20000000018626,
+        74.89999999990687, 75.5, 77, 77.6999999997206, 81.59999999962747,
+        82.8000000002794, 100.3000000002794, 107, 160.60000000009313
       ],
-      "p50": 74.69999999995343,
-      "p95": 174.20000000018626,
+      "p50": 73.60000000009313,
+      "p95": 107,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -3226,9 +3229,9 @@
       "size": 100,
       "partial": false,
       "dynamic": true,
-      "construction": 0.6999999999534339,
-      "preparation": 109.80000000004657,
-      "disposal": 7.300000000046566,
+      "construction": 0.7000000001862645,
+      "preparation": 104.20000000018626,
+      "disposal": 9.200000000186265,
       "initial": {
         "maps": 1,
         "sprites": 10000,
@@ -3252,15 +3255,15 @@
       "visited": 160,
       "updated": 160,
       "samples": [
-        64.39999999990687, 67.10000000009313, 70.5999999998603,
-        71.19999999995343, 71.30000000004657, 72.39999999990687,
-        72.60000000009313, 73.5, 74, 74.9000000001397, 75.5999999998603,
-        75.89999999990687, 77.4000000001397, 81.5999999998603,
-        87.80000000004657, 89, 120.10000000009313, 143.19999999995343, 148,
-        158.9000000001397
+        67, 67.5, 68.60000000009313, 70.60000000009313, 70.79999999981374,
+        71.10000000009313, 71.60000000009313, 72.70000000018626,
+        73.10000000009313, 73.29999999981374, 74.20000000018626, 74.5,
+        75.79999999981374, 76.1999999997206, 82, 85.20000000018626,
+        85.39999999990687, 136.20000000018626, 137.39999999990687,
+        171.6999999997206
       ],
-      "p50": 75.5999999998603,
-      "p95": 158.9000000001397,
+      "p50": 73.75,
+      "p95": 137.39999999990687,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -3289,8 +3292,8 @@
       "partial": true,
       "dynamic": false,
       "construction": 0.6000000000931323,
-      "preparation": 5,
-      "disposal": 0.30000000004656613,
+      "preparation": 4.5,
+      "disposal": 0.20000000018626451,
       "initial": {
         "maps": 1,
         "sprites": 475,
@@ -3314,16 +3317,15 @@
       "visited": 0,
       "updated": 0,
       "samples": [
-        1.6000000000931323, 1.8999999999068677, 2.2000000001862645,
-        2.699999999953434, 2.699999999953434, 2.699999999953434,
-        2.699999999953434, 2.699999999953434, 2.7000000001862645,
-        2.7999999998137355, 2.800000000046566, 2.800000000046566,
-        2.800000000046566, 2.800000000046566, 2.800000000046566,
-        2.8999999999068677, 2.9000000001396984, 3, 3.0999999998603016,
-        4.199999999953434
+        1.7000000001862645, 1.7999999998137355, 2, 2.3999999999068677,
+        2.6000000000931323, 2.6999999997206032, 2.6999999997206032,
+        2.7000000001862645, 2.7000000001862645, 2.7000000001862645,
+        2.7000000001862645, 2.7000000001862645, 2.7999999998137355,
+        2.7999999998137355, 2.7999999998137355, 2.8000000002793968,
+        2.8000000002793968, 2.8999999999068677, 2.8999999999068677, 3.5
       ],
-      "p50": 2.800000000046566,
-      "p95": 4.199999999953434,
+      "p50": 2.7000000001862645,
+      "p95": 2.8999999999068677,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -3351,9 +3353,9 @@
       "size": 100,
       "partial": true,
       "dynamic": false,
-      "construction": 0.5,
-      "preparation": 4.599999999860302,
-      "disposal": 0.39999999990686774,
+      "construction": 0.39999999990686774,
+      "preparation": 3.1999999997206032,
+      "disposal": 0.40000000037252903,
       "initial": {
         "maps": 1,
         "sprites": 475,
@@ -3377,12 +3379,137 @@
       "visited": 0,
       "updated": 0,
       "samples": [
-        2.699999999953434, 2.699999999953434, 2.699999999953434,
-        2.699999999953434, 2.7000000001862645, 2.7999999998137355,
-        2.7999999998137355, 2.800000000046566, 2.800000000046566,
-        2.800000000046566, 2.800000000046566, 2.800000000046566,
-        2.800000000046566, 2.800000000046566, 2.800000000046566,
-        2.800000000046566, 2.8999999999068677, 3, 3, 3
+        2.599999999627471, 2.6000000000931323, 2.6000000000931323,
+        2.6000000000931323, 2.6000000000931323, 2.6000000000931323,
+        2.6000000000931323, 2.6999999997206032, 2.6999999997206032,
+        2.6999999997206032, 2.6999999997206032, 2.7000000001862645,
+        2.7000000001862645, 2.7000000001862645, 2.7000000001862645,
+        2.7999999998137355, 2.7999999998137355, 2.7999999998137355,
+        2.8000000002793968, 2.8000000002793968
+      ],
+      "p50": 2.6999999997206032,
+      "p95": 2.8000000002793968,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 1,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "canvas",
+      "repeat": 2,
+      "size": 100,
+      "partial": true,
+      "dynamic": false,
+      "construction": 0.5,
+      "preparation": 3.5,
+      "disposal": 0.3000000002793968,
+      "initial": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "visited": 0,
+      "updated": 0,
+      "samples": [
+        1.7999999998137355, 1.8000000002793968, 2, 2.2000000001862645,
+        2.2000000001862645, 2.2999999998137355, 2.2999999998137355,
+        2.3000000002793968, 2.3000000002793968, 2.6000000000931323,
+        2.6000000000931323, 2.6999999997206032, 2.6999999997206032,
+        2.6999999997206032, 2.8000000002793968, 2.8999999999068677, 3,
+        3.1000000000931323, 4.199999999720603, 4.7999999998137355
+      ],
+      "p50": 2.6000000000931323,
+      "p95": 4.199999999720603,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 1,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "canvas",
+      "repeat": 0,
+      "size": 100,
+      "partial": true,
+      "dynamic": true,
+      "construction": 0.7000000001862645,
+      "preparation": 3.099999999627471,
+      "disposal": 0.39999999990686774,
+      "initial": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 637,
+        "updatedTiles": 637,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 2
+      },
+      "visited": 160,
+      "updated": 160,
+      "samples": [
+        1.8000000002793968, 2, 2, 2.599999999627471, 2.6999999997206032,
+        2.6999999997206032, 2.7000000001862645, 2.7000000001862645,
+        2.7999999998137355, 2.7999999998137355, 2.8000000002793968,
+        2.8000000002793968, 2.8999999999068677, 2.8999999999068677,
+        2.8999999999068677, 2.8999999999068677, 2.900000000372529, 3, 3,
+        4.100000000093132
       ],
       "p50": 2.800000000046566,
       "p95": 3,
@@ -3394,7 +3521,7 @@
         "imageEntries": 1,
         "pendingImages": 0
       },
-      "frameTextures": 1,
+      "frameTextures": 2,
       "textureSources": 1,
       "final": {
         "presentations": 1,
@@ -3409,12 +3536,12 @@
     },
     {
       "backend": "canvas",
-      "repeat": 2,
+      "repeat": 1,
       "size": 100,
       "partial": true,
-      "dynamic": false,
-      "construction": 0.5,
-      "preparation": 3.8999999999068677,
+      "dynamic": true,
+      "construction": 0.19999999972060323,
+      "preparation": 3.3000000002793968,
       "disposal": 0.39999999990686774,
       "initial": {
         "maps": 1,
@@ -3430,69 +3557,6 @@
         "maps": 1,
         "sprites": 475,
         "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "visited": 0,
-      "updated": 0,
-      "samples": [
-        2.6000000000931323, 2.699999999953434, 2.699999999953434,
-        2.699999999953434, 2.699999999953434, 2.800000000046566,
-        2.800000000046566, 2.800000000046566, 2.800000000046566,
-        2.800000000046566, 2.800000000046566, 2.800000000046566,
-        2.8999999999068677, 2.8999999999068677, 2.8999999999068677,
-        2.8999999999068677, 2.8999999999068677, 2.9000000001396984,
-        2.9000000001396984, 3.300000000046566
-      ],
-      "p50": 2.800000000046566,
-      "p95": 3.300000000046566,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 1,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "canvas",
-      "repeat": 0,
-      "size": 100,
-      "partial": true,
-      "dynamic": true,
-      "construction": 0.5999999998603016,
-      "preparation": 4,
-      "disposal": 0.30000000004656613,
-      "initial": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
         "visitedCells": 637,
         "updatedTiles": 637,
         "createdSprites": 475,
@@ -3502,77 +3566,15 @@
       "visited": 160,
       "updated": 160,
       "samples": [
-        1.6999999999534339, 1.8000000000465661, 1.8000000000465661,
-        2.1000000000931323, 2.5, 2.6000000000931323, 2.699999999953434,
-        2.699999999953434, 2.7000000001862645, 2.7999999998137355,
-        2.7999999998137355, 2.7999999998137355, 2.800000000046566,
-        2.800000000046566, 2.800000000046566, 2.800000000046566,
-        2.8999999999068677, 2.8999999999068677, 3.300000000046566,
-        3.9000000001396984
+        1.5, 1.599999999627471, 1.599999999627471, 1.599999999627471,
+        1.6000000000931323, 1.6000000000931323, 1.6999999997206032,
+        1.6999999997206032, 1.7000000001862645, 1.7000000001862645,
+        1.7000000001862645, 1.7000000001862645, 1.7000000001862645,
+        1.7000000001862645, 1.7999999998137355, 1.8000000002793968,
+        1.900000000372529, 2, 2.1999999997206032, 3
       ],
-      "p50": 2.7999999998137355,
-      "p95": 3.9000000001396984,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 2,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "canvas",
-      "repeat": 1,
-      "size": 100,
-      "partial": true,
-      "dynamic": true,
-      "construction": 0.5999999998603016,
-      "preparation": 4.300000000046566,
-      "disposal": 0.30000000004656613,
-      "initial": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 637,
-        "updatedTiles": 637,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 2
-      },
-      "visited": 160,
-      "updated": 160,
-      "samples": [
-        2, 2.1000000000931323, 2.3999999999068677, 2.3999999999068677, 2.5,
-        2.699999999953434, 2.699999999953434, 2.699999999953434,
-        2.7000000001862645, 2.7999999998137355, 2.7999999998137355,
-        2.800000000046566, 2.800000000046566, 2.800000000046566,
-        2.9000000001396984, 3, 3, 3, 3, 8.5
-      ],
-      "p50": 2.7999999998137355,
-      "p95": 8.5,
+      "p50": 1.7000000001862645,
+      "p95": 2.1999999997206032,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -3600,754 +3602,7 @@
       "size": 100,
       "partial": true,
       "dynamic": true,
-      "construction": 0.5,
-      "preparation": 4.399999999906868,
-      "disposal": 0.5,
-      "initial": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 637,
-        "updatedTiles": 637,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 2
-      },
-      "visited": 160,
-      "updated": 160,
-      "samples": [
-        2, 2.199999999953434, 2.2000000001862645, 2.5, 2.699999999953434,
-        2.699999999953434, 2.699999999953434, 2.699999999953434,
-        2.800000000046566, 2.800000000046566, 2.800000000046566,
-        2.800000000046566, 2.800000000046566, 2.8999999999068677,
-        2.8999999999068677, 2.9000000001396984, 3, 3.0999999998603016,
-        3.300000000046566, 3.3999999999068677
-      ],
-      "p50": 2.800000000046566,
-      "p95": 3.3999999999068677,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 2,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "canvas",
-      "repeat": 0,
-      "size": 256,
-      "partial": false,
-      "dynamic": false,
-      "construction": 3,
-      "preparation": 572.9000000001397,
-      "disposal": 57.9000000001397,
-      "initial": {
-        "maps": 1,
-        "sprites": 65536,
-        "visibleTiles": 65536,
-        "visitedCells": 65536,
-        "updatedTiles": 65536,
-        "createdSprites": 65536,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 65536,
-        "visibleTiles": 65536,
-        "visitedCells": 65536,
-        "updatedTiles": 65536,
-        "createdSprites": 65536,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "visited": 0,
-      "updated": 0,
-      "samples": [
-        444.60000000009313, 490, 499.19999999995343, 506.80000000004657,
-        542.2999999998137, 570.5999999998603, 575.1000000000931,
-        578.3000000000466, 591.6999999999534, 599.6000000000931,
-        605.3000000000466, 607.3000000000466, 656.3000000000466,
-        677.1999999999534, 686.1999999999534, 688.1999999999534,
-        695.2999999998137, 697.8999999999069, 745.7000000001863, 796.5
-      ],
-      "p50": 605.3000000000466,
-      "p95": 796.5,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 1,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "canvas",
-      "repeat": 1,
-      "size": 256,
-      "partial": false,
-      "dynamic": false,
-      "construction": 8.699999999953434,
-      "preparation": 865.8000000000466,
-      "disposal": 61.10000000009313,
-      "initial": {
-        "maps": 1,
-        "sprites": 65536,
-        "visibleTiles": 65536,
-        "visitedCells": 65536,
-        "updatedTiles": 65536,
-        "createdSprites": 65536,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 65536,
-        "visibleTiles": 65536,
-        "visitedCells": 65536,
-        "updatedTiles": 65536,
-        "createdSprites": 65536,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "visited": 0,
-      "updated": 0,
-      "samples": [
-        475.89999999990687, 533.8999999999069, 535.6000000000931,
-        543.3000000000466, 553.1999999999534, 557.5999999998603,
-        571.6999999999534, 604.3999999999069, 608.2000000001863, 652.5,
-        658.8999999999069, 663.4000000001397, 666.8000000000466,
-        672.4000000001397, 681.8000000000466, 691.1000000000931,
-        693.6999999999534, 696.8000000000466, 700.5, 703
-      ],
-      "p50": 658.8999999999069,
-      "p95": 703,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 1,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "canvas",
-      "repeat": 2,
-      "size": 256,
-      "partial": false,
-      "dynamic": false,
-      "construction": 4.399999999906868,
-      "preparation": 699,
-      "disposal": 51.5,
-      "initial": {
-        "maps": 1,
-        "sprites": 65536,
-        "visibleTiles": 65536,
-        "visitedCells": 65536,
-        "updatedTiles": 65536,
-        "createdSprites": 65536,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 65536,
-        "visibleTiles": 65536,
-        "visitedCells": 65536,
-        "updatedTiles": 65536,
-        "createdSprites": 65536,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "visited": 0,
-      "updated": 0,
-      "samples": [
-        441.30000000004657, 512.3999999999069, 532.8000000000466,
-        537.1999999999534, 562.1000000000931, 575.0999999998603,
-        594.3000000000466, 596.6999999999534, 602.6000000000931,
-        614.6000000000931, 616.1000000000931, 620.2999999998137,
-        620.8000000000466, 621.1999999999534, 628.8000000000466,
-        631.1000000000931, 663.3999999999069, 672.1999999999534, 693.5,
-        721.6000000000931
-      ],
-      "p50": 616.1000000000931,
-      "p95": 721.6000000000931,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 1,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "canvas",
-      "repeat": 0,
-      "size": 256,
-      "partial": false,
-      "dynamic": true,
-      "construction": 7.100000000093132,
-      "preparation": 838.8999999999069,
-      "disposal": 65.80000000004657,
-      "initial": {
-        "maps": 1,
-        "sprites": 65536,
-        "visibleTiles": 65536,
-        "visitedCells": 65536,
-        "updatedTiles": 65536,
-        "createdSprites": 65536,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 65536,
-        "visibleTiles": 65536,
-        "visitedCells": 65698,
-        "updatedTiles": 65698,
-        "createdSprites": 65536,
-        "destroyedSprites": 0,
-        "validatedFrames": 2
-      },
-      "visited": 160,
-      "updated": 160,
-      "samples": [
-        480.89999999990687, 520.3999999999069, 554.3000000000466, 555.5, 555.5,
-        563.6999999999534, 566, 572, 579, 593.6999999999534, 599.3000000000466,
-        602.8000000000466, 604.8999999999069, 642.8000000000466,
-        646.3999999999069, 665.6999999999534, 666.2000000001863,
-        669.9000000001397, 675.3000000000466, 683
-      ],
-      "p50": 599.3000000000466,
-      "p95": 683,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 2,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "canvas",
-      "repeat": 1,
-      "size": 256,
-      "partial": false,
-      "dynamic": true,
-      "construction": 4.2000000001862645,
-      "preparation": 694.2999999998137,
-      "disposal": 32.800000000046566,
-      "initial": {
-        "maps": 1,
-        "sprites": 65536,
-        "visibleTiles": 65536,
-        "visitedCells": 65536,
-        "updatedTiles": 65536,
-        "createdSprites": 65536,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 65536,
-        "visibleTiles": 65536,
-        "visitedCells": 65698,
-        "updatedTiles": 65698,
-        "createdSprites": 65536,
-        "destroyedSprites": 0,
-        "validatedFrames": 2
-      },
-      "visited": 160,
-      "updated": 160,
-      "samples": [
-        518.9000000001397, 543.8999999999069, 546.3999999999069,
-        590.6999999999534, 593.3999999999069, 613.0999999998603,
-        613.9000000001397, 619.4000000001397, 643.5, 644.1999999999534,
-        644.1999999999534, 645, 653.4000000001397, 654.1000000000931,
-        655.0999999998603, 657.8000000000466, 680.3000000000466,
-        700.9000000001397, 702.5999999998603, 715.1999999999534
-      ],
-      "p50": 644.1999999999534,
-      "p95": 715.1999999999534,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 2,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "canvas",
-      "repeat": 2,
-      "size": 256,
-      "partial": false,
-      "dynamic": true,
-      "construction": 3,
-      "preparation": 824.5,
-      "disposal": 42.39999999990687,
-      "initial": {
-        "maps": 1,
-        "sprites": 65536,
-        "visibleTiles": 65536,
-        "visitedCells": 65536,
-        "updatedTiles": 65536,
-        "createdSprites": 65536,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 65536,
-        "visibleTiles": 65536,
-        "visitedCells": 65698,
-        "updatedTiles": 65698,
-        "createdSprites": 65536,
-        "destroyedSprites": 0,
-        "validatedFrames": 2
-      },
-      "visited": 160,
-      "updated": 160,
-      "samples": [
-        451.89999999990687, 481.5, 482.19999999995343, 507.10000000009313,
-        508.89999999990687, 516.8000000000466, 531, 566.3999999999069,
-        569.4000000001397, 580.3000000000466, 616.1000000000931,
-        617.1999999999534, 627.2000000001863, 629.4000000001397, 631.5,
-        635.0999999998603, 638.3999999999069, 649.3999999999069, 658,
-        714.5999999998603
-      ],
-      "p50": 616.1000000000931,
-      "p95": 714.5999999998603,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 2,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "canvas",
-      "repeat": 0,
-      "size": 256,
-      "partial": true,
-      "dynamic": false,
-      "construction": 2.5999999998603016,
-      "preparation": 3.5,
-      "disposal": 0.5,
-      "initial": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "visited": 0,
-      "updated": 0,
-      "samples": [
-        1.8000000000465661, 2.5999999998603016, 2.6000000000931323,
-        2.6000000000931323, 2.699999999953434, 2.699999999953434,
-        2.699999999953434, 2.699999999953434, 2.7999999998137355,
-        2.800000000046566, 2.800000000046566, 2.800000000046566,
-        2.800000000046566, 2.800000000046566, 2.8999999999068677,
-        5.800000000046566, 6.699999999953434, 6.800000000046566,
-        6.900000000139698, 8.199999999953434
-      ],
-      "p50": 2.800000000046566,
-      "p95": 8.199999999953434,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 1,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "canvas",
-      "repeat": 1,
-      "size": 256,
-      "partial": true,
-      "dynamic": false,
-      "construction": 3.3999999999068677,
-      "preparation": 5.300000000046566,
-      "disposal": 0.30000000004656613,
-      "initial": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "visited": 0,
-      "updated": 0,
-      "samples": [
-        1.5999999998603016, 1.6000000000931323, 1.7000000001862645,
-        1.8000000000465661, 1.8000000000465661, 1.8999999999068677,
-        1.8999999999068677, 1.8999999999068677, 1.8999999999068677,
-        2.1000000000931323, 2.5, 2.5999999998603016, 2.6000000000931323,
-        2.699999999953434, 2.699999999953434, 2.7000000001862645,
-        2.7999999998137355, 2.800000000046566, 2.800000000046566,
-        3.800000000046566
-      ],
-      "p50": 2.5,
-      "p95": 3.800000000046566,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 1,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "canvas",
-      "repeat": 2,
-      "size": 256,
-      "partial": true,
-      "dynamic": false,
-      "construction": 2.4000000001396984,
-      "preparation": 2.5,
-      "disposal": 0.19999999995343387,
-      "initial": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "visited": 0,
-      "updated": 0,
-      "samples": [
-        1.5999999998603016, 1.6000000000931323, 1.6999999999534339,
-        1.6999999999534339, 1.6999999999534339, 1.6999999999534339,
-        1.6999999999534339, 1.6999999999534339, 1.6999999999534339,
-        1.6999999999534339, 1.6999999999534339, 1.6999999999534339,
-        1.7000000001862645, 1.7000000001862645, 1.8000000000465661,
-        1.8000000000465661, 1.8000000000465661, 2, 2, 2.1000000000931323
-      ],
-      "p50": 1.6999999999534339,
-      "p95": 2.1000000000931323,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 1,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "canvas",
-      "repeat": 0,
-      "size": 256,
-      "partial": true,
-      "dynamic": true,
-      "construction": 2.199999999953434,
-      "preparation": 5.100000000093132,
-      "disposal": 0.30000000004656613,
-      "initial": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 637,
-        "updatedTiles": 637,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 2
-      },
-      "visited": 160,
-      "updated": 160,
-      "samples": [
-        1.6999999999534339, 1.6999999999534339, 1.8000000000465661, 2.5,
-        2.5999999998603016, 2.6000000000931323, 2.6000000000931323,
-        2.6000000000931323, 2.699999999953434, 2.699999999953434,
-        2.699999999953434, 2.699999999953434, 2.699999999953434,
-        2.699999999953434, 2.699999999953434, 2.699999999953434,
-        2.7000000001862645, 2.800000000046566, 3, 4.199999999953434
-      ],
-      "p50": 2.699999999953434,
-      "p95": 4.199999999953434,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 2,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "canvas",
-      "repeat": 1,
-      "size": 256,
-      "partial": true,
-      "dynamic": true,
-      "construction": 3.3999999999068677,
-      "preparation": 5.399999999906868,
-      "disposal": 0.30000000004656613,
-      "initial": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 475,
-        "updatedTiles": 475,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 1
-      },
-      "after": {
-        "maps": 1,
-        "sprites": 475,
-        "visibleTiles": 475,
-        "visitedCells": 637,
-        "updatedTiles": 637,
-        "createdSprites": 475,
-        "destroyedSprites": 0,
-        "validatedFrames": 2
-      },
-      "visited": 160,
-      "updated": 160,
-      "samples": [
-        1.6000000000931323, 1.6999999999534339, 1.6999999999534339,
-        1.6999999999534339, 1.6999999999534339, 1.7999999998137355,
-        1.8000000000465661, 1.8000000000465661, 1.8000000000465661,
-        1.8000000000465661, 1.8000000000465661, 1.8000000000465661,
-        1.8000000000465661, 2.300000000046566, 2.3999999999068677,
-        2.6000000000931323, 2.6000000000931323, 2.699999999953434,
-        2.699999999953434, 12.199999999953434
-      ],
-      "p50": 1.8000000000465661,
-      "p95": 12.199999999953434,
-      "resources": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 1,
-        "imageReferences": 1,
-        "imageEntries": 1,
-        "pendingImages": 0
-      },
-      "frameTextures": 2,
-      "textureSources": 1,
-      "final": {
-        "presentations": 1,
-        "visuals": 0,
-        "textures": 0,
-        "imageReferences": 0,
-        "imageEntries": 0,
-        "pendingImages": 0
-      },
-      "actorCount": 1,
-      "errors": []
-    },
-    {
-      "backend": "canvas",
-      "repeat": 2,
-      "size": 256,
-      "partial": true,
-      "dynamic": true,
-      "construction": 2.5,
+      "construction": 0.39999999990686774,
       "preparation": 2.5,
       "disposal": 0.2999999998137355,
       "initial": {
@@ -4373,15 +3628,761 @@
       "visited": 160,
       "updated": 160,
       "samples": [
-        1.6000000000931323, 1.6999999999534339, 1.6999999999534339,
-        1.6999999999534339, 1.6999999999534339, 1.6999999999534339,
-        1.6999999999534339, 1.6999999999534339, 1.6999999999534339,
-        1.7000000001862645, 1.8000000000465661, 1.8000000000465661,
-        1.8000000000465661, 1.8000000000465661, 1.8000000000465661,
-        1.8000000000465661, 1.8999999999068677, 1.8999999999068677, 2, 2
+        1.599999999627471, 1.599999999627471, 1.6000000000931323,
+        1.6000000000931323, 1.6000000000931323, 1.6000000000931323,
+        1.6000000000931323, 1.6000000000931323, 1.6999999997206032,
+        1.6999999997206032, 1.6999999997206032, 1.7000000001862645,
+        1.7000000001862645, 1.7000000001862645, 1.7000000001862645,
+        1.7000000001862645, 1.7000000001862645, 1.7999999998137355,
+        1.7999999998137355, 1.8000000002793968
       ],
-      "p50": 1.8000000000465661,
-      "p95": 2,
+      "p50": 1.6999999997206032,
+      "p95": 1.7999999998137355,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 2,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "canvas",
+      "repeat": 0,
+      "size": 256,
+      "partial": false,
+      "dynamic": false,
+      "construction": 3.2000000001862645,
+      "preparation": 529.6999999997206,
+      "disposal": 47.700000000186265,
+      "initial": {
+        "maps": 1,
+        "sprites": 65536,
+        "visibleTiles": 65536,
+        "visitedCells": 65536,
+        "updatedTiles": 65536,
+        "createdSprites": 65536,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 65536,
+        "visibleTiles": 65536,
+        "visitedCells": 65536,
+        "updatedTiles": 65536,
+        "createdSprites": 65536,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "visited": 0,
+      "updated": 0,
+      "samples": [
+        472.10000000009313, 499.79999999981374, 527.1999999997206,
+        564.0999999996275, 568.5, 571.7999999998137, 574.6999999997206,
+        589.3000000002794, 593.8999999999069, 624.8999999999069,
+        633.1999999997206, 639.2000000001863, 640.7000000001863,
+        644.2000000001863, 657.9000000003725, 661.5, 665.6000000000931, 679,
+        694.7000000001863, 696
+      ],
+      "p50": 629.0499999998137,
+      "p95": 694.7000000001863,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 1,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "canvas",
+      "repeat": 1,
+      "size": 256,
+      "partial": false,
+      "dynamic": false,
+      "construction": 4.099999999627471,
+      "preparation": 674.5,
+      "disposal": 49.5,
+      "initial": {
+        "maps": 1,
+        "sprites": 65536,
+        "visibleTiles": 65536,
+        "visitedCells": 65536,
+        "updatedTiles": 65536,
+        "createdSprites": 65536,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 65536,
+        "visibleTiles": 65536,
+        "visitedCells": 65536,
+        "updatedTiles": 65536,
+        "createdSprites": 65536,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "visited": 0,
+      "updated": 0,
+      "samples": [
+        479, 513.6000000000931, 517.3999999999069, 542.6000000000931,
+        545.7999999998137, 551.2999999998137, 557.1000000000931,
+        568.7999999998137, 569.6000000000931, 573.5, 574.1000000000931,
+        583.3999999999069, 606.7000000001863, 615.8999999999069,
+        616.6000000000931, 651.6000000000931, 658, 684.7999999998137,
+        717.2999999998137, 732.6000000000931
+      ],
+      "p50": 573.8000000000466,
+      "p95": 717.2999999998137,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 1,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "canvas",
+      "repeat": 2,
+      "size": 256,
+      "partial": false,
+      "dynamic": false,
+      "construction": 9.600000000093132,
+      "preparation": 845,
+      "disposal": 37.59999999962747,
+      "initial": {
+        "maps": 1,
+        "sprites": 65536,
+        "visibleTiles": 65536,
+        "visitedCells": 65536,
+        "updatedTiles": 65536,
+        "createdSprites": 65536,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 65536,
+        "visibleTiles": 65536,
+        "visitedCells": 65536,
+        "updatedTiles": 65536,
+        "createdSprites": 65536,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "visited": 0,
+      "updated": 0,
+      "samples": [
+        498.60000000009313, 535.6000000000931, 536.8999999999069,
+        537.2999999998137, 538.5, 554.2000000001863, 554.5, 567.5,
+        588.1999999997206, 604.8000000002794, 615.2999999998137,
+        659.8999999999069, 663.7999999998137, 663.8000000002794, 677.5,
+        683.8000000002794, 688.5, 708.7999999998137, 710.8999999999069, 740
+      ],
+      "p50": 610.0500000000466,
+      "p95": 710.8999999999069,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 1,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "canvas",
+      "repeat": 0,
+      "size": 256,
+      "partial": false,
+      "dynamic": true,
+      "construction": 9.799999999813735,
+      "preparation": 723.3000000002794,
+      "disposal": 61.299999999813735,
+      "initial": {
+        "maps": 1,
+        "sprites": 65536,
+        "visibleTiles": 65536,
+        "visitedCells": 65536,
+        "updatedTiles": 65536,
+        "createdSprites": 65536,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 65536,
+        "visibleTiles": 65536,
+        "visitedCells": 65698,
+        "updatedTiles": 65698,
+        "createdSprites": 65536,
+        "destroyedSprites": 0,
+        "validatedFrames": 2
+      },
+      "visited": 160,
+      "updated": 160,
+      "samples": [
+        487.29999999981374, 521.1000000000931, 531.2999999998137,
+        539.4000000003725, 556.8999999999069, 561.5, 561.5, 569.5999999996275,
+        579.3999999999069, 602.3999999999069, 624.6000000000931,
+        650.3000000002794, 653.1000000000931, 660.2999999998137,
+        660.7000000001863, 672.2000000001863, 677.5, 688.2000000001863,
+        711.1000000000931, 727.6000000000931
+      ],
+      "p50": 613.5,
+      "p95": 711.1000000000931,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 2,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "canvas",
+      "repeat": 1,
+      "size": 256,
+      "partial": false,
+      "dynamic": true,
+      "construction": 2.1000000000931323,
+      "preparation": 707,
+      "disposal": 46.5,
+      "initial": {
+        "maps": 1,
+        "sprites": 65536,
+        "visibleTiles": 65536,
+        "visitedCells": 65536,
+        "updatedTiles": 65536,
+        "createdSprites": 65536,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 65536,
+        "visibleTiles": 65536,
+        "visitedCells": 65698,
+        "updatedTiles": 65698,
+        "createdSprites": 65536,
+        "destroyedSprites": 0,
+        "validatedFrames": 2
+      },
+      "visited": 160,
+      "updated": 160,
+      "samples": [
+        463.10000000009313, 479.8000000002794, 479.89999999990687,
+        500.40000000037253, 511.5, 514.0999999996275, 526.5, 543.8999999999069,
+        551.3000000002794, 570.3999999999069, 587.1000000000931,
+        591.3000000002794, 605.0999999996275, 623.6000000000931,
+        629.1000000000931, 632.3999999999069, 633.8999999999069,
+        641.7000000001863, 684.1999999997206, 699.8999999999069
+      ],
+      "p50": 578.75,
+      "p95": 684.1999999997206,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 2,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "canvas",
+      "repeat": 2,
+      "size": 256,
+      "partial": false,
+      "dynamic": true,
+      "construction": 2.2999999998137355,
+      "preparation": 694.8999999999069,
+      "disposal": 69.10000000009313,
+      "initial": {
+        "maps": 1,
+        "sprites": 65536,
+        "visibleTiles": 65536,
+        "visitedCells": 65536,
+        "updatedTiles": 65536,
+        "createdSprites": 65536,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 65536,
+        "visibleTiles": 65536,
+        "visitedCells": 65698,
+        "updatedTiles": 65698,
+        "createdSprites": 65536,
+        "destroyedSprites": 0,
+        "validatedFrames": 2
+      },
+      "visited": 160,
+      "updated": 160,
+      "samples": [
+        420, 446.10000000009313, 446.39999999990687, 467, 491.20000000018626,
+        503.60000000009313, 505, 517.5, 517.8000000002794, 519.2000000001863,
+        564.8999999999069, 565.8999999999069, 579, 599.6000000000931, 612.5,
+        640.7000000001863, 644.3999999999069, 661.5999999996275, 688.5,
+        2632.6999999997206
+      ],
+      "p50": 542.0500000000466,
+      "p95": 688.5,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 2,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "canvas",
+      "repeat": 0,
+      "size": 256,
+      "partial": true,
+      "dynamic": false,
+      "construction": 3.400000000372529,
+      "preparation": 4.599999999627471,
+      "disposal": 0.5,
+      "initial": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "visited": 0,
+      "updated": 0,
+      "samples": [
+        2.6000000000931323, 2.6000000000931323, 2.6000000000931323,
+        2.6000000000931323, 2.6000000000931323, 2.6000000000931323,
+        2.6000000000931323, 2.6999999997206032, 2.6999999997206032,
+        2.6999999997206032, 2.6999999997206032, 2.6999999997206032,
+        2.6999999997206032, 2.7000000001862645, 2.7000000001862645,
+        2.7000000001862645, 2.7000000001862645, 2.7000000001862645,
+        2.7000000001862645, 8.399999999906868
+      ],
+      "p50": 2.6999999997206032,
+      "p95": 2.7000000001862645,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 1,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "canvas",
+      "repeat": 1,
+      "size": 256,
+      "partial": true,
+      "dynamic": false,
+      "construction": 3.3999999999068677,
+      "preparation": 3.8000000002793968,
+      "disposal": 0.2999999998137355,
+      "initial": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "visited": 0,
+      "updated": 0,
+      "samples": [
+        2.5, 2.5, 2.599999999627471, 2.599999999627471, 2.599999999627471,
+        2.6000000000931323, 2.6000000000931323, 2.6000000000931323,
+        2.6000000000931323, 2.6000000000931323, 2.6000000000931323,
+        2.6000000000931323, 2.6000000000931323, 2.6000000000931323,
+        2.6000000000931323, 2.6000000000931323, 2.6999999997206032,
+        2.6999999997206032, 2.7000000001862645, 2.7000000001862645
+      ],
+      "p50": 2.6000000000931323,
+      "p95": 2.7000000001862645,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 1,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "canvas",
+      "repeat": 2,
+      "size": 256,
+      "partial": true,
+      "dynamic": false,
+      "construction": 2.3000000002793968,
+      "preparation": 2.6999999997206032,
+      "disposal": 0.39999999990686774,
+      "initial": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "visited": 0,
+      "updated": 0,
+      "samples": [
+        2.5, 2.599999999627471, 2.599999999627471, 2.599999999627471,
+        2.6000000000931323, 2.6000000000931323, 2.6000000000931323,
+        2.6000000000931323, 2.6000000000931323, 2.6000000000931323,
+        2.6000000000931323, 2.6000000000931323, 2.6000000000931323,
+        2.6000000000931323, 2.6000000000931323, 2.6000000000931323,
+        2.6999999997206032, 2.6999999997206032, 2.7000000001862645,
+        2.7000000001862645
+      ],
+      "p50": 2.6000000000931323,
+      "p95": 2.7000000001862645,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 1,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "canvas",
+      "repeat": 0,
+      "size": 256,
+      "partial": true,
+      "dynamic": true,
+      "construction": 3.5,
+      "preparation": 3.8999999999068677,
+      "disposal": 0.5,
+      "initial": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 637,
+        "updatedTiles": 637,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 2
+      },
+      "visited": 160,
+      "updated": 160,
+      "samples": [
+        1.5, 1.5, 1.6000000000931323, 1.6999999997206032, 1.6999999997206032,
+        1.8000000002793968, 2.1000000000931323, 2.1999999997206032,
+        2.599999999627471, 2.6000000000931323, 2.6000000000931323,
+        2.6000000000931323, 2.6000000000931323, 2.6999999997206032,
+        2.7000000001862645, 2.7000000001862645, 2.7000000001862645,
+        2.7000000001862645, 2.7999999998137355, 4.100000000093132
+      ],
+      "p50": 2.6000000000931323,
+      "p95": 2.7999999998137355,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 2,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "canvas",
+      "repeat": 1,
+      "size": 256,
+      "partial": true,
+      "dynamic": true,
+      "construction": 3.5,
+      "preparation": 3.7999999998137355,
+      "disposal": 0.39999999990686774,
+      "initial": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 637,
+        "updatedTiles": 637,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 2
+      },
+      "visited": 160,
+      "updated": 160,
+      "samples": [
+        2.599999999627471, 2.6000000000931323, 2.6999999997206032,
+        2.6999999997206032, 2.6999999997206032, 2.6999999997206032,
+        2.7000000001862645, 2.7000000001862645, 2.7000000001862645,
+        2.7000000001862645, 2.7000000001862645, 2.7000000001862645,
+        2.7000000001862645, 2.7000000001862645, 2.7000000001862645,
+        2.7000000001862645, 2.7999999998137355, 2.7999999998137355,
+        2.8000000002793968, 8.100000000093132
+      ],
+      "p50": 2.7000000001862645,
+      "p95": 2.8000000002793968,
+      "resources": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 1,
+        "imageReferences": 1,
+        "imageEntries": 1,
+        "pendingImages": 0
+      },
+      "frameTextures": 2,
+      "textureSources": 1,
+      "final": {
+        "presentations": 1,
+        "visuals": 0,
+        "textures": 0,
+        "imageReferences": 0,
+        "imageEntries": 0,
+        "pendingImages": 0
+      },
+      "actorCount": 1,
+      "errors": []
+    },
+    {
+      "backend": "canvas",
+      "repeat": 2,
+      "size": 256,
+      "partial": true,
+      "dynamic": true,
+      "construction": 3.5,
+      "preparation": 3.900000000372529,
+      "disposal": 0.2999999998137355,
+      "initial": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 475,
+        "updatedTiles": 475,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 1
+      },
+      "after": {
+        "maps": 1,
+        "sprites": 475,
+        "visibleTiles": 475,
+        "visitedCells": 637,
+        "updatedTiles": 637,
+        "createdSprites": 475,
+        "destroyedSprites": 0,
+        "validatedFrames": 2
+      },
+      "visited": 160,
+      "updated": 160,
+      "samples": [
+        1.7000000001862645, 2, 2, 2.599999999627471, 2.599999999627471,
+        2.6000000000931323, 2.6999999997206032, 2.6999999997206032,
+        2.6999999997206032, 2.7000000001862645, 2.7000000001862645,
+        2.7000000001862645, 2.7000000001862645, 2.7000000001862645,
+        2.7000000001862645, 2.7999999998137355, 2.8000000002793968,
+        2.8000000002793968, 3, 43.10000000009313
+      ],
+      "p50": 2.7000000001862645,
+      "p95": 3,
       "resources": {
         "presentations": 1,
         "visuals": 0,
@@ -4403,5 +4404,6 @@
       "actorCount": 1,
       "errors": []
     }
-  ]
+  ],
+  "statisticConvention": "p50 = ordinary median of 20 raw timings; p95 = nearest rank ceil(0.95 * 20), index 18. Derived statistics recomputed from retained raw samples; no draw timings altered."
 }

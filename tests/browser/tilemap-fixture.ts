@@ -351,6 +351,11 @@ export async function measure(
   const final = f.renderer.diagnostics;
   f.game.dispose();
   samples.sort((a, b) => a - b);
+  const lower = samples[9],
+    upper = samples[10],
+    p95 = samples[18];
+  if (lower === undefined || upper === undefined || p95 === undefined)
+    throw Error("Missing timing samples");
   return {
     size,
     partial,
@@ -363,8 +368,8 @@ export async function measure(
     visited: after.visitedCells - before.visitedCells,
     updated: after.updatedTiles - before.updatedTiles,
     samples,
-    p50: samples[10],
-    p95: samples[19],
+    p50: (lower + upper) / 2,
+    p95,
     resources,
     frameTextures,
     textureSources,

@@ -304,6 +304,7 @@ try {
       theme: true,
       hostCleanupAll: true,
       inspectedEngineCleanup: [
+        "tilemap",
         "prism-raid",
         "blockfall",
         "ui-scenes",
