@@ -21,4 +21,5 @@ export * from "./replay";
 export * from "./scene";
 export * from "./sprite-animation";
 export * from "./sprite-sheet";
+export * from "./tilemap";
 export * from "./version";
