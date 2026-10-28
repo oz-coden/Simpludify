@@ -240,3 +240,40 @@ describe("SpriteAnimation", () => {
     expect(a.current).toBe("idle");
   });
 });
+
+it("keeps fractional frame boundaries consistent across steps and stops safely in completion", () => {
+  const f = fixture();
+  const a = new SpriteAnimation({
+    sheet,
+    clips: { fraction: { frames: [0, 1, 2], fps: 10 } },
+  });
+  const b = new SpriteAnimation({
+    sheet,
+    clips: { fraction: { frames: [0, 1, 2], fps: 10 } },
+  });
+  for (let i = 0; i < 9; i++) a.update({ delta: 0.1, scene: f.engine.scene });
+  b.update({ delta: 0.9, scene: f.engine.scene });
+  expect(a.frameIndex).toBe(0);
+  expect(b.frameIndex).toBe(0);
+  const completed = vi.fn(() => f.actor.dispose());
+  f.actor.remove(SpriteAnimation.type);
+  const once = f.actor.add(
+    new SpriteAnimation({
+      sheet,
+      clips: { once: { frames: [0], frameSeconds: 0.1, loop: false } },
+      onComplete: completed,
+    }),
+  );
+  f.engine.step(0.1);
+  expect(completed).toHaveBeenCalledTimes(1);
+  expect(once.disposed).toBe(true);
+  f.engine.step(1);
+  expect(completed).toHaveBeenCalledTimes(1);
+  expect(
+    () =>
+      new SpriteAnimation({
+        sheet,
+        clips: { sparse: { frames: new Array<number>(2) } },
+      }),
+  ).toThrow();
+});

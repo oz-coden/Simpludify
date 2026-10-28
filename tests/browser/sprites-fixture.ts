@@ -157,6 +157,19 @@ export async function invalid() {
     mismatch = (e as { code: string }).code;
   }
   const stillGreen = f.pixel();
+  const other = SpriteSheet.grid(`${url}#other`, {
+    frameWidth: 16,
+    frameHeight: 16,
+  });
+  f.view.source = other.get(99);
+  try {
+    await f.game.whenReady();
+  } catch {
+    /* Retain a different image's lease. */
+  }
+  f.view.source = other.get(3);
+  await f.game.whenReady();
+  const replacementRecovery = f.pixel();
   f.game.dispose();
   const g = await fixture();
   g.view.source = sheet.get(99);
@@ -177,6 +190,7 @@ export async function invalid() {
     mismatch,
     stillGreen,
     initialRecovery,
+    replacementRecovery,
     disposed: g.renderer.diagnostics,
   };
 }

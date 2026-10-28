@@ -336,7 +336,11 @@ export class PixiRenderer implements RendererPort {
         changed();
       } else if (
         entry.requestUrl !== source.url ||
-        (sourceChanged && !entry.controller && !entry.image)
+        (sourceChanged &&
+          !entry.controller &&
+          (!entry.image ||
+            entry.displayedSource?.kind !== "image" ||
+            entry.displayedSource.url !== source.url))
       ) {
         cancel(entry);
         entry.requestUrl = source.url;

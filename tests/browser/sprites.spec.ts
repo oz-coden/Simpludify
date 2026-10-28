@@ -97,6 +97,7 @@ for (const fallback of [false, true])
       expect(r.recovered).toEqual([0, 255, 0]);
       expect(r.stillGreen).toEqual([0, 255, 0]);
       expect(r.initialRecovery).toEqual([0, 0, 255]);
+      expect(r.replacementRecovery).toEqual([255, 255, 0]);
       expect(r.disposed).toEqual(empty);
     });
     test("follows latest frames during load and rejects stale results after owner destruction", async ({
