@@ -102,11 +102,12 @@ try {
         "signal-run",
         "blockfall",
         "prism-raid",
+        "sprites",
       ].includes(example)
     )
       fail(
         "EXAMPLE_NOT_FOUND",
-        "Choose character, ui-scenes, composition, signal-run, blockfall or prism-raid",
+        "Choose character, ui-scenes, composition, signal-run, blockfall, prism-raid or sprites",
         2,
       );
     if (!(base.startsWith("/") || base.startsWith("./")) || base.includes(".."))

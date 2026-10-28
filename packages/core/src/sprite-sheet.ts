@@ -144,7 +144,12 @@ export class SpriteSheet<Name extends string = never> {
     url: string,
     frames: Readonly<Record<string, SpriteRect>> | readonly SpriteRect[],
   ): SpriteSheet<string> {
-    const entries = Object.entries(frames);
+    const entries = Array.isArray(frames)
+      ? Array.from(
+          frames,
+          (rect: SpriteRect, index) => [String(index), rect] as const,
+        )
+      : Object.entries(frames);
     if (!entries.length || entries.some(([name]) => !name))
       throw new EngineError(
         "SPRITE_FRAME_INVALID",

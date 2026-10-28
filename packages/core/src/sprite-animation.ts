@@ -5,7 +5,7 @@ import {
   defineComponent,
   type UpdateContext,
 } from "./component";
-import { Renderable } from "./components";
+import { Renderable, type VisualSource } from "./components";
 import { EngineError } from "./diagnostics";
 import type { SpriteImage, SpriteSheet } from "./sprite-sheet";
 
@@ -59,6 +59,8 @@ export class SpriteAnimation<
   private cursor = 0;
   private time = 0;
   private view: Renderable | undefined;
+  private written: VisualSource | undefined;
+  private image: SpriteImage | undefined;
   constructor(options: SpriteAnimationOptions<Name, FrameName>) {
     super();
     for (const [name, definition] of Object.entries(options.clips) as [
@@ -99,7 +101,7 @@ export class SpriteAnimation<
         name,
         Object.freeze({
           images: Object.freeze(
-            definition.frames.map((key) => options.sheet.get(key)),
+            Array.from(definition.frames, (key) => options.sheet.get(key)),
           ),
           frameSeconds: seconds,
           duration,
@@ -149,7 +151,15 @@ export class SpriteAnimation<
   }
   private show(): void {
     const source = this.clip.images[this.cursor];
-    if (this.view && source) this.view.source = source;
+    if (
+      this.view &&
+      source &&
+      (source !== this.image || this.view.source !== this.written)
+    ) {
+      this.view.source = source;
+      this.written = this.view.source;
+      this.image = source;
+    }
   }
   protected onAttach(): void {
     this.view = this.actor.require(Renderable.type);
@@ -234,5 +244,7 @@ export class SpriteAnimation<
   protected onDestroy(): void {
     this.status = SpriteAnimationState.Stopped;
     this.view = undefined;
+    this.written = undefined;
+    this.image = undefined;
   }
 }
