@@ -105,6 +105,10 @@ function equalSource(a: VisualSource, b: VisualSource): boolean {
     ? b.kind === "shape" && a.shape === b.shape
     : b.kind === "image" && a.url === b.url && a.fit === b.fit;
 }
+const defaultVisualSource: VisualSource = Object.freeze({
+  kind: "shape",
+  shape: Shape.Box,
+});
 export interface RenderableOptions {
   width?: number;
   height?: number;
@@ -124,10 +128,7 @@ export class Renderable extends Component {
   private horizontal = 32;
   private vertical = 32;
   private rgb = 0x73e3c0;
-  private visual: VisualSource = Object.freeze({
-    kind: "shape",
-    shape: Shape.Box,
-  });
+  private visual: VisualSource = defaultVisualSource;
   private shown = true;
   private alpha = 1;
   private depth = 0;
@@ -214,10 +215,7 @@ export class Renderable extends Component {
   }
   constructor(options: RenderableOptions = {}) {
     super();
-    this.source =
-      options.source === undefined
-        ? { kind: "shape", shape: Shape.Box }
-        : options.source;
+    if (options.source !== undefined) this.source = options.source;
     this.width = options.width === undefined ? 32 : options.width;
     this.height = options.height === undefined ? 32 : options.height;
     // Source chooses the initial default only. Later source changes retain color.

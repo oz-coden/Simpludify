@@ -55,6 +55,7 @@ for (const fallback of [false, true]) {
         const tip = pixel(200, 120);
         const sameGraphics = f.display() === original;
         view.source = { kind: "image", url: imageURL("white") };
+        const retainedShape = pixel();
         view.color = 0xffffff;
         await game.whenReady();
         const white = pixel(),
@@ -130,6 +131,7 @@ for (const fallback of [false, true]) {
           corner,
           tip,
           sameGraphics,
+          retainedShape,
           white,
           tinted,
           containOutside,
@@ -155,6 +157,7 @@ for (const fallback of [false, true]) {
       expect(result.corner).toEqual([0, 0, 0]);
       expect(result.tip).toEqual([0, 255, 0]);
       expect(result.sameGraphics).toBe(true);
+      expect(result.retainedShape).toEqual([0, 255, 0]);
       expect(result.white).toEqual([255, 255, 255]);
       expect(result.tinted).toEqual([128, 64, 32]);
       expect(result.containOutside).toEqual([0, 0, 0]);
@@ -313,6 +316,17 @@ for (const fallback of [false, true]) {
         await Promise.resolve();
         f.actor.dispose();
         await removed;
+        const componentActor = game.add(new Actor());
+        componentActor.add(new Transform());
+        componentActor.add(
+          new Renderable({
+            source: { kind: "image", url: "./never-live.svg" },
+          }),
+        );
+        const componentWaiting = game.whenReady();
+        await Promise.resolve();
+        componentActor.remove(Renderable.type);
+        await componentWaiting;
         const actor = game.add(new Actor());
         actor.add(new Transform());
         actor.add(

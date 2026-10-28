@@ -452,7 +452,7 @@ export class PixiRenderer implements RendererPort {
       },
       render: (view) => {
         if (disposed || this.dead || scene.disposed) return;
-        sync();
+        reconcile();
         if (!root.parent) this.app.stage.addChild(root);
         const c = view.clip;
         if (
@@ -469,7 +469,8 @@ export class PixiRenderer implements RendererPort {
         }
         world.scale.set(view.scale);
         world.position.set(view.x, view.y);
-        for (const entry of visuals.values())
+        for (const entry of visuals.values()) {
+          update(entry);
           if (entry.display) {
             const t = entry.transform;
             entry.display.visible =
@@ -488,6 +489,7 @@ export class PixiRenderer implements RendererPort {
               entry.scaleY * t.scaleY,
             );
           }
+        }
         if (depthDirty) {
           drawOrder.length = 0;
           for (const entry of visuals.values())

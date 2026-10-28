@@ -12,13 +12,12 @@ export const colors: Record<Kind, number> = {
 };
 // Rendering is a consumer of the model. Only public Actor/Component APIs are used.
 export class BoardView {
-  private readonly tiles = new Map<string, { kind: string; actor: Actor }>();
+  private readonly tiles = new Map<string, Actor>();
   constructor(private readonly scene: Scene) {}
   sync(puzzle: Puzzle): void {
     const desired = new Map<
       string,
       {
-        kind: string;
         x: number;
         y: number;
         color: number;
@@ -30,7 +29,6 @@ export class BoardView {
       for (let x = 0; x < 10; x++) {
         const kind = puzzle.board[y]?.[x];
         desired.set(`board:${x}:${y}`, {
-          kind: kind ?? "empty",
           x,
           y,
           color: kind ? colors[kind] : 0x192933,
@@ -46,7 +44,6 @@ export class BoardView {
         for (const { x, y } of cells(piece)) {
           if (y < 0) continue;
           desired.set(`${layer}:${x}:${y}`, {
-            kind: piece.kind,
             x,
             y,
             color: colors[piece.kind],
@@ -54,13 +51,20 @@ export class BoardView {
             zIndex: layer === "active" ? 2 : 1,
           });
         }
-    for (const [key, tile] of this.tiles)
-      if (desired.get(key)?.kind !== tile.kind) {
-        tile.actor.dispose();
+    for (const [key, actor] of this.tiles)
+      if (!desired.has(key)) {
+        actor.dispose();
         this.tiles.delete(key);
       }
     for (const [key, tile] of desired) {
-      if (this.tiles.has(key)) continue;
+      const existing = this.tiles.get(key);
+      if (existing) {
+        const view = existing.require(Renderable.type);
+        view.color = tile.color;
+        view.opacity = tile.opacity;
+        view.zIndex = tile.zIndex;
+        continue;
+      }
       const actor = new Actor();
       actor.add(new Transform({ x: tile.x * 24 + 12, y: tile.y * 24 + 12 }));
       actor.add(
@@ -73,7 +77,7 @@ export class BoardView {
         }),
       );
       this.scene.add(actor);
-      this.tiles.set(key, { kind: tile.kind, actor });
+      this.tiles.set(key, actor);
     }
   }
 }

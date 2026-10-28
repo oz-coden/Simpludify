@@ -145,12 +145,15 @@ class DamageFlash extends Component {
   static readonly type: ComponentType<DamageFlash> =
     defineComponent<DamageFlash>("DamageFlash", [Health.type, Renderable.type]);
   readonly type = DamageFlash.type;
+  private baseColor = 0x73e3c0;
+  protected onAttach(): void {
+    this.baseColor = this.actor.require(Renderable.type).color;
+  }
   update(): void {
-    this.actor.require(Renderable.type).opacity = this.actor.require(
-      Health.type,
-    ).invulnerable
-      ? 0.45
-      : 1;
+    const view = this.actor.require(Renderable.type),
+      damaged = this.actor.require(Health.type).invulnerable;
+    view.opacity = damaged ? 0.45 : 1;
+    view.color = damaged ? 0xff887e : this.baseColor;
   }
 }
 class Patrol extends Component {
