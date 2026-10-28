@@ -112,6 +112,66 @@ try {
         await testPrismRaid(frame, page, context, viewport.width);
       } else if (example.id === "blockfall") {
         await testBlockfall(frame, page, context, viewport.width);
+      } else if (example.id === "tilemap") {
+        await frame.waitForFunction(
+          () => window.tilemapDemo?.game.engine.scene.state === "active",
+        );
+        await frame.locator(".simpludify").focus();
+        await page.keyboard.down("KeyD");
+        await frame.waitForFunction(() => window.tilemapDemo.game.camera.x > 5);
+        await page.keyboard.up("KeyD");
+        const pixels = await frame.evaluate(() => {
+          const { game, terrain } = window.tilemapDemo;
+          game.pause();
+          game.setViewport();
+          const canvas = document.querySelector("canvas"),
+            copy = document.createElement("canvas");
+          copy.width = canvas.width;
+          copy.height = canvas.height;
+          const context = copy.getContext("2d");
+          context.drawImage(canvas, 0, 0);
+          const point = game.worldToScreen(
+            terrain.tileToWorld(8, 9, { center: true }),
+          );
+          const ratio =
+            canvas.width / game.element.getBoundingClientRect().width;
+          return {
+            pixel: [
+              ...context.getImageData(
+                Math.round(point.x * ratio),
+                Math.round(point.y * ratio),
+                1,
+                1,
+              ).data,
+            ].slice(0, 3),
+            actors: game.engine.scene.actors.length,
+            maps: game.renderer.tilemapDiagnostics.maps,
+            textures: game.renderer.diagnostics.textures,
+            refs: game.renderer.diagnostics.imageReferences,
+            revision: terrain.revision,
+            visits: game.renderer.tilemapDiagnostics.visitedCells,
+          };
+        });
+        assert.deepEqual(pixels.pixel, [55, 99, 74]);
+        assert.equal(pixels.actors, 4);
+        assert.equal(pixels.maps, 3);
+        assert.equal(pixels.textures, 2);
+        assert.equal(pixels.refs, 4);
+        await frame.getByRole("button", { name: "Paint under player" }).click();
+        const edited = await frame.evaluate(async () => {
+          const { game, terrain } = window.tilemapDemo;
+          await game.whenReady();
+          return {
+            revision: terrain.revision,
+            visits: game.renderer.tilemapDiagnostics.visitedCells,
+          };
+        });
+        assert.equal(edited.revision, pixels.revision + 1);
+        assert.equal(edited.visits, pixels.visits + 1);
+        await frame.evaluate(() => window.tilemapDemo.game.resume());
+        await frame.getByRole("button", { name: "Leave field →" }).click();
+        await frame.getByRole("button", { name: "← Return to field" }).click();
+        await frame.getByRole("heading", { name: "Tile trail" }).waitFor();
       } else if (example.id === "signal-run") {
         await frame
           .getByRole("button", { name: "Start run", exact: true })
