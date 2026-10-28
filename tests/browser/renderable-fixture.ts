@@ -63,8 +63,8 @@ export async function fixture() {
     internal.app.stage.children[0]?.children[0]?.children[0] as
       | Graphics
       | Sprite;
-  const pixel = (x = 200, y = 150) => {
-    game.setViewport();
+  const pixel = (x = 200, y = 150, draw = true) => {
+    if (draw) game.setViewport();
     const canvas = game.element.querySelector("canvas");
     if (!canvas) throw new Error("Missing canvas");
     const copy = document.createElement("canvas");

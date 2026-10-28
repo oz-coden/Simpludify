@@ -87,17 +87,17 @@ Assignment is synchronous. The next render/readiness synchronization observes it
 - A current failure reports ASSET_LOAD_FAILED once, retains the old display and does not stop the active Scene. Replace/remove the failed request to recover; no automatic retry loop exists.
 - Reassigning the same failed source remains a no-op. Retry by first selecting and synchronizing another source, then selecting the image URL again. No separate retry API is introduced.
 
-`Game.whenReady()` captures the current presentation after startup, synchronizes it, and follows its latest observed requests until none remain pending. Superseded/removed requests stop blocking. A current error rejects promptly even when another image never finishes. Calls keep rejecting until the failed request is replaced/removed. Successful waits render the prepared current state before returning. They do not wait for future assignments or independently pending navigation; use `await game.goTo(id)` for navigation. Continuous source replacement can keep readiness pending.
+`Game.whenReady()` captures the current presentation after startup, synchronizes it, and follows its latest observed requests until none remain pending. Superseded/removed requests stop blocking. A current error rejects promptly even when another image never finishes. Calls keep rejecting until the failed request is replaced/removed. Successful waits render the prepared current state before returning. This is CPU rendering submission, not a GPU fence or browser compositor-paint barrier. They do not wait for future assignments or independently pending navigation; use `await game.goTo(id)` for navigation. Continuous source replacement can keep readiness pending.
 
 Normal frames observe changes automatically. Manual hosts must call render or ready to observe new Core values; setters do not schedule browser work, and readiness adds no polling timer or animation-frame chain. Disposal of the captured presentation or Game rejects GAME_DISPOSED, including navigation that disposes the old presentation.
 
 ## Preparation, cleanup and independence
 
-Initial run and staged goTo prepare initial images through the same machinery. Known failures reject preparation without waiting for unrelated unfinished images. Failed navigation disposes the candidate and retains the active Scene/presentation. Startup failure retains its existing terminal startup-error behavior. Runtime additions/source changes keep logical updates running on image failure.
+Initial run and staged goTo prepare initial images through the same machinery. Actors created by activation hooks are runtime additions; use whenReady after run/goTo to await their images. Known failures reject preparation without waiting for unrelated unfinished images. Failed navigation disposes the candidate and retains the active Scene/presentation. Startup failure retains its existing terminal startup-error behavior. Runtime additions/source changes keep logical updates running on image failure.
 
 Actor/Renderable disposal cancels its requests and releases its owned display/image; Scene disposal releases all of its visuals and wakes waiters. Game also cancels initialization/navigation and removes owned canvas/listeners. Late acquired resources release themselves without committing. Diagnostics count presentations, visuals, owned image resources and pending requests; they do not measure native/GPU bytes.
 
-Every Visual currently owns a private acquired image resource through an internal release operation. Images bypass Pixi's shared global cache. There is no public TextureRef, shared cache, reference counter, Material, generic AssetManager, Sprite Sheet or animation API. Renderer consumes validated data without importing backend objects into Core. Replay format, random consumption and fixed-step logic are unchanged. Do not make game outcomes depend on uncontrolled image completion times.
+Every Visual currently owns a private acquired image resource through an internal release operation. Images bypass Pixi's shared global cache. There is no public TextureRef, shared cache, reference counter, Material, generic AssetManager, Sprite Sheet or animation API. Renderer consumes validated data without importing backend objects into Core. Custom renderers with asynchronous visual work must implement PreparedScene.ready and cancellation/disposal with the same presentation-scoped contract. Replay format, random consumption and fixed-step logic are unchanged. Do not make game outcomes depend on uncontrolled image completion times.
 
 ## Migration
 
@@ -115,3 +115,30 @@ Preserve Component identity, immutable sources, revision/no-op semantics, latest
 Only resource acquisition/release needs sharing. Do not retain per-Visual texture.destroy(true) once resources are shared. Consumer cancellation must detach that consumer; abort a shared load only after the last consumer is gone. Track Visual requests separately from resource ownership and release stale acquisitions idempotently. Staged Scenes must acquire references before old Scene disposal releases theirs.
 
 The first sharing tests should assert one load/resource for two Actors, independent tint/opacity/source, survival after one removal/cancellation, release at the last consumer, overlapping active/staged Scene lifetimes, isolated Games, and failures that cannot revive superseded requests.
+
+## Validation and measured limits
+
+Unit/type fixtures cover validated mutations, frozen source copies, semantic no-ops, unchanged dependencies/Scene structure and invalid API combinations. Browser pixel fixtures cover shapes, image multiplication, fit, depth, retained displays, reordered completions, failure/recovery and Actor/Component/Scene/Game disposal on WebGL and forced Canvas2D at desktop/narrow sizes. A gated acquired resource finishes after its successor to exercise stale-result release independently of successful network abortion.
+
+The isolated comparison used baseline 3442f43 and the current runtime from 7098dcf, Node v24.22.1, Chromium 156.0.8078.4, linux, INTEL(R) XEON(R) PLATINUM 8573C, Vite development serving, WebGL/SwiftShader, 1000×800 DPR1. Three alternating baseline/current pairs ran alone without other local tests/builds. Each shape case warms 20 iterations and measures 100 iterations for 1000 Actors; image cases measure 20 replacements for 16 Actors. Thirty preparation/disposal cycles use 100 visuals. Timings include mutation and CPU submission; image cases include readiness, RAF yields are outside timing.
+
+| Operation                         | Median of baseline p50 | Median of current p50 |
+| --------------------------------- | ---------------------- | --------------------- |
+| static                            | 0.30ms                 | 0.30ms                |
+| color                             | 29.50ms                | 8.40ms                |
+| dimensions                        | 32.10ms                | 8.80ms                |
+| images                            | 2.40ms                 | 1.90ms                |
+| 100-visual prepare/render/dispose | 3.50ms                 | 2.80ms                |
+
+Baseline dynamic workloads use documented remove/add; current uses live setters. This compares practical operations, not identical renderer-only instructions. Baseline color/dimension cases created 100000 display objects each; current created zero. Image cases still loaded 320 resources in both versions, while new Sprite objects fell from 320 to zero. This is not resource sharing. All disposal counters returned to zero. Shared-host noise and coarse clocks affect tails; static/image/Scene differences do not establish a general speedup. No GPU time, native-memory usage or leak-freedom result is claimed.
+
+Raw pairs: [before 1](../benchmarks/renderable/before-1.json), [after 1](../benchmarks/renderable/after-1.json), [before 2](../benchmarks/renderable/before-2.json), [after 2](../benchmarks/renderable/after-2.json), [before 3](../benchmarks/renderable/before-3.json), [after 3](../benchmarks/renderable/after-3.json).
+
+A separate isolated Core pair measured the 1000-moving-Character step p50 at 0.0786→0.0800ms (5000 samples). Prism Raid reproduced 60 wins, 172796 steps and 1439.97 simulation seconds in 6.836→5.287s. This single pair does not establish a performance change. [Core before](../benchmarks/renderable/before-core.json), [Core after](../benchmarks/renderable/after-core.json), [shooter before](../benchmarks/renderable/before-shooter.json), [shooter after](../benchmarks/renderable/after-shooter.json) retain timing and GC observations; they do not measure rendering or GPU memory.
+
+
+```sh
+CHROMIUM_PATH=/path/to/chrome-headless-shell npm run bench:renderable -- --out /tmp/renderable.json
+```
+
+For the historical side, create a detached worktree at 3442f43, run npm ci there, and invoke the current benchmark script by absolute path from that worktree with `--legacy --out /tmp/before.json`. The legacy switch is benchmark-only, not a supported game API. Reports preserve source commits/runtime-diff hashes and raw samples.

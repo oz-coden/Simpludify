@@ -58,6 +58,7 @@ for (const fallback of [false, true]) {
         const retainedShape = pixel();
         view.color = 0xffffff;
         await game.whenReady();
+        const readyPaint = pixel(245, 130, false);
         const white = pixel(),
           sprite = f.display();
         let loads = 0;
@@ -108,6 +109,11 @@ for (const fallback of [false, true]) {
         const raised = pixel();
         view.zIndex = 3;
         const restored = pixel();
+        const layoutLoads = loads;
+        view.source = { kind: "image", url: imageURL("#ff8000") };
+        view.color = 0x808080;
+        await game.whenReady();
+        const multiplied = pixel();
         blue.dispose();
         view.source = { kind: "shape", shape: Shape.Box };
         view.color = 0xff0000;
@@ -132,6 +138,7 @@ for (const fallback of [false, true]) {
           tip,
           sameGraphics,
           retainedShape,
+          readyPaint,
           white,
           tinted,
           containOutside,
@@ -139,6 +146,8 @@ for (const fallback of [false, true]) {
           noOp,
           sameSprite,
           loads,
+          layoutLoads,
+          multiplied,
           alpha,
           hidden,
           front,
@@ -158,12 +167,15 @@ for (const fallback of [false, true]) {
       expect(result.tip).toEqual([0, 255, 0]);
       expect(result.sameGraphics).toBe(true);
       expect(result.retainedShape).toEqual([0, 255, 0]);
+      expect(result.readyPaint).toEqual([255, 255, 255]);
       expect(result.white).toEqual([255, 255, 255]);
       expect(result.tinted).toEqual([128, 64, 32]);
       expect(result.containOutside).toEqual([0, 0, 0]);
       expect(result.stretch).toEqual([128, 64, 32]);
       expect(result.sameSprite).toBe(true);
-      expect(result.loads).toBe(0);
+      expect(result.layoutLoads).toBe(0);
+      expect(result.loads).toBe(1);
+      expect(result.multiplied).toEqual([128, 64, 0]);
       expect(result.noOp).toBe(true);
       expect(result.alpha[0]).toBeGreaterThanOrEqual(63);
       expect(result.alpha[0]).toBeLessThanOrEqual(65);
