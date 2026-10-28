@@ -34,7 +34,7 @@ export async function fixture() {
   window.demo.dispose();
   let renderer!: PixiRenderer;
   const errors: string[] = [];
-  const game = new Game<"empty" | "broken">({
+  const game = new Game<"empty" | "broken" | "shared">({
     pixelRatio: 1,
     resolution: { width: 400, height: 300 },
     frames: { request: () => 1, cancel() {} },

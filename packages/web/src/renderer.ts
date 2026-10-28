@@ -12,12 +12,8 @@ import {
   type VisualSource,
 } from "@simpludify/core";
 import { Application, Container, Graphics, Sprite, Texture } from "pixi.js";
+import { type ImageResource, SharedImages } from "./shared-images";
 
-/** One Visual owns a lease today; a shared loader can later replace its release policy. */
-interface ImageResource {
-  readonly texture: Texture;
-  release(): void;
-}
 interface Visual {
   actor: Actor;
   component: Renderable;
@@ -44,7 +40,9 @@ interface Visual {
 export class PixiRenderer implements RendererPort {
   private readonly app = new Application();
   private readonly scenes = new Set<PreparedScene>();
-  private readonly pending = new Set<AbortController>();
+  private readonly images = new SharedImages((url, signal) =>
+    this.image(url, signal),
+  );
   private ready = false;
   private dead = false;
   private visualCount = 0;
@@ -54,7 +52,7 @@ export class PixiRenderer implements RendererPort {
       presentations: this.scenes.size,
       visuals: this.visualCount,
       textures: this.textureCount,
-      pendingImages: this.pending.size,
+      ...this.images.diagnostics,
     };
   }
   constructor(
@@ -151,6 +149,23 @@ export class PixiRenderer implements RendererPort {
     };
   }
 
+  private acquireImage(
+    url: string,
+    signal: AbortSignal,
+  ): Promise<ImageResource> {
+    // Image.src resolves against document.baseURI too. Retain query, fragment and
+    // credentials; anonymous CORS is fixed for every request in this renderer.
+    try {
+      return this.images.acquire(new URL(url, document.baseURI).href, signal);
+    } catch {
+      return Promise.reject(
+        new EngineError("ASSET_LOAD_FAILED", "Invalid image URL", {
+          path: url,
+        }),
+      );
+    }
+  }
+
   async prepare(scene: Scene): Promise<PreparedScene> {
     if (!this.ready || this.dead)
       throw new EngineError("RENDERER_NOT_READY", "Renderer is not available");
@@ -192,7 +207,6 @@ export class PixiRenderer implements RendererPort {
       const controller = entry.controller;
       delete entry.controller;
       if (controller) {
-        this.pending.delete(controller);
         controller.abort();
       }
     };
@@ -305,14 +319,13 @@ export class PixiRenderer implements RendererPort {
           const controller = new AbortController(),
             generation = entry.generation;
           entry.controller = controller;
-          this.pending.add(controller);
           const current = () =>
             !entry.disposed &&
             valid(entry) &&
             entry.generation === generation &&
             component.source.kind === "image" &&
             component.source.url === source.url;
-          void this.image(source.url, controller.signal)
+          void this.acquireImage(source.url, controller.signal)
             .then((resource) => {
               if (!current()) {
                 resource.release();
@@ -341,7 +354,6 @@ export class PixiRenderer implements RendererPort {
               }
             })
             .finally(() => {
-              this.pending.delete(controller);
               if (entry.controller === controller) delete entry.controller;
               changed();
             });
@@ -548,12 +560,14 @@ export class PixiRenderer implements RendererPort {
   dispose(): void {
     if (this.dead) return;
     this.dead = true;
-    for (const controller of this.pending) controller.abort();
-    this.pending.clear();
     const scenes = [...this.scenes];
     this.scenes.clear();
     cleanupAll(
-      [...scenes.map((scene) => scene.dispose), () => this.destroyApp()],
+      [
+        ...scenes.map((scene) => scene.dispose),
+        () => this.images.dispose(),
+        () => this.destroyApp(),
+      ],
       "Renderer cleanup failed",
     );
   }
