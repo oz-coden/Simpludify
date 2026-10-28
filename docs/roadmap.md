@@ -7,7 +7,7 @@ Simpludify has an experimental Web runtime and a generic composition-based Core.
 - DOM-free Engine stepping, frozen frame input, managed seeded randomness and generic snapshots.
 - Synchronous Scene states, exclusive ownership, lifecycle hooks and aggregate cleanup.
 - Dynamic Actors/Components with deterministic membership and update rules, dependency diagnostics and enable flags.
-- Transform, Renderable (Box/Circle/Character/Triangle), live validated Motion speed/direction, optional scaled ActionMovement and the Character composition preset. Input/Update commands precede Integrate and LateUpdate.
+- Transform, Renderable (live validated dimensions/color and explicit Box/Circle/Character/Triangle/image sources), live validated Motion speed/direction, optional scaled ActionMovement and the Character composition preset. Input/Update commands precede Integrate and LateUpdate.
 - Optional typed local/external events with owner-scoped subscriptions and simulation timers.
 - Single Camera/Viewport, logical resolution, pure World/Screen transforms, pointer/DPR handling and optional bounded CameraFollow.
 - Pixi shape/image rendering, dynamic component reconciliation, pending-image cancellation and resource diagnostics.
@@ -40,3 +40,5 @@ Before comparative performance claims, implement equivalent Godot/Phaser workloa
 ## Controlled execution
 
 Implemented: standalone RandomManager, cached named streams, actual automatic seeds, opt-in JSON Action Replay from a fresh Engine/one Scene, auxiliary observations, and optional bounded fixed stepping. Deferred: seek/rewind, arbitrary state restoration, cross-Scene replay, compression, render interpolation and network determinism. See [contracts and validation](replay.md).
+
+[Live rendering](rendering.md) preserves Component identity and separates pending image requests from owned display resources. Shared image caches, TextureRef/Material and animation remain deferred.

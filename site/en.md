@@ -7,6 +7,7 @@ Simpludify is an experimental code-first TypeScript 2D engine. It provides a DOM
 The primary site currently provides Japanese onboarding, concepts, practical guides and sample instructions. This English section directly renders the existing detailed API, architecture, roadmap, performance and licensing documents from the repository. It is not a complete translation of every Japanese page.
 
 - [API contracts and defaults](../docs/api.md)
+- [Live rendering and image readiness](../docs/rendering.md)
 - [Architecture, lifecycle and ownership](../docs/architecture.md)
 - [Implemented scope and roadmap](../docs/roadmap.md)
 - [Performance methodology and limitations](../docs/performance.md)
@@ -26,6 +27,6 @@ Use Node.js 22.12+; CI uses Node 24. Open the printed localhost URL, focus the g
 
 ## Scope
 
-Trigger/Solid contacts and bounded inverse-mass position correction are implemented. This is not a force/impulse rigid-body engine or continuous collision detection. Audio, sprite animation, networking, Windows packaging and a full falling-block puzzle are not implemented. API semantics may change before stabilization.
+Trigger/Solid contacts and bounded inverse-mass position correction are implemented. This is not a force/impulse rigid-body engine or continuous collision detection. Audio, sprite animation, networking and Windows packaging are not implemented. API semantics may change before stabilization.
 
 Prism Raid uses the new upward Triangle shape with independent circle Triggers. See the [shooter API review and measurements](../docs/shooter-validation.md) for reproduction commands, supported rendering paths and measured limits.

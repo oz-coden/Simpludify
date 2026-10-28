@@ -116,6 +116,7 @@ export const pages = [
   ["en/api.html", "docs/api.md", "API contracts", "English"],
   ["en/actions.html", "docs/action-input.md", "Typed Action input", "English"],
   ["en/movement.html", "docs/movement.md", "Movement composition", "English"],
+  ["en/rendering.html", "docs/rendering.md", "Live rendering", "English"],
   [
     "en/replay.html",
     "docs/replay.md",

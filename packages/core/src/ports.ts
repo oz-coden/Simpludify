@@ -2,7 +2,8 @@ import type { ViewTransform } from "./coordinates";
 import type { Scene } from "./scene";
 export interface PreparedScene {
   render(view: ViewTransform): void;
-  /** Wait for currently requested dynamic visual resources; rejects failed loads. */
+  /** Drain latest synchronized requests; reject current failures promptly or disposed presentations.
+   * Superseded/removed requests stop blocking. Does not await future requests/navigation. */
   ready?(): Promise<void>;
   dispose(): void;
 }
