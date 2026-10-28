@@ -112,9 +112,14 @@ const url = import.meta.env.BASE_URL + "player.svg";
 function spawn(x: number, color: number) {
   const actor = game.add(new Actor());
   actor.add(new Transform({ x, y: 100 }));
-  actor.add(new Renderable({
-    source: { kind: "image", url }, width: 48, height: 48, color,
-  }));
+  actor.add(
+    new Renderable({
+      source: { kind: "image", url },
+      width: 48,
+      height: 48,
+      color,
+    }),
+  );
   return actor;
 }
 const first = spawn(100, 0xff8080);
@@ -138,16 +143,16 @@ game.dispose();
 
 `PixiRenderer.diagnostics` is computed on demand:
 
-| Field | Meaning |
-| --- | --- |
-| presentations | Live prepared/staged Scene presentations |
-| visuals | Live Visuals, including hidden ones or those awaiting their first image |
-| textures | Live owned image Texture objects (one TextureSource per successful load in this backend) |
-| imageReferences | Pending acquisitions plus committed display leases; one replacing Visual can hold two |
-| imageEntries | Unique loading/ready cache keys with consumers; failures are evicted |
-| pendingImages | Unique underlying loads with consumers, rather than number of Visual waiters |
+| Field           | Meaning                                                                                  |
+| --------------- | ---------------------------------------------------------------------------------------- |
+| presentations   | Live prepared/staged Scene presentations                                                 |
+| visuals         | Live Visuals, including hidden ones or those awaiting their first image                  |
+| textures        | Live owned image Texture objects (one TextureSource per successful load in this backend) |
+| imageReferences | Pending acquisitions plus committed display leases; one replacing Visual can hold two    |
+| imageEntries    | Unique loading/ready cache keys with consumers; failures are evicted                     |
+| pendingImages   | Unique underlying loads with consumers, rather than number of Visual waiters             |
 
-After normal Game disposal these counters are zero. An external/non-abortable loader can temporarily finish after cancellation; its late result is released. Counters do not measure native decoder/GPU memory, browser caches or prove leak freedom. Pool lookup occurs only when image requests change; diagnostics scans are not performed each render.
+After normal Game disposal these counters are zero. An external/non-abortable loader can temporarily finish after cancellation; its late result is released. Counters do not measure native decoder/GPU memory, browser caches or prove leak freedom. Pool lookup occurs only when image requests change; diagnostics scans are not performed each render. The pinned Canvas2D backend can additionally cache tint-derived canvases per Texture/color. A single shared source does not imply a single physical allocation across every rendering path.
 
 ## Migration
 
@@ -164,7 +169,33 @@ Preserve immutable sources, Component identity, revision/no-op semantics, latest
 
 A future image-based game should exercise independent damage tint on shared sprites, bursts of enemies, sprite replacement during delayed/failed loads, scene handoff and repeated restart on real mobile devices. Sprite Sheet/frame references and explicit preloading may later build on this acquisition/release boundary; they are not implemented. Do not add Material or general Asset management until a concrete game needs their contracts.
 
-## Validation and measured limits
+## Shared-image measurements
+
+Baseline 7e288c7 versus shared-image runtime 88b6438; packages/ is unchanged relative to each commit. Node 24.22.1, Chromium 156.0.8078.4, Linux, INTEL(R) XEON(R) PLATINUM 8573C, Vite development serving, WebGL/SwiftShader, 1000×800 viewport/DPR1 and 720×540 canvas, 32×32 data SVGs. Three isolated alternating current/baseline pairs ran without other local tests/builds. Each process uses two warmups and five samples per workload. Values below are medians of the three run medians, before → after. Preparation awaits images; first render CPU submission, Actor creation, Scene disposal and Renderer disposal are separate in raw reports. No steady-state FPS, GPU time or native/GPU memory is measured.
+
+| Workload              | Preparation ms | Image load/Texture/TextureSource count | Prepared JS heap increase KiB | Scene disposal ms |
+| --------------------- | -------------- | -------------------------------------- | ----------------------------- | ----------------- |
+| same image ×100       | 7.3 → 3.4      | 100 → 1                                | 411.5 → 342.8                 | 1.7 → 1.3         |
+| same image ×1000      | 100.4 → 18.8   | 1000 → 1                               | 3711.3 → 2856.4               | 11.8 → 7.1        |
+| different images ×100 | 8.6 → 10.1     | 100 → 100                              | 381.9 → 466.0                 | 1.9 → 3.1         |
+
+The 1000-Actor case retains 1000 independent Sprite objects. The JS heap increase is forced-GC performance.memory after preparation/render minus before Actor creation: it includes model/host/tooling state and excludes native decoding/GPU allocations. Do not interpret it as total image memory or leak freedom. Load counts mean calls to the owned Image/Texture loader, not HTTP requests: a browser may separately cache SVG decoding or responses.
+
+Twenty switches between two images kept alive by other Actors took 11.5→3.1ms, with 20→0 additional loads. Preparing a new 100-Actor Scene with the active Scene's image took 5.8→1.6ms and 100→0 additional loads. During overlap the shared runtime had 200 Sprites/leases and one Texture/TextureSource; after old Scene disposal it retained 100 leases and one resource. Independent Renderers each held one resource, and disposing one left the other usable. Every final reference/entry/Texture/presentation counter returned to zero.
+
+The different-image case shows overhead rather than a sharing benefit: preparation 8.6→10.1ms, Scene disposal 1.9→3.1ms, and JS increase 381.9→466.0KiB. URL resolution, Maps, consumer handles/signals/promises add work per unique acquisition. Individual process results vary and sometimes reverse ordering; these measurements do not attribute the full difference to a single operation. Renderer/context teardown also fluctuated: for same-100 it was 142.0→159.7ms, for different-100 139.9→151.4ms. The cached-switch workload's context teardown was much slower in both versions (827.4→866.7ms); raw reports preserve these costs. Do not infer ordinary hardware GPU performance or that every operation became faster.
+
+Raw comparisons: [before 1](../benchmarks/images/before-1.json), [after 1](../benchmarks/images/after-1.json), [before 2](../benchmarks/images/before-2.json), [after 2](../benchmarks/images/after-2.json), [before 3](../benchmarks/images/before-3.json), [after 3](../benchmarks/images/after-3.json).
+
+```sh
+CHROMIUM_PATH=/path/to/chrome-headless-shell npm run bench:images -- --out /tmp/images.json
+```
+
+For the baseline, use a detached worktree at 7e288c7, npm ci there, and run the current scripts/benchmark-images.mjs by absolute path from that worktree. No legacy API adapter is needed. The report records runtime commit/diff hash, environment, raw per-sample times, resource identity/counts and forced-GC heap observations. Run alone without tests/builds. The production site smoke also creates 100 shared-image Actors in the built Prism Raid bundle and checks independent red/blue pixels, surviving blue after one removal, final reference cleanup and Game disposal on WebGL and forced Canvas2D.
+
+A separate isolated headless Prism Raid pair reproduced 60 wins, 172796 steps, 1439.97 simulated seconds, 1440 kills and the same 18774 created shots/enemies, in 4.920→4.717 seconds. [Before](../benchmarks/images/before-shooter.json) and [after](../benchmarks/images/after-shooter.json) include forced-GC observations. A single pair does not establish a simulation speedup; Core/Action/Random/Replay/fixed-step runtime code is unchanged. The Replay demo still JSON-roundtrips 2707 steps to the same win/3420 score.
+
+## Historical live-update validation
 
 Unit/type fixtures cover validated mutations, frozen source copies, semantic no-ops, unchanged dependencies/Scene structure and invalid API combinations. Browser pixel fixtures cover shapes, image multiplication, fit, depth, retained displays, reordered completions, failure/recovery and Actor/Component/Scene/Game disposal on WebGL and forced Canvas2D at desktop/narrow sizes. A gated acquired resource finishes after its successor to exercise stale-result release independently of successful network abortion.
 

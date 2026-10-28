@@ -1,0 +1,1146 @@
+{
+  "sourceCommit": "7e288c701b5d9252d5d70c49fed6a10591beeb98",
+  "runtimeDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "node": "v24.22.1",
+  "platform": "linux",
+  "cpu": "INTEL(R) XEON(R) PLATINUM 8573C",
+  "browser": "156.0.8078.4",
+  "conditions": "WebGL/SwiftShader; Vite dev; viewport1000x800 DPR1;720x540 canvas; 32x32 data SVGs; 2 warmup+5 samples/workload; CPU submission, not GPU time. initialLoads counts Image loader/Texture creation calls, not network/cache hits. forced-GC performance.memory is JS heap only, includes host/tooling. No native/GPU-memory measurement.",
+  "rows": [
+    {
+      "workload": "same-100",
+      "warmup": 2,
+      "runs": [
+        {
+          "createMs": 0.8999999994412065,
+          "prepareMs": 6.6000000005587935,
+          "renderMs": 7.099999999627471,
+          "extraMs": 0,
+          "disposeMs": 141.90000000037253,
+          "sceneDisposeMs": 2.7999999998137355,
+          "rendererDisposeMs": 139.1000000005588,
+          "initialLoads": 100,
+          "extraLoads": 0,
+          "live": {
+            "presentations": 1,
+            "visuals": 100,
+            "textures": 100,
+            "pendingImages": 0,
+            "sprites": 100,
+            "uniqueTextures": 100,
+            "uniqueTextureSources": 100
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 18162280,
+          "heapPrepared": 18619836,
+          "heapDisposed": 18158924
+        },
+        {
+          "createMs": 1,
+          "prepareMs": 6.599999999627471,
+          "renderMs": 8.700000000186265,
+          "extraMs": 0,
+          "disposeMs": 155.40000000037253,
+          "sceneDisposeMs": 2.6000000005587935,
+          "rendererDisposeMs": 152.79999999981374,
+          "initialLoads": 100,
+          "extraLoads": 0,
+          "live": {
+            "presentations": 1,
+            "visuals": 100,
+            "textures": 100,
+            "pendingImages": 0,
+            "sprites": 100,
+            "uniqueTextures": 100,
+            "uniqueTextureSources": 100
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 18283096,
+          "heapPrepared": 18704460,
+          "heapDisposed": 18253192
+        },
+        {
+          "createMs": 0.7000000001862645,
+          "prepareMs": 8.099999999627471,
+          "renderMs": 8.600000000558794,
+          "extraMs": 0,
+          "disposeMs": 144.30000000074506,
+          "sceneDisposeMs": 1.400000000372529,
+          "rendererDisposeMs": 142.90000000037253,
+          "initialLoads": 100,
+          "extraLoads": 0,
+          "live": {
+            "presentations": 1,
+            "visuals": 100,
+            "textures": 100,
+            "pendingImages": 0,
+            "sprites": 100,
+            "uniqueTextures": 100,
+            "uniqueTextureSources": 100
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 18349788,
+          "heapPrepared": 18768596,
+          "heapDisposed": 18301564
+        },
+        {
+          "createMs": 1.5,
+          "prepareMs": 7.2999999998137355,
+          "renderMs": 7.1000000005587935,
+          "extraMs": 0,
+          "disposeMs": 143.5,
+          "sceneDisposeMs": 1.5,
+          "rendererDisposeMs": 142,
+          "initialLoads": 100,
+          "extraLoads": 0,
+          "live": {
+            "presentations": 1,
+            "visuals": 100,
+            "textures": 100,
+            "pendingImages": 0,
+            "sprites": 100,
+            "uniqueTextures": 100,
+            "uniqueTextureSources": 100
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 18393928,
+          "heapPrepared": 18840216,
+          "heapDisposed": 18398772
+        },
+        {
+          "createMs": 0.8000000007450581,
+          "prepareMs": 7.599999999627471,
+          "renderMs": 7,
+          "extraMs": 0,
+          "disposeMs": 134.19999999925494,
+          "sceneDisposeMs": 1.599999999627471,
+          "rendererDisposeMs": 132.59999999962747,
+          "initialLoads": 100,
+          "extraLoads": 0,
+          "live": {
+            "presentations": 1,
+            "visuals": 100,
+            "textures": 100,
+            "pendingImages": 0,
+            "sprites": 100,
+            "uniqueTextures": 100,
+            "uniqueTextureSources": 100
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 18496980,
+          "heapPrepared": 18897808,
+          "heapDisposed": 18444340
+        }
+      ],
+      "median": {
+        "createMs": 0.8999999994412065,
+        "prepareMs": 7.2999999998137355,
+        "renderMs": 7.1000000005587935,
+        "extraMs": 0,
+        "disposeMs": 143.5,
+        "sceneDisposeMs": 1.599999999627471,
+        "rendererDisposeMs": 142,
+        "initialLoads": 100,
+        "extraLoads": 0,
+        "heapBefore": 18349788,
+        "heapPrepared": 18768596,
+        "heapDisposed": 18301564
+      }
+    },
+    {
+      "workload": "same-1000",
+      "warmup": 2,
+      "runs": [
+        {
+          "createMs": 4.800000000745058,
+          "prepareMs": 104.29999999981374,
+          "renderMs": 32.89999999944121,
+          "extraMs": 0,
+          "disposeMs": 149.70000000018626,
+          "sceneDisposeMs": 12.5,
+          "rendererDisposeMs": 137.20000000018626,
+          "initialLoads": 1000,
+          "extraLoads": 0,
+          "live": {
+            "presentations": 1,
+            "visuals": 1000,
+            "textures": 1000,
+            "pendingImages": 0,
+            "sprites": 1000,
+            "uniqueTextures": 1000,
+            "uniqueTextureSources": 1000
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19518596,
+          "heapPrepared": 23291120,
+          "heapDisposed": 19675328
+        },
+        {
+          "createMs": 5.2999999998137355,
+          "prepareMs": 100.40000000037253,
+          "renderMs": 42.39999999944121,
+          "extraMs": 0,
+          "disposeMs": 124.1000000005588,
+          "sceneDisposeMs": 10.900000000372529,
+          "rendererDisposeMs": 113.20000000018626,
+          "initialLoads": 1000,
+          "extraLoads": 0,
+          "live": {
+            "presentations": 1,
+            "visuals": 1000,
+            "textures": 1000,
+            "pendingImages": 0,
+            "sprites": 1000,
+            "uniqueTextures": 1000,
+            "uniqueTextureSources": 1000
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19577496,
+          "heapPrepared": 23377904,
+          "heapDisposed": 19737040
+        },
+        {
+          "createMs": 5,
+          "prepareMs": 90.3999999994412,
+          "renderMs": 37.299999999813735,
+          "extraMs": 0,
+          "disposeMs": 152.5,
+          "sceneDisposeMs": 9,
+          "rendererDisposeMs": 143.5,
+          "initialLoads": 1000,
+          "extraLoads": 0,
+          "live": {
+            "presentations": 1,
+            "visuals": 1000,
+            "textures": 1000,
+            "pendingImages": 0,
+            "sprites": 1000,
+            "uniqueTextures": 1000,
+            "uniqueTextureSources": 1000
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19626660,
+          "heapPrepared": 23411100,
+          "heapDisposed": 19744672
+        },
+        {
+          "createMs": 5.599999999627471,
+          "prepareMs": 106.5,
+          "renderMs": 33.200000000186265,
+          "extraMs": 0,
+          "disposeMs": 158.29999999981374,
+          "sceneDisposeMs": 13.5,
+          "rendererDisposeMs": 144.79999999981374,
+          "initialLoads": 1000,
+          "extraLoads": 0,
+          "live": {
+            "presentations": 1,
+            "visuals": 1000,
+            "textures": 1000,
+            "pendingImages": 0,
+            "sprites": 1000,
+            "uniqueTextures": 1000,
+            "uniqueTextureSources": 1000
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19646308,
+          "heapPrepared": 23529244,
+          "heapDisposed": 19843604
+        },
+        {
+          "createMs": 4.7000000001862645,
+          "prepareMs": 93,
+          "renderMs": 37.299999999813735,
+          "extraMs": 0,
+          "disposeMs": 158.3999999994412,
+          "sceneDisposeMs": 8.899999999441206,
+          "rendererDisposeMs": 149.5,
+          "initialLoads": 1000,
+          "extraLoads": 0,
+          "live": {
+            "presentations": 1,
+            "visuals": 1000,
+            "textures": 1000,
+            "pendingImages": 0,
+            "sprites": 1000,
+            "uniqueTextures": 1000,
+            "uniqueTextureSources": 1000
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19735760,
+          "heapPrepared": 23537852,
+          "heapDisposed": 19858072
+        }
+      ],
+      "median": {
+        "createMs": 5,
+        "prepareMs": 100.40000000037253,
+        "renderMs": 37.299999999813735,
+        "extraMs": 0,
+        "disposeMs": 152.5,
+        "sceneDisposeMs": 10.900000000372529,
+        "rendererDisposeMs": 143.5,
+        "initialLoads": 1000,
+        "extraLoads": 0,
+        "heapBefore": 19626660,
+        "heapPrepared": 23411100,
+        "heapDisposed": 19744672
+      }
+    },
+    {
+      "workload": "different-100",
+      "warmup": 2,
+      "runs": [
+        {
+          "createMs": 0.7999999998137355,
+          "prepareMs": 10.200000000186265,
+          "renderMs": 14.400000000372529,
+          "extraMs": 0,
+          "disposeMs": 149.20000000018626,
+          "sceneDisposeMs": 1.7000000001862645,
+          "rendererDisposeMs": 147.5,
+          "initialLoads": 100,
+          "extraLoads": 0,
+          "live": {
+            "presentations": 1,
+            "visuals": 100,
+            "textures": 100,
+            "pendingImages": 0,
+            "sprites": 100,
+            "uniqueTextures": 100,
+            "uniqueTextureSources": 100
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19458348,
+          "heapPrepared": 19844396,
+          "heapDisposed": 19395128
+        },
+        {
+          "createMs": 0.599999999627471,
+          "prepareMs": 8.900000000372529,
+          "renderMs": 9.399999999441206,
+          "extraMs": 0,
+          "disposeMs": 131,
+          "sceneDisposeMs": 1.599999999627471,
+          "rendererDisposeMs": 129.40000000037253,
+          "initialLoads": 100,
+          "extraLoads": 0,
+          "live": {
+            "presentations": 1,
+            "visuals": 100,
+            "textures": 100,
+            "pendingImages": 0,
+            "sprites": 100,
+            "uniqueTextures": 100,
+            "uniqueTextureSources": 100
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19475104,
+          "heapPrepared": 19886800,
+          "heapDisposed": 19416952
+        },
+        {
+          "createMs": 0.900000000372529,
+          "prepareMs": 8.599999999627471,
+          "renderMs": 10.400000000372529,
+          "extraMs": 0,
+          "disposeMs": 141.90000000037253,
+          "sceneDisposeMs": 2,
+          "rendererDisposeMs": 139.90000000037253,
+          "initialLoads": 100,
+          "extraLoads": 0,
+          "live": {
+            "presentations": 1,
+            "visuals": 100,
+            "textures": 100,
+            "pendingImages": 0,
+            "sprites": 100,
+            "uniqueTextures": 100,
+            "uniqueTextureSources": 100
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19496932,
+          "heapPrepared": 19884976,
+          "heapDisposed": 19426680
+        },
+        {
+          "createMs": 1.5,
+          "prepareMs": 7.7000000001862645,
+          "renderMs": 6.2000000001862645,
+          "extraMs": 0,
+          "disposeMs": 145.29999999981374,
+          "sceneDisposeMs": 1.599999999627471,
+          "rendererDisposeMs": 143.70000000018626,
+          "initialLoads": 100,
+          "extraLoads": 0,
+          "live": {
+            "presentations": 1,
+            "visuals": 100,
+            "textures": 100,
+            "pendingImages": 0,
+            "sprites": 100,
+            "uniqueTextures": 100,
+            "uniqueTextureSources": 100
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19506580,
+          "heapPrepared": 19903416,
+          "heapDisposed": 19443412
+        },
+        {
+          "createMs": 0.6999999992549419,
+          "prepareMs": 6.7000000001862645,
+          "renderMs": 6.6000000005587935,
+          "extraMs": 0,
+          "disposeMs": 127.20000000018626,
+          "sceneDisposeMs": 1.599999999627471,
+          "rendererDisposeMs": 125.6000000005588,
+          "initialLoads": 100,
+          "extraLoads": 0,
+          "live": {
+            "presentations": 1,
+            "visuals": 100,
+            "textures": 100,
+            "pendingImages": 0,
+            "sprites": 100,
+            "uniqueTextures": 100,
+            "uniqueTextureSources": 100
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19526284,
+          "heapPrepared": 19916808,
+          "heapDisposed": 19449668
+        }
+      ],
+      "median": {
+        "createMs": 0.7999999998137355,
+        "prepareMs": 8.599999999627471,
+        "renderMs": 9.399999999441206,
+        "extraMs": 0,
+        "disposeMs": 141.90000000037253,
+        "sceneDisposeMs": 1.599999999627471,
+        "rendererDisposeMs": 139.90000000037253,
+        "initialLoads": 100,
+        "extraLoads": 0,
+        "heapBefore": 19496932,
+        "heapPrepared": 19886800,
+        "heapDisposed": 19426680
+      }
+    },
+    {
+      "workload": "cached-switch",
+      "warmup": 2,
+      "runs": [
+        {
+          "createMs": 0.09999999962747097,
+          "prepareMs": 2.800000000745058,
+          "renderMs": 8.299999999813735,
+          "extraMs": 9.5,
+          "disposeMs": 852.2999999998137,
+          "sceneDisposeMs": 2.3999999994412065,
+          "rendererDisposeMs": 849.9000000003725,
+          "initialLoads": 3,
+          "extraLoads": 20,
+          "live": {
+            "presentations": 1,
+            "visuals": 3,
+            "textures": 3,
+            "pendingImages": 0,
+            "sprites": 3,
+            "uniqueTextures": 3,
+            "uniqueTextureSources": 3
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19519960,
+          "heapPrepared": 19550040,
+          "heapDisposed": 19438848
+        },
+        {
+          "createMs": 0.20000000018626451,
+          "prepareMs": 2.2000000001862645,
+          "renderMs": 4.599999999627471,
+          "extraMs": 11.899999999441206,
+          "disposeMs": 814.9000000003725,
+          "sceneDisposeMs": 0.2999999998137355,
+          "rendererDisposeMs": 814.6000000005588,
+          "initialLoads": 3,
+          "extraLoads": 20,
+          "live": {
+            "presentations": 1,
+            "visuals": 3,
+            "textures": 3,
+            "pendingImages": 0,
+            "sprites": 3,
+            "uniqueTextures": 3,
+            "uniqueTextureSources": 3
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19531960,
+          "heapPrepared": 19562188,
+          "heapDisposed": 19451568
+        },
+        {
+          "createMs": 0.10000000055879354,
+          "prepareMs": 1.8999999994412065,
+          "renderMs": 5.7000000001862645,
+          "extraMs": 11.5,
+          "disposeMs": 848.0999999996275,
+          "sceneDisposeMs": 0.2999999998137355,
+          "rendererDisposeMs": 847.7999999998137,
+          "initialLoads": 3,
+          "extraLoads": 20,
+          "live": {
+            "presentations": 1,
+            "visuals": 3,
+            "textures": 3,
+            "pendingImages": 0,
+            "sprites": 3,
+            "uniqueTextures": 3,
+            "uniqueTextureSources": 3
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19541676,
+          "heapPrepared": 19572028,
+          "heapDisposed": 19465860
+        },
+        {
+          "createMs": 0.09999999962747097,
+          "prepareMs": 1.5,
+          "renderMs": 4.900000000372529,
+          "extraMs": 13.400000000372529,
+          "disposeMs": 828.2000000001863,
+          "sceneDisposeMs": 0.7999999998137355,
+          "rendererDisposeMs": 827.4000000003725,
+          "initialLoads": 3,
+          "extraLoads": 20,
+          "live": {
+            "presentations": 1,
+            "visuals": 3,
+            "textures": 3,
+            "pendingImages": 0,
+            "sprites": 3,
+            "uniqueTextures": 3,
+            "uniqueTextureSources": 3
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19558172,
+          "heapPrepared": 19588688,
+          "heapDisposed": 19481248
+        },
+        {
+          "createMs": 0.10000000055879354,
+          "prepareMs": 2.3999999994412065,
+          "renderMs": 7.1000000005587935,
+          "extraMs": 11.5,
+          "disposeMs": 823.3999999994412,
+          "sceneDisposeMs": 0.39999999944120646,
+          "rendererDisposeMs": 823,
+          "initialLoads": 3,
+          "extraLoads": 20,
+          "live": {
+            "presentations": 1,
+            "visuals": 3,
+            "textures": 3,
+            "pendingImages": 0,
+            "sprites": 3,
+            "uniqueTextures": 3,
+            "uniqueTextureSources": 3
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19571332,
+          "heapPrepared": 19601972,
+          "heapDisposed": 19495048
+        }
+      ],
+      "median": {
+        "createMs": 0.10000000055879354,
+        "prepareMs": 2.2000000001862645,
+        "renderMs": 5.7000000001862645,
+        "extraMs": 11.5,
+        "disposeMs": 828.2000000001863,
+        "sceneDisposeMs": 0.39999999944120646,
+        "rendererDisposeMs": 827.4000000003725,
+        "initialLoads": 3,
+        "extraLoads": 20,
+        "heapBefore": 19541676,
+        "heapPrepared": 19572028,
+        "heapDisposed": 19465860
+      }
+    },
+    {
+      "workload": "scene-transition",
+      "warmup": 2,
+      "runs": [
+        {
+          "createMs": 0.900000000372529,
+          "prepareMs": 6.5,
+          "renderMs": 6.5,
+          "extraMs": 6.7999999998137355,
+          "disposeMs": 193.8999999994412,
+          "sceneDisposeMs": 1,
+          "rendererDisposeMs": 192.8999999994412,
+          "initialLoads": 100,
+          "extraLoads": 100,
+          "live": {
+            "presentations": 1,
+            "visuals": 100,
+            "textures": 100,
+            "pendingImages": 0,
+            "sprites": 100,
+            "uniqueTextures": 100,
+            "uniqueTextureSources": 100
+          },
+          "overlap": {
+            "presentations": 2,
+            "visuals": 200,
+            "textures": 200,
+            "pendingImages": 0,
+            "sprites": 200,
+            "uniqueTextures": 200,
+            "uniqueTextureSources": 200
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19658920,
+          "heapPrepared": 20071708,
+          "heapDisposed": 19624412
+        },
+        {
+          "createMs": 0.6000000005587935,
+          "prepareMs": 9,
+          "renderMs": 7.3999999994412065,
+          "extraMs": 7.1000000005587935,
+          "disposeMs": 195.29999999981374,
+          "sceneDisposeMs": 1.3999999994412065,
+          "rendererDisposeMs": 193.90000000037253,
+          "initialLoads": 100,
+          "extraLoads": 100,
+          "live": {
+            "presentations": 1,
+            "visuals": 100,
+            "textures": 100,
+            "pendingImages": 0,
+            "sprites": 100,
+            "uniqueTextures": 100,
+            "uniqueTextureSources": 100
+          },
+          "overlap": {
+            "presentations": 2,
+            "visuals": 200,
+            "textures": 200,
+            "pendingImages": 0,
+            "sprites": 200,
+            "uniqueTextures": 200,
+            "uniqueTextureSources": 200
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19669068,
+          "heapPrepared": 20089228,
+          "heapDisposed": 19667080
+        },
+        {
+          "createMs": 0.7999999998137355,
+          "prepareMs": 7.300000000745058,
+          "renderMs": 7.099999999627471,
+          "extraMs": 7.2000000001862645,
+          "disposeMs": 186.90000000037253,
+          "sceneDisposeMs": 1.1000000005587935,
+          "rendererDisposeMs": 185.79999999981374,
+          "initialLoads": 100,
+          "extraLoads": 100,
+          "live": {
+            "presentations": 1,
+            "visuals": 100,
+            "textures": 100,
+            "pendingImages": 0,
+            "sprites": 100,
+            "uniqueTextures": 100,
+            "uniqueTextureSources": 100
+          },
+          "overlap": {
+            "presentations": 2,
+            "visuals": 200,
+            "textures": 200,
+            "pendingImages": 0,
+            "sprites": 200,
+            "uniqueTextures": 200,
+            "uniqueTextureSources": 200
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19712944,
+          "heapPrepared": 20147236,
+          "heapDisposed": 19697244
+        },
+        {
+          "createMs": 1,
+          "prepareMs": 8.299999999813735,
+          "renderMs": 9,
+          "extraMs": 6.199999999254942,
+          "disposeMs": 190.59999999962747,
+          "sceneDisposeMs": 0.7999999998137355,
+          "rendererDisposeMs": 189.79999999981374,
+          "initialLoads": 100,
+          "extraLoads": 100,
+          "live": {
+            "presentations": 1,
+            "visuals": 100,
+            "textures": 100,
+            "pendingImages": 0,
+            "sprites": 100,
+            "uniqueTextures": 100,
+            "uniqueTextureSources": 100
+          },
+          "overlap": {
+            "presentations": 2,
+            "visuals": 200,
+            "textures": 200,
+            "pendingImages": 0,
+            "sprites": 200,
+            "uniqueTextures": 200,
+            "uniqueTextureSources": 200
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19741548,
+          "heapPrepared": 20157772,
+          "heapDisposed": 19751800
+        },
+        {
+          "createMs": 0.599999999627471,
+          "prepareMs": 12,
+          "renderMs": 9.400000000372529,
+          "extraMs": 6,
+          "disposeMs": 202.80000000074506,
+          "sceneDisposeMs": 1,
+          "rendererDisposeMs": 201.80000000074506,
+          "initialLoads": 100,
+          "extraLoads": 100,
+          "live": {
+            "presentations": 1,
+            "visuals": 100,
+            "textures": 100,
+            "pendingImages": 0,
+            "sprites": 100,
+            "uniqueTextures": 100,
+            "uniqueTextureSources": 100
+          },
+          "overlap": {
+            "presentations": 2,
+            "visuals": 200,
+            "textures": 200,
+            "pendingImages": 0,
+            "sprites": 200,
+            "uniqueTextures": 200,
+            "uniqueTextureSources": 200
+          },
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19797536,
+          "heapPrepared": 20215660,
+          "heapDisposed": 19763168
+        }
+      ],
+      "median": {
+        "createMs": 0.7999999998137355,
+        "prepareMs": 8.299999999813735,
+        "renderMs": 7.3999999994412065,
+        "extraMs": 6.7999999998137355,
+        "disposeMs": 193.8999999994412,
+        "sceneDisposeMs": 1,
+        "rendererDisposeMs": 192.8999999994412,
+        "initialLoads": 100,
+        "extraLoads": 100,
+        "heapBefore": 19712944,
+        "heapPrepared": 20147236,
+        "heapDisposed": 19697244
+      }
+    },
+    {
+      "workload": "two-renderers",
+      "warmup": 2,
+      "runs": [
+        {
+          "createMs": 0.09999999962747097,
+          "prepareMs": 1.5,
+          "renderMs": 4.2999999998137355,
+          "extraMs": 0,
+          "disposeMs": 0,
+          "sceneDisposeMs": 0,
+          "rendererDisposeMs": 0,
+          "initialLoads": 1,
+          "extraLoads": 0,
+          "live": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0,
+            "sprites": 0,
+            "uniqueTextures": 0,
+            "uniqueTextureSources": 0
+          },
+          "overlap": [
+            {
+              "presentations": 1,
+              "visuals": 1,
+              "textures": 1,
+              "pendingImages": 0
+            },
+            {
+              "presentations": 1,
+              "visuals": 1,
+              "textures": 1,
+              "pendingImages": 0
+            },
+            {
+              "presentations": 1,
+              "visuals": 1,
+              "textures": 1,
+              "pendingImages": 0
+            }
+          ],
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19785312,
+          "heapPrepared": 19811240,
+          "heapDisposed": 19718560
+        },
+        {
+          "createMs": 0.19999999925494194,
+          "prepareMs": 2,
+          "renderMs": 3.400000000372529,
+          "extraMs": 0,
+          "disposeMs": 0,
+          "sceneDisposeMs": 0,
+          "rendererDisposeMs": 0,
+          "initialLoads": 1,
+          "extraLoads": 0,
+          "live": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0,
+            "sprites": 0,
+            "uniqueTextures": 0,
+            "uniqueTextureSources": 0
+          },
+          "overlap": [
+            {
+              "presentations": 1,
+              "visuals": 1,
+              "textures": 1,
+              "pendingImages": 0
+            },
+            {
+              "presentations": 1,
+              "visuals": 1,
+              "textures": 1,
+              "pendingImages": 0
+            },
+            {
+              "presentations": 1,
+              "visuals": 1,
+              "textures": 1,
+              "pendingImages": 0
+            }
+          ],
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19804696,
+          "heapPrepared": 19830864,
+          "heapDisposed": 19738976
+        },
+        {
+          "createMs": 0.20000000018626451,
+          "prepareMs": 2.2000000001862645,
+          "renderMs": 4.3999999994412065,
+          "extraMs": 0,
+          "disposeMs": 0,
+          "sceneDisposeMs": 0,
+          "rendererDisposeMs": 0,
+          "initialLoads": 1,
+          "extraLoads": 0,
+          "live": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0,
+            "sprites": 0,
+            "uniqueTextures": 0,
+            "uniqueTextureSources": 0
+          },
+          "overlap": [
+            {
+              "presentations": 1,
+              "visuals": 1,
+              "textures": 1,
+              "pendingImages": 0
+            },
+            {
+              "presentations": 1,
+              "visuals": 1,
+              "textures": 1,
+              "pendingImages": 0
+            },
+            {
+              "presentations": 1,
+              "visuals": 1,
+              "textures": 1,
+              "pendingImages": 0
+            }
+          ],
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19824336,
+          "heapPrepared": 19851296,
+          "heapDisposed": 19760140
+        },
+        {
+          "createMs": 0.09999999962747097,
+          "prepareMs": 1.900000000372529,
+          "renderMs": 4.2999999998137355,
+          "extraMs": 0,
+          "disposeMs": 0,
+          "sceneDisposeMs": 0,
+          "rendererDisposeMs": 0,
+          "initialLoads": 1,
+          "extraLoads": 0,
+          "live": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0,
+            "sprites": 0,
+            "uniqueTextures": 0,
+            "uniqueTextureSources": 0
+          },
+          "overlap": [
+            {
+              "presentations": 1,
+              "visuals": 1,
+              "textures": 1,
+              "pendingImages": 0
+            },
+            {
+              "presentations": 1,
+              "visuals": 1,
+              "textures": 1,
+              "pendingImages": 0
+            },
+            {
+              "presentations": 1,
+              "visuals": 1,
+              "textures": 1,
+              "pendingImages": 0
+            }
+          ],
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19850228,
+          "heapPrepared": 19876876,
+          "heapDisposed": 19784304
+        },
+        {
+          "createMs": 0.09999999962747097,
+          "prepareMs": 2.1000000005587935,
+          "renderMs": 10,
+          "extraMs": 0,
+          "disposeMs": 0,
+          "sceneDisposeMs": 0,
+          "rendererDisposeMs": 0,
+          "initialLoads": 1,
+          "extraLoads": 0,
+          "live": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0,
+            "sprites": 0,
+            "uniqueTextures": 0,
+            "uniqueTextureSources": 0
+          },
+          "overlap": [
+            {
+              "presentations": 1,
+              "visuals": 1,
+              "textures": 1,
+              "pendingImages": 0
+            },
+            {
+              "presentations": 1,
+              "visuals": 1,
+              "textures": 1,
+              "pendingImages": 0
+            },
+            {
+              "presentations": 1,
+              "visuals": 1,
+              "textures": 1,
+              "pendingImages": 0
+            }
+          ],
+          "after": {
+            "presentations": 0,
+            "visuals": 0,
+            "textures": 0,
+            "pendingImages": 0
+          },
+          "heapBefore": 19869616,
+          "heapPrepared": 19896504,
+          "heapDisposed": 19802884
+        }
+      ],
+      "median": {
+        "createMs": 0.09999999962747097,
+        "prepareMs": 2,
+        "renderMs": 4.2999999998137355,
+        "extraMs": 0,
+        "disposeMs": 0,
+        "sceneDisposeMs": 0,
+        "rendererDisposeMs": 0,
+        "initialLoads": 1,
+        "extraLoads": 0,
+        "heapBefore": 19824336,
+        "heapPrepared": 19851296,
+        "heapDisposed": 19760140
+      }
+    }
+  ]
+}

@@ -191,7 +191,10 @@ try {
         start = performance.now();
         scene.dispose();
         other?.dispose();
+        const sceneDisposeMs = performance.now() - start;
+        const rendererStart = performance.now();
         f.renderer.dispose();
+        const rendererDisposeMs = performance.now() - rendererStart;
         const disposeMs = performance.now() - start;
         const after = f.renderer.diagnostics;
         if (Object.values(after).some((n) => n !== 0))
@@ -205,6 +208,8 @@ try {
             renderMs,
             extraMs,
             disposeMs,
+            sceneDisposeMs,
+            rendererDisposeMs,
             initialLoads,
             extraLoads,
             live,
@@ -247,6 +252,8 @@ try {
           "renderMs",
           "extraMs",
           "disposeMs",
+          "sceneDisposeMs",
+          "rendererDisposeMs",
           "initialLoads",
           "extraLoads",
           "heapBefore",
