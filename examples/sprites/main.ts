@@ -60,7 +60,7 @@ game.scene("field", ({ scene, add, ui }) => {
       y: 290,
       size: 72,
       source: sheet.get(0),
-      color: 0xffc878,
+      color: 0xff80ff,
     }),
   );
   const greeting = friend.add(
@@ -69,7 +69,9 @@ game.scene("field", ({ scene, add, ui }) => {
   ui(
     Panel(
       [
-        Label("WASDで移動 / idle ↔ walk。右の仲間も同じ画像を共有。"),
+        Label(
+          "Focus the game and move with WASD. Both characters share one sheet.",
+        ),
         Button("Wave again", () => greeting.play("wave", { restart: true })),
         Button("Pause / Resume friend", () =>
           greeting.state === "paused" ? greeting.resume() : greeting.pause(),
