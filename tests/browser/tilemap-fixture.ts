@@ -6,6 +6,7 @@ import {
   Tilemap,
   Transform,
 } from "@simpludify/web";
+import type { Container, Sprite } from "pixi.js";
 import { fixture } from "./renderable-fixture";
 
 const url = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="16"><path fill="red" d="M0 0h16v16H0z"/><path fill="blue" d="M16 0h16v16H16z"/></svg>')}`;
@@ -312,14 +313,15 @@ export async function measure(
     tileWidth: 16,
     tileHeight: 16,
   }).place(f.game.engine.scene);
-  const construction = performance.now() - t0,
-    t1 = performance.now();
-  await f.game.whenReady();
-  const preparation = performance.now() - t1;
+  const construction = performance.now() - t0;
   f.game.camera.zoom = partial
     ? 1
     : Math.min(400 / (size * 16), 300 / (size * 16));
-  f.game.setViewport();
+  f.game.camera.x = partial ? 0 : size * 8 - 200;
+  f.game.camera.y = partial ? 0 : size * 8 - 150;
+  const t1 = performance.now();
+  await f.game.whenReady();
+  const preparation = performance.now() - t1;
   const initial = f.renderer.tilemapDiagnostics;
   const samples: number[] = [];
   const start = { ...initial };
@@ -336,6 +338,13 @@ export async function measure(
   }
   const after = f.renderer.tilemapDiagnostics,
     resources = f.renderer.diagnostics;
+  const container = f.internal.app.stage.children[0]?.children[0]
+    ?.children[0] as Container | undefined;
+  if (!container) throw Error("Missing map container");
+  const sprites = container.children as Sprite[];
+  const frameTextures = new Set(sprites.map((s) => s.texture)).size,
+    textureSources = new Set(sprites.map((s) => s.texture.source)).size;
+  const actorCount = f.game.engine.scene.actors.length;
   const t2 = performance.now();
   map.dispose();
   const disposal = performance.now() - t2;
@@ -353,11 +362,14 @@ export async function measure(
     after,
     visited: after.visitedCells - before.visitedCells,
     updated: after.updatedTiles - before.updatedTiles,
+    samples,
     p50: samples[10],
     p95: samples[19],
     resources,
+    frameTextures,
+    textureSources,
     final,
-    actorCount: 1,
+    actorCount,
     errors: f.errors,
   };
 }

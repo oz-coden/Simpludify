@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="32" viewBox="0 0 192 32">
+<title>Original grass water path tree flower and stone tiles</title>
+<path fill="#37634a" d="M0 0h32v32H0z"/><path stroke="#47805a" d="m5 7 2 3 2-4m10 17 2 3 2-4"/>
+<path fill="#286b88" d="M32 0h32v32H32z"/><path stroke="#559fb3" fill="none" d="M36 10q5-4 10 0t10 0m-16 11q5-4 10 0t10 0"/>
+<path fill="#ae976a" d="M64 0h32v32H64z"/><path stroke="#c5b17e" d="M68 8h5m12 13h5m-17 7h5"/>
+<path stroke="#6c4d3a" stroke-width="5" d="M112 18v14"/><circle cx="112" cy="13" r="12" fill="#214f3a"/><circle cx="108" cy="9" r="6" fill="#43835a"/>
+<path stroke="#76a65e" stroke-width="2" d="m144 15-2 14m-1-8-4-2"/><path fill="#ffd179" d="m143 6 3 4 5-1-2 5 3 4-5 1-2 5-3-4-5 1 2-5-3-4 5-1z"/>
+<path fill="#889699" d="M164 6h20l6 8-3 14h-24l-3-12z"/><path stroke="#b1bec0" d="m165 10 16-1 5 5" fill="none"/>
+</svg>
