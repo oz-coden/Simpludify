@@ -19,4 +19,5 @@ export * from "./ports";
 export * from "./random";
 export * from "./replay";
 export * from "./scene";
+export * from "./sprite-sheet";
 export * from "./version";
