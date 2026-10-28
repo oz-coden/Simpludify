@@ -312,3 +312,7 @@ This experimental revision also removes InputState, InputSource, InputReader, Ke
 ## SpriteSheet and SpriteAnimation
 
 [Sprite contracts and examples](sprites.md) define grid/named/rectangular image sources, simulation-time playback, Renderable source ownership, deferred bounds checking and shared crop/source cleanup. Both APIs are exported by Core and Web. SpriteAnimation requires Renderable, runs in LateUpdate, and does not add host timers or an asynchronous Core lifecycle.
+
+## Tilemap placements
+
+[Tilemap](tilemap.md) is a facade over one existing Actor/TilemapLayer placement per map. It copies Grid/row data and exposes typed tile IDs, set/fill, tile/world conversion, translation and depth/visibility. Web owns a culled incremental visible-cell renderer and shared sheet lease. No per-cell Actor/Component or collision integration is added.

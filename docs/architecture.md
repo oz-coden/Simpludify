@@ -147,3 +147,7 @@ FixedStepRunner is a small host-time accumulator; Web can opt into it while pres
 ## Sprite frames and playback
 
 SpriteSheet contains only immutable image/frame metadata; SpriteAnimation copies clip definitions and owns one Actor playback cursor in LateUpdate. It writes Renderable.source while playing and preserves other appearance properties. Web resolves decoded image bounds and caches crop Texture views in the existing SharedImages entry; the final image lease destroys views before releasing their shared base source. Source-generation, retained-display and readiness semantics remain unchanged. [Sprite contracts](sprites.md) define timing, failure and manual-source interaction.
+
+## Tilemap placements
+
+Tilemap.place(scene) uses an internal Actor and passive TilemapLayer to reuse ownership while preserving a separate map.get(x,y) API. Data is a copied private Grid; presentations subscribe to cell invalidation and remove subscriptions/resources with their existing lifetimes. A dedicated tilemap-visual module owns only visible-cell Sprites and a sheet lease. Draw groups share Renderable ordering; inverse ViewTransform.clip supplies culling. [Design and collision proposal](tilemap-design.md) compare ownership/rendering alternatives; no new Scene registry or tile collision scheduler is introduced.

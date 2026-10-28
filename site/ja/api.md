@@ -57,3 +57,7 @@
 ## SpriteSheet・SpriteAnimation
 
 [フレームとアニメーションのガイド](sprites.md)に、型推論を使う定義・再生操作・画像共有・破棄・失敗時の契約をまとめています。
+
+## Tilemap
+
+[Tilemapガイド](tilemap.md)に、Grid／行列、名前付きID、配置、座標変換、セル更新、画像共有と破棄をまとめています。TilemapとColliderの統合は次段階です。

@@ -4,6 +4,8 @@ Simpludify has an experimental Web runtime and a generic composition-based Core.
 
 ## Included
 
+- Finite Tilemap placements from copied Grid/rows, typed SpriteSheet IDs, camera culling and incremental edits; [API](tilemap.md), [measurements](tilemap-performance.md), and [deferred collision design](tilemap-design.md).
+
 - SpriteSheet grid/named/rectangle frames, shared cropped image textures and Actor-owned SpriteAnimation with simulation-time playback; [contracts and sample](sprites.md).
 
 - Independent fixed-size dense Grid with strict coordinates, shared/factory initialization and full/rectangle traversal; [contracts and data-only example](grid.md).
@@ -21,13 +23,13 @@ Simpludify has an experimental Web runtime and a generic composition-based Core.
 - Character, UI/scenes, headless, Beacon field the complete Signal Run collection/survival game, and Blockfall falling-block puzzle with deterministic grid logic, hold/ghost and keyboard/touch controls; Prism Raid adds Triangle ships, Trigger combat and input-only automatic play.
 - Noninteractive source scaffold/dev/check/test/build/doctor, JSON diagnostics, unit/browser/production-subpath tests, baseline scripts and automatic licensing notices.
 
-- Japanese-first static documentation, English technical reference, isolated playable seven-sample gallery, integrated root/project-base builds and Pages workflow. See site-validation for deployment evidence.
+- Japanese-first static documentation, English technical reference, isolated playable eight-sample gallery, integrated root/project-base builds and Pages workflow. See site-validation for deployment evidence.
 
 ## Pending and limits
 
 Windows/Electron packaging and Windows executable smoke tests are pending. There is no portable executable guarantee or cross-language SDK. Public npm publication, compiled SDK packages and automated vendored-engine upgrades are deferred.
 
-No impulse/angular rigid-body simulation or continuous collision detection, multiple cameras/viewports, tilemaps, audio, save-game format, networking, generic ECS, asset manifest/font manager or visual editor is implemented. Actors/components are destroyed on removal; reusable pooling and scene reactivation are not implicit features. Dynamic images load asynchronously and can fail independently of logical Actors.
+No impulse/angular rigid-body simulation or continuous collision detection, multiple cameras/viewports, tile collision, infinite maps, audio, save-game format, networking, generic ECS, asset manifest/font manager or visual editor is implemented. Actors/components are destroyed on removal; reusable pooling and scene reactivation are not implicit features. Dynamic images load asynchronously and can fail independently of logical Actors.
 
 Generic control-right management was reviewed and is not being introduced. Grid does not acquire control handles for stored values, and no control-right API is being added to existing Components. NDArray and sparse/infinite/chunked grids are outside the fixed 2D Grid scope.
 

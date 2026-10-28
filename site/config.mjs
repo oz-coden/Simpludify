@@ -56,8 +56,36 @@ export const examples = [
       "ゲーム領域にフォーカスしてWASDで移動。ボタンで仲間の再生操作やScene往復ができます。移動にはキーボードが必要です。",
     guide: "guides/sprites.html",
   },
+  {
+    id: "tilemap",
+    title: "Tile trail",
+    summary: "Grid・SpriteSheetで地形配置・編集・カメラ追従",
+    controls:
+      "ゲームをフォーカスしてWASDで移動。Paint under playerで足元を変更、Leave/ReturnでScene往復。地形は描画のみです。",
+    guide: "guides/tilemap.html",
+  },
 ];
 export const pages = [
+  ["guides/tilemap.html", "site/ja/tilemap.md", "Tilemapで地形配置", "ガイド"],
+  [
+    "guides/tile-trail.html",
+    "examples/tilemap/README.md",
+    "Tile trail",
+    "サンプル",
+  ],
+  ["en/tilemap.html", "docs/tilemap.md", "Tilemap API", "English"],
+  [
+    "en/tilemap-design.html",
+    "docs/tilemap-design.md",
+    "Tilemap design / collision proposal",
+    "English",
+  ],
+  [
+    "en/tilemap-performance.html",
+    "docs/tilemap-performance.md",
+    "Tilemap measurements",
+    "English",
+  ],
   [
     "guides/sprites.html",
     "site/ja/sprites.md",

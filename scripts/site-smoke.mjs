@@ -181,6 +181,7 @@ try {
         });
         await targetFrame.evaluate(() => {
           const game =
+            window.tilemapDemo?.game ??
             window.prismRaid?.game ??
             window.blockfall?.game ??
             window.signalRun?.game ??
