@@ -218,7 +218,7 @@ Constant intent produces the same displacement over equal accumulated simulation
 - Motion moves from Update to Integrate. ActionMovement moves from Input to Update. Migrate custom post-motion Update Components to LateUpdate; scale policies use Input. Same-phase requirements still do not schedule peers.
 - Character's options and optional movement reader remain valid. No new Character speed field or mandatory adapter was introduced.
 - Signal Run replaces PointControl plus ActionMovement with one custom SignalMovement. Prism Raid's clamp/weapon/TTL Components use LateUpdate; normal non-sprint game state is checked against pre-refactor fingerprints.
-- Renderable visibility, opacity, depth, enable flags and Transform are already live. Width/height/color/sprite/shape/fit remain immutable and require remove/re-add. Graphics geometry/fill is created once, and images have asynchronous ownership, so animation-style updates require a separate renderer contract. No renderer/asset/animation redesign is included here.
+- Renderable supports validated live color/dimensions/source changes without replacement; [rendering contracts](rendering.md) define revisions, retained displays and asynchronous ownership. Shared assets and animation remain deferred.
 
 Tests cover live scale/speed, numeric rejection/overflow, custom/default-phase commands, ownership, Solid/Static behavior, ordering, fixed stepping, JSON replay, real keys/touch and complete game outcomes.
 

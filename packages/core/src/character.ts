@@ -6,6 +6,7 @@ import {
   Renderable,
   Shape,
   Transform,
+  type VisualSource,
 } from "./components";
 export interface CharacterOptions {
   id?: string;
@@ -15,7 +16,7 @@ export interface CharacterOptions {
   size?: number;
   color?: number;
   movement?: ActionReader<"axis2d">;
-  sprite?: string;
+  source?: VisualSource;
 }
 export class CharacterActor extends Actor {
   get x(): number {
@@ -42,9 +43,8 @@ export function Character(options: CharacterOptions = {}): CharacterActor {
       new Renderable({
         width: options.size ?? 32,
         height: options.size ?? 32,
-        color: options.color ?? 0x73e3c0,
-        shape: Shape.Character,
-        ...(options.sprite === undefined ? {} : { sprite: options.sprite }),
+        ...(options.color === undefined ? {} : { color: options.color }),
+        source: options.source ?? { kind: "shape", shape: Shape.Character },
       }),
     );
     actor.add(new Motion({ speed: options.speed ?? 180 }));

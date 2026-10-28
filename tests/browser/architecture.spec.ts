@@ -36,14 +36,18 @@ test("reconciles dynamic render components and releases removed/pending visuals"
     actor.remove(Renderable.type);
     await game.whenReady();
     const removed = renderer?.diagnostics.visuals;
-    actor.add(new Renderable({ sprite: "./player.svg" }));
+    actor.add(
+      new Renderable({ source: { kind: "image", url: "./player.svg" } }),
+    );
     await game.whenReady();
     const image = renderer?.diagnostics.visuals;
     game.remove(actor);
     await game.whenReady();
     const pending = game.add(new Actor());
     pending.add(new Transform());
-    pending.add(new Renderable({ sprite: "./delayed.svg" }));
+    pending.add(
+      new Renderable({ source: { kind: "image", url: "./delayed.svg" } }),
+    );
     const waiting = game.whenReady();
     await Promise.resolve();
     await Promise.resolve();
@@ -86,7 +90,9 @@ test("reports failed dynamic images without replacing the active scene and permi
       onError: (error) => errors.push((error as { code: string }).code),
     });
     await game.run();
-    const failed = game.add(Character({ sprite: "./missing-dynamic.png" }));
+    const failed = game.add(
+      Character({ source: { kind: "image", url: "./missing-dynamic.png" } }),
+    );
     let code = "";
     try {
       await game.whenReady();

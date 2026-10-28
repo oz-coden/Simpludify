@@ -11,6 +11,7 @@
 | Web起動・遷移    | Game, GameOptions, SceneContext                                                                                     | [英語API](../en/api.html#minimal-game-and-defaults)                 |
 | Actor構成        | Actor, Component, defineComponent, ComponentPhase                                                                   | [基本概念](concepts.md)                                             |
 | 標準Component    | Transform, Renderable, Motion, ActionMovement                                                                       | [英語API](../en/api.html#built-in-components)                       |
+| 描画の状態       | Renderable, RenderableOptions, VisualSource, Shape, SpriteFit                                                       | [動的描画と画像待機](rendering.md)                                  |
 | 高水準プリセット | Character, CharacterActor                                                                                           | [最初のゲーム](getting-started.md)                                  |
 | Scene・通知      | Scene, SceneState, EventBus, defineEvent, Lifetime                                                                  | [SceneとUI](scenes-ui.md)                                           |
 | 時間・入力       | Engine, Action, defineActions, ActionController, ActionSource, KeyCode, ActionReader, KeyboardBindings, InputSystem | [入力ガイド](input.md)                                              |

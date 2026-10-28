@@ -108,7 +108,7 @@ try {
             size: 12,
             speed: 1,
             movement,
-            sprite: "./player.svg",
+            source: { kind: "image", url: "./player.svg" },
           }),
         );
     });

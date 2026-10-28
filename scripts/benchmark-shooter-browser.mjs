@@ -67,7 +67,7 @@ export async function benchmarkBrowser({ seconds, percentile }) {
             );
             actor.add(
               new Renderable({
-                shape,
+                source: { kind: "shape", shape },
                 width: 12,
                 height: 18,
                 color: 0x65a8ed,

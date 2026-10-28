@@ -49,7 +49,7 @@ for (const fallback of [false, true])
         const t = triangle.add(new Transform({ x: 400, y: 225 }));
         const render = triangle.add(
           new Renderable({
-            shape: Shape.Triangle,
+            source: { kind: "shape", shape: Shape.Triangle },
             width: 80,
             height: 120,
             color: 0xff0000,
@@ -139,7 +139,7 @@ for (const fallback of [false, true])
           actor.add(new Transform({ x: 100 + i * 100, y: 100 }));
           actor.add(
             new Renderable({
-              shape,
+              source: { kind: "shape", shape },
               width: 40,
               height: 60,
               color: 0x00ff00,

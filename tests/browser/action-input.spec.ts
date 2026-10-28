@@ -78,7 +78,9 @@ async function probe(page: import("@playwright/test").Page) {
       );
       const actor = scene.add(new Actor());
       const transform = actor.add(new Transform({ x: 400, y: 225 }));
-      actor.add(new Renderable({ shape: Shape.Triangle }));
+      actor.add(
+        new Renderable({ source: { kind: "shape", shape: Shape.Triangle } }),
+      );
       scene.onUpdate((delta) => {
         counts.fire += controls.button(actions.Fire).pressCount;
         transform.x += controls.value(actions.Move).x * delta * 200;

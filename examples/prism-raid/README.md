@@ -52,7 +52,7 @@ const ship = new Actor();
 ship.add(new Transform());
 ship.add(
   new Renderable({
-    shape: Shape.Triangle,
+    source: { kind: "shape", shape: Shape.Triangle },
     width: 28,
     height: 36,
     color: 0x65a8ed,

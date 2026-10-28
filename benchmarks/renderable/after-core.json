@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-28T02:56:10.744Z",
+  "environment": {
+    "node": "v24.22.1",
+    "platform": "linux",
+    "release": "6.18.55",
+    "arch": "x64",
+    "cpu": "INTEL(R) XEON(R) PLATINUM 8573C",
+    "logicalCpus": 9
+  },
+  "scope": "Engine.step only; no rendering, no GC control, no hardware performance guarantee",
+  "results": [
+    {
+      "workload": "idle core",
+      "samples": 5000,
+      "milliseconds": {
+        "p50": 0.0006910000000743821,
+        "p95": 0.0021049999999149804,
+        "p99": 0.003524999999967804
+      },
+      "heapBefore": 36550416,
+      "heapAfter": 31363328
+    },
+    {
+      "workload": "1000 moving characters (core only)",
+      "samples": 5000,
+      "milliseconds": {
+        "p50": 0.07996299999990697,
+        "p95": 0.23674799999980678,
+        "p99": 0.5941980000000058
+      },
+      "heapBefore": 38328944,
+      "heapAfter": 41854264
+    }
+  ]
+}

@@ -67,73 +67,168 @@ export function imageSize(
   return { width: sourceWidth * scale, height: sourceHeight * scale };
 }
 export type Shape = (typeof Shape)[keyof typeof Shape];
+/** Immutable, backend-independent description. Image fit defaults to Contain. */
+export type VisualSource =
+  | Readonly<{ kind: "shape"; shape: Shape }>
+  | Readonly<{ kind: "image"; url: string; fit?: SpriteFit }>;
+
+function visualSource(value: VisualSource): VisualSource {
+  if (!value || typeof value !== "object")
+    throw new EngineError(
+      "INVALID_VALUE",
+      "source must be a visual description",
+    );
+  if (value.kind === "shape") {
+    if (
+      !Object.values(Shape).includes(value.shape) ||
+      "url" in value ||
+      "fit" in value
+    )
+      throw new EngineError("INVALID_VALUE", "Invalid shape source");
+    return Object.freeze({ kind: "shape", shape: value.shape });
+  }
+  if (value.kind === "image") {
+    if (typeof value.url !== "string" || !value.url.trim() || "shape" in value)
+      throw new EngineError(
+        "INVALID_VALUE",
+        "Image source requires a nonempty URL",
+      );
+    const fit = value.fit === undefined ? SpriteFit.Contain : value.fit;
+    if (!Object.values(SpriteFit).includes(fit))
+      throw new EngineError("INVALID_VALUE", "Unknown sprite fit");
+    return Object.freeze({ kind: "image", url: value.url, fit });
+  }
+  throw new EngineError("INVALID_VALUE", "Unknown visual source kind");
+}
+function equalSource(a: VisualSource, b: VisualSource): boolean {
+  return a.kind === "shape"
+    ? b.kind === "shape" && a.shape === b.shape
+    : b.kind === "image" && a.url === b.url && a.fit === b.fit;
+}
+const defaultVisualSource: VisualSource = Object.freeze({
+  kind: "shape",
+  shape: Shape.Box,
+});
+export interface RenderableOptions {
+  width?: number;
+  height?: number;
+  color?: number;
+  source?: VisualSource;
+  opacity?: number;
+  visible?: boolean;
+  zIndex?: number;
+}
 export class Renderable extends Component {
   static readonly type: ComponentType<Renderable> = defineComponent<Renderable>(
     "Renderable",
     [Transform.type],
   );
   readonly type: ComponentType<Renderable> = Renderable.type;
-  readonly width: number;
-  readonly height: number;
-  readonly color: number;
-  readonly sprite: string | undefined;
-  readonly shape: Shape;
-  readonly fit: SpriteFit;
-  visible: boolean;
-  private alpha: number;
-  private depth: number;
+  private version = 0;
+  private horizontal = 32;
+  private vertical = 32;
+  private rgb = 0x73e3c0;
+  private visual: VisualSource = defaultVisualSource;
+  private shown = true;
+  private alpha = 1;
+  private depth = 0;
+  /** Changes only when a validated display value changes; independent of Scene revision. */
+  get revision(): number {
+    return this.version;
+  }
+  get width(): number {
+    return this.horizontal;
+  }
+  set width(value: number) {
+    positive(value, "width");
+    if (this.horizontal !== value) {
+      this.horizontal = value;
+      this.version++;
+    }
+  }
+  get height(): number {
+    return this.vertical;
+  }
+  set height(value: number) {
+    positive(value, "height");
+    if (this.vertical !== value) {
+      this.vertical = value;
+      this.version++;
+    }
+  }
+  get color(): number {
+    return this.rgb;
+  }
+  set color(value: number) {
+    if (!Number.isInteger(value) || value < 0 || value > 0xffffff)
+      throw new EngineError(
+        "INVALID_VALUE",
+        "color must be a 24-bit RGB integer",
+      );
+    if (this.rgb !== value) {
+      this.rgb = value;
+      this.version++;
+    }
+  }
+  get source(): VisualSource {
+    return this.visual;
+  }
+  set source(value: VisualSource) {
+    if (value === this.visual) return;
+    const next = visualSource(value);
+    if (!equalSource(this.visual, next)) {
+      this.visual = next;
+      this.version++;
+    }
+  }
+  get visible(): boolean {
+    return this.shown;
+  }
+  set visible(value: boolean) {
+    if (typeof value !== "boolean")
+      throw new EngineError("INVALID_VALUE", "visible must be boolean");
+    if (this.shown !== value) {
+      this.shown = value;
+      this.version++;
+    }
+  }
   get opacity(): number {
     return this.alpha;
   }
   set opacity(value: number) {
     if (!Number.isFinite(value) || value < 0 || value > 1)
       throw new EngineError("INVALID_VALUE", "opacity must be between 0 and 1");
-    this.alpha = value;
+    if (this.alpha !== value) {
+      this.alpha = value;
+      this.version++;
+    }
   }
   get zIndex(): number {
     return this.depth;
   }
   set zIndex(value: number) {
-    this.depth = finite(value, "zIndex");
+    finite(value, "zIndex");
+    if (this.depth !== value) {
+      this.depth = value;
+      this.version++;
+    }
   }
-  constructor(
-    options: {
-      width?: number;
-      height?: number;
-      color?: number;
-      sprite?: string;
-      shape?: Shape;
-      fit?: SpriteFit;
-      opacity?: number;
-      visible?: boolean;
-      zIndex?: number;
-    } = {},
-  ) {
+  constructor(options: RenderableOptions = {}) {
     super();
-    this.width = positive(options.width ?? 32, "width");
-    this.height = positive(options.height ?? 32, "height");
-    this.color = options.color ?? 0x73e3c0;
-    if (
-      !Number.isInteger(this.color) ||
-      this.color < 0 ||
-      this.color > 0xffffff
-    )
-      throw new EngineError(
-        "INVALID_VALUE",
-        "color must be a 24-bit RGB integer",
-      );
-    this.sprite = options.sprite;
-    this.fit = options.fit ?? SpriteFit.Contain;
-    if (!Object.values(SpriteFit).includes(this.fit))
-      throw new EngineError("INVALID_VALUE", "Unknown sprite fit");
-    this.alpha = 1;
-    this.depth = 0;
-    this.opacity = options.opacity ?? 1;
-    this.zIndex = options.zIndex ?? 0;
-    this.visible = options.visible ?? true;
-    this.shape = options.shape ?? Shape.Box;
-    if (!Object.values(Shape).includes(this.shape))
-      throw new EngineError("INVALID_VALUE", "Unknown shape");
+    if (options.source !== undefined) this.source = options.source;
+    this.width = options.width === undefined ? 32 : options.width;
+    this.height = options.height === undefined ? 32 : options.height;
+    // Source chooses the initial default only. Later source changes retain color.
+    this.color =
+      options.color === undefined
+        ? this.source.kind === "image"
+          ? 0xffffff
+          : 0x73e3c0
+        : options.color;
+    this.opacity = options.opacity === undefined ? 1 : options.opacity;
+    this.zIndex = options.zIndex === undefined ? 0 : options.zIndex;
+    this.visible = options.visible === undefined ? true : options.visible;
+    this.version = 0;
   }
 }
 /** Integrates an input-independent direction × speed after command-producing Components. */

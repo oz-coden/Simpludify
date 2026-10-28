@@ -503,8 +503,16 @@ export class Game<SceneId extends string = string> {
       );
     await this.startPromise;
     this.assertAlive();
+    const prepared = this.prepared;
     this.render();
-    await this.wait(this.prepared?.ready?.() ?? Promise.resolve());
+    await this.wait(prepared?.ready?.() ?? Promise.resolve());
+    this.assertAlive();
+    if (prepared !== this.prepared)
+      throw new EngineError(
+        "GAME_DISPOSED",
+        "Scene presentation changed while waiting for resources",
+      );
+    this.render();
   }
   private updateProjection(): void {
     const v = this.requestedViewport,

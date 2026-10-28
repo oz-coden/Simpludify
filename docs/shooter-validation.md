@@ -10,7 +10,7 @@ Baseline: `bacdf9e4d34431704bafcce05029f0cca2657ada`. Triangle checkpoint: `e138
 
 ## Triangle contract and renderer compatibility
 
-`new Renderable({ shape: Shape.Triangle, width: 32, height: 40, color: 0x65a8ed })` creates an upward-pointing isosceles triangle. Local vertices are `(0,-height/2)`, `(width/2,height/2)` and `(-width/2,height/2)`. The origin is the bounding-box center, matching other shapes; it is not the centroid. Width/height are independent. Transform position, radians rotation, independent/negative scales and live visibility/opacity/depth all use the existing renderer path. Immutable geometry/color and image precedence retain their existing semantics.
+`new Renderable({ source: { kind: "shape", shape: Shape.Triangle }, width: 32, height: 40, color: 0x65a8ed })` creates an upward-pointing isosceles triangle. Local vertices are `(0,-height/2)`, `(width/2,height/2)` and `(-width/2,height/2)`. The origin is the bounding-box center, matching other shapes; it is not the centroid. Width/height are independent. Transform position, radians rotation, independent/negative scales and live visibility/opacity/depth all use the existing renderer path. Live geometry/color and explicit shape/image sources now follow the [rendering contract](rendering.md).
 
 Triangle uses a closed Graphics polygon; it does not add another renderer, texture path or physics shape. Existing Box/Circle/Character pixel fixtures pass. Triangle-specific pixel/resource cases pass on both WebGL/SwiftShader and forced Canvas2D at desktop/narrow widths. Forced Canvas2D Prism Raid also starts, clears all waves through normal input and releases resources. These are pinned Chromium/Pixi observations, not universal Canvas2D, WebGPU or hardware-GPU guarantees.
 
@@ -23,7 +23,7 @@ The game's player and enemy triangles use circle Trigger approximations. Triangl
 | [logic.ts](../examples/prism-raid/logic.ts)       | Ordinary round state plus Unit, Pilot, Flight, Clock and Lifetime Components; Transform, Motion, KeyboardController, CollisionWorld, Trigger events, Scene timers and owned cleanup |
 | [view.ts](../examples/prism-raid/view.ts)         | Renderable Triangle ships, Box/Circle shots, depth, opacity and deterministic decorative stars                                                                                      |
 | [main.ts](../examples/prism-raid/main.ts)         | Game menu/play factories, BrowserInput action binding, owned InputSource, native Button/HoldButton, Label, pause/resume and restart                                                 |
-| [autoplay.ts](../examples/prism-raid/autoplay.ts) | Read-only game snapshots, predicted aim and simple avoidance; every action writes normal InputState keys                                                                            |
+| [autoplay.ts](../examples/prism-raid/autoplay.ts) | Read-only game snapshots, predicted aim and simple avoidance; every action writes normal logical Action input                                                                       |
 
 The shooter rules do not import Web/Pixi/DOM internals. Rendering consumes model state and does not consume its PRNG. The automatic player does not change HP, enemy positions, score, wave progress or collision state. `Raid.snapshot()` copies custom game data; Engine.snapshot() supplies controlled input/PRNG and generic Actor state. Neither is advertised as a complete save/restore API.
 

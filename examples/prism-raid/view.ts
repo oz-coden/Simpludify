@@ -10,7 +10,7 @@ import { arena, type Kind, type Raid, Unit } from "./logic";
 const appearance: Record<
   Kind,
   {
-    shape: (typeof Shape)[keyof typeof Shape];
+    source: { kind: "shape"; shape: (typeof Shape)[keyof typeof Shape] };
     width: number;
     height: number;
     color: number;
@@ -18,42 +18,42 @@ const appearance: Record<
   }
 > = {
   player: {
-    shape: Shape.Triangle,
+    source: { kind: "shape", shape: Shape.Triangle },
     width: 28,
     height: 36,
     color: 0x65a8ed,
     zIndex: 10,
   },
   scout: {
-    shape: Shape.Triangle,
+    source: { kind: "shape", shape: Shape.Triangle },
     width: 28,
     height: 34,
     color: 0xff887e,
     zIndex: 3,
   },
   drifter: {
-    shape: Shape.Triangle,
+    source: { kind: "shape", shape: Shape.Triangle },
     width: 36,
     height: 30,
     color: 0xffcc73,
     zIndex: 3,
   },
   gunner: {
-    shape: Shape.Triangle,
+    source: { kind: "shape", shape: Shape.Triangle },
     width: 42,
     height: 48,
     color: 0xbf9af0,
     zIndex: 4,
   },
   "player-shot": {
-    shape: Shape.Box,
+    source: { kind: "shape", shape: Shape.Box },
     width: 4,
     height: 16,
     color: 0x9be9ff,
     zIndex: 6,
   },
   "enemy-shot": {
-    shape: Shape.Circle,
+    source: { kind: "shape", shape: Shape.Circle },
     width: 10,
     height: 10,
     color: 0xff698d,

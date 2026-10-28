@@ -36,7 +36,7 @@ All six gallery entries retain their existing presentation and game rules. Chara
 
 The existing lifecycle regressions still cover disposal during initial activation, dependent Component teardown and phase-independent timers. Repeating timers retain fractional time, drop missed repetitions and invoke at most once per step. This revision does not redesign them.
 
-Renderable investigation: visibility/opacity/zIndex/Transform are live; width/height/color/sprite/shape/fit are immutable. Renderer reconciliation uses component identity and Scene structural revision, so merely adding public setters would leave stale graphics or asynchronous image races. Replacing a Renderable also requires removing dependent Components first. This is a real limitation for animated/custom visuals, but no sample needs a visual mutation API to finish input unification. A separate bounded task should define atomic visual updates, revision tracking, image cancellation and resource tests before adding setters. Sprite sheets/animation remain outside this revision.
+Renderable investigation at the input-unification revision identified immutable visual values and replacement blocked by dependent Components. [Live rendering](rendering.md) now addresses this with validated setters, source revisions, image generations, cancellation and readiness. Shared images and animation remain deferred.
 
 Text remains a Web editing stream. [The native typing recipe](action-input.md#text-and-typing-games) covers input/composition, focus and committed-value deduplication. No new parallel key-based text system or TextInput widget is introduced. OS IME UI and physical mobile software keyboards require further device testing.
 
