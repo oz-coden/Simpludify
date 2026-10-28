@@ -7,6 +7,7 @@ Simpludify is an experimental code-first TypeScript 2D engine. It provides a DOM
 The primary site currently provides Japanese onboarding, concepts, practical guides and sample instructions. This English section directly renders the existing detailed API, architecture, roadmap, performance and licensing documents from the repository. It is not a complete translation of every Japanese page.
 
 - [API contracts and defaults](../docs/api.md)
+- [Fixed-size Grid data and examples](../docs/grid.md)
 - [Live rendering and image readiness](../docs/rendering.md)
 - [Architecture, lifecycle and ownership](../docs/architecture.md)
 - [Implemented scope and roadmap](../docs/roadmap.md)

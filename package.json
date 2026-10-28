@@ -34,7 +34,8 @@
     "bench:replay-memory": "node --expose-gc scripts/benchmark-replay-memory.mjs",
     "bench:movement": "node --expose-gc scripts/benchmark-movement.mjs",
     "bench:renderable": "node scripts/benchmark-renderable.mjs",
-    "bench:images": "node scripts/benchmark-images.mjs"
+    "bench:images": "node scripts/benchmark-images.mjs",
+    "bench:grid": "node --expose-gc scripts/benchmark-grid.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.3",

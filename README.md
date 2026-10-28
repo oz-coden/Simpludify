@@ -142,6 +142,7 @@ This integrates documentation and all six browser examples into `site-dist/`, in
 
 ## Documentation
 
+- [Fixed-size Grid data and placement example](docs/grid.md)
 - [Live rendering, shared images and readiness](docs/rendering.md)
 - [Movement composition and sprint](docs/movement.md)
 - [Random, Replay and fixed steps](docs/replay.md)

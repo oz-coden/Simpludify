@@ -58,6 +58,7 @@ export const pages = [
     "はじめに",
   ],
   ["concepts.html", "site/ja/concepts.md", "基本概念", "はじめに"],
+  ["guides/grid.html", "site/ja/grid.md", "2次元Grid", "ガイド"],
   ["guides/input.html", "site/ja/input.md", "入力とゲームループ", "ガイド"],
   ["guides/movement.html", "site/ja/movement.md", "移動とComponent", "ガイド"],
   [
@@ -114,6 +115,13 @@ export const pages = [
   ["licensing.html", "site/ja/licensing.md", "ライセンス", "プロジェクト"],
   ["en/index.html", "site/en.md", "English documentation", "English"],
   ["en/api.html", "docs/api.md", "API contracts", "English"],
+  ["en/grid.html", "docs/grid.md", "Fixed-size Grid", "English"],
+  [
+    "en/grid-performance.html",
+    "docs/grid-performance.md",
+    "Grid measurements",
+    "English",
+  ],
   ["en/actions.html", "docs/action-input.md", "Typed Action input", "English"],
   ["en/movement.html", "docs/movement.md", "Movement composition", "English"],
   ["en/rendering.html", "docs/rendering.md", "Live rendering", "English"],

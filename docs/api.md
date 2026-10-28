@@ -2,6 +2,10 @@
 
 `@simpludify/core` is DOM-free. [Typed Action input](action-input.md) defines logical buttons/axes, key bindings, source composition and input boundaries. `@simpludify/web` re-exports Core and supplies Game, PixiRenderer, browser input, DOM UI and scoped default CSS. All mode objects export corresponding union types. Internal packages remain private source workspaces.
 
+## Fixed-size two-dimensional data
+
+`Grid<T>` provides `new Grid(width,height,initial)`, `Grid.generate(width,height,(x,y)=>value)`, read-only width/height, `inBounds`, strict `get`/`set`, `fill`, `forEach` and `forEachRect`. It is independent of Engine/lifecycle/rendering, stores references without ownership, and uses a private row-major Array. See [Grid contracts and examples](grid.md) for shared initial values, range errors, traversal and the dense size limit.
+
 ## Minimal game and defaults
 
 ```ts verify

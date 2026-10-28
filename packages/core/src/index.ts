@@ -11,6 +11,7 @@ export * from "./diagnostics";
 export * from "./engine";
 export * from "./events";
 export * from "./fixed-step";
+export * from "./grid";
 export { InputSystem, KeyboardSource } from "./input";
 export * from "./key-code";
 export * from "./lifetime";

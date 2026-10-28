@@ -4,6 +4,7 @@ Simpludify has an experimental Web runtime and a generic composition-based Core.
 
 ## Included
 
+- Independent fixed-size dense Grid with strict coordinates, shared/factory initialization and full/rectangle traversal; [contracts and data-only example](grid.md).
 - DOM-free Engine stepping, frozen frame input, managed seeded randomness and generic snapshots.
 - Synchronous Scene states, exclusive ownership, lifecycle hooks and aggregate cleanup.
 - Dynamic Actors/Components with deterministic membership and update rules, dependency diagnostics and enable flags.
@@ -25,6 +26,8 @@ Simpludify has an experimental Web runtime and a generic composition-based Core.
 Windows/Electron packaging and Windows executable smoke tests are pending. There is no portable executable guarantee or cross-language SDK. Public npm publication, compiled SDK packages and automated vendored-engine upgrades are deferred.
 
 No impulse/angular rigid-body simulation or continuous collision detection, sprite animation, multiple cameras/viewports, tilemaps, audio, save-game format, networking, generic ECS, asset manifest/font manager or visual editor is implemented. Actors/components are destroyed on removal; reusable pooling and scene reactivation are not implicit features. Dynamic images load asynchronously and can fail independently of logical Actors.
+
+Generic control-right management was reviewed and is not being introduced. Grid does not acquire control handles for stored values, and no control-right API is being added to existing Components. NDArray and sparse/infinite/chunked grids are outside the fixed 2D Grid scope.
 
 Viewport tests cover the supplied examples on Chromium, not arbitrary user layouts or every browser. WebGL context recovery, controlled hardware testing, native/GPU retained-memory instrumentation and multi-hour real-time soak coverage remain open. The Solid response measurements add a bounded five-minute real-time production run and separate simulation/draw CPU proxies. Production Signal Run measurements, forced-GC heap/DOM samples and accelerated simulation/disposal workloads are reproducible with bench:practical. Existing measurements are local observations, not superiority claims.
 

@@ -12,6 +12,7 @@ Simpludify separates a synchronous, DOM-free simulation from a browser host that
 | Component                     | One reusable behavior or data capability                                                      | One Actor; its own subscriptions/cleanup                            |
 | EventBus                      | Optional typed synchronous notifications                                                      | Explicit bus owner; optional subscription owners                    |
 | Camera / coordinate functions | World-to-screen projection and its inverse                                                    | Plain Core data; no renderer/DOM knowledge                          |
+| Grid                          | Fixed dense integer-indexed 2D data and rectangular traversal                                 | Plain values/references; no Scene ownership or automatic disposal   |
 | Web Game                      | Scene factories, asynchronous setup/visual preparation, frame/resize/input services           | Engine, renderer, UI, host element                                  |
 | PixiRenderer                  | Scene presentation and dynamic Renderable reconciliation                                      | Containers, display objects, image textures and pending image loads |
 | DOM UI                        | Native label/button/panel layout, focus, selective text updates                               | One mounted scene overlay                                           |
