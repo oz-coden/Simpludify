@@ -88,6 +88,7 @@ Metadata alone owns no images and needs no disposal. Hidden/disabled Renderables
 
 ```sh
 npm run dev -- --example sprites
+npm run check:sprite-completions
 npm run build -- --target web --example sprites --base /Simpludify/
 ```
 

@@ -157,6 +157,22 @@ export async function invalid() {
     mismatch = (e as { code: string }).code;
   }
   const stillGreen = f.pixel();
+  f.game.scene("broken", ({ add }) => {
+    const actor = add(new Actor());
+    actor.add(new Transform());
+    actor.add(new Renderable({ source: sheet.get(0) }));
+    actor.add(
+      new SpriteAnimation({ sheet, clips: { invalid: { frames: [99] } } }),
+    );
+  });
+  let stagedError = "";
+  try {
+    await f.game.goTo("broken");
+  } catch (e) {
+    stagedError = (e as { code: string }).code;
+  }
+  const stagedRetained = f.pixel(),
+    stagedReferences = f.renderer.diagnostics.imageReferences;
   const other = SpriteSheet.grid(`${url}#other`, {
     frameWidth: 16,
     frameHeight: 16,
@@ -188,6 +204,9 @@ export async function invalid() {
     retained,
     recovered,
     mismatch,
+    stagedError,
+    stagedRetained,
+    stagedReferences,
     stillGreen,
     initialRecovery,
     replacementRecovery,

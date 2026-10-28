@@ -209,7 +209,7 @@ Work may be divided into small PRs. Do not use placeholders for acceptance crite
 ## 14. Open design decisions (do not silently lock in)
 
 - Public npm package identity and distribution; the project name Simpludify and private source workspace names are selected.
-- Further sprite animation and audio scope beyond the implemented contact/position-correction and camera-follow extension.
+- Further animation features and audio beyond the implemented SpriteSheet/SpriteAnimation, contact/position-correction and camera-follow extensions. See docs/sprites.md for the implemented sprite scope.
 - Whether desktop portable output should be default or opt-in.
 - Supported minimum versions of Node, Windows, and browsers, determined after CI verification.
 - Future pooling/reactivation and multi-camera policies beyond the current terminal scene lifecycle and single view.

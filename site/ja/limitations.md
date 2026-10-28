@@ -10,7 +10,8 @@
 - Character、Motion、キーボード、独立入力元、タッチ用HoldButton、ポーズ。
 - 矩形・円・Character・Triangle・画像描画、表示制御・深度、単一Camera/Viewport、座標変換・追従。
 - 円・回転矩形、layer/mask、Trigger/Solid、接触イベント・問い合わせ、逆質量による位置補正。
-- 6つのWebサンプル（Blockfall・Prism Raidを含む）、Headless実行例、CLI、型検査・単体・ブラウザ・本番ビルド検証。
+- SpriteSheetのグリッド／矩形／名前付き参照、SpriteAnimationのシミュレーション時間による再生と画像共有。
+- 7つのWebサンプル（Blockfall・Prism Raid・Sprite gardenを含む）、Headless実行例、CLI、型検査・単体・ブラウザ・本番ビルド検証。
 - 日本語中心の静的ドキュメントとサンプルの統合ビルド、GitHub Pages向けActions。
 
 ## 衝突と実行時の制約
@@ -25,7 +26,7 @@
 | ------------------------------- | ------------------------------------- |
 | 公開npm SDK・自動アップグレード | 未提供。ソースを取得して利用          |
 | Windows/Electron portable       | 未実装。Web配信のみ                   |
-| アニメーション・音声・tilemap   | 未実装                                |
+| 音声・tilemap                   | 未実装                                |
 | 複数Camera/Viewport             | 未実装                                |
 | アセットmanifest・font管理      | 未実装。通常のVite/ブラウザ機能を使用 |
 | 通信・対戦・保存データ形式      | 未実装                                |
@@ -44,7 +45,7 @@
 
 1. 制御された実GPU環境・実機モバイルで描画、入力、コンテキスト喪失を検証する。
 2. 動的画像を含む長時間運転とheap snapshotで残留資源を追跡する。
-3. 次の具体的なゲームに必要な音声・アニメーション等を選び、先に用途とテストを定義する。
+3. 次の具体的なゲームに必要な音声等を選び、先に用途とテストを定義する。
 4. APIの安定化と配布方式を検討し、その後に別パッケージとして安全なWindowsホストを追加する。
 
 [英語ロードマップ](../en/roadmap.html)も参照してください。

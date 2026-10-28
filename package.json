@@ -13,6 +13,7 @@
     "dev": "node scripts/cli.mjs dev",
     "create": "node scripts/cli.mjs create",
     "check": "node scripts/cli.mjs check",
+    "check:sprite-completions": "node scripts/check-sprite-completions.mjs",
     "test": "vitest run",
     "test:browser": "playwright test",
     "build": "node scripts/cli.mjs build",

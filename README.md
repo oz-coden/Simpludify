@@ -86,7 +86,7 @@ npm run dev -- --example prism-raid
 npm run dev -- --example sprites
 ```
 
-[Sprite garden](examples/sprites/README.md) demonstrates SpriteSheet grid/rectangle frames, typed SpriteAnimation clips, WASD idle/walk switching, shared images and independent playback. See [the sprite API contracts](docs/sprites.md).
+[Sprite garden](examples/sprites/README.md) demonstrates SpriteSheet frames, typed SpriteAnimation clips, WASD idle/walk switching, shared images and independent playback. See [the sprite API contracts](docs/sprites.md).
 
 ## Create a separate game workspace
 

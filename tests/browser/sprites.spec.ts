@@ -93,6 +93,9 @@ for (const fallback of [false, true])
       );
       expect(r.error).toBe("SPRITE_FRAME_BOUNDS");
       expect(r.mismatch).toBe("SPRITE_FRAME_BOUNDS");
+      expect(r.stagedError).toBe("SPRITE_FRAME_BOUNDS");
+      expect(r.stagedRetained).toEqual([0, 255, 0]);
+      expect(r.stagedReferences).toBe(1);
       expect(r.retained).toEqual([0, 0, 255]);
       expect(r.recovered).toEqual([0, 255, 0]);
       expect(r.stillGreen).toEqual([0, 255, 0]);
