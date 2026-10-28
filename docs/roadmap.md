@@ -41,4 +41,4 @@ Before comparative performance claims, implement equivalent Godot/Phaser workloa
 
 Implemented: standalone RandomManager, cached named streams, actual automatic seeds, opt-in JSON Action Replay from a fresh Engine/one Scene, auxiliary observations, and optional bounded fixed stepping. Deferred: seek/rewind, arbitrary state restoration, cross-Scene replay, compression, render interpolation and network determinism. See [contracts and validation](replay.md).
 
-[Live rendering](rendering.md) preserves Component identity and separates pending image requests from owned display resources. Shared image caches, TextureRef/Material and animation remain deferred.
+[Live rendering](rendering.md) preserves Component identity and separates pending image requests from owned display resources. Renderer-local image sharing now coalesces pending loads and holds independently cancellable consumer leases across Visuals and overlapping Scenes. URL sources remain the public reference; TextureRef/Material, idle retention, preloading and animation remain deferred.

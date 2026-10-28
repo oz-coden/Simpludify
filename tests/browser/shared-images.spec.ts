@@ -64,8 +64,15 @@ for (const fallback of [false, true]) {
       expect(r.uniqueTextures).toBe(1);
       expect(r.uniqueSources).toBe(1);
       expect(r.red).toEqual([255, 0, 0]);
-      for (const pixel of [r.blue, r.independent, r.survivor])
+      for (const pixel of [
+        r.blue,
+        r.independent,
+        r.otherAfterReplace,
+        r.survivor,
+      ])
         expect(pixel).toEqual([0, 0, 255]);
+      expect(r.replaced).toEqual([0, 255, 255]);
+      expect(r.sharedAfterShape).toBe(1);
       expect(r.aliveAfterOne).toBe(true);
       expect(r.hiddenHeld).toBe(1);
       expect(r.released).toBe(true);
@@ -75,7 +82,7 @@ for (const fallback of [false, true]) {
         imageEntries: 0,
         pendingImages: 0,
       });
-      expect(r.reloaded).toBe(2);
+      expect(r.reloaded).toBe(3);
       expect(r.disposed).toEqual(empty);
     });
     test("separates pending consumer cancellation from the shared non-abortable loader", async ({

@@ -51,6 +51,16 @@ export async function hundred() {
   a.view.zIndex = 7;
   await f.game.whenReady();
   const independent = f.pixel(300, 150);
+  a.view.visible = true;
+  a.view.opacity = 1;
+  a.view.color = 0xffffff;
+  a.view.source = { kind: "image", url: imageURL("cyan") };
+  await f.game.whenReady();
+  const replaced = f.pixel(100, 150),
+    otherAfterReplace = f.pixel(300, 150);
+  a.view.source = { kind: "shape", shape: Shape.Box };
+  f.pixel();
+  const sharedAfterShape = f.renderer.diagnostics.textures;
   a.actor.dispose();
   const survivor = f.pixel(300, 150);
   const aliveAfterOne = !texture.destroyed && !source.destroyed;
@@ -74,6 +84,9 @@ export async function hundred() {
     red,
     blue,
     independent,
+    replaced,
+    otherAfterReplace,
+    sharedAfterShape,
     survivor,
     aliveAfterOne,
     hiddenHeld,

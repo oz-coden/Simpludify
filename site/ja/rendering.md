@@ -82,6 +82,60 @@ game.dispose();
 
 待機中の表示やGameが破棄された場合はGAME_DISPOSEDでrejectします。通常のフレームは変更を自動同期し、手動ホストではrenderまたはreadyを呼びます。setter自体はブラウザ処理を予約せず、ポーリングタイマーも追加しません。
 
+## 同じ画像の共有
+
+画像参照は従来の`source: { kind: "image", url, fit? }`を維持します。不変の表示要求と、Web側の画像実体は別です。参照のコピーやJSON保存だけではロードや所有権は発生せず、Rendererで表示・準備すると利用参照を取得します。共有のためのload/dispose呼び出しや新しいクラスは不要です。
+
+```ts verify
+import { Actor, Game, Renderable, Transform } from "@simpludify/web";
+const game = new Game();
+const url = import.meta.env.BASE_URL + "player.svg";
+function spawn(x: number, color: number) {
+  const actor = game.add(new Actor());
+  actor.add(new Transform({ x, y: 100 }));
+  actor.add(new Renderable({
+    source: { kind: "image", url }, width: 48, height: 48, color,
+  }));
+  return actor;
+}
+const first = spawn(100, 0xff8080);
+const second = spawn(200, 0xffffff);
+await game.run();
+first.require(Renderable.type).opacity = 0.5;
+first.dispose(); // secondの表示と共有画像は維持
+await game.whenReady();
+second.dispose(); // 最後の利用参照を解放
+await game.whenReady();
+game.dispose();
+```
+
+同じキーへの並行要求はImageロード1回、Texture・TextureSource各1つへ統合します。各VisualのSprite、色、opacity、寸法、fit、visible、zIndex、Transformは独立です。非表示・無効化では利用参照を解放しません。
+
+共有範囲はRendererインスタンスです。既定GameではGameごとに独立し、プロセス全体のキャッシュはありません。同じURLやsourceオブジェクトを別Gameで使っても、一方の終了は他方に影響しません。Scene遷移では準備中と現行Sceneが共有し、準備成功後に旧Sceneの参照を解放します。準備失敗では候補の参照だけを解放します。
+
+キーは取得時の`new URL(url, document.baseURI).href`です。相対・絶対の同等表記は共有し、標準URL解決の範囲で正規化します。クエリの並べ替え・除去、フラグメントの除去、リダイレクト先による統合、埋め込み認証情報の無視は行いません。クエリやフラグメントが違えば、ブラウザのネットワーク応答が共通でも別エントリです。読み込みはanonymous CORS固定で、画像ごとの設定はありません。将来設定を追加する場合は同一性に影響する設定もキーに含めます。data/blob URLも利用可能ですが、利用中のblob URLをゲーム側でrevokeしないでください。
+
+baseURIや認証状態が変わっても、変更されていないsourceを自動的に再取得しません。別sourceの指定や除去・再取得で明示的に扱います。同一オリジンのcookieはブラウザのanonymous CORSの規則に従います。
+
+新画像の保留参照と、表示中の旧画像の確定参照は別々に保持します。新画像の準備成功までは旧画像を解放しません。片方のVisualが要求を取り消しても、他方が待つロードは継続します。最後の利用者がいなくなった場合だけ中断し、中断できない処理の遅延結果も新しい要求へ混入させず解放します。解放は二重に呼ばれても安全です。
+
+失敗したキャッシュエントリは除去し、現在の各待機者へ失敗を伝えます。Visual自身の失敗状態と旧表示は維持し、自動再試行しません。新しい利用者は同じURLを明示的に要求できますが、成功しても別Visualの失敗は勝手に解除しません。失敗した各sourceを置換・除去して復旧してください。利用参照が0の画像は直ちに解放し、常駐・LRU・事前読み込みハンドルは用意していません。
+
+### 診断
+
+| 項目 | 意味 |
+| --- | --- |
+| presentations | 準備中を含むScene表示の数 |
+| visuals | 初回画像待機・非表示を含むVisual数 |
+| textures | 所有中の画像Texture数。現行バックエンドではTextureSourceも各1つ |
+| imageReferences | 保留要求と確定表示の利用参照数。画像置換中は1体で2参照の場合あり |
+| imageEntries | 利用者を持つ一意のロード中・準備済みキー数 |
+| pendingImages | 利用者を持つ一意のロード数。待機Visual数とは異なる |
+
+通常のGame終了後はすべて0です。中断不能な外部処理が遅れて完了する場合、その結果を受け取って解放します。JSカウンターはブラウザ・GPUの物理メモリやキャッシュを測るものではありません。共有Mapの参照は画像要求の変更時だけ、診断の走査も診断取得時だけに行います。
+
+第3段階の画像を使う実ゲームでは、大量生成・個別被弾色・画像の遅延や失敗・Scene遷移・連続再開始を実機でも検証する方針です。Sprite Sheetや事前読み込みは、この利用参照の境界に追加できる余地を残し、今回は実装しません。[英語ガイドの検証・測定記録](../en/rendering.html)も参照してください。
+
 ## 旧APIからの移行
 
 - `shape: Shape.Triangle` → `source: { kind: "shape", shape: Shape.Triangle }`
@@ -90,7 +144,7 @@ game.dispose();
 - 寸法・色・画像のためのComponent差し替え → 同じRenderableのプロパティ変更
 - 画像への明示的なcolor指定は着色になるため、以前の無着色結果には白を指定
 
-図形と画像の暗黙の優先順位はありません。Signal Runは被弾色と透明度を同じRenderableへ反映し、Blockfallは盤面セルのActorを維持して色を更新します。画像共有、TextureRef、Material、Sprite Sheet、アニメーションは未実装です。
+図形と画像の暗黙の優先順位はありません。Signal Runは被弾色と透明度を同じRenderableへ反映し、Blockfallは盤面セルのActorを維持して色を更新します。画像はRenderer単位で自動共有します。公開TextureRef、Material、Sprite Sheet、アニメーションは導入していません。第1段階のsource APIは変更せず、通常のゲームコードの移行は不要です。診断にはimageReferences/imageEntriesを追加し、pendingImagesはVisual数ではなく共有ロード数を数えます。
 
 ## 三角形
 
@@ -126,4 +180,4 @@ scene.onUpdate((seconds) => follow.update(player, seconds));
 
 ## リソースと失敗
 
-Scene/Actor破棄で対応する表示・保留画像を解放します。`Game.dispose()`でフレーム、入力、ResizeObserver、DOM、rendererを破棄します。画像準備が失敗したScene遷移は候補を破棄して現在のSceneを維持します。実行中の画像失敗はwhenReadyのrejectと診断で扱い、旧表示とSceneを維持します。既知の失敗は無関係な未完了画像を待ちません。各Visualが画像を個別所有し、破棄でロードも取り消します。遅延完了した結果は解放します。背景の更新・描画エラーはWeb Gameを停止・破棄します。WebGLコンテキスト喪失からの自動復旧は未検証・未対応です。
+Scene/Actor破棄で対応する表示・保留画像を解放します。`Game.dispose()`でフレーム、入力、ResizeObserver、DOM、rendererを破棄します。画像準備が失敗したScene遷移は候補を破棄して現在のSceneを維持します。実行中の画像失敗はwhenReadyのrejectと診断で扱い、旧表示とSceneを維持します。既知の失敗は無関係な未完了画像を待ちません。各Visualは利用参照を所有し、破棄では自分の参照だけを解放します。他の利用者がいるロードやTextureは維持し、最後の利用参照がなくなった時だけロード中断・TextureとTextureSourceの破棄を行います。遅延完了した結果は解放します。背景の更新・描画エラーはWeb Gameを停止・破棄します。WebGLコンテキスト喪失からの自動復旧は未検証・未対応です。
