@@ -3,6 +3,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { chromium } from "playwright";
 import { examples, pages } from "../site/config.mjs";
 import { testBlockfall } from "./site-blockfall-test.mjs";
+import { testSiteImages } from "./site-image-test.mjs";
 import { testPrismRaid } from "./site-prism-raid-test.mjs";
 import { serveSite } from "./site-server.mjs";
 import { testSiteTheme } from "./site-theme-test.mjs";
@@ -29,6 +30,8 @@ const results = [];
 mkdirSync("test-results/site", { recursive: true });
 try {
   await testSiteTheme(browser, site);
+  const sharedImages = await testSiteImages(browser, site);
+  console.log(JSON.stringify({ sharedImages }));
   for (const viewport of [
     { width: 1440, height: 900 },
     { width: 390, height: 844 },
@@ -301,6 +304,7 @@ try {
     site,
     served: remote ? "published" : "local",
     browser: browser.version(),
+    sharedImages,
     results,
     startupFailureFallback: true,
     webglUnavailableCharacterCanvasFallback: true,

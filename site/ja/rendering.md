@@ -82,6 +82,85 @@ game.dispose();
 
 待機中の表示やGameが破棄された場合はGAME_DISPOSEDでrejectします。通常のフレームは変更を自動同期し、手動ホストではrenderまたはreadyを呼びます。setter自体はブラウザ処理を予約せず、ポーリングタイマーも追加しません。
 
+## 同じ画像の共有
+
+画像参照は従来の`source: { kind: "image", url, fit? }`を維持します。不変の表示要求と、Web側の画像実体は別です。参照のコピーやJSON保存だけではロードや所有権は発生せず、Rendererで表示・準備すると利用参照を取得します。共有のためのload/dispose呼び出しや新しいクラスは不要です。
+
+```ts verify
+import { Actor, Game, Renderable, Transform } from "@simpludify/web";
+const game = new Game();
+const url = import.meta.env.BASE_URL + "player.svg";
+function spawn(x: number, color: number) {
+  const actor = game.add(new Actor());
+  actor.add(new Transform({ x, y: 100 }));
+  actor.add(
+    new Renderable({
+      source: { kind: "image", url },
+      width: 48,
+      height: 48,
+      color,
+    }),
+  );
+  return actor;
+}
+const first = spawn(100, 0xff8080);
+const second = spawn(200, 0xffffff);
+await game.run();
+first.require(Renderable.type).opacity = 0.5;
+first.dispose(); // secondの表示と共有画像は維持
+await game.whenReady();
+second.dispose(); // 最後の利用参照を解放
+await game.whenReady();
+game.dispose();
+```
+
+同じキーへの並行要求はImageロード1回、Texture・TextureSource各1つへ統合します。各VisualのSprite、色、opacity、寸法、fit、visible、zIndex、Transformは独立です。非表示・無効化では利用参照を解放しません。
+
+共有範囲はRendererインスタンスです。既定GameではGameごとに独立し、プロセス全体のキャッシュはありません。同じURLやsourceオブジェクトを別Gameで使っても、一方の終了は他方に影響しません。Scene遷移では準備中と現行Sceneが共有し、準備成功後に旧Sceneの参照を解放します。準備失敗では候補の参照だけを解放します。
+
+キーは取得時の`new URL(url, document.baseURI).href`です。相対・絶対の同等表記は共有し、標準URL解決の範囲で正規化します。クエリの並べ替え・除去、フラグメントの除去、リダイレクト先による統合、埋め込み認証情報の無視は行いません。クエリやフラグメントが違えば、ブラウザのネットワーク応答が共通でも別エントリです。読み込みはanonymous CORS固定で、画像ごとの設定はありません。将来設定を追加する場合は同一性に影響する設定もキーに含めます。data/blob URLも利用可能ですが、利用中のblob URLをゲーム側でrevokeしないでください。
+
+baseURIや認証状態が変わっても、変更されていないsourceを自動的に再取得しません。別sourceの指定や除去・再取得で明示的に扱います。同一オリジンのcookieはブラウザのanonymous CORSの規則に従います。
+
+新画像の保留参照と、表示中の旧画像の確定参照は別々に保持します。新画像の準備成功までは旧画像を解放しません。片方のVisualが要求を取り消しても、他方が待つロードは継続します。最後の利用者がいなくなった場合だけ中断し、中断できない処理の遅延結果も新しい要求へ混入させず解放します。解放は二重に呼ばれても安全です。
+
+失敗したキャッシュエントリは除去し、現在の各待機者へ失敗を伝えます。Visual自身の失敗状態と旧表示は維持し、自動再試行しません。新しい利用者は同じURLを明示的に要求できますが、成功しても別Visualの失敗は勝手に解除しません。失敗した各sourceを置換・除去して復旧してください。利用参照が0の画像は直ちに解放し、常駐・LRU・事前読み込みハンドルは用意していません。
+
+### 診断
+
+| 項目            | 意味                                                             |
+| --------------- | ---------------------------------------------------------------- |
+| presentations   | 準備中を含むScene表示の数                                        |
+| visuals         | 初回画像待機・非表示を含むVisual数                               |
+| textures        | 所有中の画像Texture数。現行バックエンドではTextureSourceも各1つ  |
+| imageReferences | 保留要求と確定表示の利用参照数。画像置換中は1体で2参照の場合あり |
+| imageEntries    | 利用者を持つ一意のロード中・準備済みキー数                       |
+| pendingImages   | 利用者を持つ一意のロード数。待機Visual数とは異なる               |
+
+通常のGame終了後はすべて0です。中断不能な外部処理が遅れて完了する場合、その結果を受け取って解放します。JSカウンターはブラウザ・GPUの物理メモリやキャッシュを測るものではありません。共有Mapの参照は画像要求の変更時だけ、診断の走査も診断取得時だけに行います。固定したPixiのCanvas2D経路ではTextureと色ごとの着色済みCanvasを追加保持することがあり、共有元画像1つがすべての経路で物理割り当て1つになるとは限りません。
+
+第3段階の画像を使う実ゲームでは、大量生成・個別被弾色・画像の遅延や失敗・Scene遷移・連続再開始を実機でも検証する方針です。Sprite Sheetや事前読み込みは、この利用参照の境界に追加できる余地を残し、今回は実装しません。[英語ガイドの検証・測定記録](../en/rendering.html)も参照してください。
+
+## 画像共有の測定結果
+
+第1段階7e288c7と共有実装88b6438を、Node 24.22.1・Chromium 156.0.8078.4・Linux・Intel Xeon Platinum 8573C、Vite開発サーバー、WebGL/SwiftShader、1000×800/DPR1・720×540キャンバス・32×32のSVGで比較しました。他のローカルテストやビルドを止め、各負荷2回のウォームアップ＋5回測定を、共有前後3組交互に実施しています。表は各組の中央値の中央値で、共有前→共有後です。
+
+| 負荷            | 準備時間ms   | ロード・Texture・TextureSource数 | 準備時のJSヒープ増加KiB | Scene破棄ms |
+| --------------- | ------------ | -------------------------------- | ----------------------- | ----------- |
+| 同じ画像100体   | 7.3 → 3.4    | 100 → 1                          | 411.5 → 342.8           | 1.7 → 1.3   |
+| 同じ画像1,000体 | 100.4 → 18.8 | 1000 → 1                         | 3711.3 → 2856.4         | 11.8 → 7.1  |
+| 異なる画像100体 | 8.6 → 10.1   | 100 → 100                        | 381.9 → 466.0           | 1.9 → 3.1   |
+
+1,000体でもSpriteは個別に1,000個です。利用中の2画像間の20回切り替えは11.5→3.1ms、追加ロード20→0回。同じ画像を使う100体の次Scene準備は5.8→1.6ms、追加ロード100→0回でした。Scene重複期間は200参照・Texture/TextureSource各1つ、旧Scene破棄後は100参照・各1つを維持しています。各測定の最終カウンターは0です。
+
+異なる画像100体では、準備・破棄の時間やJSヒープが増えています。共有Map・URL解決・利用ハンドルには追加処理がありますが、実行回によって前後が逆転する項目もあり、差全体の原因を一つに断定しません。Renderer全体の終了にはソフトウェア描画のコンテキスト破棄も含まれ、同一画像100体の中央値は142.0→159.7ms、画像切り替え負荷では827.4→866.7msと大きく変動しています。Scene破棄とは別項目です。
+
+JSヒープ増加はActor生成前と準備・初回描画後のforced-GC performance.memoryの差です。モデル・ホスト・ツールの状態を含み、画像デコードやGPUの物理メモリは含みません。ロード数はエンジンのImage/Texture生成要求数で、HTTP回数ではありません。初回描画のCPU送出と準備を測定しており、定常FPSや通常のGPU性能、メモリリークの不存在は保証しません。[英語ガイド](../en/rendering.html)から全生データと再実行手順を参照できます。
+
+`npm run bench:images -- --out /tmp/images.json`で同じ負荷を実行できます。本番サイトのsmokeテストも、ビルド済みPrism Raid内へ100体を追加し、WebGL／Canvas2Dで色の独立・片方破棄後の画素・最終解放を確認します。大型画像ゲームは追加していません。
+
+ヘッドレスPrism Raidも別途単独で前後1組を測定し、60勝・172,796ステップ・約1,439.97秒分の進行・撃破1,440・生成した弾と敵18,774が一致しました。実時間は4.920→4.717秒でしたが、単一組から性能向上とは判断しません。Core・入力・Random・Replay・固定ステップの実装は変更していません。Replayデモの2,707ステップ・勝利・スコア3,420もJSON往復後に一致しています。
+
 ## 旧APIからの移行
 
 - `shape: Shape.Triangle` → `source: { kind: "shape", shape: Shape.Triangle }`
@@ -90,7 +169,7 @@ game.dispose();
 - 寸法・色・画像のためのComponent差し替え → 同じRenderableのプロパティ変更
 - 画像への明示的なcolor指定は着色になるため、以前の無着色結果には白を指定
 
-図形と画像の暗黙の優先順位はありません。Signal Runは被弾色と透明度を同じRenderableへ反映し、Blockfallは盤面セルのActorを維持して色を更新します。画像共有、TextureRef、Material、Sprite Sheet、アニメーションは未実装です。
+図形と画像の暗黙の優先順位はありません。Signal Runは被弾色と透明度を同じRenderableへ反映し、Blockfallは盤面セルのActorを維持して色を更新します。画像はRenderer単位で自動共有します。公開TextureRef、Material、Sprite Sheet、アニメーションは導入していません。第1段階のsource APIは変更せず、通常のゲームコードの移行は不要です。診断にはimageReferences/imageEntriesを追加し、pendingImagesはVisual数ではなく共有ロード数を数えます。
 
 ## 三角形
 
@@ -126,4 +205,4 @@ scene.onUpdate((seconds) => follow.update(player, seconds));
 
 ## リソースと失敗
 
-Scene/Actor破棄で対応する表示・保留画像を解放します。`Game.dispose()`でフレーム、入力、ResizeObserver、DOM、rendererを破棄します。画像準備が失敗したScene遷移は候補を破棄して現在のSceneを維持します。実行中の画像失敗はwhenReadyのrejectと診断で扱い、旧表示とSceneを維持します。既知の失敗は無関係な未完了画像を待ちません。各Visualが画像を個別所有し、破棄でロードも取り消します。遅延完了した結果は解放します。背景の更新・描画エラーはWeb Gameを停止・破棄します。WebGLコンテキスト喪失からの自動復旧は未検証・未対応です。
+Scene/Actor破棄で対応する表示・保留画像を解放します。`Game.dispose()`でフレーム、入力、ResizeObserver、DOM、rendererを破棄します。画像準備が失敗したScene遷移は候補を破棄して現在のSceneを維持します。実行中の画像失敗はwhenReadyのrejectと診断で扱い、旧表示とSceneを維持します。既知の失敗は無関係な未完了画像を待ちません。各Visualは利用参照を所有し、破棄では自分の参照だけを解放します。他の利用者がいるロードやTextureは維持し、最後の利用参照がなくなった時だけロード中断・TextureとTextureSourceの破棄を行います。遅延完了した結果は解放します。背景の更新・描画エラーはWeb Gameを停止・破棄します。WebGLコンテキスト喪失からの自動復旧は未検証・未対応です。

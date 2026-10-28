@@ -287,7 +287,7 @@ Theme.Dark/Light and partial tokens override typography/colors. Packaged fonts u
 
 ## Renderer ports, diagnostics and migration
 
-RendererPort exposes init(), prepare(scene), resize(cssWidth, cssHeight, dpr) and dispose(). PreparedScene exposes render(view), optional ready() and dispose(). Rendering reads live state; custom adapters must handle cancellation, structural changes and idempotent cleanup. PixiRenderer.diagnostics returns current presentations/visuals/pendingImages counts on demand.
+RendererPort exposes init(), prepare(scene), resize(cssWidth, cssHeight, dpr) and dispose(). PreparedScene exposes render(view), optional ready() and dispose(). Rendering reads live state; custom adapters must handle cancellation, structural changes and idempotent cleanup. PixiRenderer shares images by resolved URL within the Renderer; Visuals retain independent appearance and pending/committed leases. Final release aborts loading or destroys the shared Texture/TextureSource. Diagnostics returns presentations, visuals, textures, imageReferences, imageEntries and pendingImages on demand; pendingImages counts unique underlying loads, not waiting Visuals. See [sharing, URL identity and readiness](rendering.md).
 
 EngineError carries code/message/details and toJSON. Ownership/state diagnostics include ACTOR_OWNERSHIP, DUPLICATE_ACTOR, COMPONENT_OWNERSHIP, COMPONENT_MISSING, COMPONENT_DUPLICATE, COMPONENT_CYCLE, COMPONENT_REQUIRED, COMPONENT_PHASE, SCENE_STATE, SCENE_OWNERSHIP, TRANSITION_REENTRANT, STEP_REENTRANT and EVENT_REENTRANT. Disposed scopes reject new resource acquisition. User errors remain ordinary Errors/AggregateErrors. See architecture for commit-time error semantics.
 

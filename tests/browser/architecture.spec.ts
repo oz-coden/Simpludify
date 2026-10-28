@@ -72,8 +72,22 @@ test("reconciles dynamic render components and releases removed/pending visuals"
     visible: 1,
     removed: 0,
     image: 1,
-    after: { presentations: 1, visuals: 0, textures: 0, pendingImages: 0 },
-    disposed: { presentations: 0, visuals: 0, textures: 0, pendingImages: 0 },
+    after: {
+      presentations: 1,
+      visuals: 0,
+      textures: 0,
+      imageReferences: 0,
+      imageEntries: 0,
+      pendingImages: 0,
+    },
+    disposed: {
+      presentations: 0,
+      visuals: 0,
+      textures: 0,
+      imageReferences: 0,
+      imageEntries: 0,
+      pendingImages: 0,
+    },
     errors: 0,
   });
 });

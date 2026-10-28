@@ -210,7 +210,14 @@ test("loses through normal no-input play and releases all scene and renderer res
     sources: 0,
     units: 0,
     world: true,
-    render: { presentations: 0, visuals: 0, textures: 0, pendingImages: 0 },
+    render: {
+      presentations: 0,
+      visuals: 0,
+      textures: 0,
+      imageReferences: 0,
+      imageEntries: 0,
+      pendingImages: 0,
+    },
     canvases: 0,
   });
 });
@@ -242,6 +249,8 @@ test("restarts repeatedly without accumulating input sources or presentations", 
       presentations: 1,
       visuals: 43,
       textures: 0,
+      imageReferences: 0,
+      imageEntries: 0,
       pendingImages: 0,
     });
   }
@@ -298,6 +307,8 @@ test("runs Triangle combat and a complete mission on the Canvas2D fallback", asy
     presentations: 0,
     visuals: 0,
     textures: 0,
+    imageReferences: 0,
+    imageEntries: 0,
     pendingImages: 0,
   });
 });

@@ -193,6 +193,8 @@ for (const fallback of [false, true]) {
         presentations: 0,
         visuals: 0,
         textures: 0,
+        imageReferences: 0,
+        imageEntries: 0,
         pendingImages: 0,
       });
     });
@@ -293,6 +295,8 @@ for (const fallback of [false, true]) {
         presentations: 0,
         visuals: 0,
         textures: 0,
+        imageReferences: 0,
+        imageEntries: 0,
         pendingImages: 0,
       });
     });
@@ -368,6 +372,8 @@ for (const fallback of [false, true]) {
         presentations: 0,
         visuals: 0,
         textures: 0,
+        imageReferences: 0,
+        imageEntries: 0,
         pendingImages: 0,
       });
     });
