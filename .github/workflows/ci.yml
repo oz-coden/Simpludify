@@ -33,3 +33,31 @@ jobs:
             dist/
             test-results/
           if-no-files-found: ignore
+  site-bases:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - base: /Simpludify/
+            artifact: project
+          - base: /
+            artifact: root
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium --only-shell
+      - run: npm run site:build -- --base "${{ matrix.base }}"
+      - run: npm run site:check
+      - run: npm run test:site
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: site-validation-${{ matrix.artifact }}
+          path: test-results/site/
+          if-no-files-found: ignore
