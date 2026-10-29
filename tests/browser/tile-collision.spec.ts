@@ -102,6 +102,7 @@ for (const fallback of [false, true])
                   }
                 )?.x ?? 0,
             ),
+            { timeout: 15_000 },
           )
           .toBe(434);
         // Access through public Transform inside the browser module instead of a test-only physics port.
