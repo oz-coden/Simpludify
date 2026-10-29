@@ -32,31 +32,37 @@ const mount = (
 };
 afterEach(() => vi.unstubAllGlobals());
 
-it("constructs, lays out, operates and disposes a complete portable screen without browser globals", () => {
-  vi.stubGlobal("AbortController", undefined);
-  vi.stubGlobal("document", undefined);
-  vi.stubGlobal("window", undefined);
-  const screen = createPortableScreen();
-  const f = mount(screen.root, 390, 600);
-  expect(screen.list.maxScrollY).toBeGreaterThan(0);
-  const entry = screen.list.children[0];
-  expect(entry).toBeDefined();
-  entry?.activate();
-  expect(screen.status.text).toBe("Selected 1");
-  screen.add();
-  f.layout();
-  expect(screen.list.children).toHaveLength(13);
-  screen.controls.children[1]?.activate();
-  f.layout();
-  expect(screen.list.children[0]?.text).toBe("Entry 13");
-  screen.controls.children[2]?.activate();
-  f.layout();
-  expect(entry?.disposed).toBe(true);
-  expect(screen.list.children).toHaveLength(12);
-  f.owner.dispose();
-  expect(screen.root.disposed).toBe(true);
-  expect(f.ui.diagnostics.subscriptions).toBe(0);
-});
+it.each([
+  { width: 390, height: 600 },
+  { width: 1440, height: 900 },
+])(
+  "constructs and operates a portable screen without browser globals ($width x $height)",
+  ({ width, height }) => {
+    vi.stubGlobal("AbortController", undefined);
+    vi.stubGlobal("document", undefined);
+    vi.stubGlobal("window", undefined);
+    const screen = createPortableScreen();
+    const f = mount(screen.root, width, height);
+    expect(screen.list.maxScrollY).toBeGreaterThan(0);
+    const entry = screen.list.children[0];
+    expect(entry).toBeDefined();
+    entry?.activate();
+    expect(screen.status.text).toBe("Selected 1");
+    screen.add();
+    f.layout();
+    expect(screen.list.children).toHaveLength(13);
+    screen.controls.children[1]?.activate();
+    f.layout();
+    expect(screen.list.children[0]?.text).toBe("Entry 13");
+    screen.controls.children[2]?.activate();
+    f.layout();
+    expect(entry?.disposed).toBe(true);
+    expect(screen.list.children).toHaveLength(12);
+    f.owner.dispose();
+    expect(screen.root.disposed).toBe(true);
+    expect(f.ui.diagnostics.subscriptions).toBe(0);
+  },
+);
 it("scrolls unshrunk content, clips paint/hits, clamps after removal and skips unchanged layouts", () => {
   const buttons = Array.from({ length: 5 }, (_, i) =>
     CanvasButton(String(i), () => {}, { height: 40, padding: 0 }),

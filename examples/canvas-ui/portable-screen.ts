@@ -17,6 +17,7 @@ export function createPortableScreen(
   const list = CanvasScroll([], {
     grow: 1,
     minHeight: 100,
+    maxHeight: 360,
     padding: 8,
     gap: 6,
     background: 0x192e3c,

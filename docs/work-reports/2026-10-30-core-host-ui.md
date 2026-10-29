@@ -94,3 +94,9 @@ Implementation has not started. Resume from checkpoint branch, inspect this ledg
 - A final review identified a potential Tab trap: an interactive node permanently hidden by a static clip was still a logical traversal candidate. Core now projects possible ancestor scroll reveal before testing clipping, excludes permanently unreachable and pointer-transparent controls, and retains offscreen scroll entries. Added a behavioral regression for this distinction.
 - `npm run check`: passed. Focus/portable suite: 9/9; full suite: 45 files / 569 tests passed.
 - The preceding source revision [f6bc1ce](https://github.com/oz-coden/Simpludify/commit/f6bc1ce62b70a9330b33ffa1ecc700b8becb64e7) passed quality, production and both site-base jobs in [40934715453](https://github.com/oz-coden/Simpludify/actions/runs/40934715453). Browser results were still pending when the focus correction checkpoint was prepared; final source CI must be checked separately.
+
+## Sample viewport checkpoint
+
+- The portable lab now caps its scroll viewport at 360 UI units so large desktop screens also exercise overflow; without a bound, all 12 entries fit on a tall desktop Host. The complete no-browser-globals screen fixture now runs at both 390x600 and 1440x900.
+- `npm test`: 45 files / 570 tests passed. `npm run check`: passed. Core source remains DOM/Node-free; no further feature work is planned before collecting final CI.
+- Focus correction source: [c04df92](https://github.com/oz-coden/Simpludify/commit/c04df927c7527c18537bbdacbd1b477e71fdf524).
