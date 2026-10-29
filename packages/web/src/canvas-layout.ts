@@ -20,12 +20,14 @@ const size = (v: UISize | undefined, parent: number): number | undefined =>
         typeof v === "number" ? v : (Number(v.slice(0, -1)) / 100) * parent,
       );
 // A conflicting minimum wins, including percentage constraints after parent resolution.
+const unbounded = Object.freeze({ min: 0, max: Infinity });
 const limits = (node: CanvasNode, axis: "Width" | "Height", parent: number) => {
-  const min = size(node.style[`min${axis}`], parent) ?? 0;
-  return {
-    min,
-    max: Math.max(min, size(node.style[`max${axis}`], parent) ?? Infinity),
-  };
+  const s = node.style;
+  const minimum = axis === "Width" ? s.minWidth : s.minHeight;
+  const maximum = axis === "Width" ? s.maxWidth : s.maxHeight;
+  if (minimum === undefined && maximum === undefined) return unbounded;
+  const min = size(minimum, parent) ?? 0;
+  return { min, max: Math.max(min, size(maximum, parent) ?? Infinity) };
 };
 const clamp = (value: number, range: { min: number; max: number }) =>
   finite(Math.max(range.min, Math.min(range.max, value)));
@@ -92,6 +94,7 @@ export function layoutCanvas(
       const key = axis === "Width" ? "width" : "height";
       const min = s[`min${axis}`],
         max = s[`max${axis}`];
+      if (min === undefined && max === undefined) continue;
       result[key] = clamp(result[key], {
         min: typeof min === "number" ? min : 0,
         max: Math.max(

@@ -52,6 +52,11 @@ try {
         [
           "width",
           "height",
+          "minWidth",
+          "maxWidth",
+          "minHeight",
+          "maxHeight",
+          "textWrap",
           "grow",
           "shrink",
           "gap",

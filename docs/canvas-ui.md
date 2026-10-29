@@ -77,24 +77,61 @@ Canvas UI requires the default `PixiRenderer` (including its Canvas2D fallback).
 
 UI coordinates are host CSS dimensions divided by `ui.scale` (default 1). The root fills that extent unless it has explicit dimensions. Camera, world logical resolution, world Fit bars, zoom and physical DPR do not change those units. Root `scale` and resize cause relayout. All dimensions include padding; no border width is deducted. `bounds` is a frozen, root-relative logical rectangle after the last layout. Query after `await run/goTo` or a rendered update; setters invalidate synchronously but layout is deferred until rendering or the next pointer hit-test flush.
 
-| Style                | Meaning / default                                                                                                                                 |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| direction            | `column`; Row/Column factories set the corresponding direction                                                                                    |
-| width, height        | nonnegative finite units, or percentage strings relative to the parent's content extent; omitted means intrinsic main size / stretched cross size |
-| padding, gap         | uniform nonnegative units; default 0                                                                                                              |
-| grow, shrink         | 0 and 1; free space proportional to grow, deficit proportional to shrink × basis; zero-sized items freeze during shrink redistribution            |
-| align, alignSelf     | cross-axis `start`, `center`, `end`, `stretch`; parent default stretch; optional child override                                                   |
-| justify              | main-axis `start`, `center`, `end`, `space-between`, `space-around`; default start                                                                |
-| wrap                 | explicit boolean, default false; greedy lines before flex distribution; line cross size is its largest item, line gap uses gap                    |
-| clip                 | rectangular clip for self and descendants; default false                                                                                          |
-| pointerEvents        | `children` (empty space passes through), `auto` (self blocks/receives), `none` (exclude subtree); buttons default auto                            |
-| background, color    | optional background and text RGB integers 0..0xffffff; text default 0xeff7f6                                                                      |
-| fontSize, fontFamily | positive units / CSS font family; default 18 / system-ui, sans-serif                                                                              |
-| radius               | nonnegative background corner radius, default 6; hit regions stay rectangular                                                                     |
+| Style                                    | Meaning / default                                                                                                                                          |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| direction                                | `column`; Row/Column factories set the corresponding direction                                                                                             |
+| width, height                            | nonnegative finite units, or percentage strings relative to the parent's content extent; omitted means intrinsic main size / stretched cross size          |
+| minWidth, maxWidth, minHeight, maxHeight | optional finite nonnegative units or percentages of parent content; clamp preferred size and participate in grow/shrink freezing; conflicting minimum wins |
+| textWrap                                 | true; wrap Label/Button/HoldButton text at allocated width minus padding; false preserves explicit lines only                                              |
+| padding, gap                             | uniform nonnegative units; default 0                                                                                                                       |
+| grow, shrink                             | 0 and 1; free space proportional to grow, deficit proportional to shrink × basis; zero-sized items freeze during shrink redistribution                     |
+| align, alignSelf                         | cross-axis `start`, `center`, `end`, `stretch`; parent default stretch; optional child override                                                            |
+| justify                                  | main-axis `start`, `center`, `end`, `space-between`, `space-around`; default start                                                                         |
+| wrap                                     | explicit boolean, default false; greedy lines before flex distribution; line cross size is its largest item, line gap uses gap                             |
+| clip                                     | rectangular clip for self and descendants; default false                                                                                                   |
+| pointerEvents                            | `children` (empty space passes through), `auto` (self blocks/receives), `none` (exclude subtree); buttons default auto                                     |
+| background, color                        | optional background and text RGB integers 0..0xffffff; text default 0xeff7f6                                                                               |
+| fontSize, fontFamily                     | positive units / CSS font family; default 18 / system-ui, sans-serif                                                                                       |
+| radius                                   | nonnegative background corner radius, default 6; hit regions stay rectangular                                                                              |
 
-Numeric/percentage sizes resolve before flexible distribution. Percentage values are ignored during intrinsic measurement (the child's content still contributes), then resolve against the allocated parent content box. Avoid cyclic intrinsic/percentage dependencies; use an explicit parent size for percentage children. The subset has no CSS min/max/basis, margins, order/reverse, align-content, absolute positioning, Grid or automatic text wrapping. Use explicit newlines; flex wraps **nodes**, not text. Wrapped rows can derive auto height from constrained width. Oversized children can overflow if shrink is zero or their content cannot fit; use `clip` deliberately. A maximum nesting depth of 64 is enforced during layout; all computed boxes must be finite.
+Numeric/percentage sizes resolve before flexible distribution. Percentage values are ignored during intrinsic measurement (the child's content still contributes), then resolve against the allocated parent content box. Avoid cyclic intrinsic/percentage dependencies; use an explicit parent size for percentage children. Min/max constrain border-box sizes before line selection and during flexible distribution. An item reaching a bound freezes and the remaining free space/deficit is redistributed using original bases. A conflicting minimum wins, including mixed absolute/percentage constraints resolved after resize. Zero is valid; negative, nonfinite and malformed dimensions reject with INVALID_UI. If minima cannot fit, overflow is retained rather than violating the constraints. The subset has no CSS basis, margins, order/reverse, align-content, absolute positioning or Grid. Flex `wrap` wraps **nodes**; `textWrap` independently wraps text and defaults to true. Nested rows and columns derive auto height from text remeasured after final horizontal allocation. Intrinsic text with no explicit width fits the available width even with `align: "start"`. Explicit heights and maxHeight can clip text; leave height omitted for content-driven buttons. Oversized children can overflow if shrink is zero or their content cannot fit; use `clip` deliberately. A maximum nesting depth of 64 is enforced during layout; all computed boxes must be finite.
 
 The dirty root is laid out only after geometry/content/visibility/scale/size/font property changes. Hover/press/focus changes only paint. One changed leaf can affect sibling positions and percentages, so a dirty layout traverses the root; there is no claim of subtree-incremental Flex. Load custom browser fonts before creating the tree (for example await `document.fonts.load` in Scene setup); automatic web-font cache invalidation is not provided. Text metrics are cached, native labels update only on changes, and unchanged frames skip UI layout **and** visual tree synchronization. Explicit clipping uses Pixi masks; ordinary full-host UI does not allocate a full-screen mask per node. [Measurements](canvas-ui-performance.md) distinguish model, routing, synchronization and GPU rendering.
+
+## Responsive text and size constraints
+
+```ts verify
+import {
+  CanvasButton,
+  CanvasColumn,
+  CanvasLabel,
+  CanvasPanel,
+} from "@simpludify/web";
+const panel = CanvasPanel(
+  [
+    CanvasColumn(
+      [
+        CanvasLabel("Status / 現在の状態\n明示的な改行も保持します。"),
+        CanvasButton("Continue / 次のステージへ進む", () => {}, {
+          width: "100%",
+          minWidth: 120,
+          maxWidth: 360,
+          minHeight: 48,
+        }),
+      ],
+      { gap: 12 },
+    ),
+  ],
+  { width: "80%", minWidth: 200, maxWidth: 600, minHeight: 80, padding: 16 },
+);
+console.log(panel);
+```
+
+Sizes include padding. Percentages use the parent's content box (root percentages use the host UI extent); minima can deliberately exceed it. Constraints apply on both axes, stretch and each wrap line. Percentage constraints do not contribute a circular intrinsic size; supply a definite parent extent when using percentages on that axis.
+
+Text preserves explicit newlines (CRLF/CR normalize to LF), empty lines and whitespace within an unwrapped line. Soft-wrap boundary spaces are omitted. `Intl.Segmenter` word/grapheme boundaries preserve emoji ZWJ sequences, skin tones, flags and combining marks. English prefers word boundaries; long words/URLs fall back to grapheme boundaries. Japanese can break between characters, with common opening/closing brackets, punctuation and small kana kept off inappropriate line edges when a fitting alternative exists. This is best-effort UI line breaking, not full UAX #14/JIS typesetting, hyphenation, bidi layout or locale-specific typography. A single grapheme or an impossible punctuation pair can exceed a very narrow content width; paint is clipped to the node's box in that case.
+
+Measurement uses complete substrings with the same Pixi font family/size and explicit line string as the rendered Text. Pixi's separate automatic wrapper stays disabled. Final width, padding, text, font, textWrap, constraints, UI scale and host size determine remeasurement. Each live text node keeps at most eight width-specific results; content/font changes replace that cache and Scene disposal clears it. Unchanged frames do no layout, measurement or visual sync. Paint-only changes reuse metrics. Fonts must finish loading before creating the tree; automatic invalidation after an external web-font load remains deferred.
 
 ## Pointer events and ownership
 

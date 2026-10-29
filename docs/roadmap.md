@@ -57,4 +57,8 @@ The finite Tilemap now supports copied ID policies, sparse cell overrides and de
 
 ## Canvas UI and Pointer input
 
-Implemented: Scene-owned Web Canvas nodes, Pixi screen presentation, explicit dirty Flex subset, fixed-owner multi-pointer routing, existing ActionSource integration, native keyboard button mirrors, and Canvas trail integration. Existing DOM UI and Core Action contracts remain. See [API and scope](canvas-ui.md), [validation](canvas-ui-implementation.md) and [measurements](canvas-ui-performance.md). Full CSS layout, text editing/document semantics, gamepad adapters, OS/device accessibility verification and hardware GPU profiling remain separate work.
+Implemented: Scene-owned Web Canvas nodes, Pixi screen presentation, dirty Flex with min/max freeze/reallocation and width-aware grapheme-safe text wrapping, fixed-owner multi-pointer routing, existing ActionSource integration, native keyboard button mirrors, and Canvas trail integration. Existing DOM UI and Core Action contracts remain. See [API and scope](canvas-ui.md), [validation](canvas-ui-implementation.md) and [measurements](canvas-ui-performance.md). Full CSS layout, text editing/document semantics, gamepad adapters, OS/device accessibility verification and hardware GPU profiling remain separate work.
+
+## Deferred Scene API proposals
+
+Consider a clearer `changeScene` name for factory-based navigation, directly constructed dynamic Scenes for generated levels, and suspend/resume or concurrent Scenes for modal menus and overlays that must preserve simulation state. These require explicit ownership/readiness/input contracts and are not part of Canvas UI integration. Large lists may eventually justify UI virtualization after game workloads establish the need; current layout and hit testing still visit visible model nodes.

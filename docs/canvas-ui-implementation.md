@@ -72,7 +72,7 @@ Thirty 100-button UI→empty round trips return all live UI Graphics/Text/Textur
 
 The matched CLI-default build adds 18329 gzip JS bytes (17.90KiB) and 45 gzip CSS bytes, summed across all emitted chunks, not initial transfer. The CLI summary preserves observed totals; the disconnected environment prevented copying its full /tmp asset manifest. The earlier complete esnext manifest remains labeled separately.
 
-Supported limits: maximum layout depth64; no full CSS Flex conformance, min/max/basis/margins/order/Grid/absolute positioning or automatic text wrapping. No UI virtualization, stationary-pointer hover synthesis, wheel/pressure/tilt, implicit Actor hit selection, full joystick, complete screen-reader/IME model or automatic custom-font cache invalidation. Load fonts before constructing the tree. Upgrade Pixi only after rerunning exact ownership/resource regressions.
+This ledger describes the original implementation checkpoint. [Finalization](canvas-ui-finalization.md) adds min/max, automatic text wrapping, new measurements and current integration gates. Supported remaining limits: maximum layout depth64; no full CSS Flex conformance, basis/margins/order/Grid/absolute positioning. No UI virtualization, stationary-pointer hover synthesis, wheel/pressure/tilt, implicit Actor hit selection, full joystick, complete screen-reader/IME model or automatic custom-font cache invalidation. Load fonts before constructing the tree. Upgrade Pixi only after rerunning exact ownership/resource regressions.
 
 ## Reproduction and integration gates
 

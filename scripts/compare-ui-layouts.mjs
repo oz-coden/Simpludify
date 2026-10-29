@@ -19,7 +19,7 @@ const temp = "/tmp/simpludify-layout-comparison";
 mkdirSync(temp, { recursive: true });
 const root = resolve(".");
 const entries = {
-  custom: `export {layoutCanvas} from ${JSON.stringify(`${root}/packages/web/src/canvas-layout.ts`)}; export * from ${JSON.stringify(`${root}/packages/web/src/canvas-node.ts`)}; export {CanvasUI} from ${JSON.stringify(`${root}/packages/web/src/canvas-ui.ts`)}; export {Scene} from ${JSON.stringify(`${root}/packages/core/src/index.ts`)};`,
+  custom: `export {wrapCanvasText} from ${JSON.stringify(`${root}/packages/web/src/canvas-text.ts`)}; export {layoutCanvas} from ${JSON.stringify(`${root}/packages/web/src/canvas-layout.ts`)}; export * from ${JSON.stringify(`${root}/packages/web/src/canvas-node.ts`)}; export {CanvasUI} from ${JSON.stringify(`${root}/packages/web/src/canvas-ui.ts`)}; export {Scene} from ${JSON.stringify(`${root}/packages/core/src/index.ts`)};`,
   yoga: `export {default as Yoga} from ${JSON.stringify(`${yogaPath}/dist/src/index.js`)};`,
 };
 const modules = {},
@@ -171,6 +171,44 @@ assert.deepEqual(
 );
 scene.dispose();
 yroot.freeRecursive();
+// External text measurement: both engines receive the same grapheme/word wrapper.
+const text = "日本語 English longword and 日本語。";
+const grapheme = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+const measureText = (value, width = Infinity) => {
+  const textWidth = (s) => [...grapheme.segment(s)].length * 10;
+  const wrapped = Number.isFinite(width)
+    ? C.wrapCanvasText(value, width, textWidth)
+    : value;
+  const lines = wrapped.split("\n");
+  return {
+    width: Math.max(...lines.map(textWidth)),
+    height: lines.length * 20,
+  };
+};
+const ts = new C.Scene("text"),
+  label = C.CanvasLabel(text, { maxWidth: 80, padding: 4, shrink: 0 });
+const tu = new C.CanvasUI(ts, C.CanvasColumn([label]));
+tu.layout(100, 300, (node, width) => measureText(node.text, width));
+const config = Yoga.Config.create();
+config.setPointScaleFactor(0);
+const yr = Yoga.Node.create(config),
+  yl = Yoga.Node.create(config);
+yr.setFlexDirection(Yoga.FLEX_DIRECTION_COLUMN);
+yr.setAlignItems(Yoga.ALIGN_STRETCH);
+yl.setMaxWidth(80);
+yl.setPadding(Yoga.EDGE_ALL, 4);
+yl.setFlexShrink(0);
+yl.setMeasureFunc((width, mode) =>
+  measureText(text, mode === Yoga.MEASURE_MODE_UNDEFINED ? Infinity : width),
+);
+yr.insertChild(yl, 0);
+yr.calculateLayout(100, 300, Yoga.DIRECTION_LTR);
+const textComparison = { custom: label.bounds, yoga: yl.getComputedLayout() };
+assert.equal(label.bounds.width, yl.getComputedWidth());
+assert.equal(label.bounds.height, yl.getComputedHeight());
+ts.dispose();
+yr.freeRecursive();
+config.free();
 const result = {
   revision: execFileSync("git", ["rev-parse", "HEAD"], {
     encoding: "utf8",
@@ -184,6 +222,7 @@ const result = {
   bundles,
   startup,
   cases,
+  textComparison,
 };
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, `${JSON.stringify(result, null, 2)}\n`);

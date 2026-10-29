@@ -49,6 +49,11 @@ game.scene("play", ({ actions, canvasUI, pointer }) => {
 const valid: CanvasStyle = {
   width: "100%",
   height: 50,
+  minWidth: 100,
+  maxWidth: "80%",
+  minHeight: 30,
+  maxHeight: 200,
+  textWrap: true,
   grow: 1,
   shrink: 0,
   align: "center",
@@ -65,3 +70,8 @@ const wrong: import("@simpludify/web").ActionReader<"axis2d"> = game
   .actions(A)
   .reader(A.Aim);
 console.log(wrong);
+
+// @ts-expect-error unsupported min/max unit
+CanvasLabel("invalid", { minWidth: "2rem" });
+// @ts-expect-error wrapping is a boolean
+CanvasLabel("invalid", { textWrap: "auto" });

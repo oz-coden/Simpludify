@@ -1,5 +1,7 @@
 # Canvas UI measurements
 
+These are historical measurements before min/max and automatic text wrapping. See [finalization](canvas-ui-finalization.md) for the current library decision, performance, teardown profile and CI evidence.
+
 Final measured runtime: `94065a6f5ccaa66d488df08c2e61e6d4f60b9307`. Node v24.22.1, linux, AMD EPYC 9V74 80-Core Processor; Chromium 156.0.8078.4, SwiftShader WebGL and forced Canvas2D. Browser type is asserted (1/4), not inferred from pixels alone. Runs were sequential, with no concurrent local tests/builds.
 
 Raw reports: [model](../benchmarks/canvas-ui/model.json), [browser](../benchmarks/canvas-ui/browser.json), [earlier esnext bundles](../benchmarks/canvas-ui/bundles.json), [CLI-default bundle totals](../benchmarks/canvas-ui/bundles-cli-summary.json). Time units below are milliseconds. Node timings are not browser FPS; synthetic dispatch timings are not physical-device input latency.

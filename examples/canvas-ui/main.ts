@@ -53,7 +53,12 @@ export let terrain:
 export let world: CollisionWorld | undefined;
 export const buttons: Record<string, CanvasNode> = {};
 const button = (name: string, click: () => void | Promise<void>) =>
-  (buttons[name] = CanvasButton(name, click, { fontSize: 16 }));
+  (buttons[name] = CanvasButton(name, click, {
+    fontSize: 16,
+    minWidth: 64,
+    maxWidth: 240,
+    minHeight: 44,
+  }));
 game.scene("title", ({ canvasUI, onActivate }) => {
   for (const name of Object.keys(buttons)) delete buttons[name];
   terrain = undefined;
@@ -62,12 +67,26 @@ game.scene("title", ({ canvasUI, onActivate }) => {
   canvasUI(
     CanvasColumn(
       [
-        CanvasLabel("Canvas trail", { fontSize: 30 }),
-        CanvasLabel(
-          "WASD or hold the arrows\nStone walls stop you; water is a Trigger.",
-          { fontSize: 14 },
+        CanvasColumn(
+          [
+            CanvasLabel("Canvas trail", { fontSize: 30 }),
+            CanvasLabel(
+              "WASD or hold the arrows. 日本語と English の説明は画面幅に合わせて折り返します。\nStone walls stop you; water is a Trigger.",
+              { fontSize: 14, maxWidth: "100%", shrink: 0 },
+            ),
+            button("Start", () => game.goTo("field")),
+          ],
+          {
+            width: "90%",
+            minWidth: 200,
+            maxWidth: 600,
+            minHeight: 200,
+            gap: 20,
+            align: "center",
+            justify: "center",
+            shrink: 0,
+          },
         ),
-        button("Start", () => game.goTo("field")),
       ],
       {
         padding: 16,
