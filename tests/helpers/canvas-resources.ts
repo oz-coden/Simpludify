@@ -5,6 +5,7 @@ export function inspectCanvasResources(renderer: PixiRenderer) {
     renderer as unknown as {
       app: {
         renderer: {
+          type: number;
           graphicsContext?: {
             _managedContexts: { items: Record<string, unknown> };
           };
@@ -24,6 +25,7 @@ export function inspectCanvasResources(renderer: PixiRenderer) {
     textures = r.canvasText?._activeTextures ?? {};
   const objects = r.renderPipes.graphics?._managedGraphics?.items ?? {};
   return {
+    rendererType: r.type,
     graphicsObjects: Object.values(objects).filter(Boolean).length,
     graphicsObjectSlots: Object.keys(objects).length,
     graphics: Object.values(graphics).filter(Boolean).length,

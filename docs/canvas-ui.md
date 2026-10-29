@@ -40,7 +40,7 @@ game.scene("play", ({ actions, canvasUI, add, pointer }) => {
 await game.run("title");
 ```
 
-Each independently releasable hold control should own its own `ActionSource`. Contributions combine with keyboard and other sources at the existing Engine input boundary, including short Button taps and normalized axes. No per-frame UI input update is required. `context.actions(definitions, bindings?)` supplies that staged Scene and the Game input; `game.actions` supplies the current Scene, including the default Scene before `run`. The explicit Core `new ActionController` remains the headless/multi-owner API. Do not use `game.actions` for a different staged Scene.
+Hold callbacks are synchronous (a returned Promise is diagnosed and its rejection is consumed); use the async CanvasButton callback for a cancellable one-shot task. Each independently releasable hold control should own its own `ActionSource`. Contributions combine with keyboard and other sources at the existing Engine input boundary, including short Button taps and normalized axes. No per-frame UI input update is required. `context.actions(definitions, bindings?)` supplies that staged Scene and the Game input; `game.actions` supplies the current Scene, including the default Scene before `run`. The explicit Core `new ActionController` remains the headless/multi-owner API. Do not use `game.actions` for a different staged Scene.
 
 ## Nodes and ownership
 

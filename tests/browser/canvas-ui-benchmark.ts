@@ -114,6 +114,7 @@ export async function browserWorkload(count: number) {
     throw Error("Synthetic benchmark did not hit UI for all pointer events");
   const afterPointer = ui.diagnostics,
     counts = renderer.canvasDiagnostics;
+  const rendererType = inspectCanvasResources(renderer).rendererType;
   const end = performance.now();
   game.dispose();
   const disposeMs = performance.now() - end;
@@ -134,6 +135,7 @@ export async function browserWorkload(count: number) {
     throw Error("Browser benchmark retained owners");
   return {
     count,
+    rendererType,
     width,
     height,
     pixelRatio: 1,

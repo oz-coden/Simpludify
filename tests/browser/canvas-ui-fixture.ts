@@ -133,6 +133,7 @@ export async function canvasFixture() {
   return {
     game,
     renderer,
+    rendererType: inspectCanvasResources(renderer).rendererType,
     A,
     errors,
     worldEvents,
@@ -252,4 +253,21 @@ export function addLast(f: Awaited<ReturnType<typeof canvasFixture>>) {
 export function addBetween(f: Awaited<ReturnType<typeof canvasFixture>>) {
   f.root.root.children[1]?.add(CanvasButton("Between", () => {}));
   f.step();
+}
+export function changingTextAndDpr(
+  f: Awaited<ReturnType<typeof canvasFixture>>,
+) {
+  for (let i = 0; i < 50; i++) {
+    f.label.setText(`Live HUD ${i}`);
+    f.step();
+  }
+  for (const dpr of [1, 3, 2]) {
+    f.renderer.resize(
+      f.game.element.clientWidth,
+      f.game.element.clientHeight,
+      dpr,
+    );
+    f.game.setViewport();
+  }
+  return inspectCanvasResources(f.renderer);
 }

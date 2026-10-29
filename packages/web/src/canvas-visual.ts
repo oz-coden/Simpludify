@@ -10,6 +10,7 @@ import { intersectUI } from "./canvas-layout";
 import type { CanvasNode, UIBounds } from "./canvas-node";
 import type { CanvasUI } from "./canvas-ui";
 import type { PointerRouting } from "./pointer-routing";
+
 export interface CanvasPresentation {
   update(width: number, height: number): void;
   focus(node: CanvasNode): void;
@@ -43,7 +44,11 @@ export class CanvasVisual implements CanvasPresentation {
     private readonly ui: CanvasUI,
     private readonly host: HTMLElement,
     private readonly routing: PointerRouting,
-    private readonly releaseGraphics: (graphics: Graphics) => void,
+    private readonly resources: {
+      graphics(graphics: Graphics, context: number | undefined): void;
+      text(text: Text, key: string | undefined): void;
+      changedText(key: string): void;
+    },
   ) {
     this.display.eventMode = "none";
     this.display.zIndex = 1;
@@ -81,6 +86,11 @@ export class CanvasVisual implements CanvasPresentation {
     this.metrics.set(node, result);
     return result;
   };
+  beforeResolutionChange(): void {
+    for (const entry of this.entries.values())
+      if (entry.text && !entry.text.destroyed)
+        this.resources.changedText(entry.text.styleKey);
+  }
   focus(node: CanvasNode): void {
     if (node.available)
       this.entries.get(node)?.button?.focus({ preventScroll: true });
@@ -282,13 +292,17 @@ export class CanvasVisual implements CanvasPresentation {
       }
       entry.display.alpha = enabled ? 1 : 0.45;
       if (entry.text) {
-        entry.text.text = node.text;
+        if (entry.text.text !== node.text) {
+          this.resources.changedText(entry.text.styleKey);
+          entry.text.text = node.text;
+        }
         const textStyleKey = JSON.stringify([
           s.fontFamily,
           s.fontSize,
           s.color,
         ]);
         if (entry.textStyleKey !== textStyleKey) {
+          this.resources.changedText(entry.text.styleKey);
           entry.textStyleKey = textStyleKey;
           entry.text.style = {
             fontFamily: s.fontFamily,
@@ -322,6 +336,10 @@ export class CanvasVisual implements CanvasPresentation {
     }
   }
   private releaseEntry(entry: Entry): void {
+    const backgroundContext = entry.background.context?.uid,
+      maskContext = entry.mask.context?.uid;
+    const textKey =
+      entry.text && !entry.text.destroyed ? entry.text.styleKey : undefined;
     cleanupAll(
       [
         () => entry.abort.abort(),
@@ -332,8 +350,11 @@ export class CanvasVisual implements CanvasPresentation {
         () => entry.text?.destroy({ style: true }),
         () => entry.display.destroy({ children: true }),
         () => entry.mask.destroy({ context: true }),
-        () => this.releaseGraphics(entry.background),
-        () => this.releaseGraphics(entry.mask),
+        () => this.resources.graphics(entry.background, backgroundContext),
+        () => this.resources.graphics(entry.mask, maskContext),
+        () => {
+          if (entry.text) this.resources.text(entry.text, textKey);
+        },
       ],
       "Canvas visual entry cleanup failed",
     );

@@ -76,6 +76,9 @@ try {
         async ({ url, count }) => (await import(url)).browserWorkload(count),
         { url, count },
       );
+      assert.equal(result.rendererType, fallback ? 4 : 1);
+      assert.equal(result.idleExtraLayouts, 0);
+      assert.equal(result.idleExtraSyncs, 0);
       workloads.push({ renderer: fallback ? "Canvas2D" : "WebGL", ...result });
       console.log(
         JSON.stringify({
@@ -105,6 +108,8 @@ try {
       assert.equal(released.pixi.graphicsObjects, baseline.graphicsObjects);
       assert.equal(released.pixi.texts, 0);
       assert.equal(released.pixi.textures, 0);
+      assert.equal(released.pixi.textSlots, 0);
+      assert.equal(released.pixi.textureSlots, 0);
       assert.equal(released.pixi.graphics, baseline.graphics);
       if ((i + 1) % 5 === 0) {
         await client.send("HeapProfiler.collectGarbage");

@@ -219,3 +219,15 @@ it("paint-only style changes do not run Flex or text measurement", () => {
   b.setStyle({ fontSize: 20 });
   expect(ui.layout(300, 200, metrics)).toBe(true);
 });
+it("diagnoses async hold callbacks without allowing an unhandled rejection", async () => {
+  const { CanvasHoldButton } = await import(
+    "../../packages/web/src/canvas-node"
+  );
+  const b = CanvasHoldButton("async", async () => {
+    throw Error("expected async hold");
+  });
+  expect(() => b.setHeld(true)).toThrow("synchronous");
+  await Promise.resolve();
+  expect(() => b.dispose()).toThrow();
+  expect(b.disposed).toBe(true);
+});

@@ -16,6 +16,11 @@ import { Application, Container, Graphics, Sprite, Texture } from "pixi.js";
 import type { CanvasUI } from "./canvas-ui";
 
 import { type CanvasPresentation, CanvasVisual } from "./canvas-visual";
+import {
+  pruneUITextKeys,
+  releaseUIGraphics,
+  releaseUIText,
+} from "./pixi-ui-cleanup";
 import type { PointerRouting } from "./pointer-routing";
 import {
   type ImageLease,
@@ -50,6 +55,7 @@ interface Visual {
 }
 export class PixiRenderer implements RendererPort {
   private readonly app = new Application();
+  private readonly pendingUITextKeys = new Set<string>();
   private readonly canvasPresentations = new Set<CanvasVisual>();
   get canvasDiagnostics() {
     let nodes = 0,
@@ -74,16 +80,11 @@ export class PixiRenderer implements RendererPort {
   prepareCanvasUI(ui: CanvasUI, routing: PointerRouting): CanvasPresentation {
     if (!this.ready || this.dead)
       throw new EngineError("RENDERER_NOT_READY", "Renderer is not available");
-    const visual = new CanvasVisual(ui, this.host, routing, (graphics) => {
-      // Pixi8.22 CanvasGraphicsPipe registers a renderable without GPU data;
-      // GCManagedHash.remove then returns early on unload. Drop exactly our
-      // destroyed Graphics, rather than retaining it until Pixi's timed GC.
-      const pipe = this.app.renderer.renderPipes.graphics as unknown as {
-        _managedGraphics?: { items: Record<number, unknown> };
-      };
-      const items = pipe._managedGraphics?.items;
-      if (graphics.destroyed && items?.[graphics.uid] === graphics)
-        delete items[graphics.uid];
+    const visual = new CanvasVisual(ui, this.host, routing, {
+      graphics: (graphics, context) =>
+        releaseUIGraphics(this.app.renderer, graphics, context),
+      text: (text, key) => releaseUIText(this.app.renderer, text, key),
+      changedText: (key) => this.pendingUITextKeys.add(key),
     });
     this.canvasPresentations.add(visual);
     let disposed = false;
@@ -704,6 +705,8 @@ export class PixiRenderer implements RendererPort {
           depthDirty = false;
         }
         this.app.render();
+        if (this.pendingUITextKeys.size)
+          pruneUITextKeys(this.app.renderer, this.pendingUITextKeys);
       },
       dispose: () => {
         if (disposed) return;
@@ -742,6 +745,9 @@ export class PixiRenderer implements RendererPort {
   }
   resize(width: number, height: number, devicePixelRatio: number): void {
     if (!this.ready || this.dead) return;
+    if (this.app.renderer.resolution !== devicePixelRatio)
+      for (const visual of this.canvasPresentations)
+        visual.beforeResolutionChange();
     this.app.renderer.resolution = devicePixelRatio;
     this.app.renderer.resize(width, height);
   }
@@ -763,6 +769,7 @@ export class PixiRenderer implements RendererPort {
           this.canvasPresentations.delete(p);
           p.dispose();
         }),
+        () => this.pendingUITextKeys.clear(),
         () => this.images.dispose(),
         () => this.destroyApp(),
       ],

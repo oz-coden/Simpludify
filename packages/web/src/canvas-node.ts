@@ -325,7 +325,19 @@ export class CanvasNode implements LifetimeOwner {
     if (value === this.held) return;
     this.held = value;
     this.changed();
-    this.hold?.(value);
+    const result: unknown = this.hold?.(value);
+    if (
+      result &&
+      (typeof result === "object" || typeof result === "function") &&
+      "then" in result &&
+      typeof result.then === "function"
+    ) {
+      void Promise.resolve(result).catch(() => {});
+      throw new EngineError(
+        "UI_ASYNC_HOLD",
+        "Hold handlers must be synchronous; own asynchronous work separately",
+      );
+    }
   }
   /** @internal Async callbacks are cancellable and disable this button until settled. */
   activate(): void {

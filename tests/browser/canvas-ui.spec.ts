@@ -53,6 +53,9 @@ for (const fallback of [false, true])
       page,
     }) => {
       await boot(page);
+      expect(await page.evaluate(() => window.canvasProbe.rendererType)).toBe(
+        fallback ? 4 : 1,
+      );
       const r = await page.evaluate(() => {
         const f = window.canvasProbe,
           b = f.hold.bounds;
@@ -454,6 +457,8 @@ for (const fallback of [false, true])
       expect(r.active.texts).toBe(3);
       expect(r.empty.texts).toBe(1);
       expect(r.empty.textures).toBe(1);
+      expect(r.empty.textSlots).toBe(1);
+      expect(r.empty.textureSlots).toBe(1);
       expect(r.empty.graphics).toBeLessThanOrEqual(2);
       // WebGL also owns the current world clip; Canvas2D has just the Return background.
       expect(r.empty.graphicsObjects).toBeLessThanOrEqual(2);
@@ -493,6 +498,20 @@ for (const fallback of [false, true])
       await expect(
         page.getByRole("button", { name: "Between", exact: true }),
       ).toBeFocused();
+    });
+    test("drops unused text keys after live HUD changes and DPR changes", async ({
+      page,
+    }) => {
+      await boot(page);
+      const r = await page.evaluate(
+        async (url) =>
+          (await import(url)).changingTextAndDpr(window.canvasProbe),
+        url,
+      );
+      expect(r.texts).toBe(3);
+      expect(r.textSlots).toBe(3);
+      expect(r.textures).toBe(3);
+      expect(r.textureSlots).toBe(3);
     });
     test("actual integrated Canvas trail starts, moves into collision, pauses and recreates Scenes", async ({
       page,
