@@ -2,11 +2,13 @@
 
 [公式ドキュメント・サンプル](https://oz-coden.github.io/Simpludify/) · [日本語ガイドのソース](site/ja/index.md) · [English API](docs/api.md)
 
-TypeScriptのコードで2Dゲームを合理的につくる実験的なエンジンです。理解しやすく、一貫性があり、保守しやすいAPIを優先します。公開npm SDKではなく、ソースワークスペースを取得して利用します。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できる9つのサンプルを公式サイトにまとめています。
+TypeScriptのコードで2Dゲームやインタラクティブコンテンツをつくる、軽量な実験的エンジンです。理解しやすく、一貫性があり、保守しやすいAPIを優先します。公開npm SDKではなく、ソースワークスペースを取得して利用します。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できる9つのサンプルを公式サイトにまとめています。
 
 A code-first TypeScript 2D game engine. Create a visible character, responsive UI, and scene navigation using ordinary code and browser tooling.
 
-**Status: experimental Web engine with a composition-based Core.** The API can change before a stable release. Windows/Electron packaging is pending. No npm package or release is published.
+[Core / Hostの責務と移植性](docs/host-boundary.md) · [作業報告・検証結果](docs/work-reports/README.md)
+
+**Status: experimental Web engine with a composition-based Core.** The API can change before a stable release. Electron/Tauri/Android packaging is pending. No npm package or release is published.
 
 ## Quick start
 
@@ -101,6 +103,8 @@ npm run dev -- --example tilemap
 ```sh
 npm run dev -- --example canvas-ui
 ```
+
+The **UI list lab** in Canvas trail builds a scrollable dynamic list entirely from Core APIs; it is shared with headless tests.
 
 [Canvas trail](examples/canvas-ui/README.md) combines Action keyboard/touch input, Canvas title/HUD/buttons, a bounded Flex layout, SpriteAnimation, Tilemap collision, Pause and Scene recreation. [Canvas UI contracts](docs/canvas-ui.md) explain screen coordinates, fixed pointer ownership, native keyboard mirrors and how the existing DOM UI remains available.
 

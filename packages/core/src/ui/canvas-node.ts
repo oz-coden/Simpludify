@@ -43,6 +43,8 @@ export interface CanvasStyle {
   justify?: UIJustify;
   wrap?: boolean;
   clip?: boolean;
+  /** Preserve overflowing content on the selected axes; always clips descendants. */
+  scroll?: "vertical" | "horizontal" | "both";
   /** auto blocks world input, children permits empty-space pass-through, none excludes subtree. */
   pointerEvents?: "auto" | "children" | "none";
   background?: number;
@@ -82,7 +84,8 @@ type OptionalStyle =
   | "minHeight"
   | "maxHeight"
   | "background"
-  | "alignSelf";
+  | "alignSelf"
+  | "scroll";
 export type ResolvedCanvasStyle = Readonly<
   Required<Omit<CanvasStyle, OptionalStyle>> & Pick<CanvasStyle, OptionalStyle>
 >;
@@ -98,6 +101,7 @@ function checkedStyle(value: CanvasStyle): ResolvedCanvasStyle {
     "maxHeight",
     "background",
     "alignSelf",
+    "scroll",
   ]);
   for (const [key, v] of Object.entries(result)) {
     if (!fields.has(key) || v === undefined)
@@ -152,6 +156,7 @@ function checkedStyle(value: CanvasStyle): ResolvedCanvasStyle {
         throw new EngineError("INVALID_UI", `Invalid UI ${key}`);
     } else {
       const choices: Record<string, readonly string[]> = {
+        scroll: ["vertical", "horizontal", "both"],
         direction: ["row", "column"],
         align: ["start", "center", "end", "stretch"],
         alignSelf: ["start", "center", "end", "stretch"],
@@ -194,6 +199,45 @@ export class CanvasNode implements LifetimeOwner {
     width: 0,
     height: 0,
   });
+  private offsetX = 0;
+  private offsetY = 0;
+  private maximumX = 0;
+  private maximumY = 0;
+  get scrollX(): number {
+    return this.offsetX;
+  }
+  get scrollY(): number {
+    return this.offsetY;
+  }
+  get maxScrollX(): number {
+    return this.maximumX;
+  }
+  get maxScrollY(): number {
+    return this.maximumY;
+  }
+  /** UI units; ranges become available after layout. Returns whether the offset changed. */
+  scrollTo(x: number, y: number): boolean {
+    this.assertAlive();
+    if (!Number.isFinite(x) || !Number.isFinite(y))
+      throw new EngineError("INVALID_UI", "Scroll coordinates must be finite");
+    const nx = Math.max(0, Math.min(this.maximumX, x)),
+      ny = Math.max(0, Math.min(this.maximumY, y));
+    if (nx === this.offsetX && ny === this.offsetY) return false;
+    this.offsetX = nx;
+    this.offsetY = ny;
+    this.changed(true);
+    return true;
+  }
+  scrollBy(x: number, y: number): boolean {
+    return this.scrollTo(this.offsetX + x, this.offsetY + y);
+  }
+  /** @internal Layout updates ranges and clamps after resize/list mutation. */
+  setScrollRange(x: number, y: number): void {
+    this.maximumX = x;
+    this.maximumY = y;
+    this.offsetX = Math.min(this.offsetX, x);
+    this.offsetY = Math.min(this.offsetY, y);
+  }
   private click:
     | ((signal: CancellationSignal) => void | Promise<void>)
     | undefined;
@@ -318,6 +362,7 @@ export class CanvasNode implements LifetimeOwner {
       "wrap",
       "fontSize",
       "fontFamily",
+      "scroll",
     ];
     const layout = geometry.some((key) => next[key] !== this.config[key]);
     this.config = next;
@@ -352,6 +397,34 @@ export class CanvasNode implements LifetimeOwner {
     this.list = Object.freeze([...this.list, ...nodes]);
     this.changed(true);
     return this;
+  }
+  /** Reorder an existing child without disposal, subscriptions or identity changes. */
+  move(node: CanvasNode, index: number): this {
+    this.assertAlive();
+    if (
+      node.parentNode !== this ||
+      !Number.isInteger(index) ||
+      index < 0 ||
+      index >= this.list.length
+    )
+      throw new EngineError(
+        "UI_OWNERSHIP",
+        "Move requires an existing child and valid final index",
+      );
+    if (this.list.indexOf(node) === index) return this;
+    const next = this.list.filter((n) => n !== node);
+    next.splice(index, 0, node);
+    this.list = Object.freeze(next);
+    this.changed(true);
+    return this;
+  }
+  /** Dispose every child, continuing even when cleanup handlers throw. */
+  clear(): void {
+    this.assertAlive();
+    cleanupAll(
+      this.list.map((node) => () => node.dispose()),
+      "UI children cleanup failed",
+    );
   }
   remove(node: CanvasNode): boolean {
     this.assertAlive();
@@ -479,4 +552,12 @@ export function CanvasHoldButton(
       ...style,
     },
   });
+}
+
+/** Clipped overflowing panel. Give the viewport a bounded size or grow allocation. */
+export function CanvasScroll(
+  children: readonly CanvasNode[] = [],
+  style: CanvasStyle = {},
+): CanvasNode {
+  return CanvasPanel(children, { scroll: "vertical", ...style, clip: true });
 }

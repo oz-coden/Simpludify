@@ -31,6 +31,7 @@ export function validateCoreDependency(
   // Root files are public export aggregators. Internal modules import concrete files.
   if (from.length === 1) return;
   if (target.length === 1) fail();
+  if (from[0] === "interaction" && target[0] === "graphics" && typeOnly) return;
   if (from[0] === "scene" && target[0] === "interaction" && typeOnly) return;
   if (!allowed[from[0]]?.includes(target[0])) fail();
 }

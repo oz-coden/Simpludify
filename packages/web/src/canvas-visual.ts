@@ -124,8 +124,7 @@ export class CanvasVisual implements CanvasPresentation {
     const signal = this.entries.get(node)?.abort.signal;
     if (!signal)
       throw new EngineError("INVALID_UI", "Missing Canvas button entry");
-    const options = { signal },
-      keys = new Set<string>();
+    const options = { signal };
     const run = (task: () => void) => {
       try {
         task();
@@ -137,8 +136,7 @@ export class CanvasVisual implements CanvasPresentation {
       "focus",
       () =>
         run(() => {
-          node.focused = true;
-          node.changed();
+          this.ui.focus(node);
         }),
       options,
     );
@@ -146,9 +144,7 @@ export class CanvasVisual implements CanvasPresentation {
       "blur",
       () =>
         run(() => {
-          keys.clear();
-          node.focused = false;
-          node.changed();
+          if (this.ui.focusedNode === node) this.ui.focus();
           this.routing.releaseKeys(node);
         }),
       options,
@@ -156,11 +152,21 @@ export class CanvasVisual implements CanvasPresentation {
     button.addEventListener(
       "keydown",
       (event) => {
+        if (event.code === "Tab") {
+          run(() => {
+            const next = this.ui.focusNext(event.shiftKey);
+            if (next) {
+              event.preventDefault();
+              this.update(this.host.clientWidth, this.host.clientHeight);
+              this.focus(next);
+            }
+          });
+          return;
+        }
         if (event.code !== "Enter" && event.code !== "Space") return;
         event.preventDefault();
         if (!event.repeat)
           run(() => {
-            keys.add(event.code);
             this.routing.key(node, event.code, true);
           });
       },
@@ -171,12 +177,8 @@ export class CanvasVisual implements CanvasPresentation {
       (event) => {
         if (event.code !== "Enter" && event.code !== "Space") return;
         event.preventDefault();
-        const wasDown =
-          keys.delete(event.code) && this.routing.hasKey(node, event.code);
         run(() => {
           this.routing.key(node, event.code, false);
-          if (wasDown && node.kind === "button" && node.available)
-            node.activate();
         });
       },
       options,
@@ -371,6 +373,10 @@ export class CanvasVisual implements CanvasPresentation {
       const current = this.element.children.item(i);
       if (current !== button) this.element.insertBefore(button, current);
     }
+    const focused = this.ui.focusedNode;
+    const button = focused ? this.entries.get(focused)?.button : undefined;
+    if (button && !button.disabled && document.activeElement !== button)
+      button.focus({ preventScroll: true });
   }
   private releaseEntry(entry: Entry): void {
     const backgroundContext = entry.background.context?.uid,

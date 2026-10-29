@@ -17,6 +17,7 @@ export interface CanvasUIOptions {
 /** A single Scene-owned screen UI tree, prepared detached and mounted at Scene commit. */
 export class CanvasUI implements LifetimeOwner {
   private readonly lifetime = new Lifetime();
+  private focusNode: CanvasNode | undefined;
   private factor: number;
   private dirty = true;
   private width = -1;
@@ -98,7 +99,93 @@ export class CanvasUI implements LifetimeOwner {
       this.listeners.delete(listener);
     };
   }
+  get focusedNode(): CanvasNode | undefined {
+    return this.focusNode;
+  }
+  /** Logical focus; Hosts mirror it to native controls where available. */
+  focus(node?: CanvasNode): void {
+    if (this.disposed)
+      throw new EngineError("OWNER_DISPOSED", "UI has been disposed");
+    if (node && (node.ui !== this || !node.available || !node.interactive))
+      throw new EngineError(
+        "UI_OWNERSHIP",
+        "Focus requires an available interactive node in this UI",
+      );
+    if (this.focusNode === node) return;
+    const previous = this.focusNode;
+    this.focusNode = node;
+    if (previous) {
+      previous.focused = false;
+      previous.changed();
+    }
+    if (node) {
+      node.focused = true;
+      this.reveal(node);
+      node.changed();
+    }
+  }
+  /** Ordered traversal, including offscreen controls. Undefined leaves focus at the boundary. */
+  focusNext(reverse = false): CanvasNode | undefined {
+    const order: CanvasNode[] = [];
+    this.walk((node) => {
+      if (node.available && node.interactive) order.push(node);
+    });
+    const index = this.focusNode ? order.indexOf(this.focusNode) : -1;
+    const node =
+      order[
+        index < 0
+          ? reverse
+            ? order.length - 1
+            : 0
+          : index + (reverse ? -1 : 1)
+      ];
+    if (node) this.focus(node);
+    return node;
+  }
+  /** Scroll ancestors just enough to reveal a focused descendant. */
+  private reveal(node: CanvasNode): void {
+    let x = node.bounds.x,
+      y = node.bounds.y;
+    for (let parent = node.parent; parent; parent = parent.parent) {
+      if (!parent.style.scroll) continue;
+      const b = parent.bounds,
+        pad = parent.style.padding;
+      const dx =
+        x < b.x + pad
+          ? x - b.x - pad
+          : Math.max(0, x + node.bounds.width - b.x - b.width + pad);
+      const dy =
+        y < b.y + pad
+          ? y - b.y - pad
+          : Math.max(0, y + node.bounds.height - b.y - b.height + pad);
+      const oldX = parent.scrollX,
+        oldY = parent.scrollY;
+      parent.scrollBy(dx, dy);
+      x -= parent.scrollX - oldX;
+      y -= parent.scrollY - oldY;
+    }
+  }
+  /** UI units. Nested scrollers consume only when their offset can change. */
+  scrollAt(x: number, y: number, dx: number, dy: number): boolean {
+    const targets: CanvasNode[] = [];
+    this.walk((node, clip) => {
+      if (
+        node.available &&
+        node.style.scroll &&
+        containsUI(intersectUI(clip, node.bounds), x, y)
+      )
+        targets.push(node);
+    });
+    for (const node of targets.reverse())
+      if (node.scrollBy(dx, dy)) return true;
+    return false;
+  }
   /** @internal */ invalidate(layout = false): void {
+    if (
+      this.focusNode &&
+      (this.focusNode.ui !== this || !this.focusNode.available)
+    )
+      this.focus();
     if (layout) this.dirty = true;
     cleanupAll([...this.listeners], "UI invalidation failed");
   }
@@ -113,6 +200,7 @@ export class CanvasUI implements LifetimeOwner {
       height / this.factor,
       measure,
     );
+    this.applyScroll(this.root, 0, 0);
     this.width = width;
     this.height = height;
     this.dirty = false;
@@ -123,12 +211,39 @@ export class CanvasUI implements LifetimeOwner {
     this.nodes = visits.nodes;
     return true;
   }
+  private applyScroll(node: CanvasNode, dx: number, dy: number): void {
+    const b = node.bounds;
+    const children = node.children.filter((n) => n.visible && !n.disposed);
+    const maxX = Math.max(
+      0,
+      ...children.map(
+        (n) => n.bounds.x + n.bounds.width - b.x - b.width + node.style.padding,
+      ),
+    );
+    const maxY = Math.max(
+      0,
+      ...children.map(
+        (n) =>
+          n.bounds.y + n.bounds.height - b.y - b.height + node.style.padding,
+      ),
+    );
+    node.setScrollRange(
+      node.style.scroll && node.style.scroll !== "vertical" ? maxX : 0,
+      node.style.scroll && node.style.scroll !== "horizontal" ? maxY : 0,
+    );
+    node.boundsValue = Object.freeze({ ...b, x: b.x - dx, y: b.y - dy });
+    for (const child of children)
+      this.applyScroll(child, dx + node.scrollX, dy + node.scrollY);
+  }
   /** @internal Same clipped paint order as Pixi and keyboard mirror. */
   walk(visit: (node: CanvasNode, clip: UIBounds) => void): void {
     if (this.disposed) return;
     const walk = (node: CanvasNode, clip: UIBounds) => {
       if (node.disposed || !node.visible) return;
-      const c = node.style.clip ? intersectUI(clip, node.bounds) : clip;
+      const c =
+        node.style.clip || node.style.scroll
+          ? intersectUI(clip, node.bounds)
+          : clip;
       visit(node, c);
       for (const child of node.children) walk(child, c);
     };
@@ -153,7 +268,10 @@ export class CanvasUI implements LifetimeOwner {
         !containsUI(clip, x, y)
       )
         return;
-      const c = node.style.clip ? intersectUI(clip, node.bounds) : clip;
+      const c =
+        node.style.clip || node.style.scroll
+          ? intersectUI(clip, node.bounds)
+          : clip;
       if (!containsUI(c, x, y)) return;
       if (node.style.pointerEvents === "auto" && containsUI(node.bounds, x, y))
         result = node;
@@ -173,6 +291,10 @@ export class CanvasUI implements LifetimeOwner {
     cleanupAll(
       [
         () => this.lifetime.dispose(),
+        () => {
+          if (this.focusNode) this.focusNode.focused = false;
+          this.focusNode = undefined;
+        },
         () => this.root.dispose(),
         () => this.removeScene?.(),
         () => {

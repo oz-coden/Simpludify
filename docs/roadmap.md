@@ -4,6 +4,8 @@ Simpludify has an experimental Web runtime and a generic composition-based Core.
 
 ## Included
 
+- Host-independent Core Canvas UI tree/Flex/text policy/pointer routing, dynamic ordering, clipped scrolling and logical focus; Web supplies Pixi/metrics/native focus adapters. [Module and Host boundaries](host-boundary.md), [Canvas API](canvas-ui.md) and [portable screen](../examples/canvas-ui/portable-screen.ts).
+
 - Finite Tilemap placements from copied Grid/rows, typed SpriteSheet IDs, camera culling and incremental edits; [API](tilemap.md), [measurements](tilemap-performance.md), and [optional terrain collision](tilemap-collision.md).
 
 - SpriteSheet grid/named/rectangle frames, shared cropped image textures and Actor-owned SpriteAnimation with simulation-time playback; [contracts and sample](sprites.md).
@@ -23,7 +25,7 @@ Simpludify has an experimental Web runtime and a generic composition-based Core.
 - Character, UI/scenes, headless, Beacon field the complete Signal Run collection/survival game, and Blockfall falling-block puzzle with deterministic grid logic, hold/ghost and keyboard/touch controls; Prism Raid adds Triangle ships, Trigger combat and input-only automatic play.
 - Noninteractive source scaffold/dev/check/test/build/doctor, JSON diagnostics, unit/browser/production-subpath tests, baseline scripts and automatic licensing notices.
 
-- Japanese-first static documentation, English technical reference, isolated playable eight-sample gallery, integrated root/project-base builds and Pages workflow. See site-validation for deployment evidence.
+- Japanese-first static documentation, English technical reference, isolated playable nine-sample gallery, integrated root/project-base builds and Pages workflow. See site-validation for deployment evidence.
 
 ## Pending and limits
 

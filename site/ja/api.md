@@ -50,7 +50,7 @@
 - [Core公開export](https://github.com/oz-coden/Simpludify/blob/main/packages/core/src/index.ts)
 - [Web公開export](https://github.com/oz-coden/Simpludify/blob/main/packages/web/src/index.ts)
 - [GameとSceneContext](https://github.com/oz-coden/Simpludify/blob/main/packages/web/src/game.ts)
-- [Collider](https://github.com/oz-coden/Simpludify/blob/main/packages/core/src/collider.ts)、[CollisionBody](https://github.com/oz-coden/Simpludify/blob/main/packages/core/src/collision-body.ts)
+- [Collider](https://github.com/oz-coden/Simpludify/blob/main/packages/core/src/game/collider.ts)、[CollisionBody](https://github.com/oz-coden/Simpludify/blob/main/packages/core/src/game/collision-body.ts)
 
 未実装の構想はAPI一覧へ混ぜず、[制約とロードマップ](limitations.md)へ記載します。
 

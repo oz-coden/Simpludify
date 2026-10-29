@@ -48,6 +48,27 @@ export class BrowserPointer {
         }),
       options,
     );
+    host.addEventListener(
+      "wheel",
+      (e) =>
+        this.guard(() => {
+          if (!this.surface(e.target)) return;
+          this.flush();
+          const { screen } = this.project(e);
+          const unit =
+            e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? host.clientHeight : 1;
+          if (
+            this.routing.scroll(
+              screen.x,
+              screen.y,
+              e.deltaX * unit,
+              e.deltaY * unit,
+            )
+          )
+            e.preventDefault();
+        }),
+      { ...options, passive: false },
+    );
     window.addEventListener(
       "pointermove",
       (e) =>

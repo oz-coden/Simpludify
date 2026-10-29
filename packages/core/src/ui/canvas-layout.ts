@@ -255,10 +255,12 @@ export function layoutCanvas(
     for (const line of lines) {
       // Freeze min/max-limited items and redistribute remaining free space.
       const growing = main >= line.main;
+      const scrolling =
+        s.scroll === "both" || s.scroll === (row ? "horizontal" : "vertical");
       let remaining = line.items.filter((i) =>
         growing
           ? i.node.style.grow > 0 && i.main < i.max
-          : i.node.style.shrink > 0 && i.main > i.min,
+          : !scrolling && i.node.style.shrink > 0 && i.main > i.min,
       );
       const bases =
         !growing && remaining.length

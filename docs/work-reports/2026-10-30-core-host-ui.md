@@ -61,3 +61,15 @@ Implementation has not started. Resume from checkpoint branch, inspect this ledg
 - `npm test`: 43 files / 558 tests passed after extraction, including existing layout, routing, ownership and cancellation behavior.
 - UI scrolling/reorder/logical focus, API guides and final browser/build checks remain pending. Main is unchanged.
 - Phase 2 implementation: [96a75f6](https://github.com/oz-coden/Simpludify/commit/96a75f69d3ce7f5f86112b482d51a7f3eacf0195).
+
+## Phase 4 checkpoint
+
+- Added CanvasScroll with vertical/horizontal/both ranges, retained main-axis content, shared clip/hit boxes, nested wheel routing and clamping after list/viewport changes. Added move(child, finalIndex) and aggregate clear(), retaining identity/subscriptions on reorder.
+- Added Core logical focus/traversal/ancestor reveal and Core Enter/Space activation. Web retains capture/blur/native semantics and normalizes wheel units. UI list lab uses only Core API definitions and is mounted by Canvas trail; the same screen is a headless fixture.
+- Dedicated native select/number/text controls, IME, touch drag/inertia/scrollbars, virtualization and new desktop/mobile targets are deferred.
+- `npm run check`: passed at this checkpoint, including ES2022-only Core, module direction/relative escape checks and license notices. The first Phase 3 boundary pass exposed the pointer coordinate type dependency; the validator now explicitly allows that type-only edge.
+- `npm test`: 45 files / 568 tests passed. Added headless no-browser-globals UI, scrolling/clipping/scaling/nesting/resize, mutation/disposal, focus, key cancellation and Web AbortSignal bridge tests.
+- Browser regressions added for WebGL and Canvas2D, dynamic list/focus/scroll/resize/cleanup; not yet executed locally because Chromium download failed. CI will run both viewport projects.
+- New guide: docs/host-boundary.md. Existing Canvas/API/architecture/roadmap/Japanese guides and sample README updated. AGENTS.md and CODEX-START.md now require persistent reports and pushed checkpoints for future tasks.
+- Phase 3 implementation: [dce3cef](https://github.com/oz-coden/Simpludify/commit/dce3cef75107439baec947fe3341f5af5f75d035).
+- Next: production build, Pages builds/link/snippet checks, review and remote browser CI. Do not merge until these checks succeed.

@@ -159,6 +159,14 @@ export class PointerRouting {
     );
     return node;
   }
+  /** Host-local screen units, normalized by the UI scale. */
+  scroll(x: number, y: number, dx: number, dy: number): boolean {
+    const ui = this.ui;
+    return (
+      ui?.scrollAt(x / ui.scale, y / ui.scale, dx / ui.scale, dy / ui.scale) ??
+      false
+    );
+  }
   hasHover(id: number): boolean {
     return this.hovering.has(id);
   }
@@ -292,6 +300,7 @@ export class PointerRouting {
     if (code !== "Space" && code !== "Enter") return;
     if (down && !node.available) return;
     const set = this.keys.get(node) ?? new Set<string>();
+    const activate = !down && set.has(code);
     if (down) {
       set.add(code);
       this.keys.set(node, set);
@@ -299,7 +308,16 @@ export class PointerRouting {
       set.delete(code);
       if (!set.size) this.keys.delete(node);
     }
-    this.hold(node, `key:${code}`, down);
+    cleanupAll(
+      [
+        () => this.hold(node, `key:${code}`, down),
+        () => {
+          if (activate && node.kind === "button" && node.available)
+            node.activate();
+        },
+      ],
+      "UI keyboard handlers failed",
+    );
   }
   releaseKeys(node: CanvasNode): void {
     const keys = [...(this.keys.get(node) ?? [])];
