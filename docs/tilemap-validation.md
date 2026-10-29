@@ -1,5 +1,7 @@
 # Tilemap validation and delivery
 
+> Historical Tilemap foundation validation. Current optional collision is documented in the [Tilemap collision API](tilemap-collision.md); the older deferred-collision statements below describe that foundation checkpoint.
+
 Work started from `codex/working-sprites` at eb61494e5f3275ba1593bb5989cb8f3b9cdce312 after verifying the remote. New work is on [codex/working-tilemap](https://github.com/oz-coden/Simpludify/tree/codex/working-tilemap). Each checkpoint commit was immediately persisted by a fast-forward branch update. No force update, main push/merge or Sprite-branch update was performed.
 
 At final verification main remains 8b6babe9157c0dbb2ceb288afc8a4595ed8535dd and the Sprite branch remains the requested eb61494e5f3275ba1593bb5989cb8f3b9cdce312. Main-to-Tilemap differences include the prior Sprite work; Sprite-to-Tilemap is the scoped new work. The final branch head adds the final measurements and this report, so the complete deliverable is recoverable from GitHub independently of the chat.

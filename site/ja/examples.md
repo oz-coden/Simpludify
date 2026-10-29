@@ -19,7 +19,7 @@ WebGLの描画経路を中心に検証しています。固定したPixi版に�
 
 7. [Sprite garden](sprites.md)：SpriteSheet、待機／歩行の切り替え、独立再生と共有画像、Scene往復。
 
-8. [Tile trail](tilemap.md)：Grid・SpriteSheet、複数地形レイヤー、WASD・Camera追従、セル変更とScene往復。
+8. [Tile trail](tilemap.md)：Grid・SpriteSheet、複数地形レイヤー、WASD・Camera追従、Solid壁・水Trigger、生成／破壊とScene往復。
 
 ## フォーカスと終了
 

@@ -1,6 +1,6 @@
 # Tilemap
 
-Tilemap is an optional finite placed image grid, exported by Core and Web. It neither replaces the game's world nor opts into collision. Ground, walls and decorations can be independent overlapping maps of different sizes/origins.
+Tilemap is an optional finite placed image grid, exported by Core and Web. It does not replace the game's world; collision is optional and absent by default. Ground, walls and decorations can be independent overlapping maps of different sizes/origins.
 
 ## Small public API
 
@@ -36,7 +36,7 @@ The image must contain the requested frames. `sheet` accepts grid or arbitrary-r
 
 Use `map.place(scene)` once, during setup or runtime; it returns the same facade. `map.dispose()` removes/destroys the placement. `.scene`, `.disposed` and `.enabled` reflect its internal Actor. `.visible` affects drawing; `.enabled` gates the placement through existing Actor semantics. Neither is a collision switch. x/y, zIndex and visible are validated live values; defaults are 0,0,0,true. id/enabled are forwarded Actor options. Dimensions and sheet are readonly. There is no implicit Transform/rotation/scale. Game code does not obtain Pixi objects, register drawing, update the map each frame or release Textures manually.
 
-The facade owns one internal Actor with one passive TilemapLayer Component. This reuses Scene IDs, exclusive membership, removal, disposal and structural reconciliation. It adds no second Scene registry. Keeping the facade distinct avoids colliding with Actor.get(ComponentType) and the map's get(x,y); per-cell Actors/Components are never created. Do not construct the internal TilemapLayer yourself. [Design comparison and collision proposal](tilemap-design.md) record the alternatives.
+The facade owns one internal Actor with one passive TilemapLayer Component. This reuses Scene IDs, exclusive membership, removal, disposal and structural reconciliation. It adds no second Scene registry. Keeping the facade distinct avoids colliding with Actor.get(ComponentType) and the map's get(x,y); per-cell Actors/Components are never created. Do not construct the internal TilemapLayer yourself. [Design comparison](tilemap-design.md) record the alternatives.
 
 ## Data and errors
 
@@ -92,6 +92,6 @@ npm run dev -- --example tilemap
 npm run build -- --target web --example tilemap --base /Simpludify/
 ```
 
-[Tile trail](../examples/tilemap/README.md) uses original terrain artwork, three maps, animated WASD movement, camera follow, editing under the player, coordinate display and Scene round trips. The terrain is visual: the player can cross trees/water. Full Tilemap/Collider integration is deferred; the [collision proposal](tilemap-design.md) compares ID defaults/cell overrides, stable contact identities, local lookup/rectangle merging/chunk rebuilding, and required Contact changes without adding speculative runtime APIs.
+[Tile trail](../examples/tilemap/README.md) uses original artwork, three maps, animated WASD movement, camera follow, tile editing and Scene round trips. Stone/tree terrain is Solid and water is a pass-through Trigger. [Tilemap collision](tilemap-collision.md) documents optional ID defaults, cell overrides, dedicated TileContact events and the shared CollisionWorld. Visibility/rendering and collision remain independent.
 
 No infinite streaming, atlas file parser, autotiling, editor, animation tiles, physics rewrite, generic ControlGuard or new UI framework is introduced. Large all-visible Canvas2D maps remain expensive; native/GPU memory and mobile/Safari/Firefox hardware have not been verified.

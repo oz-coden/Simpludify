@@ -140,6 +140,7 @@ export class CollisionWorld {
   private policyRejected = 0;
   private tileTests = 0;
   private tileCorrections = 0;
+  private tileResponseTests = 0;
   private tileUnresolved = 0;
   private neighborProbes = 0;
   constructor(
@@ -200,6 +201,7 @@ export class CollisionWorld {
       narrowTests: this.tileTests,
       contacts: this.tileCount,
       corrections: this.tileCorrections,
+      responseTests: this.tileResponseTests,
       unresolved: this.tileUnresolved,
       neighborProbes: this.neighborProbes,
       retainedCells,
@@ -528,6 +530,7 @@ export class CollisionWorld {
       hit = contactManifold(pair.a, pair.b, this.manifold, this.tolerance);
     } else {
       tileGeometry(pair.b.owner.map, pair.b.x, pair.b.y, pair.b.geometry);
+      this.tileResponseTests++;
       this.neighborProbes += 4;
       hit = tileResponseManifold(
         pair.a,
@@ -649,6 +652,7 @@ export class CollisionWorld {
       this.tileCandidates =
       this.policyRejected =
       this.tileTests =
+      this.tileResponseTests =
       this.neighborProbes =
         0;
     this.corrections =

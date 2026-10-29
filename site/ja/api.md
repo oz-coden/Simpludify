@@ -60,4 +60,4 @@
 
 ## Tilemap
 
-[Tilemapガイド](tilemap.md)に、Grid／行列、名前付きID、配置、座標変換、セル更新、画像共有と破棄をまとめています。TilemapとColliderの統合は次段階です。
+[Tilemapガイド](tilemap.md)に、Grid／行列、名前付きID、配置、座標変換、セル更新、画像共有と破棄をまとめています。任意の衝突属性とTileContact専用イベントを既存CollisionWorldへ統合しています。[衝突ガイド](collision.md)も参照してください。

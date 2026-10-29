@@ -14,6 +14,7 @@ import {
   Grid,
   KeyboardBindings,
   Label,
+  Layout,
   Panel,
   Renderable,
   SpriteAnimation,
@@ -35,6 +36,7 @@ const hero = SpriteSheet.grid(
 export const game = new Game<"field" | "rest">({
   parent: document.querySelector<HTMLElement>("#app") ?? document.body,
 });
+game.element.classList.add("tile-trail");
 export let terrain:
   | Tilemap<"grass" | "water" | "path" | "tree" | "flower" | "stone">
   | undefined;
@@ -160,35 +162,40 @@ game.scene("field", ({ scene, add, ui }) => {
         Label("Focus the field and move with WASD."),
         position,
         status,
-        Button("Paint under player", () => {
-          const tile = ground.worldToTile(player.x, player.y);
-          if (tile)
-            ground.set(
-              tile.x,
-              tile.y,
-              ground.get(tile.x, tile.y) === "stone" ? "grass" : "stone",
-            );
-        }),
-        Button("Toggle wall ahead", () => {
-          const tile = ground.worldToTile(
-            player.x + facing.x * 32,
-            player.y + facing.y * 32,
-          );
-          if (tile)
-            ground.set(
-              tile.x,
-              tile.y,
-              ground.get(tile.x, tile.y) === "stone" ? "grass" : "stone",
-            );
-        }),
-        Button("Toggle collision", () => {
-          ground.collisionEnabled = !ground.collisionEnabled;
-          trees.collisionEnabled = ground.collisionEnabled;
-          status.setText(
-            `Terrain collision ${ground.collisionEnabled ? "enabled" : "disabled"}; visibility unchanged.`,
-          );
-        }),
-        Button("Leave field →", () => game.goTo("rest")),
+        Panel(
+          [
+            Button("Paint under player", () => {
+              const tile = ground.worldToTile(player.x, player.y);
+              if (tile)
+                ground.set(
+                  tile.x,
+                  tile.y,
+                  ground.get(tile.x, tile.y) === "stone" ? "grass" : "stone",
+                );
+            }),
+            Button("Toggle wall ahead", () => {
+              const tile = ground.worldToTile(
+                player.x + facing.x * 32,
+                player.y + facing.y * 32,
+              );
+              if (tile)
+                ground.set(
+                  tile.x,
+                  tile.y,
+                  ground.get(tile.x, tile.y) === "stone" ? "grass" : "stone",
+                );
+            }),
+            Button("Toggle collision", () => {
+              ground.collisionEnabled = !ground.collisionEnabled;
+              trees.collisionEnabled = ground.collisionEnabled;
+              status.setText(
+                `Terrain collision ${ground.collisionEnabled ? "enabled" : "disabled"}; visibility unchanged.`,
+              );
+            }),
+            Button("Leave field →", () => game.goTo("rest")),
+          ],
+          { layout: Layout.Grid },
+        ),
       ],
       { title: "Tile trail" },
     ),

@@ -94,7 +94,7 @@ npm run dev -- --example sprites
 npm run dev -- --example tilemap
 ```
 
-[Tile trail](examples/tilemap/README.md) places copied Grid/row data with SpriteSheet frames, independent layers, camera follow and live cell edits. [Tilemap contracts](docs/tilemap.md) and [measured limits](docs/tilemap-performance.md) describe the finite-map foundation; tile collision is a separate future stage.
+[Tile trail](examples/tilemap/README.md) places copied Grid/row data with SpriteSheet frames, independent layers, camera follow and live cell edits. [Tilemap contracts](docs/tilemap.md) and [measured limits](docs/tilemap-performance.md) describe the finite-map foundation. Optional [Tilemap collision](docs/tilemap-collision.md) adds typed cell contacts, Solid walls and Trigger terrain through the same CollisionWorld.
 
 ## Create a separate game workspace
 
@@ -164,7 +164,8 @@ This integrates documentation and all eight browser examples into `site-dist/`, 
 - [Random, Replay and fixed steps](docs/replay.md)
 - [API and defaults](docs/api.md)
 - [Architecture and lifecycle decisions](docs/architecture.md)
-- [Collision review and proposed Tilemap integration (design, not implemented)](docs/collision-review/README.md)
+- [Tilemap collision API and lifetime](docs/tilemap-collision.md)
+- [Collision design review (historical evidence)](docs/collision-review/README.md)
 - [Performance methodology and recorded limitations](docs/performance.md)
 - [Implementation status and next milestone](docs/roadmap.md)
 - [Practical game validation](docs/practical-validation.md)

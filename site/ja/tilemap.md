@@ -83,6 +83,8 @@ console.log(origin, tile);
 npm run dev -- --example tilemap
 ```
 
-[Tile trail](../../examples/tilemap/README.md)は3枚のTilemap、WASD移動、Camera追従、足元の書き換え、座標表示、Scene往復を含みます。今回の地形は描画のみで、木や水への衝突はありません。
+[Tile trail](../../examples/tilemap/README.md)は3枚のTilemap、WASD移動、Camera追従、足元の書き換え、座標表示、Scene往復を含みます。石・木はSolidの壁、水は通過できるTriggerです。Toggle wall aheadで生成／破壊、Toggle collisionで見た目を保ったまま衝突を切り替えられます。
 
-TilemapとColliderの本格統合は次段階です。見た目と衝突属性を分け、ID設定とセル上書き、安定した接触ID、矩形統合と直接検索の比較を[設計案](../en/tilemap-design.html)に残しました。無限マップ、エディター、オートタイル、複雑なアニメーションタイルは未実装です。
+衝突を使う場合は、SceneにCollisionWorldを1つ作り、動かすActorにSolid ColliderとCollisionBodyを追加します。Tilemapのcollision.tilesへIDごとの応答を設定し、setCollision(x,y,null)でセルだけ無効、resetCollision(x,y)で継承に戻せます。visibleは描画だけ、collisionEnabledは衝突だけ、enabledは配置全体を止めます。Actor用Contactは変更せず、地形用にはTileContactEnter/Stay/Exitを購読します。[詳しい契約](../en/tilemap-collision.html)と[衝突ガイド](collision.md)を参照してください。
+
+無限マップ、エディター、オートタイル、複雑なアニメーションタイルは未実装です。完全な剛体物理やCCD、任意の深い埋まりからの復帰は保証しません。

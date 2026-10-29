@@ -315,4 +315,4 @@ This experimental revision also removes InputState, InputSource, InputReader, Ke
 
 ## Tilemap placements
 
-[Tilemap](tilemap.md) is a facade over one existing Actor/TilemapLayer placement per map. It copies Grid/row data and exposes typed tile IDs, set/fill, tile/world conversion, translation and depth/visibility. Web owns a culled incremental visible-cell renderer and shared sheet lease. No per-cell Actor/Component or collision integration is added.
+[Tilemap](tilemap.md) is a facade over one existing Actor/TilemapLayer placement per map. It copies Grid/row data and exposes typed tile IDs, set/fill, tile/world conversion, translation and depth/visibility. Web owns a culled incremental visible-cell renderer and shared sheet lease. Optional [terrain collision](tilemap-collision.md) uses the same CollisionWorld with ID defaults/cell overrides and dedicated TileContact events. No per-cell Actor/Component is added.

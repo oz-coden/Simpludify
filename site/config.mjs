@@ -61,11 +61,29 @@ export const examples = [
     title: "Tile trail",
     summary: "Grid・SpriteSheetで地形配置・編集・カメラ追従",
     controls:
-      "ゲームをフォーカスしてWASDで移動。Paint under playerで足元を変更、Leave/ReturnでScene往復。地形は描画のみです。",
+      "ゲームをフォーカスしてWASDで移動。Paint under playerで足元を変更、Leave/ReturnでScene往復。石・木の壁、水Trigger、Toggle wall aheadで生成／破壊、Toggle collisionで衝突を切り替えます。",
     guide: "guides/tilemap.html",
   },
 ];
 export const pages = [
+  [
+    "en/tilemap-collision.html",
+    "docs/tilemap-collision.md",
+    "Tilemap collision",
+    "English",
+  ],
+  [
+    "en/collision-performance.html",
+    "docs/collision-performance.md",
+    "Collision Solver measurements",
+    "English",
+  ],
+  [
+    "en/collision-implementation.html",
+    "docs/collision-implementation.md",
+    "Collision implementation validation",
+    "English",
+  ],
   ["guides/tilemap.html", "site/ja/tilemap.md", "Tilemapで地形配置", "ガイド"],
   [
     "guides/tile-trail.html",
@@ -77,7 +95,7 @@ export const pages = [
   [
     "en/tilemap-design.html",
     "docs/tilemap-design.md",
-    "Tilemap design / collision proposal",
+    "Tilemap design",
     "English",
   ],
   [

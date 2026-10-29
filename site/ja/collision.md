@@ -92,3 +92,46 @@ X軸SweepのBroad Phaseを使用しますが、密集・不利な分布では二
 ## Colliderを使わないゲーム
 
 盤面のセル占有や落ち物パズルの行消去は通常の配列・整数ロジックで判定できます。全ゲームへ物理接触を強制しません。描画サイズからの近似形状生成や複合形状は将来候補です。
+
+## Tilemapとの衝突
+
+Actor同士のContactはそのまま使います。地形には専用のTileContactイベントを購読するため、Actorだけのゲームに型判別を追加する必要はありません。内部では同じCollisionWorld・形状判定・反復補正・接触追跡を共有します。
+
+```ts verify
+import {
+  CollisionResponse,
+  CollisionWorld,
+  Scene,
+  SpriteSheet,
+  Tilemap,
+} from "@simpludify/core";
+const scene = new Scene("field");
+new CollisionWorld(scene);
+const sheet = SpriteSheet.grid("terrain.png", {
+  frameWidth: 32,
+  frameHeight: 32,
+  names: { wall: 0, water: 1 },
+});
+const map = new Tilemap({
+  sheet,
+  tiles: [["wall", "water", null]],
+  tileWidth: 32,
+  tileHeight: 32,
+  collision: {
+    tiles: [
+      { tile: "wall", response: CollisionResponse.Solid },
+      { tile: "water", response: CollisionResponse.Trigger },
+    ],
+  },
+}).place(scene);
+map.setCollision(0, 0, null); // このセルだけ衝突なし
+map.resetCollision(0, 0); // wallの既定へ戻す
+```
+
+動くActorは既存の例と同じくSolid Collider＋動的CollisionBodyを使います。TileContactにはself／selfActor、map、tileX／tileY、観測時のtileId／凍結policy、normal／depth／response／resolvedがあります。world.tileContactsFor(collider)でも取得でき、既存contactsForはActor用のままです。
+
+ルールのresponseは必須、layer=1、mask=0xffffffffです。両側のmaskで許可された組だけ判定します。画像がnullでもセルの明示的なSolid／Trigger上書きは使えます。visibleは描画だけ、collisionEnabledは衝突だけ、enabledは配置全体を制御します。Camera外や画像準備中でもCoreの衝突判定は画像を読みません。
+
+同じセル・実効応答なら画像変更だけでEnter/Exitを増やしません。ペア応答がSolid↔Triggerへ変われば旧Exit→新Enterです。イベント内の画像／属性編集は次の衝突パスへ反映し、破棄／無効化は後続Enter/Stayを即抑制します。Scene破棄時は合成Exitを出さず解放します。
+
+等しい衝突属性の連続壁では内部面・頂点による補正を除外し、円・回転Box・縦横／逆方向・非正方形セル・凸凹角を検証しています。任意に深く地形へ埋まった場合や狭すぎる隙間では未解消接触が残ります。セル単位のイベントなので、隣のセルへ移ればそのセルのEnter/Exitは発生します。[詳細な契約](../en/tilemap-collision.html)と[実測と限界](../en/collision-performance.html)を確認してください。
