@@ -33,12 +33,15 @@ export function layoutCanvas(
   width: number,
   height: number,
   measure: MeasureText,
-): number {
+): { nodes: number; intrinsicVisits: number; constrainVisits: number } {
   finite(width);
   finite(height);
-  let visited = 0;
+  let visited = 0,
+    intrinsicVisits = 0,
+    constrainVisits = 0;
   const naturalCache = new Map<CanvasNode, UISizeValue>();
   const natural = (node: CanvasNode, depth: number): UISizeValue => {
+    intrinsicVisits++;
     if (depth > 64)
       throw new EngineError(
         "INVALID_UI",
@@ -79,7 +82,10 @@ export function layoutCanvas(
     stretchWidth: boolean,
     stretchHeight: boolean,
     depth: number,
+    forcedWidth?: number,
+    forcedHeight?: number,
   ): UISizeValue => {
+    constrainVisits++;
     if (depth > 64)
       throw new EngineError(
         "INVALID_UI",
@@ -88,8 +94,8 @@ export function layoutCanvas(
     const s = node.style,
       n = natural(node, depth),
       row = s.direction === "row";
-    let w = size(s.width, aw) ?? (stretchWidth ? aw : n.width),
-      h = size(s.height, ah) ?? (stretchHeight ? ah : n.height);
+    let w = forcedWidth ?? size(s.width, aw) ?? (stretchWidth ? aw : n.width),
+      h = forcedHeight ?? size(s.height, ah) ?? (stretchHeight ? ah : n.height);
     if (node.kind !== "panel") return { width: w, height: h };
     const cw = Math.max(0, w - s.padding * 2),
       ch = Math.max(0, h - s.padding * 2),
@@ -123,9 +129,26 @@ export function layoutCanvas(
     }
     if (s.wrap) {
       totalCross += lineCross + s.padding * 2;
-      if (row && s.height === undefined && !stretchHeight) h = totalCross;
-      if (!row && s.width === undefined && !stretchWidth) w = totalCross;
-    } else if (!row && s.height === undefined && !stretchHeight) {
+      if (
+        row &&
+        s.height === undefined &&
+        !stretchHeight &&
+        forcedHeight === undefined
+      )
+        h = totalCross;
+      if (
+        !row &&
+        s.width === undefined &&
+        !stretchWidth &&
+        forcedWidth === undefined
+      )
+        w = totalCross;
+    } else if (
+      !row &&
+      s.height === undefined &&
+      !stretchHeight &&
+      forcedHeight === undefined
+    ) {
       h = used + s.padding * 2;
     }
     return { width: finite(w), height: finite(h) };
@@ -228,6 +251,23 @@ export function layoutCanvas(
           if (removed < 1e-9) break;
         }
       }
+      // Wrapped descendants remeasure their auto cross extent after flex main allocation.
+      for (const i of line.items)
+        if (!i.explicitCross) {
+          const measured = constrained(
+            i.node,
+            row ? i.main : cross,
+            row ? cross : i.main,
+            false,
+            false,
+            depth + 1,
+            row ? i.main : undefined,
+            row ? undefined : i.main,
+          );
+          i.cross = row ? measured.height : measured.width;
+        }
+      if (s.wrap)
+        line.cross = line.items.reduce((v, i) => Math.max(v, i.cross), 0);
       const left = Math.max(
         0,
         main -
@@ -276,7 +316,7 @@ export function layoutCanvas(
     size(root.style.height, height) ?? height,
     0,
   );
-  return visited;
+  return { nodes: visited, intrinsicVisits, constrainVisits };
 }
 export function containsUI(box: UIBounds, x: number, y: number): boolean {
   return (

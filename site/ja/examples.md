@@ -2,7 +2,7 @@
 
 コードを読む前に、ブラウザで動作を試せます。起動するまでゲームをロードしません。同時に動かすサンプルは1つで、別のサンプルを選ぶか「終了する」で前のGameを破棄します。
 
-WebGLの描画経路を中心に検証しています。固定したPixi版には代替描画の自動選択があり、WebGL無効時のCharacterのCanvas2D起動も限定的に確認します。全サンプル・全機能の代替描画互換性を保証するものではありません。小さな画面ではサンプル欄までスクロールしてください。広いゲーム領域が必要なら別タブで開けます。Signal Run・Blockfall・Prism Raidはタッチだけでゲームを操作できます。その他のキャラクター移動にはキーボードが必要です。
+WebGLの描画経路を中心に検証しています。固定したPixi版には代替描画の自動選択があり、WebGL無効時のCharacterのCanvas2D起動も限定的に確認します。全サンプル・全機能の代替描画互換性を保証するものではありません。小さな画面ではサンプル欄までスクロールしてください。広いゲーム領域が必要なら別タブで開けます。Signal Run・Blockfall・Prism Raid・Canvas trailはタッチだけでゲームを操作できます。その他のキャラクター移動にはキーボードが必要です。
 
 <!--gallery-->
 
@@ -20,6 +20,8 @@ WebGLの描画経路を中心に検証しています。固定したPixi版に�
 7. [Sprite garden](sprites.md)：SpriteSheet、待機／歩行の切り替え、独立再生と共有画像、Scene往復。
 
 8. [Tile trail](tilemap.md)：Grid・SpriteSheet、複数地形レイヤー、WASD・Camera追従、Solid壁・水Trigger、生成／破壊とScene往復。
+
+9. [Canvas trail](canvas-ui.md)：Canvas HUD・Flex・Pointer、Actionによるキーボード／タッチ移動、SpriteAnimation・地形衝突・Pause・Scene往復。
 
 ## フォーカスと終了
 

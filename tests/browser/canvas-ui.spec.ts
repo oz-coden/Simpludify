@@ -327,6 +327,99 @@ for (const fallback of [false, true])
       expect(r.stagedDisposed).toBe(true);
       expect(r.disposed).toContain("disposed");
     });
+    test("matches nested clips and later-sibling paint priority to real hit tests", async ({
+      page,
+    }) => {
+      await boot(page);
+      const r = await page.evaluate(
+        async (url) => (await import(url)).clippingAndPaint(window.canvasProbe),
+        url,
+      );
+      expect(r.inside).toEqual([0, 0, 255]);
+      expect(r.outside).toEqual([0, 0, 0]);
+      expect(r.clipInside).toBe(true);
+      expect(r.clipOutside).toBe(false);
+      expect(r.front).toEqual([0, 170, 0]);
+      expect(r.frontHit).toBe(true);
+    });
+    test("releases held Scene gestures and ignores their remaining motion in the replacement Scene", async ({
+      page,
+    }) => {
+      await boot(page);
+      const p = await center(page, "hold");
+      await page.mouse.move(p.x, p.y);
+      await page.mouse.down();
+      const r = await page.evaluate(async () => {
+        const f = window.canvasProbe,
+          old = f.root;
+        await f.game.goTo("empty");
+        return {
+          disposed: old.disposed,
+          holds: f.holdEvents,
+          d: f.game.pointerDiagnostics,
+        };
+      });
+      expect(r.disposed).toBe(true);
+      expect(r.holds).toEqual([true, false]);
+      expect(r.d.captures).toBe(0);
+      expect(r.d.suppressedPointers).toBe(1);
+      await page.mouse.move(320, 400);
+      await page.mouse.up();
+      expect(
+        await page.evaluate(
+          () => window.canvasProbe.game.pointerDiagnostics.suppressedPointers,
+        ),
+      ).toBe(0);
+    });
+    test("draws keyboard focus, preserves DOM overlay priority and reports callback errors through Game", async ({
+      page,
+    }) => {
+      await boot(page);
+      await page
+        .getByRole("button", { name: "Move right", exact: true })
+        .focus();
+      const ring = await page.evaluate(() => {
+        const f = window.canvasProbe,
+          b = f.hold.bounds;
+        f.step();
+        return f.pixel(b.x + 3, b.y + b.height / 2);
+      });
+      expect(ring).toEqual([255, 211, 107]);
+      const p = await center(page, "click");
+      await page.evaluate((p) => {
+        const f = window.canvasProbe,
+          b = document.createElement("button");
+        b.textContent = "Native overlay";
+        b.style.cssText = `position:absolute;z-index:5;left:${p.x - 30}px;top:${p.y - 15}px;width:100px;height:40px`;
+        b.onclick = () => {
+          f.label.setText("Native clicked");
+        };
+        f.game.element.append(b);
+        f.game.engine.scene.onDispose(() => b.remove());
+      }, p);
+      await page.mouse.click(p.x, p.y);
+      expect(await page.evaluate(() => window.canvasProbe.clicks)).toBe(0);
+      expect(await page.evaluate(() => window.canvasProbe.label.text)).toBe(
+        "Native clicked",
+      );
+      const q = await page.evaluate(
+        async (url) => (await import(url)).throwingHold(window.canvasProbe),
+        url,
+      );
+      await page.mouse.move(q.x, q.y);
+      await page.mouse.down();
+      await page.mouse.up();
+      expect(
+        await page.evaluate(() =>
+          window.canvasProbe.errors.some((e) => e.includes("Pointer")),
+        ),
+      ).toBe(true);
+      expect(
+        await page.evaluate(
+          () => window.canvasProbe.game.pointerDiagnostics.captures,
+        ),
+      ).toBe(0);
+    });
     test("actual integrated Canvas trail starts, moves into collision, pauses and recreates Scenes", async ({
       page,
     }) => {

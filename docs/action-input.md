@@ -2,6 +2,8 @@
 
 Action input separates physical keyboard positions from game meaning. Core owns typed tokens, bindings, source composition and explicit input boundaries. Web reuses the focused BrowserInput adapter; no DOM type enters Core. ActionController is the only standard gameplay input path; Character and custom Components consume the same logical Actions.
 
+Web Scene factories can now use `context.actions(definitions, bindings?)`; `game.actions` uses the current Scene. These supply the same explicit Scene/input constructor arguments without global state or changing capture/reset/composition semantics. Canvas HoldButtons write ordinary owner-scoped ActionSources. See [Canvas input example](canvas-ui.md). Native DOM editing remains independent.
+
 ## Define and use actions
 
 ```ts verify

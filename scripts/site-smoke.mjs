@@ -3,6 +3,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { chromium } from "playwright";
 import { examples, pages } from "../site/config.mjs";
 import { testBlockfall } from "./site-blockfall-test.mjs";
+import { testCanvasUI } from "./site-canvas-test.mjs";
 import { testSiteImages } from "./site-image-test.mjs";
 import { testPrismRaid } from "./site-prism-raid-test.mjs";
 import { serveSite } from "./site-server.mjs";
@@ -112,6 +113,8 @@ try {
         await testPrismRaid(frame, page, context, viewport.width);
       } else if (example.id === "blockfall") {
         await testBlockfall(frame, page, context, viewport.width);
+      } else if (example.id === "canvas-ui") {
+        await testCanvasUI(frame, page);
       } else if (example.id === "tilemap") {
         await frame.waitForFunction(
           () => window.tilemapDemo?.game.engine.scene.state === "active",
@@ -253,6 +256,7 @@ try {
         });
         await targetFrame.evaluate(() => {
           const game =
+            window.canvasDemo?.game ??
             window.tilemapDemo?.game ??
             window.prismRaid?.game ??
             window.blockfall?.game ??
@@ -316,6 +320,7 @@ try {
       theme: true,
       hostCleanupAll: true,
       inspectedEngineCleanup: [
+        "canvas-ui",
         "tilemap",
         "prism-raid",
         "blockfall",
@@ -356,6 +361,8 @@ try {
     ),
     true,
   );
+  await noGlPage.goto(`${site}play/canvas-ui/index.html`);
+  await testCanvasUI(noGlPage, noGlPage);
   await noGl.close();
   const context = await browser.newContext();
   const page = await context.newPage();

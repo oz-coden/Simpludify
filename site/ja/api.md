@@ -61,3 +61,7 @@
 ## Tilemap
 
 [Tilemapガイド](tilemap.md)に、Grid／行列、名前付きID、配置、座標変換、セル更新、画像共有と破棄をまとめています。任意の衝突属性とTileContact専用イベントを既存CollisionWorldへ統合しています。[衝突ガイド](collision.md)も参照してください。
+
+## Canvas UIとPointer
+
+Sceneの`actions`ヘルパー、`canvasUI`、`pointer.events`を追加しています。既存DOM UIとActionControllerを維持します。[Canvasガイド](canvas-ui.md)を参照してください。

@@ -55,6 +55,7 @@ export const buttons: Record<string, CanvasNode> = {};
 const button = (name: string, click: () => void | Promise<void>) =>
   (buttons[name] = CanvasButton(name, click, { fontSize: 16 }));
 game.scene("title", ({ canvasUI }) => {
+  for (const name of Object.keys(buttons)) delete buttons[name];
   terrain = undefined;
   world = undefined;
   game.resume();
@@ -80,6 +81,7 @@ game.scene("title", ({ canvasUI }) => {
   );
 });
 game.scene("field", ({ scene, add, actions, canvasUI, pointer, onUpdate }) => {
+  for (const name of Object.keys(buttons)) delete buttons[name];
   game.resume();
   world = new CollisionWorld(scene);
   const ground = new Tilemap({

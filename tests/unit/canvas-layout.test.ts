@@ -195,3 +195,17 @@ it("redistributes shrink after an item reaches zero", () => {
   setup(CanvasRow([a, b]), 10, 100);
   expect(a.bounds.width + b.bounds.width).toBeCloseTo(10);
 });
+it("remeasures a wrapped descendant after its flex main size grows", () => {
+  const children = Array.from({ length: 4 }, () =>
+    CanvasLabel("a", { width: 90, height: 30, shrink: 0 }),
+  );
+  const wrapped = CanvasRow(children, {
+    width: 100,
+    grow: 1,
+    wrap: true,
+    align: "start",
+  });
+  setup(CanvasRow([wrapped], { align: "start" }), 300, 200);
+  expect(wrapped.bounds).toEqual({ x: 0, y: 0, width: 300, height: 60 });
+  expect(children[3]?.bounds.y).toBe(30);
+});

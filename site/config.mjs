@@ -64,8 +64,41 @@ export const examples = [
       "ゲームをフォーカスしてWASDで移動。Paint under playerで足元を変更、Leave/ReturnでScene往復。石・木の壁、水Trigger、Toggle wall aheadで生成／破壊、Toggle collisionで衝突を切り替えます。",
     guide: "guides/tilemap.html",
   },
+  {
+    id: "canvas-ui",
+    title: "Canvas trail",
+    summary: "Canvas HUD・Flex・Pointer・Action・地形衝突を統合",
+    controls:
+      "Startで開始。WASDまたは下部の方向ボタンで移動し、石の壁と衝突。Wallで壁を編集、Pause/P/Escで停止・再開、空白を選択、Menu/StartでSceneを再生成。Tab・Enter・Spaceでも操作できます。",
+    guide: "guides/canvas-ui.html",
+  },
 ];
 export const pages = [
+  [
+    "guides/canvas-ui.html",
+    "site/ja/canvas-ui.md",
+    "Canvas UI・Flex・Pointer",
+    "ガイド",
+  ],
+  ["en/canvas-ui.html", "docs/canvas-ui.md", "Canvas UI and input", "English"],
+  [
+    "en/canvas-ui-performance.html",
+    "docs/canvas-ui-performance.md",
+    "Canvas UI measurements",
+    "English",
+  ],
+  [
+    "en/canvas-ui-implementation.html",
+    "docs/canvas-ui-implementation.md",
+    "Canvas UI validation",
+    "English",
+  ],
+  [
+    "canvas-ui-example.html",
+    "examples/canvas-ui/README.md",
+    "Canvas trail sample",
+    "サンプル",
+  ],
   [
     "en/tilemap-collision.html",
     "docs/tilemap-collision.md",

@@ -1,5 +1,7 @@
 # Scene・状態・UI
 
+[Canvas UI・Flex・Pointer](canvas-ui.md)も利用できます。このページは引き続きネイティブDOM UIを扱います。
+
 ゲームのルールとDOM表示を分け、型付きScene IDで画面を移動します。メニューとプレイの状態はゲーム側で定義します。
 
 ## Sceneを登録する

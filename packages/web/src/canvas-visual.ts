@@ -174,7 +174,8 @@ export class CanvasVisual implements CanvasPresentation {
       c.width <= 0 ||
       c.height <= 0 ||
       node.style.pointerEvents !== "auto";
-    button.setAttribute("aria-pressed", String(node.held));
+    if (node.kind === "hold-button")
+      button.setAttribute("aria-pressed", String(node.held));
     button.setAttribute("aria-busy", String(node.busy));
     button.style.cssText = `left:${c.x * s}px;top:${c.y * s}px;width:${c.width * s}px;height:${c.height * s}px;`;
     if (button.disabled && document.activeElement === button) button.blur();
@@ -239,7 +240,8 @@ export class CanvasVisual implements CanvasPresentation {
         clip.width !== width / this.ui.scale ||
         clip.height !== height / this.ui.scale;
       entry.display.mask = clipped ? entry.mask : null;
-      entry.mask.renderable = false;
+      // StencilMaskPipe collects renderables; includeInBuild is managed by Pixi.
+      entry.mask.renderable = clipped;
       if (clipped)
         entry.mask
           .clear()
@@ -275,7 +277,10 @@ export class CanvasVisual implements CanvasPresentation {
             )
             .stroke({ color: 0xffd36b, width: 3 });
       }
-      entry.display.alpha = node.enabled ? 1 : 0.45;
+      let enabled = !node.busy;
+      for (let p: CanvasNode | undefined = node; p; p = p.parent)
+        enabled &&= p.enabled;
+      entry.display.alpha = enabled ? 1 : 0.45;
       if (entry.text) {
         entry.text.text = node.text;
         const textStyleKey = JSON.stringify([

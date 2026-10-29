@@ -178,3 +178,54 @@ declare global {
     canvasProbe: Awaited<ReturnType<typeof canvasFixture>>;
   }
 }
+export function clippingAndPaint(f: Awaited<ReturnType<typeof canvasFixture>>) {
+  const clipped = CanvasButton("", () => {}, {
+    width: 100,
+    height: 50,
+    shrink: 0,
+    padding: 0,
+    background: 0x0000ff,
+  });
+  const back = CanvasButton("", () => {}, {
+    width: 100,
+    height: 50,
+    shrink: 0,
+    padding: 0,
+    background: 0xaa0000,
+  });
+  const front = CanvasButton("", () => {}, {
+    width: 100,
+    height: 50,
+    shrink: 0,
+    padding: 0,
+    background: 0x00aa00,
+  });
+  f.root.root.add(
+    CanvasPanel([clipped], { width: 50, height: 20, clip: true, shrink: 0 }),
+    CanvasPanel([back], { height: 0, shrink: 0 }),
+    front,
+  );
+  f.step();
+  const c = clipped.bounds,
+    b = front.bounds;
+  return {
+    inside: f.pixel(c.x + 4, c.y + 4),
+    outside: f.pixel(c.x + 70, c.y + 4),
+    clipInside: f.root.hitTest(c.x + 4, c.y + 4) === clipped,
+    clipOutside: f.root.hitTest(c.x + 70, c.y + 4) === clipped,
+    front: f.pixel(b.x + 4, b.y + 4),
+    frontHit: f.root.hitTest(b.x + 4, b.y + 4) === front,
+  };
+}
+export function throwingHold(f: Awaited<ReturnType<typeof canvasFixture>>) {
+  const b = CanvasHoldButton(
+    "Fault",
+    (held) => {
+      if (held) throw Error("expected hold error");
+    },
+    { width: 100, height: 40 },
+  );
+  f.root.root.add(b);
+  f.step();
+  return f.center(b);
+}

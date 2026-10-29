@@ -33,3 +33,9 @@ The Scene-owned model, dirty Flex subset, Pixi screen presentation, semantic but
 - Narrow-screen Fit letterbox coordinates are not world hit points. Tests derive world drag starts from the current view clip, retaining the same UI/world ownership assertions.
 
 Canvas keyboard/AT support is a button mirror, not complete screen-reader document semantics. Flex is a documented subset rather than a CSS layout implementation. Broader browser, performance and final regression gates remain pending at this checkpoint.
+
+## Expanded contract/measurement checkpoint
+
+The real clipped-pixel test exposed an additional WebGL-only defect: setting a stencil Graphics `renderable=false` excluded it from `StencilMaskPipe.collectRenderables`, while Canvas2D still used its shape. A clipped mask now remains renderable, with Pixi controlling `includeInBuild`; an unused mask is nonrenderable. All four clipped-pixel cases pass, with no relaxed pixel expectations. Nested wrapped descendants also remeasure auto cross size after grow/shrink allocation. Layout diagnostics distinguish arranged nodes, intrinsic helper visits and constrained helper visits; arrange counts alone must not be described as all layout work.
+
+Supported English/Japanese API docs, type fixtures, gallery navigation and reproducible model/browser/bundle harnesses are saved before recording performance. Current model/router unit cases: 28 passed. The expanded 36-case browser suite and production/site validation remain in progress. Yoga 3.2.1 is fetched only for isolated comparison; no dependency or lockfile change is adopted.

@@ -29,7 +29,7 @@ Simpludify has an experimental Web runtime and a generic composition-based Core.
 
 Windows/Electron packaging and Windows executable smoke tests are pending. There is no portable executable guarantee or cross-language SDK. Public npm publication, compiled SDK packages and automated vendored-engine upgrades are deferred.
 
-No impulse/angular rigid-body simulation or continuous collision detection, multiple cameras/viewports, tile collision, infinite maps, audio, save-game format, networking, generic ECS, asset manifest/font manager or visual editor is implemented. Actors/components are destroyed on removal; reusable pooling and scene reactivation are not implicit features. Dynamic images load asynchronously and can fail independently of logical Actors.
+No impulse/angular rigid-body simulation or continuous collision detection, multiple cameras/viewports, infinite maps, audio, save-game format, networking, generic ECS, asset manifest/font manager or visual editor is implemented. Actors/components are destroyed on removal; reusable pooling and scene reactivation are not implicit features. Dynamic images load asynchronously and can fail independently of logical Actors.
 
 Generic control-right management was reviewed and is not being introduced. Grid does not acquire control handles for stored values, and no control-right API is being added to existing Components. NDArray and sparse/infinite/chunked grids are outside the fixed 2D Grid scope.
 
@@ -54,3 +54,7 @@ Implemented: standalone RandomManager, cached named streams, actual automatic se
 ## Optional Tilemap collision
 
 The finite Tilemap now supports copied ID policies, sparse cell overrides and dedicated TileContactEnter/Stay/Exit through the existing CollisionWorld. Actor Contact stays unchanged. Local candidate queries, equal-policy exposed-feature response and one shared iteration budget are implemented. See [API and limits](tilemap-collision.md). CCD, rigid-body response, streaming, slopes and general deep-embedding recovery remain outside scope.
+
+## Canvas UI and Pointer input
+
+Implemented: Scene-owned Web Canvas nodes, Pixi screen presentation, explicit dirty Flex subset, fixed-owner multi-pointer routing, existing ActionSource integration, native keyboard button mirrors, and Canvas trail integration. Existing DOM UI and Core Action contracts remain. See [API and scope](canvas-ui.md), [validation](canvas-ui-implementation.md) and [measurements](canvas-ui-performance.md). Full CSS layout, text editing/document semantics, gamepad adapters, OS/device accessibility verification and hardware GPU profiling remain separate work.

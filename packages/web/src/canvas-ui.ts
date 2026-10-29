@@ -27,6 +27,8 @@ export class CanvasUI implements LifetimeOwner {
   private removeScene: (() => void) | undefined;
   private visits = 0;
   private layouts = 0;
+  private intrinsicVisits = 0;
+  private constrainVisits = 0;
   private hits = 0;
   private hitVisits = 0;
   private nodes = 0;
@@ -69,6 +71,8 @@ export class CanvasUI implements LifetimeOwner {
     return {
       layouts: this.layouts,
       layoutVisits: this.visits,
+      intrinsicVisits: this.intrinsicVisits,
+      constrainVisits: this.constrainVisits,
       nodes: this.nodes,
       hitTests: this.hits,
       hitVisits: this.hitVisits,
@@ -115,8 +119,10 @@ export class CanvasUI implements LifetimeOwner {
     this.height = height;
     this.dirty = false;
     this.layouts++;
-    this.visits += visits;
-    this.nodes = visits;
+    this.visits += visits.nodes;
+    this.intrinsicVisits += visits.intrinsicVisits;
+    this.constrainVisits += visits.constrainVisits;
+    this.nodes = visits.nodes;
     return true;
   }
   /** @internal Same clipped paint order as Pixi and keyboard mirror. */
