@@ -59,10 +59,12 @@ interface Gesture {
   node?: CanvasNode;
   ui?: CanvasUI;
   last: PointerInfo;
+  primary: boolean;
   off?: () => void;
 }
 /** @internal Device-independent routing state; DOM is only an adapter. */
 export class PointerRouting {
+  private readonly suppressed = new Set<number>();
   private readonly gestures = new Map<number, Gesture>();
   private readonly hovering = new Map<
     number,
@@ -78,6 +80,7 @@ export class PointerRouting {
   get diagnostics() {
     return {
       captures: this.gestures.size,
+      suppressedPointers: this.suppressed.size,
       hoverPointers: this.hovering.size,
       heldNodes: this.holds.size,
       keyboardNodes: this.keys.size,
@@ -129,6 +132,7 @@ export class PointerRouting {
   down(data: PointerInfo): CanvasNode | undefined {
     if (!this.channel || this.channel.disposed) return;
     if (this.gestures.has(data.pointerId)) this.cancel(data.pointerId);
+    this.suppressed.delete(data.pointerId);
     const node = this.ui?.hitTest(
       data.screen.x / this.ui.scale,
       data.screen.y / this.ui.scale,
@@ -137,6 +141,7 @@ export class PointerRouting {
     const g: Gesture = {
       channel: this.channel,
       last: data,
+      primary: data.button === 0,
       ...(node ? { node, ui: this.ui as CanvasUI } : {}),
     };
     this.gestures.set(data.pointerId, g);
@@ -144,7 +149,8 @@ export class PointerRouting {
     cleanupAll(
       [
         () => {
-          if (node?.interactive) this.hold(node, data.pointerId, true);
+          if (node?.interactive && g.primary)
+            this.hold(node, data.pointerId, true);
         },
         () => {
           if (!node || node.available)
@@ -158,7 +164,11 @@ export class PointerRouting {
   has(id: number): boolean {
     return this.gestures.has(id);
   }
+  owns(id: number): boolean {
+    return this.gestures.has(id) || this.suppressed.has(id);
+  }
   move(data: PointerInfo): void {
+    if (this.suppressed.has(data.pointerId)) return;
     const g = this.gestures.get(data.pointerId);
     if (g) {
       g.last = data;
@@ -189,7 +199,10 @@ export class PointerRouting {
     info: PointerInfo,
   ): void {
     const previous = this.hovering.get(id);
-    if (previous?.node === node) return;
+    if (previous?.node === node) {
+      if (node) this.hovering.set(id, { node, info });
+      return;
+    }
     this.hovering.delete(id);
     if (node) this.hovering.set(id, { node, info });
     cleanupAll(
@@ -222,6 +235,7 @@ export class PointerRouting {
     );
   }
   up(data: PointerInfo): void {
+    if (this.suppressed.delete(data.pointerId)) return;
     const g = this.gestures.get(data.pointerId);
     if (!g) return;
     this.gestures.delete(data.pointerId);
@@ -237,20 +251,22 @@ export class PointerRouting {
           if (!g.node || g.node.available) this.emit(g, PointerUp, info);
         },
         () => {
-          if (info.inside && (!g.node || g.node.available))
+          if (g.primary && info.inside && (!g.node || g.node.available))
             this.emit(g, PointerClick, info);
         },
         () => {
-          if (info.inside && g.node?.available) g.node.activate();
+          if (g.primary && info.inside && g.node?.available) g.node.activate();
         },
       ],
       "Pointer up handlers failed",
     );
   }
-  cancel(id: number): void {
+  cancel(id: number, retainOwnership = true): void {
+    if (!retainOwnership) this.suppressed.delete(id);
     const g = this.gestures.get(id);
     if (!g) return;
     this.gestures.delete(id);
+    if (retainOwnership) this.suppressed.add(id);
     cleanupAll(
       [
         () => g.off?.(),
@@ -326,6 +342,13 @@ export class PointerRouting {
       ],
       "Pointer release failed",
     );
+  }
+  dispose(): void {
+    try {
+      this.reset();
+    } finally {
+      this.suppressed.clear();
+    }
   }
   reset(): void {
     const off = this.subscriptions.splice(0);

@@ -23,3 +23,13 @@ Retain Actor/Sprite/Tilemap/Collision regressions; strict types/DOM-free boundar
 ## Routing/presentation checkpoint
 
 The Scene-owned model, dirty Flex subset, Pixi screen presentation, semantic button mirror and DOM capture-phase router are implemented. 534 unit tests and strict TypeScript pass at this checkpoint; real-browser validation is still pending. Twenty-five new model/routing cases cover fixed ownership, multi-pointer/keyboard holds, cancellation, native Action frame semantics, nested wrapping, clipped hits and disposal. The current custom Flex subset has no runtime dependency; library/bundle/performance comparison remains pending.
+
+## Browser findings and corrections
+
+- DOM capture-phase window blur also observes descendant blur. Restrict release to `event.target === window`; ordinary native/game focus movement must not cancel an unrelated gesture.
+- Canvas pointer controls keep game focus, permitting physical keyboard and logical touch sources to compose. Tab explicitly enters the native semantic controls, where Enter/Space belong to UI. Keyup without a corresponding button keydown cannot activate a button.
+- Canceled/disposed/disabled gesture IDs remain suppressed until physical up/cancel (or a new down). Scene replacement must not transfer an already-started operation into the new world. Terminal Game disposal clears those IDs.
+- Avoid per-node full-screen stencil masks when no explicit ancestor clip exists; the canvas already clips its bounds. Cache resolved visual signatures and only replace text styles when font/color change. The initial cold SwiftShader run exceeded the original test timeout while redundant redraws were present; after these changes all 12 desktop cases pass. Idle rendering is exercised for three real frames, with 100 no-layout calls covered by the model test, rather than issuing 30 unnecessary GPU draws inside one synchronous evaluate.
+- Narrow-screen Fit letterbox coordinates are not world hit points. Tests derive world drag starts from the current view clip, retaining the same UI/world ownership assertions.
+
+Canvas keyboard/AT support is a button mirror, not complete screen-reader document semantics. Flex is a documented subset rather than a CSS layout implementation. Broader browser, performance and final regression gates remain pending at this checkpoint.

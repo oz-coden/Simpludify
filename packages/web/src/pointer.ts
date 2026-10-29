@@ -4,7 +4,6 @@ import {
   type ViewTransform,
   type WorldPoint,
 } from "@simpludify/core";
-import type { CanvasPresentation } from "./canvas-visual";
 import type { PointerInfo } from "./pointer-routing";
 import { PointerRouting } from "./pointer-routing";
 /** One DOM capture-phase adapter per Game; Pixi federated events never route these widgets. */
@@ -19,7 +18,6 @@ export class BrowserPointer {
       view: ViewTransform;
     },
     private readonly report: (error: unknown) => void,
-    private readonly presentation: () => CanvasPresentation | undefined,
     private readonly flush: () => void,
   ) {
     this.routing = new PointerRouting((id) => {
@@ -39,11 +37,12 @@ export class BrowserPointer {
           } catch {
             /* Window capture listeners also cover synthetic events. */
           }
-          const node = this.routing.down(data);
+          this.routing.down(data);
           if (this.routing.has(e.pointerId)) {
             e.preventDefault();
-            if (node?.interactive) this.presentation()?.focus(node);
-            else host.focus({ preventScroll: true });
+            // Keep game keyboard input while a touch/mouse UI source is held.
+            // Tab still focuses native semantic controls explicitly.
+            host.focus({ preventScroll: true });
           } else if (host.hasPointerCapture(e.pointerId))
             host.releasePointerCapture(e.pointerId);
         }),
@@ -53,7 +52,8 @@ export class BrowserPointer {
       "pointermove",
       (e) =>
         this.guard(() => {
-          if (!this.routing.has(e.pointerId) && !this.surface(e.target)) return;
+          if (!this.routing.owns(e.pointerId) && !this.surface(e.target))
+            return;
           this.flush();
           this.routing.move(this.data(e));
         }),
@@ -63,7 +63,7 @@ export class BrowserPointer {
       "pointerup",
       (e) =>
         this.guard(() => {
-          if (this.routing.has(e.pointerId)) {
+          if (this.routing.owns(e.pointerId)) {
             e.preventDefault();
             this.routing.up(this.data(e));
           }
@@ -72,7 +72,7 @@ export class BrowserPointer {
     );
     window.addEventListener(
       "pointercancel",
-      (e) => this.guard(() => this.routing.cancel(e.pointerId)),
+      (e) => this.guard(() => this.routing.cancel(e.pointerId, false)),
       options,
     );
     host.addEventListener(
@@ -85,7 +85,13 @@ export class BrowserPointer {
       (e) => this.guard(() => this.routing.leave(this.data(e))),
       options,
     );
-    window.addEventListener("blur", () => this.release(), options);
+    window.addEventListener(
+      "blur",
+      (event) => {
+        if (event.target === window) this.release();
+      },
+      options,
+    );
     document.addEventListener(
       "visibilitychange",
       () => {
@@ -125,6 +131,6 @@ export class BrowserPointer {
   }
   dispose(): void {
     this.abort.abort();
-    this.guard(() => this.routing.reset());
+    this.guard(() => this.routing.dispose());
   }
 }

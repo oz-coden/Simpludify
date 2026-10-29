@@ -219,7 +219,6 @@ export class Game<SceneId extends string = string> {
         return { screen, world: this.screenToWorld(screen), view: this.view };
       },
       this.report,
-      () => this.canvasPresentation,
       () => this.canvasPresentation?.update(this.width, this.height),
     );
     document.addEventListener(

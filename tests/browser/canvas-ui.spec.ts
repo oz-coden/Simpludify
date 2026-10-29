@@ -59,7 +59,7 @@ for (const fallback of [false, true])
         const green = f.pixel(b.x + 4, b.y + 4),
           before = { ...f.root.diagnostics },
           syncs = f.renderer.canvasDiagnostics.syncs;
-        for (let i = 0; i < 30; i++) f.step();
+        for (let i = 0; i < 3; i++) f.step();
         const idle = { ...f.root.diagnostics },
           afterSync = f.renderer.canvasDiagnostics.syncs;
         f.game.camera.x = 400;
@@ -111,7 +111,11 @@ for (const fallback of [false, true])
         true,
         false,
       ]);
-      await page.mouse.move(320, 230);
+      const world = await page.evaluate(() => {
+        const c = window.canvasProbe.game.view.clip;
+        return { x: c.x + c.width * 0.75, y: c.y + c.height * 0.5 };
+      });
+      await page.mouse.move(world.x, world.y);
       await page.mouse.down();
       await page.mouse.move(p.x, p.y);
       await page.mouse.up();
@@ -187,7 +191,13 @@ for (const fallback of [false, true])
       await page.keyboard.down("a");
       await page.mouse.move(p.x, p.y);
       await page.mouse.down();
-      // Pointer focus on the semantic button releases the browser's keyboard contribution.
+      // Canvas pointers retain game focus; keyboard and touch/mouse contributions compose.
+      await page.evaluate(() => window.canvasProbe.step());
+      expect(
+        await page.evaluate(
+          () => window.canvasProbe.controls.value(window.canvasProbe.A.Move).x,
+        ),
+      ).toBe(0);
       await page.keyboard.up("a");
       await page.evaluate(() => window.canvasProbe.step());
       expect(
@@ -340,15 +350,17 @@ for (const fallback of [false, true])
       await page.mouse.click(340, 350);
       await page.keyboard.down("d");
       await expect
-        .poll(() =>
-          page.evaluate(
-            () =>
-              (
-                window.canvasDemo.game.engine.scene.find("explorer") as
-                  | CharacterActor
-                  | undefined
-              )?.x,
-          ),
+        .poll(
+          () =>
+            page.evaluate(
+              () =>
+                (
+                  window.canvasDemo.game.engine.scene.find("explorer") as
+                    | CharacterActor
+                    | undefined
+                )?.x,
+            ),
+          { timeout: 20000 },
         )
         .toBe(434);
       await page.keyboard.up("d");

@@ -22,6 +22,8 @@ interface Entry {
   mask: Graphics;
   button?: HTMLButtonElement;
   abort: AbortController;
+  signature?: string;
+  textStyleKey?: string;
 }
 /** Pixi rendering and a small native focus mirror share the same resolved boxes. */
 export class CanvasVisual implements CanvasPresentation {
@@ -93,22 +95,33 @@ export class CanvasVisual implements CanvasPresentation {
     const signal = this.entries.get(node)?.abort.signal;
     if (!signal)
       throw new EngineError("INVALID_UI", "Missing Canvas button entry");
-    const options = { signal };
+    const options = { signal },
+      keys = new Set<string>();
+    const run = (task: () => void) => {
+      try {
+        task();
+      } catch (error) {
+        this.ui.report(error);
+      }
+    };
     button.addEventListener(
       "focus",
-      () => {
-        node.focused = true;
-        node.changed();
-      },
+      () =>
+        run(() => {
+          node.focused = true;
+          node.changed();
+        }),
       options,
     );
     button.addEventListener(
       "blur",
-      () => {
-        node.focused = false;
-        node.changed();
-        this.routing.releaseKeys(node);
-      },
+      () =>
+        run(() => {
+          keys.clear();
+          node.focused = false;
+          node.changed();
+          this.routing.releaseKeys(node);
+        }),
       options,
     );
     button.addEventListener(
@@ -116,7 +129,11 @@ export class CanvasVisual implements CanvasPresentation {
       (event) => {
         if (event.code !== "Enter" && event.code !== "Space") return;
         event.preventDefault();
-        if (!event.repeat) this.routing.key(node, event.code, true);
+        if (!event.repeat)
+          run(() => {
+            keys.add(event.code);
+            this.routing.key(node, event.code, true);
+          });
       },
       options,
     );
@@ -125,27 +142,22 @@ export class CanvasVisual implements CanvasPresentation {
       (event) => {
         if (event.code !== "Enter" && event.code !== "Space") return;
         event.preventDefault();
-        this.routing.key(node, event.code, false);
-        if (node.kind === "button" && node.available)
-          try {
+        const wasDown = keys.delete(event.code);
+        run(() => {
+          this.routing.key(node, event.code, false);
+          if (wasDown && node.kind === "button" && node.available)
             node.activate();
-          } catch (error) {
-            this.ui.report(error);
-          }
+        });
       },
       options,
     );
     // AT/automation can activate the semantic control without a physical key.
     button.addEventListener(
       "click",
-      () => {
-        if (node.kind === "button" && node.available)
-          try {
-            node.activate();
-          } catch (error) {
-            this.ui.report(error);
-          }
-      },
+      () =>
+        run(() => {
+          if (node.kind === "button" && node.available) node.activate();
+        }),
       options,
     );
     return button;
@@ -156,12 +168,12 @@ export class CanvasVisual implements CanvasPresentation {
       b = node.bounds,
       s = this.ui.scale,
       c = intersectUI(b, clip);
-    button.textContent = node.text;
+    if (button.textContent !== node.text) button.textContent = node.text;
     button.disabled =
       !node.available ||
       c.width <= 0 ||
       c.height <= 0 ||
-      node.style.pointerEvents === "none";
+      node.style.pointerEvents !== "auto";
     button.setAttribute("aria-pressed", String(node.held));
     button.setAttribute("aria-busy", String(node.busy));
     button.style.cssText = `left:${c.x * s}px;top:${c.y * s}px;width:${c.width * s}px;height:${c.height * s}px;`;
@@ -189,7 +201,7 @@ export class CanvasVisual implements CanvasPresentation {
           mask = new Graphics();
         display.addChild(background);
         this.display.addChild(display, mask);
-        display.mask = mask;
+        mask.renderable = false;
         entry = { display, background, mask, abort: new AbortController() };
         this.entries.set(node, entry);
         if (node.interactive) {
@@ -205,11 +217,34 @@ export class CanvasVisual implements CanvasPresentation {
       this.display.setChildIndex(entry.mask, order++);
       const b = node.bounds,
         s = node.style;
+      const signature = JSON.stringify([
+        node.paintRevision,
+        b.x,
+        b.y,
+        b.width,
+        b.height,
+        clip.x,
+        clip.y,
+        clip.width,
+        clip.height,
+        node.available,
+        this.ui.scale,
+      ]);
+      if (entry.signature === signature) return;
+      entry.signature = signature;
       entry.display.position.set(b.x, b.y);
-      entry.mask
-        .clear()
-        .rect(clip.x, clip.y, clip.width, clip.height)
-        .fill(0xffffff);
+      const clipped =
+        clip.x !== 0 ||
+        clip.y !== 0 ||
+        clip.width !== width / this.ui.scale ||
+        clip.height !== height / this.ui.scale;
+      entry.display.mask = clipped ? entry.mask : null;
+      entry.mask.renderable = false;
+      if (clipped)
+        entry.mask
+          .clear()
+          .rect(clip.x, clip.y, clip.width, clip.height)
+          .fill(0xffffff);
       entry.background.clear();
       if (s.background !== undefined || node.interactive) {
         entry.background
@@ -243,11 +278,19 @@ export class CanvasVisual implements CanvasPresentation {
       entry.display.alpha = node.enabled ? 1 : 0.45;
       if (entry.text) {
         entry.text.text = node.text;
-        entry.text.style = {
-          fontFamily: s.fontFamily,
-          fontSize: s.fontSize,
-          fill: s.color,
-        };
+        const textStyleKey = JSON.stringify([
+          s.fontFamily,
+          s.fontSize,
+          s.color,
+        ]);
+        if (entry.textStyleKey !== textStyleKey) {
+          entry.textStyleKey = textStyleKey;
+          entry.text.style = {
+            fontFamily: s.fontFamily,
+            fontSize: s.fontSize,
+            fill: s.color,
+          };
+        }
         const m = this.measure(node);
         entry.text.position.set(
           node.interactive

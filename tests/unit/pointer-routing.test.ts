@@ -260,3 +260,28 @@ it("snapshots coordinate payloads without returning mutable DOM objects", () => 
   expect(payload?.screen).toEqual(screenPoint(10, 10));
   expect(Object.isFrozen(payload)).toBe(true);
 });
+it("does not transfer a canceled gesture to the world or a replacement Scene before release", () => {
+  const f = fixture(),
+    world: string[] = [];
+  f.routing.down(data());
+  f.button.enabled = false;
+  f.channel.events.on(PointerMove, () => world.push("move"));
+  f.channel.events.on(PointerUp, () => world.push("up"));
+  f.routing.move(data(1, 200, 150));
+  expect(world).toEqual([]);
+  f.routing.setScene(new ScenePointer(new Scene("next")));
+  expect(f.routing.diagnostics.suppressedPointers).toBe(1);
+  f.routing.move(data(1, 200, 150));
+  f.routing.up(data(1, 200, 150));
+  expect(f.routing.diagnostics.suppressedPointers).toBe(0);
+});
+it("secondary mouse buttons never activate or hold a UI button", () => {
+  const f = fixture(),
+    right = { ...data(1, 20, 60), button: 2, buttons: 2 };
+  f.routing.down(right);
+  f.routing.up(right);
+  expect(f.clicks).toEqual([]);
+  f.routing.down({ ...right, screen: screenPoint(10, 10) });
+  f.routing.up({ ...right, screen: screenPoint(10, 10) });
+  expect(f.holds).toEqual([]);
+});
