@@ -1,6 +1,6 @@
 # Collision review and Tilemap integration
 
-Status: review in progress. This branch does **not** implement Tilemap collision as a supported engine feature.
+Status: design review complete; formal Tilemap collision remains the next implementation stage. This branch does **not** implement Tilemap collision as a supported engine feature.
 
 Base: `codex/working-tilemap` at `77479d59b58f26aadc4e89f773d90b9b5ba1752b`.
 Work branch: `codex/working-collision-design`. Main, Sprite and Tilemap refs were checked before work; none is a write target.
@@ -38,19 +38,19 @@ Camera, visible tiles, Viewport and texture readiness have no collision role. No
 - Finite iteration budgets and endpoint-only geometry do not guarantee depenetration, CCD, stable stacks, moving platforms, friction or restitution.
 - A failed geometry pass can retain previous tracked pairs in diagnostics while contactsFor filters by current pass; this is not transactional rollback.
 
-No confirmed runtime defect is asserted by this initial inventory. Additional tests, API alternatives, measured results and a concrete implementation plan will be linked here before completion.
+No confirmed local runtime defect requiring a solver patch was found in the reviewed paths. The findings are scalability/observation limits and missing terrain contracts, rather than evidence that the existing Actor system should be replaced. The linked tests document boundaries that were previously implicit or lightly tested.
 
-## First executable checks (checkpoint)
+## Executable evidence
 
 24 new focused tests pass: twelve current Actor contract cases, four candidate-search cases, five policy/identity cases, three naive response probes. Strict TypeScript passes with positive/negative proposed API examples. These probes are under `tests/prototypes`, not exported or installed into Scenes.
 
 The naive shared circle/box narrow phase + per-cell correction probe **reproduces seam-induced circle tangent displacement** and unresolved deep embedding. This is a formal implementation acceptance gate, not a fixed production defect: current Tilemap does not yet have collision. A normal single cell separates correctly. Candidate strategy equality alone must not be mistaken for solver correctness.
 
-The only production changes so far relax _internal parameter types_: narrow phase accepts shape/geometry without Actor/Transform ownership, and correction accepts x/y positions. Function bodies and existing Actor behavior are unchanged. No tile Actor, Collider instance, Scene hook, public collision API or runtime dependency is introduced.
+The only production changes relax _internal parameter types_: narrow phase accepts shape/geometry without Actor/Transform ownership, and correction accepts x/y positions. Function bodies and existing Actor behavior are unchanged. No tile Actor, Collider instance, Scene hook, public collision API or runtime dependency is introduced.
 
-`tests/prototypes/collision-api.ts` is a declaration-only API sketch; `tests/types/collision-proposal.ts` checks inferred names, explicit policies and target narrowing. The preferred shape is one existing Contact event family with `other.kind` and a deliberate source migration, rather than pretending a tile is an Actor or installing duplicate physics worlds. The final recommendation will document migration sites and alternatives.
+`tests/prototypes/collision-api.ts` is a declaration-only API sketch; `tests/types/collision-proposal.ts` checks inferred names, explicit policies and target narrowing. The preferred shape is one existing Contact event family with `other.kind` and a deliberate source migration, rather than pretending a tile is an Actor or installing duplicate physics worlds. The contract document lists migration sites and alternatives. Native TypeScript completion checks also verify proposed tile names and target-specific fields.
 
-Next: record isolated search/index timings only after this checkpoint is pushed; retain raw samples and disclose geometry/event costs omitted by that benchmark.
+All 216 search runs and their 4320 measured per-pass samples are retained with environment/source provenance. The benchmark report separates search/index costs from unmeasured production terrain solver/event costs. An additional integrity test validates every stored run and percentile summary. Final regression totals are 391 unit tests and 166 browser tests; see validation.md for exact scope.
 
 ## Review deliverables
 
@@ -60,3 +60,13 @@ Next: record isolated search/index timings only after this checkpoint is pushed;
 - [Validation, browser environment and recovery checkpoints](validation.md)
 
 The recommendation is direct local lookup with shared CollisionWorld orchestration and stable per-cell identity. A naive per-cell solver is **not** approved for release: seam response remains a concrete implementation gate. The proposed target union is a deliberate future source migration; this review branch keeps the existing Contact API unchanged.
+
+## Clarifications, not silent behavior changes
+
+- Existing API documentation already separates Collider policy, Body correction weight and Motion intent. Keep that separation; no new body class or generic manager is needed.
+- "Stable order" means Collider discovery serial, not Actor creation order: a Collider attached later is discovered later. New tests exercise this difference.
+- "After correction" describes the notification phase. It does not make live Transform reads immutable across callbacks. The proposed position values address this ambiguity without changing current callback semantics here.
+- "Resolved" means this pair translated a body. An impossible gap can still have unresolved contacts; a new test records that distinction.
+- Geometry failures are nontransactional: a tracked pair count may survive while contactsFor filters by the new failed pass. Recovery is tested; adding transactional rollback is outside scope.
+
+[Implementation acceptance gates](implementation-plan.md) distinguish chosen contracts from unverified response/topology and allocation hypotheses. There is no claim that all edge cases of the existing solver or the future integration have been exhaustively proven.

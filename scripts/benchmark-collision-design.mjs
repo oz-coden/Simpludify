@@ -237,7 +237,7 @@ try {
   for (const [name, group] of groups)
     writeFileSync(
       resolve(dirname(out), "samples", name),
-      `${JSON.stringify(group)}\n`,
+      `${JSON.stringify(group, null, 2)}\n`,
     );
   writeFileSync(out, `${JSON.stringify(report, null, 2)}\n`);
   console.log(
