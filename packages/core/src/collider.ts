@@ -93,7 +93,7 @@ export class Collider extends Component {
     this.layer = collisionBits(options.layer ?? 1, "layer", false);
     this.mask = collisionBits(options.mask ?? 0xffffffff, "mask", true);
   }
-  /** @internal */ notify(type: EventType<Contact>, contact: Contact): void {
+  /** @internal */ notify<T>(type: EventType<T>, contact: T): void {
     this.emit(type, contact);
   }
 }

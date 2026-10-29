@@ -1,4 +1,4 @@
-/** Pre-implementation usability sketches; replaced by real API imports when implemented. */
+/** Actor-only, terrain-only and mixed games use the real exported APIs without a target union. */
 import {
   Actor,
   Collider,
@@ -6,20 +6,13 @@ import {
   CollisionResponse,
   CollisionWorld,
   ContactEnter,
-  type EventType,
   type Scene,
   SpriteSheet,
+  TileContactEnter,
   Tilemap,
   Transform,
 } from "@simpludify/core";
 
-declare const TileEnter: EventType<{
-  self: Collider;
-  selfActor: Actor;
-  map: Tilemap<string>;
-  tileX: number;
-  tileY: number;
-}>;
 const sheet = SpriteSheet.grid("terrain.png", {
   frameWidth: 32,
   frameHeight: 32,
@@ -47,7 +40,7 @@ export function terrainOnly(scene: Scene) {
     tileHeight: 32,
     collision: { tiles: [{ tile: "wall", response: CollisionResponse.Solid }] },
   }).place(scene);
-  player(scene).events.on(TileEnter, (contact) => {
+  player(scene).events.on(TileContactEnter, (contact) => {
     console.log(contact.tileX, contact.tileY);
   });
 }
@@ -57,7 +50,7 @@ export function mixed(scene: Scene) {
   collider.events.on(ContactEnter, (contact) => {
     console.log(contact.otherActor.id);
   });
-  collider.events.on(TileEnter, (contact) => {
+  collider.events.on(TileContactEnter, (contact) => {
     console.log(contact.map, contact.tileX);
   });
 }

@@ -6,16 +6,13 @@ import { API } from "typescript/unstable/sync";
 // Use the workspace's pinned TypeScript completion implementation; no editor required.
 const root = resolve(".");
 const file = join(root, "tests/types/collision-completions.ts");
-const source = `import { SpriteSheet, CollisionResponse, type Collider } from '@simpludify/core';
-import { ProposedTilemap, ProposedContactEnter } from '../prototypes/collision-api';
+const source = `import { SpriteSheet, Tilemap, CollisionResponse, TileContactEnter, ContactEnter, type Collider } from '@simpludify/core';
 const sheet = SpriteSheet.grid('terrain.png', { frameWidth:32, frameHeight:32, names:{grass:0, wall:1, water:2} });
-const map=new ProposedTilemap({sheet,tiles:[[0]],tileWidth:32,tileHeight:32, collision:{tiles:[{tile: '',response:CollisionResponse.Solid}]}});
+const map=new Tilemap({sheet,tiles:[[0]],tileWidth:32,tileHeight:32, collision:{tiles:[{tile: '',response:CollisionResponse.Solid}]}});
 map.setTileCollision('', {response:CollisionResponse.Solid});
 declare const collider: Collider;
-collider.events.on(ProposedContactEnter, contact => {
-  if(contact.other.kind==='tile') { contact.other./*tile*/; }
-  else { contact.other./*actor*/; }
-});`;
+collider.events.on(TileContactEnter, contact => { contact./*tile*/; });
+collider.events.on(ContactEnter, contact => { contact./*actor*/; });`;
 const api = new API({
   cwd: root,
   fs: {
@@ -59,10 +56,14 @@ try {
     for (const [marker, include, exclude] of [
       [
         "/*tile*/",
-        ["kind", "map", "tileX", "tileY", "tileId", "policy"],
-        ["actor", "collider"],
+        ["map", "tileX", "tileY", "tileId", "policy", "self", "selfActor"],
+        ["otherActor", "other", "kind"],
       ],
-      ["/*actor*/", ["kind", "actor", "collider"], ["map", "tileX"]],
+      [
+        "/*actor*/",
+        ["selfActor", "otherActor", "self", "other"],
+        ["map", "tileX", "kind"],
+      ],
     ]) {
       const position = source.indexOf(marker);
       const names =
