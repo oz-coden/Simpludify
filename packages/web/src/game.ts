@@ -1,4 +1,7 @@
 import {
+  type ActionBindings,
+  ActionController,
+  type ActionSet,
   type Actor,
   Aspect,
   Camera,
@@ -41,6 +44,10 @@ export interface SceneContext {
   readonly signal: AbortSignal;
   add<T extends Actor>(actor: T): T;
   ui(...nodes: UINode[]): void;
+  actions<A extends ActionSet>(
+    actions: A,
+    bindings?: ActionBindings<A>,
+  ): ActionController<A>;
   onUpdate(callback: (seconds: number) => void): () => void;
   onActivate(callback: () => void): () => void;
   onDeactivate(callback: () => void): () => void;
@@ -250,6 +257,18 @@ export class Game<SceneId extends string = string> {
     this.assertAlive();
     return this.engine.scene.add(actor);
   }
+  /** Scene-owned Actions for the current Scene. In a staged factory use context.actions. */
+  actions<A extends ActionSet>(
+    actions: A,
+    bindings?: ActionBindings<A>,
+  ): ActionController<A> {
+    this.assertAlive();
+    return new ActionController(actions, {
+      scene: this.engine.scene,
+      input: this.engine.input,
+      ...(bindings === undefined ? {} : { bindings }),
+    });
+  }
   remove(actor: Actor | string): boolean {
     this.assertAlive();
     return this.engine.scene.remove(actor);
@@ -352,6 +371,12 @@ export class Game<SceneId extends string = string> {
                 signal: controller.signal,
                 add: (actor) => scene.add(actor),
                 ui: (...items) => nodes.push(...items),
+                actions: (actions, bindings) =>
+                  new ActionController(actions, {
+                    scene,
+                    input: this.engine.input,
+                    ...(bindings === undefined ? {} : { bindings }),
+                  }),
                 onUpdate: (callback) => scene.onUpdate(callback),
                 onActivate: (callback) => scene.onActivate(callback),
                 onDeactivate: (callback) => scene.onDeactivate(callback),
