@@ -119,6 +119,12 @@ try {
         await frame.locator(".simpludify").focus();
         await page.keyboard.down("KeyD");
         await frame.waitForFunction(() => window.tilemapDemo.game.camera.x > 5);
+        await frame.waitForFunction(
+          () =>
+            Math.abs(
+              window.tilemapDemo.game.engine.scene.find("explorer").x - 434,
+            ) < 1e-6 && window.tilemapDemo.world.tileDiagnostics.contacts > 0,
+        );
         await page.keyboard.up("KeyD");
         const pixels = await frame.evaluate(() => {
           const { game, terrain } = window.tilemapDemo;
@@ -136,6 +142,8 @@ try {
           const ratio =
             canvas.width / game.element.getBoundingClientRect().width;
           return {
+            terrainCollision: { ...window.tilemapDemo.world.tileDiagnostics },
+            playerX: game.engine.scene.find("explorer").x,
             pixel: [
               ...context.getImageData(
                 Math.round(point.x * ratio),
@@ -153,6 +161,10 @@ try {
           };
         });
         assert.deepEqual(pixels.pixel, [55, 99, 74]);
+        assert.equal(pixels.playerX, 434);
+        assert.ok(pixels.terrainCollision.contacts > 0);
+        assert.ok(pixels.terrainCollision.candidateCells > 0);
+        assert.equal(pixels.terrainCollision.unresolved, 0);
         assert.equal(pixels.actors, 4);
         assert.equal(pixels.maps, 3);
         assert.equal(pixels.textures, 2);

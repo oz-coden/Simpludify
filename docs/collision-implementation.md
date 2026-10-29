@@ -49,3 +49,11 @@ The narrow screenshot exposed an overly tall control panel; controls were groupe
 Measured clean source 12255c346f3ce0da5f4313c7ca2206e1041543a2 with no concurrent local tests/builds: 72 plain + 72 instrumented runs, 2880 recorded passes. Six raw files retain timings and actual query/recompute/correction/contact/event/unresolved/resource counts. The 96 straight/convex trajectory comparisons have maximum error 1.5631940186722204e-13 against a single Actor wall; threshold stays 1e-6. Controlled performance workloads have zero unresolved contacts and zero retained owners/cell geometry after disposal. General deep embedding remains explicitly unsupported and has a diagnostic regression.
 
 Additional tests cover callback-created maps, silent Scene replacement, pre-response geometry validation/recovery, disabling terrain during old-policy Exit, Scene destruction during delivery, static terrain translation, and every stored Solver sample. Full regression/site validation follows this saved measurement checkpoint.
+
+## Full regression checkpoint
+
+All 509 unit tests and all 178 browser tests passed, retries disabled (full browser run 4.0 minutes). Strict check passed with the same existing 12 warnings/11 infos and 116 locked dependency licenses. Native completion tests use the real Actor Contact and TileContact APIs, with no Actor target branch. Site build/check at /Simpludify/ passed 51 documents, 2753 references/assets and 50 standalone TypeScript snippets.
+
+Production gallery smoke is strengthened to wait for the actual stone-wall stop at x=434 and verify live terrain contact/candidate/unresolved counters, alongside the existing real pixels, one-cell renderer update, Scene controls and resource checks. Production game smoke and site browser smoke at both /Simpludify/ and / are the remaining checks. No Core runtime code changed after measured source 12255c346f3ce0da5f4313c7ca2206e1041543a2.
+
+The control-grid stylesheet is imported by the sample module so both standalone pages and browser fixtures share it. The post-adjustment WebGL/Canvas2D × desktop/narrow actual-sample tests passed 4/4. Physics/Core code remains identical to the measured runtime.

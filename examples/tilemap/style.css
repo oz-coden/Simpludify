@@ -1,0 +1,9 @@
+.tile-trail .s-panel .s-panel {
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+.tile-trail .s-panel .s-panel button {
+  font-size: 0.875rem;
+}

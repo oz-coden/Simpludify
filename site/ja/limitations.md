@@ -5,6 +5,7 @@
 ## 実装済み
 
 - 有限Tilemap：Grid／行列のコピー、SpriteSheet、レイヤー配置、表示範囲カリング、セル変更。
+- 任意の地形衝突：ID既定・セル上書き、TileContact専用イベント、既存CollisionWorldによる局所判定と位置補正。
 
 - DOM非依存Core、固定入力による明示ステップ、seed付き乱数。
 - Sceneの所有権・同期ライフサイクル、Webの非同期準備・キャンセル。
