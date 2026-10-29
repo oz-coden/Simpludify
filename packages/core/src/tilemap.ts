@@ -1,10 +1,24 @@
 import { Actor, type ActorOptions } from "./actor";
+import { samePolicy } from "./collision-policy";
 import { Component, type ComponentType, defineComponent } from "./component";
 import { type WorldPoint, worldPoint } from "./coordinates";
 import { EngineError, positive } from "./diagnostics";
 import { Grid } from "./grid";
 import type { Scene } from "./scene";
 import type { SpriteSheet } from "./sprite-sheet";
+import {
+  type ResolvedTileCollision,
+  type TileCollisionChange,
+  TileCollisionData,
+  type TileCollisionOptions,
+  type TileCollisionPolicy,
+} from "./tilemap-collision";
+
+export type {
+  ResolvedTileCollision,
+  TileCollisionOptions,
+  TileCollisionPolicy,
+} from "./tilemap-collision";
 
 export type TileId<Name extends string = never> = number | Name | null;
 export interface TilePoint {
@@ -23,6 +37,7 @@ export interface TilemapOptions<Name extends string> extends ActorOptions {
   y?: number;
   zIndex?: number;
   visible?: boolean;
+  collision?: TileCollisionOptions<NoInfer<Name>>;
 }
 function finite(value: number): number {
   if (!Number.isFinite(value))
@@ -42,6 +57,12 @@ export class Tilemap<Name extends string = never> {
   private readonly counts = new Map<number | Name, number>();
   private readonly listeners = new Set<(index: number | null) => void>();
   private version = 0;
+  private collisionData: TileCollisionData<Name> | undefined;
+  private collisionVersion = 0;
+  private collidable = true;
+  private readonly collisionListeners = new Set<
+    (change: TileCollisionChange<string>) => void
+  >();
   private left = 0;
   private top = 0;
   private depth = 0;
@@ -83,6 +104,10 @@ export class Tilemap<Name extends string = never> {
     this.y = options.y ?? 0;
     this.zIndex = options.zIndex ?? 0;
     this.visible = options.visible ?? true;
+    if (options.collision !== undefined)
+      this.collisionData = new TileCollisionData(options.collision, (tile) => {
+        this.sheet.get(tile);
+      });
     this.owner.add(new TilemapLayer(this));
   }
   /** Uses existing Actor ownership without adding a second Scene collection. */
@@ -176,25 +201,105 @@ export class Tilemap<Name extends string = never> {
     const previous = this.cells.get(x, y);
     this.validateTile(tile);
     if (previous === tile) return;
+    const previousPolicy = this.getCollision(x, y);
     this.cells.set(x, y, tile);
     this.count(previous, -1);
     this.count(tile, 1);
     this.version++;
+    if (!samePolicy(previousPolicy, this.getCollision(x, y)))
+      this.collisionChanged({ kind: "cell", index: y * this.width + x });
     for (const notify of this.listeners) notify(y * this.width + x);
   }
   fill(tile: TileId<Name>): void {
     this.alive();
     this.validateTile(tile);
-    let changed = false;
-    this.cells.forEach((old) => {
+    let changed = false,
+      collisionChanged = false;
+    this.cells.forEach((old, x, y) => {
       if (old !== tile) changed = true;
+      if (
+        this.collisionData &&
+        !samePolicy(
+          this.collisionData.get(y * this.width + x, old),
+          this.collisionData.get(y * this.width + x, tile),
+        )
+      )
+        collisionChanged = true;
     });
     if (!changed) return;
     this.cells.fill(tile);
     this.counts.clear();
     this.count(tile, this.width * this.height);
     this.version++;
+    if (collisionChanged) this.collisionChanged({ kind: "all" });
     for (const notify of this.listeners) notify(null);
+  }
+  get collisionRevision(): number {
+    return this.collisionVersion;
+  }
+  get collisionEnabled(): boolean {
+    return this.collidable;
+  }
+  set collisionEnabled(value: boolean) {
+    this.alive();
+    if (typeof value !== "boolean")
+      throw new EngineError(
+        "INVALID_VALUE",
+        "collisionEnabled must be boolean",
+      );
+    if (this.collidable !== value) {
+      this.collidable = value;
+      this.collisionChanged({ kind: "all" });
+    }
+  }
+  getCollision(x: number, y: number): ResolvedTileCollision | null {
+    const tile = this.cells.get(x, y);
+    return this.collisionData?.get(y * this.width + x, tile) ?? null;
+  }
+  setCollision(x: number, y: number, policy: TileCollisionPolicy | null): void {
+    this.alive();
+    this.cells.get(x, y);
+    this.collisionData ??= new TileCollisionData();
+    if (this.collisionData.set(y * this.width + x, policy))
+      this.collisionChanged({ kind: "cell", index: y * this.width + x });
+  }
+  resetCollision(x: number, y: number): void {
+    this.alive();
+    this.cells.get(x, y);
+    if (this.collisionData?.reset(y * this.width + x))
+      this.collisionChanged({ kind: "cell", index: y * this.width + x });
+  }
+  setTileCollision(
+    tile: number | NoInfer<Name>,
+    policy: TileCollisionPolicy | null,
+  ): void {
+    this.alive();
+    this.sheet.get(tile);
+    this.collisionData ??= new TileCollisionData();
+    if (this.collisionData.setDefault(tile, policy))
+      this.collisionChanged({ kind: "tile", tile });
+  }
+  /** @internal Constant-time gate; never scans rules/overrides/cells. */
+  get hasCollision(): boolean {
+    return this.collisionData?.configured ?? false;
+  }
+  private collisionChanged(change: TileCollisionChange<string>): void {
+    this.collisionVersion++;
+    for (const notify of this.collisionListeners) notify(change);
+  }
+  /** @internal Optional observers use the placement lifetime, not rendering readiness. */
+  onCollisionChanged(
+    notify: (change: TileCollisionChange<string>) => void,
+  ): () => void {
+    this.alive();
+    this.collisionListeners.add(notify);
+    const unregister = this.onDispose(() =>
+      this.collisionListeners.delete(notify),
+    );
+    return () => {
+      unregister();
+      this.collisionListeners.delete(notify);
+    };
   }
   /** Independent data snapshot, reusable after this placement/Scene is disposed. */
   copyTiles(): Grid<TileId<Name>> {

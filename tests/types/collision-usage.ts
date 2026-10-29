@@ -9,14 +9,14 @@ import {
   type EventType,
   type Scene,
   SpriteSheet,
+  Tilemap,
   Transform,
 } from "@simpludify/core";
-import { ProposedTilemap } from "../prototypes/collision-api";
 
 declare const TileEnter: EventType<{
   self: Collider;
   selfActor: Actor;
-  map: ProposedTilemap<string>;
+  map: Tilemap<string>;
   tileX: number;
   tileY: number;
 }>;
@@ -40,7 +40,7 @@ export function actorOnly(scene: Scene) {
 }
 export function terrainOnly(scene: Scene) {
   new CollisionWorld(scene);
-  new ProposedTilemap({
+  new Tilemap({
     sheet,
     tiles: [["wall", "water"]],
     tileWidth: 32,

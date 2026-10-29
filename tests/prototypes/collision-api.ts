@@ -30,8 +30,9 @@ export declare class ProposedTilemap<
   constructor(
     options: TilemapOptions<Name> & { collision?: TileCollisionOptions<Name> },
   );
-  collisionEnabled: boolean;
-  readonly collisionRevision: number;
+  get collisionEnabled(): boolean;
+  set collisionEnabled(value: boolean);
+  get collisionRevision(): number;
   getCollision(x: number, y: number): Readonly<NormalizedTilePolicy> | null;
   setCollision(x: number, y: number, policy: TileCollisionPolicy | null): void;
   resetCollision(x: number, y: number): void;

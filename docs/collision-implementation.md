@@ -13,3 +13,7 @@ Keep Actor ContactEnter/Stay/Exit and Contact.self/other/selfActor/otherActor un
 Shared internal policy validation/filter/response functions and contact observation/phase functions are extracted without changing Actor behavior or public types. Actor regression and the full existing unit suite must pass before terrain response is added. Detection, response and delivery remain ordered by the existing Scene-owned CollisionWorld. No additional ownership/scheduler framework is introduced.
 
 Next: copied ID policies and sparse overrides, cell query, dedicated payloads, common pair orchestration, neighbor-feature response, sample/browser validation and full Solver measurements. No formal Tilemap collision completion is claimed at this checkpoint.
+
+## Actor baseline and data checkpoint
+
+The refactor checkpoint passed all 391 existing unit tests and strict TypeScript before terrain response was introduced. Tilemap now has optional copied/frozen ID defaults, sparse overrides, explicit none/reset, collisionEnabled and independent collisionRevision/notifications. Ordinary edits do not build any spatial geometry or change Renderable/Texture state. No collision scheduling is attached yet at this checkpoint.
