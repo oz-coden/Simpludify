@@ -128,4 +128,4 @@ Canvas UIのツリー・Flex計算・ヒットテスト・スクロール・フ�
 
 Canvas trailの **UI list lab** は、Core APIだけで構築した同じ画面定義をWebとヘッドレステストで使います。項目の選択・追加・削除・並べ替え、ホイール／ボタンでのスクロール、Tab移動による表示範囲外の項目へのフォーカスを試せます。タッチドラッグ・IME・専用の数値／選択フォームは未実装です。
 
-`canvasUI`の戻り値で`focus(node)`・`focusNext(reverse?)`を使えます。Coreのボタンコールバックと`node.signal`は環境非依存の`CancellationSignal`です。Webの`CanvasButton`コールバックは従来の`AbortSignal`を維持します。DOM/fetchへ`node.signal`を接続する場合はWebの`browserAbortSignal`を使ってください。[Core / Host境界と移行](../docs/host-boundary.md)に詳細をまとめています。Electron・Tauri・Androidのビルドや実機動作は今回追加していません。
+`canvasUI`の戻り値で`focus(node)`・`focusNext(reverse?)`を使えます。Coreのボタンコールバックと`node.signal`は環境非依存の`CancellationSignal`です。Webの`CanvasButton`コールバックは従来の`AbortSignal`を維持します。DOM/fetchへ`node.signal`を接続する場合はWebの`browserAbortSignal`を使ってください。[Core / Host境界と移行](../../docs/host-boundary.md)に詳細をまとめています。Electron・Tauri・Androidのビルドや実機動作は今回追加していません。

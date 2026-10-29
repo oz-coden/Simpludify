@@ -11,7 +11,7 @@
 ## Phase 1: implementation evidence and decisions
 
 - Core already compiles with ES2022 only, without DOM/Node ambient types. Scene/Actor/Component lifecycles, ownership (Lifetime), events, timers, Action device/logical sources, animation and collision are independent of Pixi. Preserve their synchronous contracts.
-- Core source currently has 43 flat TypeScript files. `components.ts` mixes Transform/Renderable data with ActionMovement/Motion. Scene depends on InputSystem through types; Actions binds to Scene lifecycle. Grouping must preserve these explicit contracts rather than inventing a scheduler or new packages.
+- Core source currently has 41 flat TypeScript files. `components.ts` mixes Transform/Renderable data with ActionMovement/Motion. Scene depends on InputSystem through types; Actions binds to Scene lifecycle. Grouping must preserve these explicit contracts rather than inventing a scheduler or new packages.
 - Web `canvas-node.ts`, `canvas-layout.ts`, `canvas-ui.ts`, `canvas-text.ts` and `pointer-routing.ts` implement mostly portable state, Flex calculation, clipping, text segmentation and event routing. `CanvasNode` currently constructs browser AbortController and exposes AbortSignal; this requires a portable cancellation contract and an explicit browser adapter/migration decision.
 - `canvas-visual.ts` owns actual Pixi Graphics/Text, exact font metrics and native button mirrors; `pointer.ts` owns browser capture, blur and DOM coordinates. These stay Web-side. Game owns asynchronous scene preparation/commit, ResizeObserver and renderer lifetime; Core stays synchronous.
 - UI ownership currently points CanvasNode directly back to CanvasUI. Use a narrow invalidation/error/ownership contract where possible. Existing routing already has multi-source holds, pointer cancellation, scene subscriptions and cleanup; reuse it.
@@ -73,3 +73,18 @@ Implementation has not started. Resume from checkpoint branch, inspect this ledg
 - New guide: docs/host-boundary.md. Existing Canvas/API/architecture/roadmap/Japanese guides and sample README updated. AGENTS.md and CODEX-START.md now require persistent reports and pushed checkpoints for future tasks.
 - Phase 3 implementation: [dce3cef](https://github.com/oz-coden/Simpludify/commit/dce3cef75107439baec947fe3341f5af5f75d035).
 - Next: production build, Pages builds/link/snippet checks, review and remote browser CI. Do not merge until these checks succeed.
+
+## Final review checkpoint (before browser completion)
+
+- Review found a wrong relative link in the Japanese Canvas guide. The first Phase 4 CI ([40934063114](https://github.com/oz-coden/Simpludify/actions/runs/40934063114)) failed both site-base jobs on that link. Corrected to the actual repository-relative source path.
+- Local `npm run build -- --target web`: passed.
+- Local `npm run site:build -- --base /Simpludify/` + `npm run site:check`: passed after link correction; 58 HTML documents, 3470 link/asset references, 54 standalone typed code examples.
+- Local `npm run site:build -- --base /` + `npm run site:check`: passed with the same counts.
+- Rechecked `npm run check` and `npm test`: passed; 45 files / 568 tests. Check reports 12 pre-existing Biome warnings and 11 informational diagnostics, no errors.
+- Runtime import graph reviewed: no value-import cycles among 49 Core TypeScript source files. The boundary validator now also rejects value-import cycles. UI cannot import Scene/Engine or concrete Host code.
+- Focus traversal now excludes nodes with non-auto pointer interaction, matching native mirrors. Scroll range calculation avoids argument-spreading large child arrays and avoids duplicate bounds allocation when there is no scroll translation.
+- The first Phase 4 CI quality and production jobs passed, including production UI/scenes, Signal Run and Canvas trail smoke tests; browser shards are still being collected. Local Chromium remains unavailable, so local real browser smoke commands were not run.
+- Implementation checkpoint: [43bf178](https://github.com/oz-coden/Simpludify/commit/43bf1782b5bed6c97350d01589c226c92a4f1e8c). Main integration remains pending.
+
+- Initial narrow browser shard 1: 59 passed / 2 failed. Both new tests incorrectly tried to pointer-click the intentionally pointer-transparent semantic button mirrors; Canvas correctly intercepted these. Tests now use native keyboard activation for named controls, while real pointer wheel routing still targets Canvas coordinates. This is a fixture correction, not a change to production pointer routing. Narrow shard 2 passed 58/58. Browser suite enumeration: 238 tests / 15 files across desktop and narrow projects.
+- Explicit Canvas trail production subpath build (`npm run build -- --target web --example canvas-ui --base /Simpludify/`): passed.

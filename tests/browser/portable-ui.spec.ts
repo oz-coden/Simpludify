@@ -37,7 +37,7 @@ for (const fallback of [false, true]) {
     }, sample);
     await page
       .getByRole("button", { name: "UI list lab", exact: true })
-      .click();
+      .press("Enter");
     await page.waitForFunction(
       () => window.canvasDemo.game.engine.scene.id === "list",
     );
@@ -70,21 +70,26 @@ for (const fallback of [false, true]) {
     await page.keyboard.press("Space");
     await page
       .getByRole("button", { name: "Remove selected", exact: true })
-      .click();
+      .press("Enter");
     await expect(
       page.getByRole("button", { name: "Entry 12", exact: true }),
     ).toHaveCount(0);
-    await page.getByRole("button", { name: "Add entry", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Add entry", exact: true })
+      .press("Enter");
     await expect(
       page.getByRole("button", { name: "Entry 13", exact: true }),
     ).toHaveCount(1);
-    await page.getByRole("button", { name: "Reverse", exact: true }).click();
-    await page.getByRole("button", { name: "Scroll up", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Reverse", exact: true })
+      .press("Enter");
+    await page
+      .getByRole("button", { name: "Scroll up", exact: true })
+      .press("Enter");
     await page.evaluate(async (sample) => {
       const d = (await import(sample)).portableDemo;
       d.screen.list.scrollTo(0, 0);
     }, sample);
-    await page.waitForTimeout(50);
     const point = await page.evaluate(async (sample) => {
       const d = (await import(sample)).portableDemo,
         b = d.screen.list.bounds,

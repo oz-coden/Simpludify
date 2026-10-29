@@ -1,5 +1,5 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { validateCoreDependency } from "./core-boundary.mjs";
 
 const core = "packages/core/src";
@@ -10,7 +10,9 @@ function files(dir) {
       : [join(dir, entry.name)],
   );
 }
+const runtimeGraph = new Map();
 for (const file of files(core)) {
+  const edges = [];
   const source = readFileSync(file, "utf8");
   for (const match of source.matchAll(
     /(?:import|export)\s+(type\s+)?(\{[^}]*\}|\*(?:\s+as\s+\w+)?|\w+)\s*from\s*["']([^"']+)["']/g,
@@ -25,10 +27,25 @@ for (const file of files(core)) {
             .every((s) => s.trim().startsWith("type "))),
     );
     validateCoreDependency(core, file, match[3], typeOnly);
+    if (!typeOnly) edges.push(resolve(dirname(file), `${match[3]}.ts`));
   }
   for (const match of source.matchAll(/import\s*(?:\(\s*)?["']([^"']+)["']/g))
     validateCoreDependency(core, file, match[1]);
+  runtimeGraph.set(resolve(file), edges);
 }
+const visited = new Set(),
+  visiting = new Set();
+function visitModule(file, chain = []) {
+  if (visiting.has(file))
+    throw new Error(`CORE_CYCLE: ${[...chain, file].join(" -> ")}`);
+  if (visited.has(file)) return;
+  visiting.add(file);
+  for (const next of runtimeGraph.get(file) ?? [])
+    visitModule(next, [...chain, file]);
+  visiting.delete(file);
+  visited.add(file);
+}
+for (const file of runtimeGraph.keys()) visitModule(file);
 for (const file of [
   "examples/character/index.html",
   "examples/ui-scenes/index.html",

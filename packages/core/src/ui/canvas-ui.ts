@@ -106,7 +106,13 @@ export class CanvasUI implements LifetimeOwner {
   focus(node?: CanvasNode): void {
     if (this.disposed)
       throw new EngineError("OWNER_DISPOSED", "UI has been disposed");
-    if (node && (node.ui !== this || !node.available || !node.interactive))
+    if (
+      node &&
+      (node.ui !== this ||
+        !node.available ||
+        !node.interactive ||
+        node.style.pointerEvents !== "auto")
+    )
       throw new EngineError(
         "UI_OWNERSHIP",
         "Focus requires an available interactive node in this UI",
@@ -128,7 +134,12 @@ export class CanvasUI implements LifetimeOwner {
   focusNext(reverse = false): CanvasNode | undefined {
     const order: CanvasNode[] = [];
     this.walk((node) => {
-      if (node.available && node.interactive) order.push(node);
+      if (
+        node.available &&
+        node.interactive &&
+        node.style.pointerEvents === "auto"
+      )
+        order.push(node);
     });
     const index = this.focusNode ? order.indexOf(this.focusNode) : -1;
     const node =
@@ -214,24 +225,33 @@ export class CanvasUI implements LifetimeOwner {
   private applyScroll(node: CanvasNode, dx: number, dy: number): void {
     const b = node.bounds;
     const children = node.children.filter((n) => n.visible && !n.disposed);
-    const maxX = Math.max(
-      0,
-      ...children.map(
-        (n) => n.bounds.x + n.bounds.width - b.x - b.width + node.style.padding,
-      ),
-    );
-    const maxY = Math.max(
-      0,
-      ...children.map(
-        (n) =>
-          n.bounds.y + n.bounds.height - b.y - b.height + node.style.padding,
-      ),
-    );
+    let maxX = 0,
+      maxY = 0;
+    if (node.style.scroll)
+      for (const child of children) {
+        maxX = Math.max(
+          maxX,
+          child.bounds.x +
+            child.bounds.width -
+            b.x -
+            b.width +
+            node.style.padding,
+        );
+        maxY = Math.max(
+          maxY,
+          child.bounds.y +
+            child.bounds.height -
+            b.y -
+            b.height +
+            node.style.padding,
+        );
+      }
     node.setScrollRange(
       node.style.scroll && node.style.scroll !== "vertical" ? maxX : 0,
       node.style.scroll && node.style.scroll !== "horizontal" ? maxY : 0,
     );
-    node.boundsValue = Object.freeze({ ...b, x: b.x - dx, y: b.y - dy });
+    if (dx || dy)
+      node.boundsValue = Object.freeze({ ...b, x: b.x - dx, y: b.y - dy });
     for (const child of children)
       this.applyScroll(child, dx + node.scrollX, dy + node.scrollY);
   }
