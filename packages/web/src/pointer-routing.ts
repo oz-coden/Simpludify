@@ -287,6 +287,9 @@ export class PointerRouting {
       "Pointer cancel handlers failed",
     );
   }
+  hasKey(node: CanvasNode, code: string): boolean {
+    return this.keys.get(node)?.has(code) ?? false;
+  }
   key(node: CanvasNode, code: string, down: boolean): void {
     if (code !== "Space" && code !== "Enter") return;
     if (down && !node.available) return;

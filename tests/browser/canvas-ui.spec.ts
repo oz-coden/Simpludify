@@ -242,6 +242,13 @@ for (const fallback of [false, true])
       ).toBeFocused();
       await page.keyboard.press("Enter");
       expect(await page.evaluate(() => window.canvasProbe.clicks)).toBe(1);
+      await page.keyboard.down("Space");
+      await page.evaluate(() => {
+        window.canvasProbe.click.enabled = false;
+        window.canvasProbe.click.enabled = true;
+      });
+      await page.keyboard.up("Space");
+      expect(await page.evaluate(() => window.canvasProbe.clicks)).toBe(1);
       await page.evaluate(() => {
         window.canvasProbe.click.visible = false;
         window.canvasProbe.step();

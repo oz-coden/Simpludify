@@ -157,10 +157,8 @@ export class CanvasNode implements LifetimeOwner {
     width: 0,
     height: 0,
   });
-  private readonly click:
-    | ((signal: AbortSignal) => void | Promise<void>)
-    | undefined;
-  private readonly hold: ((held: boolean) => void) | undefined;
+  private click: ((signal: AbortSignal) => void | Promise<void>) | undefined;
+  private hold: ((held: boolean) => void) | undefined;
   /** @internal Prefer CanvasPanel/Label/Button/HoldButton. */
   constructor(
     readonly kind: CanvasNodeKind,
@@ -377,6 +375,8 @@ export class CanvasNode implements LifetimeOwner {
         () => this.events.dispose(),
         () => {
           this.owner = undefined;
+          this.click = undefined;
+          this.hold = undefined;
         },
       ],
       "Canvas node cleanup failed",

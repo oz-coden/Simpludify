@@ -98,9 +98,15 @@ try {
     const client = await page.context().newCDPSession(page);
     await client.send("HeapProfiler.collectGarbage");
     const initial = await client.send("Runtime.getHeapUsage"),
-      heap = [];
+      heap = [],
+      transitions = [];
     for (let i = 0; i < 30; i++) {
       const released = await page.evaluate(() => window.canvasCycles.cycle());
+      transitions.push({
+        cycle: i + 1,
+        mountMs: released.mountMs,
+        removeMs: released.removeMs,
+      });
       assert.equal(released.visuals.nodes, 0);
       assert.equal(released.visuals.presentations, 0);
       assert.equal(released.mirrors, 0);
@@ -129,6 +135,7 @@ try {
       initial,
       baseline,
       heap,
+      transitions,
       released,
       scope:
         "CDP V8 heap, GC after each five complete Scene round trips; not native or GPU memory",

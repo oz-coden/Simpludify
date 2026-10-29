@@ -179,9 +179,14 @@ export async function createCycleProbe() {
   return {
     baseline: inspectCanvasResources(renderer),
     async cycle() {
+      const start = performance.now();
       await game.goTo("ui");
+      const mounted = performance.now();
       await game.goTo("empty");
+      const removed = performance.now();
       return {
+        mountMs: mounted - start,
+        removeMs: removed - mounted,
         visuals: renderer.canvasDiagnostics,
         mirrors: document.querySelectorAll(".s-canvas-accessibility").length,
         pointers: game.pointerDiagnostics,

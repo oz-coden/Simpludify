@@ -386,6 +386,8 @@ export class Game<SceneId extends string = string> {
             this.defaultCanvas,
           );
         this.assertAlive();
+        this.defaultCanvas = undefined;
+        this.defaultUI.length = 0;
         this.ready = true;
         this.resize();
         this.render();

@@ -148,7 +148,8 @@ export class CanvasVisual implements CanvasPresentation {
       (event) => {
         if (event.code !== "Enter" && event.code !== "Space") return;
         event.preventDefault();
-        const wasDown = keys.delete(event.code);
+        const wasDown =
+          keys.delete(event.code) && this.routing.hasKey(node, event.code);
         run(() => {
           this.routing.key(node, event.code, false);
           if (wasDown && node.kind === "button" && node.available)
