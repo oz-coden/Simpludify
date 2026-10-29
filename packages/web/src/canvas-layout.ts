@@ -68,8 +68,10 @@ export function layoutCanvas(
       pad = s.padding * 2;
     let w = 0,
       h = 0;
-    if (node.kind !== "panel") ({ width: w, height: h } = measure(node));
-    else {
+    if (node.kind !== "panel") {
+      if (typeof s.width !== "number" || typeof s.height !== "number")
+        ({ width: w, height: h } = measure(node));
+    } else {
       const children = node.children.filter((n) => n.visible && !n.disposed),
         row = s.direction === "row";
       for (const c of children) {
@@ -114,18 +116,6 @@ export function layoutCanvas(
     forcedHeight?: number,
   ): UISizeValue => {
     constrainVisits++;
-    const key = `${aw},${ah},${stretchWidth},${stretchHeight},${forcedWidth},${forcedHeight}`;
-    let cache = constrainedCache.get(node);
-    const cached = cache?.get(key);
-    if (cached) return cached;
-    if (!cache) {
-      cache = new Map();
-      constrainedCache.set(node, cache);
-    }
-    const saved = (value: UISizeValue) => {
-      cache?.set(key, value);
-      return value;
-    };
     if (depth > 64)
       throw new EngineError(
         "INVALID_UI",
@@ -136,6 +126,13 @@ export function layoutCanvas(
       row = s.direction === "row";
     let w = forcedWidth ?? size(s.width, aw) ?? (stretchWidth ? aw : n.width),
       h = forcedHeight ?? size(s.height, ah) ?? (stretchHeight ? ah : n.height);
+    if (
+      node.kind !== "panel" &&
+      s.textWrap &&
+      s.width === undefined &&
+      forcedWidth === undefined
+    )
+      w = Math.min(w, aw);
     w = clamp(w, limits(node, "Width", aw));
     h = clamp(h, limits(node, "Height", ah));
     if (node.kind !== "panel") {
@@ -148,8 +145,20 @@ export function layoutCanvas(
           measure(node, Math.max(0, w - s.padding * 2)).height + s.padding * 2,
           limits(node, "Height", ah),
         );
-      return saved({ width: w, height: h });
+      return { width: w, height: h };
     }
+    const key = `${aw},${ah},${stretchWidth},${stretchHeight},${forcedWidth},${forcedHeight}`;
+    let cache = constrainedCache.get(node);
+    const cached = cache?.get(key);
+    if (cached) return cached;
+    if (!cache) {
+      cache = new Map();
+      constrainedCache.set(node, cache);
+    }
+    const saved = (value: UISizeValue) => {
+      cache?.set(key, value);
+      return value;
+    };
     const lines = linesFor(
       node,
       Math.max(0, w - s.padding * 2),
@@ -243,12 +252,15 @@ export function layoutCanvas(
     for (const line of lines) {
       // Freeze min/max-limited items and redistribute remaining free space.
       const growing = main >= line.main;
-      const bases = new Map(line.items.map((i) => [i, i.main]));
       let remaining = line.items.filter((i) =>
         growing
           ? i.node.style.grow > 0 && i.main < i.max
           : i.node.style.shrink > 0 && i.main > i.min,
       );
+      const bases =
+        !growing && remaining.length
+          ? new Map(line.items.map((i) => [i, i.main]))
+          : undefined;
       while (remaining.length) {
         const free =
           main -
@@ -258,7 +270,7 @@ export function layoutCanvas(
         const weightOf = (i: Item) =>
           growing
             ? i.node.style.grow
-            : i.node.style.shrink * (bases.get(i) ?? 0);
+            : i.node.style.shrink * (bases?.get(i) ?? 0);
         const weight = remaining.reduce((sum, i) => sum + weightOf(i), 0);
         if (weight === 0) break;
         let changed = 0;

@@ -352,3 +352,14 @@ it("remeasures text after row shrink and keeps percentage minima relative to its
     after.bounds.y,
   ]).toEqual([40, 60, 60, 60]);
 });
+it("wraps intrinsic labels at available width even without cross-axis stretch", () => {
+  const label = CanvasLabel("abcdefghij");
+  const scene = new Scene("fit text");
+  const ui = new CanvasUI(scene, CanvasColumn([label], { align: "start" }));
+  ui.layout(50, 200, (n, width = Infinity) => ({
+    width: n.text.length * 10,
+    height:
+      20 * Math.max(1, Math.ceil((n.text.length * 10) / Math.max(1, width))),
+  }));
+  expect([label.bounds.width, label.bounds.height]).toEqual([50, 40]);
+});

@@ -116,12 +116,10 @@ for (const fallback of [false, true])
             async (url) => (await import(url)).endWallTrace(),
             url,
           );
-          await test
-            .info()
-            .attach("wall-raf-input.json", {
-              body: JSON.stringify(telemetry, null, 2),
-              contentType: "application/json",
-            });
+          await test.info().attach("wall-raf-input.json", {
+            body: JSON.stringify(telemetry, null, 2),
+            contentType: "application/json",
+          });
         }
         // Access through public Transform inside the browser module instead of a test-only physics port.
         await page.keyboard.down("KeyS");

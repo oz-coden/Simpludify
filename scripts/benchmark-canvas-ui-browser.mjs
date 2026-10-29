@@ -39,7 +39,10 @@ const workloads = [],
 try {
   for (const fallback of [false, true]) {
     const page = await browser.newPage({
-      viewport: { width: 1000, height: 700 },
+      viewport: {
+        width: Number(process.env.UI_BENCH_WIDTH ?? 1000),
+        height: 700,
+      },
     });
     const errors = [];
     page.on("pageerror", (e) => errors.push(e.message));
@@ -152,7 +155,10 @@ try {
       cpu: cpus()[0].model,
       platform: platform(),
       renderer: "SwiftShader WebGL / forced Canvas2D",
-      viewport: { width: 1000, height: 700 },
+      viewport: {
+        width: Number(process.env.UI_BENCH_WIDTH ?? 1000),
+        height: 700,
+      },
     },
     scope:
       "20 recorded samples, 10 pointer warmups. UI synchronization timing excludes app.render. Draw submission is synchronous CPU/driver time, not GPU completion or FPS. Synthetic DOM pointer sequences test adapter overhead, not physical input latency. Functional mouse/CDP touch/keyboard validation is a separate suite. Mount includes initial presentation/render. No concurrent local tests/builds.",
