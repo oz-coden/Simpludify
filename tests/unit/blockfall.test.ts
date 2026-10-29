@@ -268,7 +268,8 @@ it("simulates 100,000 headless steps with repeated live rounds and bounded scene
     }),
   );
   engine.dispose();
-});
+  // This is a 100,000-step ownership soak, not a five-second performance assertion.
+}, 30_000);
 
 it("retains ordered Action taps until a simulation step and clears unconsumed input", () => {
   const { engine, puzzle, controller } = fixture();

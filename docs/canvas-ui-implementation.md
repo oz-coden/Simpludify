@@ -40,25 +40,29 @@ The raw failed/intermediate resource experiments remain separately named in [ben
 
 Local source environment: Node24.22.1, Linux AMD EPYC9V74, pinned Chromium156.0.8078.4, Pixi8.22.0, Vite8.3.5 and TypeScript7.0.2. The complete runtime was finalized at `94065a6f5ccaa66d488df08c2e61e6d4f60b9307`; later changes are documentation, measurement/validation harnesses and CI.
 
-| Gate | Observed result |
-| --- | --- |
-| Unit regression | 539/539 in 40 files, including 30 new layout/router cases; all prior Actor/Action/Sprite/Tilemap/Collision tests retained |
-| Strict types and architecture | Pass; Core compiles without DOM/Node ambient types; no new Core imports |
-| Lint/licenses | Pass; existing 12 warnings/11 infos, 116 locked dependencies; benchmark JSON values preserved through formatting |
-| Actual IDE completion probes | Pass for UI Action/style/align/pointer and existing Sprite/Collision contracts |
-| Chromium regression | 230/230, retries 0, 5.4 minutes; 52 new Canvas cases plus 178 existing cases |
-| Renderer/viewports | Asserted WebGL type1 and forced Canvas2D type4; 1440×900 and 390×844 |
-| Real input/pixels | Mouse capture outside host, CDP simultaneous touches, keyboard Tab/Enter/Space, colored/clipped/focus pixels, native overlay priority, WASD/source composition |
-| Resize/DPR/scale | Resize, UI scale1.5 with actual click, DPR2 and dynamic DPR1→3→2; Camera/world transforms remain independent |
-| Lifecycle | Scene round trips, failed/pending setup, cancellation, disposal, async errors, stale gestures, dynamically ordered controls; no unexpected page/console errors |
-| Production standalone | Default UI/scenes and Canvas trail build/smoke under /Simpludify/, both viewport sizes |
-| Project-base site locally | Build/check/smoke pass: 57 HTML, 3321 links/assets, 52 independently typechecked TS snippets, all nine examples |
-| Project-base site gameplay | Canvas title/start, actual button pixels, WASD wall stop at x434, pause/resume, Menu/Start rebuild and forced Canvas2D pass |
-| Root-base site | Pending independent CI job added in 34ef201 |
-| Remote all-engine CI | Pending; includes strict checks, unit/browser, both standalone production smokes and existing Core benchmarks |
-| Main integration | Pending final CI, history/ref lease and source review |
+| Gate                          | Observed result                                                                                                                                                |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit regression               | 539/539 in 40 files, including 30 new layout/router cases; all prior Actor/Action/Sprite/Tilemap/Collision tests retained                                      |
+| Strict types and architecture | Pass; Core compiles without DOM/Node ambient types; no new Core imports                                                                                        |
+| Lint/licenses                 | Pass; existing 12 warnings/11 infos, 116 locked dependencies; benchmark JSON values preserved through formatting                                               |
+| Actual IDE completion probes  | Pass for UI Action/style/align/pointer and existing Sprite/Collision contracts                                                                                 |
+| Chromium regression           | 230/230, retries 0, 5.4 minutes; 52 new Canvas cases plus 178 existing cases                                                                                   |
+| Renderer/viewports            | Asserted WebGL type1 and forced Canvas2D type4; 1440×900 and 390×844                                                                                           |
+| Real input/pixels             | Mouse capture outside host, CDP simultaneous touches, keyboard Tab/Enter/Space, colored/clipped/focus pixels, native overlay priority, WASD/source composition |
+| Resize/DPR/scale              | Resize, UI scale1.5 with actual click, DPR2 and dynamic DPR1→3→2; Camera/world transforms remain independent                                                   |
+| Lifecycle                     | Scene round trips, failed/pending setup, cancellation, disposal, async errors, stale gestures, dynamically ordered controls; no unexpected page/console errors |
+| Production standalone         | Default UI/scenes and Canvas trail build/smoke under /Simpludify/, both viewport sizes                                                                         |
+| Project-base site locally     | Build/check/smoke pass: 57 HTML, 3321 links/assets, 52 independently typechecked TS snippets, all nine examples                                                |
+| Project-base site gameplay    | Canvas title/start, actual button pixels, WASD wall stop at x434, pause/resume, Menu/Start rebuild and forced Canvas2D pass                                    |
+| Root-base site                | Pending independent CI job added in 34ef201                                                                                                                    |
+| Remote all-engine CI          | Pending; includes strict checks, unit/browser, both standalone production smokes and existing Core benchmarks                                                  |
+| Main integration              | Pending final CI, history/ref lease and source review                                                                                                          |
 
 The new 230 count is measured here, not borrowed from a past prototype. Software Chromium/SwiftShader and synthetic benchmarks do not establish physical mobile, all-browser, native/GPU-byte or long-soak conformance.
+
+## Remote CI findings
+
+Both production site-base jobs passed at `34ef201`. The subsequent documentation checkpoint is being revalidated. The remote unit run completed the existing Blockfall 100,000-step ownership soak in 5576.82ms (847 rounds, 8588 locks) but exceeded Vitest's default 5000ms timeout. This test checks repeated-round ownership and semantics, not a machine-independent performance budget. Only that soak now has an explicit 30000ms bound; all 100,000 steps and assertions are retained. The first final-document pass also caught table-formatting differences; those are corrected without changing test/measurement values. Failed runs remain visible and are not counted as passing regressions.
 
 ## Performance and limits
 
@@ -96,7 +100,7 @@ CI's `site-bases` matrix supplies both site build bases explicitly and does not 
 
 ## Changed-file inventory
 
-The following 55 files differ from collision base `89491c6` including this documentation/CI checkpoint. Core runtime and dependency manifests/lockfile are unchanged.
+The following 56 files differ from collision base `89491c6` including this documentation/CI checkpoint. Core runtime and dependency manifests/lockfile are unchanged.
 
 - [.github/workflows/ci.yml](../.github/workflows/ci.yml)
 - [README.md](../README.md)
@@ -151,6 +155,7 @@ The following 55 files differ from collision base `89491c6` including this docum
 - [tests/browser/canvas-ui.spec.ts](../tests/browser/canvas-ui.spec.ts)
 - [tests/helpers/canvas-resources.ts](../tests/helpers/canvas-resources.ts)
 - [tests/types/canvas-ui.ts](../tests/types/canvas-ui.ts)
+- [tests/unit/blockfall.test.ts](../tests/unit/blockfall.test.ts)
 - [tests/unit/canvas-layout.test.ts](../tests/unit/canvas-layout.test.ts)
 - [tests/unit/pointer-routing.test.ts](../tests/unit/pointer-routing.test.ts)
 
