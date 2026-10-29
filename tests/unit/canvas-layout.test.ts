@@ -231,3 +231,124 @@ it("diagnoses async hold callbacks without allowing an unhandled rejection", asy
   expect(() => b.dispose()).toThrow();
   expect(b.disposed).toBe(true);
 });
+
+it("freezes capped grow items and redistributes to uncapped siblings", () => {
+  const a = CanvasLabel("a", { width: 20, maxWidth: 50, grow: 1 });
+  const b = CanvasLabel("b", { width: 20, grow: 1 });
+  setup(CanvasRow([a, b], { gap: 10, padding: 10 }), 300);
+  expect([a.bounds.width, b.bounds.width]).toEqual([50, 220]);
+});
+it("freezes minimum shrink items and preserves overflow when minima cannot fit", () => {
+  const a = CanvasLabel("a", { width: 100, minWidth: 80 });
+  const b = CanvasLabel("b", { width: 100 });
+  const { ui } = setup(CanvasRow([a, b]), 100);
+  expect([a.bounds.width, b.bounds.width]).toEqual([80, 20]);
+  b.setStyle({ minWidth: 60 });
+  ui.layout(100, 200, metrics);
+  expect([a.bounds.width, b.bounds.width]).toEqual([80, 60]);
+});
+it("resolves percentage constraints from parent content on every resize", () => {
+  const a = CanvasLabel("a", {
+    width: "80%",
+    minWidth: 40,
+    maxWidth: "50%",
+    shrink: 0,
+  });
+  const { ui } = setup(CanvasRow([a], { padding: 10 }), 220);
+  expect(a.bounds.width).toBe(100);
+  ui.layout(120, 200, metrics);
+  expect(a.bounds.width).toBe(50);
+  ui.layout(60, 200, metrics);
+  expect(a.bounds.width).toBe(40); // conflicting minimum wins
+});
+it("applies column constraints, cross stretch caps, root constraints and zero", () => {
+  const a = CanvasLabel("a", {
+    height: 20,
+    maxHeight: 40,
+    grow: 1,
+    maxWidth: 70,
+  });
+  const b = CanvasLabel("b", { height: 20, grow: 1, minWidth: 80 });
+  const { ui } = setup(CanvasColumn([a, b], { maxWidth: 100 }), 300, 200);
+  expect([
+    a.bounds.width,
+    b.bounds.width,
+    a.bounds.height,
+    b.bounds.height,
+  ]).toEqual([70, 100, 40, 160]);
+  a.setStyle({ minWidth: 0, maxWidth: 0, minHeight: 0, maxHeight: 0 });
+  ui.layout(300, 200, metrics);
+  expect([a.bounds.width, a.bounds.height]).toEqual([0, 0]);
+});
+it("wraps constrained items before distributing free space within each line", () => {
+  const a = CanvasLabel("a", {
+    width: 90,
+    minWidth: 100,
+    maxWidth: 110,
+    grow: 1,
+  });
+  const b = CanvasLabel("b", { width: 90, minWidth: 100, grow: 1 });
+  setup(CanvasRow([a, b], { wrap: true, gap: 10, align: "start" }), 200);
+  expect([a.bounds.width, b.bounds.width, b.bounds.y]).toEqual([110, 200, 30]);
+});
+it("validates every constraint and marks constraint changes dirty", () => {
+  for (const field of [
+    "minWidth",
+    "maxWidth",
+    "minHeight",
+    "maxHeight",
+  ] as const)
+    for (const value of [NaN, Infinity, -1, "-2%", "no"])
+      expect(() => CanvasLabel("x", { [field]: value })).toThrow();
+  const a = CanvasLabel("a");
+  const { ui } = setup(CanvasPanel([a]));
+  a.setStyle({ minHeight: 80, maxHeight: 30 });
+  expect(ui.layout(300, 200, metrics)).toBe(true);
+  expect(a.bounds.height).toBe(80);
+});
+it("propagates width-aware text height through nested rows, padding and min/max", () => {
+  const text = CanvasButton("abcdefghijklmnopqrst", () => {}, {
+    padding: 10,
+    maxWidth: 100,
+    minHeight: 30,
+  });
+  const row = CanvasRow([text], { align: "start", shrink: 0 });
+  const after = CanvasLabel("after");
+  const scene = new Scene("wrap");
+  const ui = new CanvasUI(scene, CanvasColumn([row, after]));
+  const wrapping = (n: { text: string }, width = Infinity) => ({
+    width: Math.min(n.text.length * 10, width),
+    height:
+      Math.max(1, Math.ceil((n.text.length * 10) / Math.max(1, width))) * 20,
+  });
+  ui.layout(100, 400, wrapping);
+  expect([
+    text.bounds.width,
+    text.bounds.height,
+    row.bounds.height,
+    after.bounds.y,
+  ]).toEqual([100, 80, 80, 80]);
+  text.setStyle({ maxWidth: 60 });
+  ui.layout(100, 400, wrapping);
+  expect(text.bounds.height).toBe(120);
+  expect(after.bounds.y).toBe(120);
+});
+it("remeasures text after row shrink and keeps percentage minima relative to its parent", () => {
+  const a = CanvasLabel("abcdefghij", { minWidth: "40%" });
+  const b = CanvasLabel("abcdefghij", { minWidth: 60 });
+  const row = CanvasRow([a, b], { align: "start", shrink: 0 });
+  const after = CanvasLabel("after");
+  const scene = new Scene("row wrap");
+  const ui = new CanvasUI(scene, CanvasColumn([row, after]));
+  ui.layout(100, 500, (n, width = Infinity) => ({
+    width: n.text.length * 10,
+    height:
+      20 * Math.max(1, Math.ceil((n.text.length * 10) / Math.max(1, width))),
+  }));
+  expect([
+    a.bounds.width,
+    b.bounds.width,
+    row.bounds.height,
+    after.bounds.y,
+  ]).toEqual([40, 60, 60, 60]);
+});

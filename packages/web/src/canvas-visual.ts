@@ -8,6 +8,7 @@ import {
 } from "pixi.js";
 import { intersectUI } from "./canvas-layout";
 import type { CanvasNode, UIBounds } from "./canvas-node";
+import { wrapCanvasText } from "./canvas-text";
 import type { CanvasUI } from "./canvas-ui";
 import type { PointerRouting } from "./pointer-routing";
 
@@ -33,7 +34,10 @@ export class CanvasVisual implements CanvasPresentation {
   private readonly entries = new Map<CanvasNode, Entry>();
   private readonly metrics = new Map<
     CanvasNode,
-    { key: string; width: number; height: number }
+    {
+      key: string;
+      values: Map<number, { text: string; width: number; height: number }>;
+    }
   >();
   private dirty = true;
   private dead = false;
@@ -69,21 +73,34 @@ export class CanvasVisual implements CanvasPresentation {
       textMetrics: this.metrics.size,
     };
   }
-  private measure = (node: CanvasNode) => {
-    const { fontSize, fontFamily } = node.style,
-      key = JSON.stringify([node.text, fontSize, fontFamily]);
-    const previous = this.metrics.get(node);
-    if (previous?.key === key) return previous;
-    const measured = CanvasTextMetrics.measureText(
-      node.text || " ",
-      new TextStyle({ fontSize, fontFamily }),
-    );
+  private measure = (node: CanvasNode, contentWidth = Infinity) => {
+    const { fontSize, fontFamily, textWrap } = node.style;
+    const key = JSON.stringify([node.text, fontSize, fontFamily, textWrap]);
+    let cache = this.metrics.get(node);
+    if (cache?.key !== key) {
+      cache = { key, values: new Map() };
+      this.metrics.set(node, cache);
+    }
+    const width = textWrap ? contentWidth : Infinity;
+    const previous = cache.values.get(width);
+    if (previous) return previous;
+    const style = new TextStyle({ fontSize, fontFamily, wordWrap: false });
+    const text = Number.isFinite(width)
+      ? wrapCanvasText(
+          node.text,
+          width,
+          (value) => CanvasTextMetrics.measureText(value || " ", style).width,
+        )
+      : node.text.replace(/\r\n?/g, "\n");
+    const measured = CanvasTextMetrics.measureText(text || " ", style);
     const result = {
-      key,
-      width: node.text ? measured.width : 0,
+      text,
+      width: text ? measured.width : 0,
       height: measured.height,
     };
-    this.metrics.set(node, result);
+    if (cache.values.size >= 8)
+      cache.values.delete(cache.values.keys().next().value as number);
+    cache.values.set(width, result);
     return result;
   };
   beforeResolutionChange(): void {
@@ -201,7 +218,20 @@ export class CanvasVisual implements CanvasPresentation {
     const visited = new Set<CanvasNode>(),
       buttons: HTMLButtonElement[] = [];
     let order = 0;
-    this.ui.walk((node, clip) => {
+    this.ui.walk((node, parentClip) => {
+      const measuredText =
+        node.kind === "panel"
+          ? undefined
+          : this.measure(
+              node,
+              Math.max(0, node.bounds.width - node.style.padding * 2),
+            );
+      const clip =
+        measuredText &&
+        (measuredText.width > node.bounds.width - node.style.padding * 2 ||
+          measuredText.height > node.bounds.height - node.style.padding * 2)
+          ? intersectUI(parentClip, node.bounds)
+          : parentClip;
       visited.add(node);
       let entry = this.entries.get(node);
       if (!entry) {
@@ -293,9 +323,10 @@ export class CanvasVisual implements CanvasPresentation {
       }
       entry.display.alpha = enabled ? 1 : 0.45;
       if (entry.text) {
-        if (entry.text.text !== node.text) {
+        const m = measuredText ?? this.measure(node);
+        if (entry.text.text !== m.text) {
           this.resources.changedText(entry.text.styleKey);
-          entry.text.text = node.text;
+          entry.text.text = m.text;
         }
         const textStyleKey = JSON.stringify([
           s.fontFamily,
@@ -311,7 +342,6 @@ export class CanvasVisual implements CanvasPresentation {
             fill: s.color,
           };
         }
-        const m = this.measure(node);
         entry.text.position.set(
           node.interactive
             ? Math.max(s.padding, (b.width - m.width) / 2)

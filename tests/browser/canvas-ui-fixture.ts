@@ -20,7 +20,7 @@ import {
   PointerUp,
 } from "@simpludify/web";
 import { inspectCanvasResources } from "../helpers/canvas-resources";
-export async function canvasFixture() {
+export async function canvasFixture(responsive = false) {
   window.demo.dispose();
   document.body.replaceChildren();
   document.body.style.cssText = "margin:0;height:100dvh";
@@ -68,15 +68,51 @@ export async function canvasFixture() {
       },
       { width: 100, height: 50, background: 0x880000 },
     );
-    root = canvasUI(
-      CanvasColumn(
-        [
-          label,
-          CanvasRow([hold, click], { gap: 10, height: 50, align: "start" }),
-        ],
-        { padding: 12, gap: 12, align: "start" },
-      ),
-    );
+    if (responsive) {
+      label.setText(
+        "日本語と English を自動で折り返す。👨‍👩‍👧‍👦\n明示的な改行",
+      );
+      label.setStyle({ maxWidth: 300, fontFamily: "monospace", shrink: 0 });
+      click.setText("Continue 日本語の説明付きボタン 👨‍👩‍👧‍👦");
+      click.setStyle({
+        width: "80%",
+        maxWidth: 240,
+        minWidth: 100,
+        height: 0,
+        minHeight: 0,
+      });
+      // Use a fresh auto-height button because style patches deliberately retain dimensions.
+      click.dispose();
+      click = CanvasButton(
+        "Continue 日本語の説明付きボタン 👨‍👩‍👧‍👦",
+        () => {
+          clicks++;
+        },
+        {
+          width: "80%",
+          minWidth: 100,
+          maxWidth: 240,
+          minHeight: 50,
+          padding: 12,
+          fontSize: 20,
+          fontFamily: "monospace",
+          shrink: 0,
+          background: 0x880000,
+        },
+      );
+      root = canvasUI(
+        CanvasColumn([label, click, hold], { padding: 12, gap: 12 }),
+      );
+    } else
+      root = canvasUI(
+        CanvasColumn(
+          [
+            label,
+            CanvasRow([hold, click], { gap: 10, height: 50, align: "start" }),
+          ],
+          { padding: 12, gap: 12, align: "start" },
+        ),
+      );
     for (const [token, name] of [
       [PointerDown, "down"],
       [PointerMove, "move"],
@@ -134,6 +170,34 @@ export async function canvasFixture() {
     game,
     renderer,
     rendererType: inspectCanvasResources(renderer).rendererType,
+    textBox(node: CanvasNode) {
+      const presentation = (
+        game as unknown as {
+          canvasPresentation: {
+            entries: Map<
+              CanvasNode,
+              {
+                text?: {
+                  text: string;
+                  width: number;
+                  height: number;
+                  style: { fontSize: number; fontFamily: unknown };
+                };
+              }
+            >;
+          };
+        }
+      ).canvasPresentation;
+      const text = presentation.entries.get(node)?.text;
+      if (!text) throw Error("Missing rendered text");
+      return {
+        text: text.text,
+        width: text.width,
+        height: text.height,
+        fontSize: text.style.fontSize,
+        fontFamily: text.style.fontFamily,
+      };
+    },
     A,
     errors,
     worldEvents,

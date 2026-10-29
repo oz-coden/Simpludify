@@ -49,6 +49,84 @@ for (const fallback of [false, true])
       await page.waitForFunction(() => !!window.demo);
     });
     test.afterEach(() => expect(errors).toEqual([]));
+    test("wraps mixed text within min/max buttons and keeps paint, native focus and pointer boxes synchronized", async ({
+      page,
+    }) => {
+      await page.evaluate(async (url) => {
+        window.canvasProbe = await (await import(url)).canvasFixture(true);
+      }, url);
+      const inspect = () =>
+        page.evaluate(() => {
+          const f = window.canvasProbe;
+          f.game.setViewport();
+          return {
+            button: f.click.bounds,
+            label: f.label.bounds,
+            hold: f.hold.bounds,
+            text: f.textBox(f.click),
+            labelText: f.textBox(f.label),
+            layouts: f.root.diagnostics.layouts,
+          };
+        });
+      const before = await inspect();
+      expect(before.button.width).toBe(240);
+      expect(before.text.text).toContain("\n");
+      expect(before.text.width).toBeLessThanOrEqual(
+        before.button.width - 24 + 0.1,
+      );
+      expect(before.text.height).toBeLessThanOrEqual(
+        before.button.height - 24 + 0.1,
+      );
+      expect(before.labelText.text).toContain("\n明示的な改行");
+      expect(before.hold.y).toBe(before.button.y + before.button.height + 12);
+      await page.mouse.click(
+        ...(await center(page, "click").then((p) => [p.x, p.y] as const)),
+      );
+      expect(await page.evaluate(() => window.canvasProbe.clicks)).toBe(1);
+      await page.setViewportSize({ width: 240, height: 700 });
+      await expect
+        .poll(async () => (await inspect()).button.width)
+        .toBeLessThan(240);
+      const resized = await inspect();
+      expect(resized.text.width).toBeLessThanOrEqual(
+        resized.button.width - 24 + 0.1,
+      );
+      expect(resized.button.height).toBeGreaterThanOrEqual(
+        before.button.height,
+      );
+      const native = await page
+        .getByRole("button", { name: /Continue 日本語/ })
+        .boundingBox();
+      expect(native?.width).toBeCloseTo(resized.button.width, 1);
+      expect(native?.height).toBeCloseTo(resized.button.height, 1);
+      await page.mouse.click(
+        ...(await center(page, "click").then((p) => [p.x, p.y] as const)),
+      );
+      expect(await page.evaluate(() => window.canvasProbe.clicks)).toBe(2);
+      await page.evaluate(() => {
+        const f = window.canvasProbe;
+        f.click.setText(
+          "変更後 New text with a long URL https://example.com/abcdefghijklmnopqrstuvwxyz",
+        );
+        f.click.setStyle({ fontFamily: "serif", fontSize: 24, maxWidth: 180 });
+        f.game.setViewport();
+      });
+      const changed = await inspect();
+      expect(changed.text.fontSize).toBe(24);
+      expect(changed.text.fontFamily).toBe("serif");
+      expect(changed.text.width).toBeLessThanOrEqual(
+        changed.button.width - 24 + 0.1,
+      );
+      expect(changed.text.height).toBeLessThanOrEqual(
+        changed.button.height - 24 + 0.1,
+      );
+      const idle = await inspect();
+      expect(idle.layouts).toBe(changed.layouts);
+      await page.getByRole("button", { name: /変更後 New text/ }).focus();
+      await page.keyboard.press("Enter");
+      expect(await page.evaluate(() => window.canvasProbe.clicks)).toBe(3);
+      await page.evaluate(() => window.canvasProbe.game.dispose());
+    });
     test("draws real UI pixels, text and focus at DPR2, remains independent of Camera and skips idle layouts", async ({
       page,
     }) => {

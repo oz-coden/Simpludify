@@ -18,6 +18,12 @@ export type UIJustify =
 export interface CanvasStyle {
   width?: UISize;
   height?: UISize;
+  minWidth?: UISize;
+  maxWidth?: UISize;
+  minHeight?: UISize;
+  maxHeight?: UISize;
+  /** Wrap text at the allocated content width. Default true. */
+  textWrap?: boolean;
   direction?: "row" | "column";
   gap?: number;
   padding?: number;
@@ -51,6 +57,7 @@ export const defaultCanvasStyle = Object.freeze({
   align: "stretch",
   justify: "start",
   wrap: false,
+  textWrap: true,
   clip: false,
   pointerEvents: "children",
   color: 0xeff7f6,
@@ -58,9 +65,17 @@ export const defaultCanvasStyle = Object.freeze({
   fontFamily: "system-ui, sans-serif",
   radius: 6,
 } as const);
+type OptionalStyle =
+  | "width"
+  | "height"
+  | "minWidth"
+  | "maxWidth"
+  | "minHeight"
+  | "maxHeight"
+  | "background"
+  | "alignSelf";
 export type ResolvedCanvasStyle = Readonly<
-  Required<Omit<CanvasStyle, "width" | "height" | "background" | "alignSelf">> &
-    Pick<CanvasStyle, "width" | "height" | "background" | "alignSelf">
+  Required<Omit<CanvasStyle, OptionalStyle>> & Pick<CanvasStyle, OptionalStyle>
 >;
 function checkedStyle(value: CanvasStyle): ResolvedCanvasStyle {
   const result = { ...defaultCanvasStyle, ...value };
@@ -68,6 +83,10 @@ function checkedStyle(value: CanvasStyle): ResolvedCanvasStyle {
     ...Object.keys(defaultCanvasStyle),
     "width",
     "height",
+    "minWidth",
+    "maxWidth",
+    "minHeight",
+    "maxHeight",
     "background",
     "alignSelf",
   ]);
@@ -77,7 +96,16 @@ function checkedStyle(value: CanvasStyle): ResolvedCanvasStyle {
         "INVALID_UI",
         `Unknown or undefined UI style: ${key}`,
       );
-    if (["width", "height"].includes(key)) {
+    if (
+      [
+        "width",
+        "height",
+        "minWidth",
+        "maxWidth",
+        "minHeight",
+        "maxHeight",
+      ].includes(key)
+    ) {
       if (
         typeof v === "string" &&
         /^(?:\d+(?:\.\d+)?|\.\d+)%$/.test(v) &&
@@ -110,7 +138,7 @@ function checkedStyle(value: CanvasStyle): ResolvedCanvasStyle {
           (!Number.isInteger(v) || v > 0xffffff))
       )
         throw new EngineError("INVALID_UI", `Invalid UI ${key}`);
-    } else if (["wrap", "clip"].includes(key)) {
+    } else if (["wrap", "clip", "textWrap"].includes(key)) {
       if (typeof v !== "boolean")
         throw new EngineError("INVALID_UI", `Invalid UI ${key}`);
     } else {
@@ -263,6 +291,11 @@ export class CanvasNode implements LifetimeOwner {
     const geometry: readonly (keyof CanvasStyle)[] = [
       "width",
       "height",
+      "minWidth",
+      "maxWidth",
+      "minHeight",
+      "maxHeight",
+      "textWrap",
       "direction",
       "gap",
       "padding",

@@ -4,7 +4,10 @@ export interface UISizeValue {
   width: number;
   height: number;
 }
-export type MeasureText = (node: CanvasNode) => UISizeValue;
+export type MeasureText = (
+  node: CanvasNode,
+  contentWidth?: number,
+) => UISizeValue;
 const finite = (v: number) => {
   if (!Number.isFinite(v) || v < 0)
     throw new EngineError("INVALID_UI", "UI layout overflow");
@@ -16,7 +19,19 @@ const size = (v: UISize | undefined, parent: number): number | undefined =>
     : finite(
         typeof v === "number" ? v : (Number(v.slice(0, -1)) / 100) * parent,
       );
+// A conflicting minimum wins, including percentage constraints after parent resolution.
+const limits = (node: CanvasNode, axis: "Width" | "Height", parent: number) => {
+  const min = size(node.style[`min${axis}`], parent) ?? 0;
+  return {
+    min,
+    max: Math.max(min, size(node.style[`max${axis}`], parent) ?? Infinity),
+  };
+};
+const clamp = (value: number, range: { min: number; max: number }) =>
+  finite(Math.max(range.min, Math.min(range.max, value)));
 interface Item {
+  min: number;
+  max: number;
   node: CanvasNode;
   main: number;
   cross: number;
@@ -27,7 +42,7 @@ interface Line {
   main: number;
   cross: number;
 }
-/** A deliberately bounded Flex subset: no min/max, basis, margins, reverse or implicit text wrapping. */
+/** Bounded Flex with iterative constraint freezing and width-aware leaf measurement. */
 export function layoutCanvas(
   root: CanvasNode,
   width: number,
@@ -59,8 +74,8 @@ export function layoutCanvas(
         row = s.direction === "row";
       for (const c of children) {
         const n = natural(c, depth + 1),
-          cw = typeof c.style.width === "number" ? c.style.width : n.width,
-          ch = typeof c.style.height === "number" ? c.style.height : n.height;
+          cw = n.width,
+          ch = n.height;
         w = row ? w + cw : Math.max(w, cw);
         h = row ? Math.max(h, ch) : h + ch;
       }
@@ -71,9 +86,22 @@ export function layoutCanvas(
       width: finite(typeof s.width === "number" ? s.width : w + pad),
       height: finite(typeof s.height === "number" ? s.height : h + pad),
     };
+    for (const axis of ["Width", "Height"] as const) {
+      const key = axis === "Width" ? "width" : "height";
+      const min = s[`min${axis}`],
+        max = s[`max${axis}`];
+      result[key] = clamp(result[key], {
+        min: typeof min === "number" ? min : 0,
+        max: Math.max(
+          typeof min === "number" ? min : 0,
+          typeof max === "number" ? max : Infinity,
+        ),
+      });
+    }
     naturalCache.set(node, result);
     return result;
   };
+  const constrainedCache = new Map<CanvasNode, Map<string, UISizeValue>>();
   // Auto cross size of a wrapped container depends on its constrained main size.
   const constrained = (
     node: CanvasNode,
@@ -86,6 +114,18 @@ export function layoutCanvas(
     forcedHeight?: number,
   ): UISizeValue => {
     constrainVisits++;
+    const key = `${aw},${ah},${stretchWidth},${stretchHeight},${forcedWidth},${forcedHeight}`;
+    let cache = constrainedCache.get(node);
+    const cached = cache?.get(key);
+    if (cached) return cached;
+    if (!cache) {
+      cache = new Map();
+      constrainedCache.set(node, cache);
+    }
+    const saved = (value: UISizeValue) => {
+      cache?.set(key, value);
+      return value;
+    };
     if (depth > 64)
       throw new EngineError(
         "INVALID_UI",
@@ -96,62 +136,160 @@ export function layoutCanvas(
       row = s.direction === "row";
     let w = forcedWidth ?? size(s.width, aw) ?? (stretchWidth ? aw : n.width),
       h = forcedHeight ?? size(s.height, ah) ?? (stretchHeight ? ah : n.height);
-    if (node.kind !== "panel") return { width: w, height: h };
-    const cw = Math.max(0, w - s.padding * 2),
-      ch = Math.max(0, h - s.padding * 2),
-      main = row ? cw : ch;
-    let used = 0,
-      lineCross = 0,
-      totalCross = 0,
-      count = 0;
-    for (const child of node.children) {
-      if (!child.visible || child.disposed) continue;
-      const align = child.style.alignSelf ?? s.align;
-      const c = constrained(
-        child,
-        cw,
-        ch,
-        !row && align === "stretch" && child.style.width === undefined,
-        row && align === "stretch" && child.style.height === undefined,
-        depth + 1,
-      );
-      const m = row ? c.width : c.height,
-        k = row ? c.height : c.width;
-      if (s.wrap && count && used + s.gap + m > main) {
-        totalCross += lineCross + s.gap;
-        used = 0;
-        lineCross = 0;
-        count = 0;
-      }
-      used += (count ? s.gap : 0) + m;
-      lineCross = Math.max(lineCross, k);
-      count++;
-    }
-    if (s.wrap) {
-      totalCross += lineCross + s.padding * 2;
+    w = clamp(w, limits(node, "Width", aw));
+    h = clamp(h, limits(node, "Height", ah));
+    if (node.kind !== "panel") {
       if (
-        row &&
         s.height === undefined &&
         !stretchHeight &&
         forcedHeight === undefined
       )
-        h = totalCross;
-      if (
-        !row &&
-        s.width === undefined &&
-        !stretchWidth &&
-        forcedWidth === undefined
-      )
-        w = totalCross;
-    } else if (
-      !row &&
+        h = clamp(
+          measure(node, Math.max(0, w - s.padding * 2)).height + s.padding * 2,
+          limits(node, "Height", ah),
+        );
+      return saved({ width: w, height: h });
+    }
+    const lines = linesFor(
+      node,
+      Math.max(0, w - s.padding * 2),
+      Math.max(0, h - s.padding * 2),
+      depth,
+    );
+    const totalCross =
+      lines.reduce((sum, line) => sum + line.cross, 0) +
+      s.gap * Math.max(0, lines.length - 1);
+    const totalMain = Math.max(
+      0,
+      ...lines.map(
+        (line) =>
+          line.items.reduce((sum, i) => sum + i.main, 0) +
+          s.gap * Math.max(0, line.items.length - 1),
+      ),
+    );
+    if (
+      row &&
       s.height === undefined &&
       !stretchHeight &&
       forcedHeight === undefined
-    ) {
-      h = used + s.padding * 2;
+    )
+      h = totalCross + s.padding * 2;
+    if (
+      !row &&
+      s.width === undefined &&
+      !stretchWidth &&
+      forcedWidth === undefined
+    )
+      w = totalCross + s.padding * 2;
+    if (
+      !row &&
+      !s.wrap &&
+      s.height === undefined &&
+      !stretchHeight &&
+      forcedHeight === undefined
+    )
+      h = totalMain + s.padding * 2;
+    return saved({
+      width: clamp(w, limits(node, "Width", aw)),
+      height: clamp(h, limits(node, "Height", ah)),
+    });
+  };
+  const linesFor = (
+    node: CanvasNode,
+    cw: number,
+    ch: number,
+    depth: number,
+  ): Line[] => {
+    const s = node.style,
+      row = s.direction === "row",
+      main = row ? cw : ch;
+    const lines: Line[] = [{ items: [], main: 0, cross: 0 }];
+    for (const child of node.children) {
+      if (!child.visible || child.disposed) continue;
+      const align = child.style.alignSelf ?? s.align;
+      const n = constrained(
+          child,
+          cw,
+          ch,
+          !row && align === "stretch" && child.style.width === undefined,
+          row &&
+            !s.wrap &&
+            align === "stretch" &&
+            child.style.height === undefined,
+          depth + 1,
+        ),
+        a = n.width,
+        b = n.height;
+      const range = limits(child, row ? "Width" : "Height", main);
+      const item: Item = {
+        ...range,
+        node: child,
+        main: row ? a : b,
+        cross: row ? b : a,
+        explicitCross:
+          (row ? child.style.height : child.style.width) !== undefined,
+      };
+      let line = lines[lines.length - 1] as Line;
+      if (s.wrap && line.items.length && line.main + s.gap + item.main > main) {
+        line = { items: [], main: 0, cross: 0 };
+        lines.push(line);
+      }
+      if (line.items.length) line.main += s.gap;
+      line.items.push(item);
+      line.main += item.main;
+      line.cross = Math.max(line.cross, item.cross);
     }
-    return { width: finite(w), height: finite(h) };
+
+    for (const line of lines) {
+      // Freeze min/max-limited items and redistribute remaining free space.
+      const growing = main >= line.main;
+      const bases = new Map(line.items.map((i) => [i, i.main]));
+      let remaining = line.items.filter((i) =>
+        growing
+          ? i.node.style.grow > 0 && i.main < i.max
+          : i.node.style.shrink > 0 && i.main > i.min,
+      );
+      while (remaining.length) {
+        const free =
+          main -
+          line.items.reduce((sum, i) => sum + i.main, 0) -
+          s.gap * Math.max(0, line.items.length - 1);
+        if (Math.abs(free) < 1e-9 || (growing ? free < 0 : free > 0)) break;
+        const weightOf = (i: Item) =>
+          growing
+            ? i.node.style.grow
+            : i.node.style.shrink * (bases.get(i) ?? 0);
+        const weight = remaining.reduce((sum, i) => sum + weightOf(i), 0);
+        if (weight === 0) break;
+        let changed = 0;
+        for (const i of remaining) {
+          const previous = i.main;
+          i.main = clamp(previous + (free * weightOf(i)) / weight, i);
+          changed += Math.abs(i.main - previous);
+        }
+        remaining = remaining.filter((i) =>
+          growing ? i.main < i.max - 1e-9 : i.main > i.min + 1e-9,
+        );
+        if (changed < 1e-9) break;
+      }
+      // Wrapped descendants remeasure their auto cross extent after flex main allocation.
+      for (const i of line.items)
+        if (!i.explicitCross) {
+          const measured = constrained(
+            i.node,
+            cw,
+            ch,
+            false,
+            false,
+            depth + 1,
+            row ? i.main : undefined,
+            row ? undefined : i.main,
+          );
+          i.cross = row ? measured.height : measured.width;
+        }
+      line.cross = line.items.reduce((v, i) => Math.max(v, i.cross), 0);
+    }
+    return lines;
   };
   const arrange = (
     node: CanvasNode,
@@ -180,94 +318,10 @@ export function layoutCanvas(
       ch = Math.max(0, h - 2 * s.padding),
       main = row ? cw : ch,
       cross = row ? ch : cw;
-    const lines: Line[] = [{ items: [], main: 0, cross: 0 }];
-    for (const child of node.children) {
-      if (!child.visible || child.disposed) continue;
-      const align = child.style.alignSelf ?? s.align;
-      const n = constrained(
-          child,
-          cw,
-          ch,
-          !row && align === "stretch" && child.style.width === undefined,
-          row &&
-            !s.wrap &&
-            align === "stretch" &&
-            child.style.height === undefined,
-          depth + 1,
-        ),
-        a = n.width,
-        b = n.height;
-      const item: Item = {
-        node: child,
-        main: row ? a : b,
-        cross: row ? b : a,
-        explicitCross:
-          (row ? child.style.height : child.style.width) !== undefined,
-      };
-      let line = lines[lines.length - 1] as Line;
-      if (s.wrap && line.items.length && line.main + s.gap + item.main > main) {
-        line = { items: [], main: 0, cross: 0 };
-        lines.push(line);
-      }
-      if (line.items.length) line.main += s.gap;
-      line.items.push(item);
-      line.main += item.main;
-      line.cross = Math.max(line.cross, item.cross);
-    }
+    const lines = linesFor(node, cw, ch, depth);
     if (!s.wrap) (lines[0] as Line).cross = cross;
     let lineOffset = 0;
     for (const line of lines) {
-      const free = main - line.main;
-      if (free >= 0) {
-        const weight = line.items.reduce(
-          (sum, i) => sum + i.node.style.grow,
-          0,
-        );
-        if (weight > 0)
-          for (const i of line.items)
-            i.main = finite(i.main + (free * i.node.style.grow) / weight);
-      } else {
-        // Freeze zero-size items and redistribute the remaining deficit.
-        let deficit = -free;
-        let remaining = line.items.filter(
-          (i) => i.node.style.shrink > 0 && i.main > 0,
-        );
-        while (deficit > 1e-9 && remaining.length) {
-          const weight = remaining.reduce(
-            (sum, i) => sum + i.node.style.shrink * i.main,
-            0,
-          );
-          let removed = 0;
-          for (const i of remaining) {
-            const amount = Math.min(
-              i.main,
-              (deficit * i.node.style.shrink * i.main) / weight,
-            );
-            i.main -= amount;
-            removed += amount;
-          }
-          deficit -= removed;
-          remaining = remaining.filter((i) => i.main > 1e-9);
-          if (removed < 1e-9) break;
-        }
-      }
-      // Wrapped descendants remeasure their auto cross extent after flex main allocation.
-      for (const i of line.items)
-        if (!i.explicitCross) {
-          const measured = constrained(
-            i.node,
-            row ? i.main : cross,
-            row ? cross : i.main,
-            false,
-            false,
-            depth + 1,
-            row ? i.main : undefined,
-            row ? undefined : i.main,
-          );
-          i.cross = row ? measured.height : measured.width;
-        }
-      if (s.wrap)
-        line.cross = line.items.reduce((v, i) => Math.max(v, i.cross), 0);
       const left = Math.max(
         0,
         main -
@@ -286,7 +340,11 @@ export function layoutCanvas(
       }
       for (const i of line.items) {
         const align = i.node.style.alignSelf ?? s.align;
-        if (!i.explicitCross && align === "stretch") i.cross = line.cross;
+        if (!i.explicitCross && align === "stretch")
+          i.cross = clamp(
+            line.cross,
+            limits(i.node, row ? "Height" : "Width", cross),
+          );
         let c =
           align === "end"
             ? line.cross - i.cross
@@ -312,8 +370,11 @@ export function layoutCanvas(
     root,
     0,
     0,
-    size(root.style.width, width) ?? width,
-    size(root.style.height, height) ?? height,
+    clamp(size(root.style.width, width) ?? width, limits(root, "Width", width)),
+    clamp(
+      size(root.style.height, height) ?? height,
+      limits(root, "Height", height),
+    ),
     0,
   );
   return { nodes: visited, intrinsicVisits, constrainVisits };
