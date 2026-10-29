@@ -75,6 +75,12 @@ export const examples = [
 ];
 export const pages = [
   [
+    "en/host-boundary.html",
+    "docs/host-boundary.md",
+    "Core modules and Host contracts",
+    "English",
+  ],
+  [
     "guides/canvas-ui.html",
     "site/ja/canvas-ui.md",
     "Canvas UI・Flex・Pointer",

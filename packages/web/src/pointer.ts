@@ -1,11 +1,11 @@
+import type { PointerInfo } from "@simpludify/core";
 import {
   containsScreenPoint,
+  PointerRouting,
   screenPoint,
   type ViewTransform,
   type WorldPoint,
 } from "@simpludify/core";
-import type { PointerInfo } from "./pointer-routing";
-import { PointerRouting } from "./pointer-routing";
 /** One DOM capture-phase adapter per Game; Pixi federated events never route these widgets. */
 export class BrowserPointer {
   readonly routing: PointerRouting;
@@ -47,6 +47,27 @@ export class BrowserPointer {
             host.releasePointerCapture(e.pointerId);
         }),
       options,
+    );
+    host.addEventListener(
+      "wheel",
+      (e) =>
+        this.guard(() => {
+          if (!this.surface(e.target)) return;
+          this.flush();
+          const { screen } = this.project(e);
+          const unit =
+            e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? host.clientHeight : 1;
+          if (
+            this.routing.scroll(
+              screen.x,
+              screen.y,
+              e.deltaX * unit,
+              e.deltaY * unit,
+            )
+          )
+            e.preventDefault();
+        }),
+      { ...options, passive: false },
     );
     window.addEventListener(
       "pointermove",

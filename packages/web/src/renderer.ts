@@ -1,3 +1,4 @@
+import type { CanvasUI, PointerRouting } from "@simpludify/core";
 import {
   type Actor,
   cleanupAll,
@@ -13,15 +14,12 @@ import {
   type VisualSource,
 } from "@simpludify/core";
 import { Application, Container, Graphics, Sprite, Texture } from "pixi.js";
-import type { CanvasUI } from "./canvas-ui";
-
 import { type CanvasPresentation, CanvasVisual } from "./canvas-visual";
 import {
   pruneUITextKeys,
   releaseUIGraphics,
   releaseUIText,
 } from "./pixi-ui-cleanup";
-import type { PointerRouting } from "./pointer-routing";
 import {
   type ImageLease,
   type ImageResource,

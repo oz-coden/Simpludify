@@ -27,3 +27,7 @@ Implement the first vertical slice of the code-first TypeScript 2D game engine d
 ## Delivery report
 
 Report: (a) implemented functionality and commands; (b) tests actually run and results; (c) architectural decisions; (d) features deferred; (e) blockers; (f) next concrete milestone. Provide a small code example that works against the current implementation rather than merely an aspirational API.
+
+## Recoverable checkpoints
+
+Read [work reports](docs/work-reports/README.md) before resuming an interrupted task. Follow AGENTS.md's persistent report procedure: save source changes, verification and remaining work on the pushed branch before lengthy operations. Final communication must be based on the repository report, including unresolved checks and integration status.

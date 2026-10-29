@@ -19,7 +19,7 @@ const temp = "/tmp/simpludify-layout-comparison";
 mkdirSync(temp, { recursive: true });
 const root = resolve(".");
 const entries = {
-  custom: `export {wrapCanvasText} from ${JSON.stringify(`${root}/packages/web/src/canvas-text.ts`)}; export {layoutCanvas} from ${JSON.stringify(`${root}/packages/web/src/canvas-layout.ts`)}; export * from ${JSON.stringify(`${root}/packages/web/src/canvas-node.ts`)}; export {CanvasUI} from ${JSON.stringify(`${root}/packages/web/src/canvas-ui.ts`)}; export {Scene} from ${JSON.stringify(`${root}/packages/core/src/index.ts`)};`,
+  custom: `export {wrapCanvasText} from ${JSON.stringify(`${root}/packages/core/src/ui/canvas-text.ts`)}; export {layoutCanvas} from ${JSON.stringify(`${root}/packages/core/src/ui/canvas-layout.ts`)}; export * from ${JSON.stringify(`${root}/packages/core/src/ui/canvas-node.ts`)}; export {CanvasUI} from ${JSON.stringify(`${root}/packages/core/src/ui/canvas-ui.ts`)}; export {Scene} from ${JSON.stringify(`${root}/packages/core/src/index.ts`)};`,
   yoga: `export {default as Yoga} from ${JSON.stringify(`${yogaPath}/dist/src/index.js`)};`,
 };
 const modules = {},

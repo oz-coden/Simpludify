@@ -38,3 +38,7 @@ The project and internal packages are private workspaces for now. Do not publish
 ## Official documentation site
 
 `site/config.mjs` maps Japanese Markdown and existing English docs to static routes. Keep public API contracts in sync with source; SPEC proposals must not be described as implemented. `npm run site:build -- --base /Simpludify/`, `npm run site:check` and `npm run test:site` validate the integrated site without changing game CLI dist. Also test base `/` after build/config changes. Page content is trusted repository Markdown; do not accept arbitrary runtime HTML. Preserve first-party iframe disposal/focus behavior and include all notices. Pages must be enabled by an administrator before deploy; workflows must not enable visibility or configure DNS automatically.
+
+## Persistent work reports
+
+For implementation work, add a uniquely dated `docs/work-reports/YYYY-MM-DD-<task>.md` and update the index. Before long tests/browser sessions or main integration, commit the code and a truthful checkpoint, then push the work branch. Record baseline branch/SHA, design reasons, changed files/APIs, commands and test counts, failures versus unrun checks, commits/CI URLs, remaining work and integration SHA. Never overwrite previous task reports. The final report must be recoverable from GitHub alone and contain every material finding/limitation in the chat response. Confirm the remote report exists; after merging record main CI and the integration SHA. A local commit alone is not a checkpoint.

@@ -9,3 +9,7 @@ Start opens a SpriteAnimation character in a SpriteSheet Tilemap. WASD and four 
 The existing DOM UI example remains independent. Canvas widgets render through Pixi, including Canvas2D fallback. This example does not implement a custom collision/movement/input router. `context.actions` supplies the staged Scene/input, `controls.createSource(node)` scopes each touch contribution, and `context.canvasUI(root)` scopes the entire UI tree. Async navigation buttons receive an owner AbortSignal; Scene disposal cancels gestures and subscriptions.
 
 Original terrain/character SVG assets are reused from Tile trail/Sprite garden. No external artwork or layout runtime is added.
+
+## Portable UI list lab
+
+Choose **UI list lab** from the title screen. Select entries with Enter/Space or pointer input, add/remove/reverse them, scroll with the wheel or on-screen buttons, and use Tab/Shift-Tab to reveal entries outside the viewport. Back returns to the title. `portable-screen.ts` imports only Core and builds its full UI from Canvas factories; Web mounts it without game-specific DOM or Pixi code. The same definition runs in headless tests. Touch-drag scrolling, native editable/select/number controls and alternate Hosts remain unimplemented.

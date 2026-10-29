@@ -1,6 +1,6 @@
 # Canvas UI・Flex・Pointer入力
 
-Canvas UIはPixi上に描画するHUDやゲーム操作ボタンです。既存のDOM版`Panel`・`Label`・`Button`・`HoldButton`はそのまま利用できます。フォーム・文字入力・スクロールする文書にはDOM版を選び、Canvasに重ねるゲームUIには`Canvas`で始まるAPIを使います。
+Canvas UIはPixi上に描画するHUDやゲーム操作ボタンです。既存のDOM版`Panel`・`Label`・`Button`・`HoldButton`はそのまま利用できます。フォーム・文字入力・文書の選択にはDOM版を選び、Canvasに重ねるゲームUIには`Canvas`で始まるAPIを使います。
 
 ```ts verify
 import {
@@ -121,3 +121,11 @@ Tab／Shift-Tabは不可視のネイティブ補助ボタンへフォーカス�
 補助DOMはボタンの名前・状態・キーボード操作を提供する範囲です。Canvas Label全体を文書として読み上げたり、IMEや完全なスクリーンリーダー対応を提供したりはしません。その用途にはDOM UIを使ってください。実機・Safari・Firefox・OS IMEの適合性は未検証です。
 
 [Canvas trail](../../examples/canvas-ui/README.md)はSpriteAnimation・Tilemap・Collision・HUD・タッチ・Pause・Scene往復を組み合わせた実行例です。[詳細仕様](../../docs/canvas-ui.md)・[測定結果](../../docs/canvas-ui-performance.md)・[検証記録](../../docs/canvas-ui-implementation.md)も参照してください。
+
+## Core共通UIと動的リスト
+
+Canvas UIのツリー・Flex計算・ヒットテスト・スクロール・フォーカス・入力配送はCoreにあり、WebはPixi描画・文字計測・ブラウザ入力・ネイティブのフォーカス補助を担当します。`CanvasScroll`で範囲を区切り、`add`・`remove`・`move(child, index)`・`clear`でリストを更新できます。`move`はノードを破棄しません。スクロール量は`scrollTo` / `scrollBy`で変更し、レイアウト後の`maxScrollX/Y`へ収まります。
+
+Canvas trailの **UI list lab** は、Core APIだけで構築した同じ画面定義をWebとヘッドレステストで使います。項目の選択・追加・削除・並べ替え、ホイール／ボタンでのスクロール、Tab移動による表示範囲外の項目へのフォーカスを試せます。タッチドラッグ・IME・専用の数値／選択フォームは未実装です。
+
+`canvasUI`の戻り値で`focus(node)`・`focusNext(reverse?)`を使えます。Coreのボタンコールバックと`node.signal`は環境非依存の`CancellationSignal`です。Webの`CanvasButton`コールバックは従来の`AbortSignal`を維持します。DOM/fetchへ`node.signal`を接続する場合はWebの`browserAbortSignal`を使ってください。[Core / Host境界と移行](../../docs/host-boundary.md)に詳細をまとめています。Electron・Tauri・Androidのビルドや実機動作は今回追加していません。

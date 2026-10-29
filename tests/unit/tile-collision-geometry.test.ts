@@ -14,15 +14,15 @@ import {
   createGeometry,
   type GeometryEntry,
   updateGeometry,
-} from "../../packages/core/src/collision-geometry";
-import { correctPositions } from "../../packages/core/src/collision-response";
+} from "../../packages/core/src/game/collision-geometry";
+import { correctPositions } from "../../packages/core/src/game/collision-response";
 import {
   exposedFaces,
   TileFace,
   tileGeometry,
   tileRange,
   tileResponseManifold,
-} from "../../packages/core/src/tile-collision-geometry";
+} from "../../packages/core/src/game/tile-collision-geometry";
 
 const sheet = SpriteSheet.grid("unloaded.png", {
   frameWidth: 16,

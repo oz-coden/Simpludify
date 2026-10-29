@@ -1,5 +1,6 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import { validateCoreDependency } from "./core-boundary.mjs";
 
 const core = "packages/core/src";
 function files(dir) {
@@ -9,12 +10,42 @@ function files(dir) {
       : [join(dir, entry.name)],
   );
 }
+const runtimeGraph = new Map();
 for (const file of files(core)) {
+  const edges = [];
   const source = readFileSync(file, "utf8");
-  for (const match of source.matchAll(/(?:from\s*|import\s*)['"]([^'"]+)['"]/g))
-    if (!match[1].startsWith("."))
-      throw new Error(`CORE_BOUNDARY: ${file}: ${match[1]}`);
+  for (const match of source.matchAll(
+    /(?:import|export)\s+(type\s+)?(\{[^}]*\}|\*(?:\s+as\s+\w+)?|\w+)\s*from\s*["']([^"']+)["']/g,
+  )) {
+    const typeOnly = Boolean(
+      match[1] ||
+        (match[2].startsWith("{") &&
+          match[2]
+            .slice(1, -1)
+            .split(",")
+            .filter((s) => s.trim())
+            .every((s) => s.trim().startsWith("type "))),
+    );
+    validateCoreDependency(core, file, match[3], typeOnly);
+    if (!typeOnly) edges.push(resolve(dirname(file), `${match[3]}.ts`));
+  }
+  for (const match of source.matchAll(/import\s*(?:\(\s*)?["']([^"']+)["']/g))
+    validateCoreDependency(core, file, match[1]);
+  runtimeGraph.set(resolve(file), edges);
 }
+const visited = new Set(),
+  visiting = new Set();
+function visitModule(file, chain = []) {
+  if (visiting.has(file))
+    throw new Error(`CORE_CYCLE: ${[...chain, file].join(" -> ")}`);
+  if (visited.has(file)) return;
+  visiting.add(file);
+  for (const next of runtimeGraph.get(file) ?? [])
+    visitModule(next, [...chain, file]);
+  visiting.delete(file);
+  visited.add(file);
+}
+for (const file of runtimeGraph.keys()) visitModule(file);
 for (const file of [
   "examples/character/index.html",
   "examples/ui-scenes/index.html",
@@ -51,7 +82,7 @@ const workspaceVersion = JSON.parse(
   readFileSync("package.json", "utf8"),
 ).version;
 const sourceVersion = readFileSync(
-  "packages/core/src/version.ts",
+  "packages/core/src/foundation/version.ts",
   "utf8",
 ).match(/ENGINE_VERSION = "([^"]+)"/)?.[1];
 if (workspaceVersion !== sourceVersion)

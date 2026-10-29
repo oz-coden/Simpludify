@@ -285,7 +285,7 @@ Text and IME commits use native input/textarea value, input and composition even
 
 ## Canvas UI and Pointer
 
-Web `context.actions(definitions, bindings?)` creates the existing ActionController with the factory's Scene and Game input. `game.actions` uses the current Scene; Core explicit construction is unchanged. `context.canvasUI(root, {scale?})` owns one staged Canvas tree; `game.canvasUI` configures the default Scene before run. CanvasPanel/Row/Column/Label/Button/HoldButton expose validated style patches, text changes, visibility, enablement, node events and Scene-linked cleanup. A bounded Flex subset runs on dirty geometry/content only. UI units are host CSS pixels / UI scale, independent of Camera and DPR.
+Web `context.actions(definitions, bindings?)` creates the existing ActionController with the factory's Scene and Game input. `game.actions` uses the current Scene; Core explicit construction is unchanged. `context.canvasUI(root, {scale?})` owns one staged Canvas tree; `game.canvasUI` configures the default Scene before run. Core CanvasPanel/Row/Column/Scroll/Label/Button/HoldButton (reexported by Web) expose validated style patches, text changes, visibility, enablement, node events and Scene-linked cleanup. A bounded Flex subset runs on dirty geometry/content only. UI units are host CSS pixels / UI scale, independent of Camera and DPR.
 
 `context.pointer.events` (or current `game.pointer.events`) receives world-only PointerDown/Move/Up/Cancel/Click. Nodes receive typed Pointer events through their own events bus. Down fixes routing until release; capture is automatic. Native transparent button mirrors supply Tab/Enter/Space with drawn focus; they do not perform pointer hit testing. DOM UI is retained. [Full contracts, examples and limits](canvas-ui.md) define clips, ordering, async button cancellation and supported accessibility scope.
 
@@ -322,3 +322,5 @@ This experimental revision also removes InputState, InputSource, InputReader, Ke
 ## Tilemap placements
 
 [Tilemap](tilemap.md) is a facade over one existing Actor/TilemapLayer placement per map. It copies Grid/row data and exposes typed tile IDs, set/fill, tile/world conversion, translation and depth/visibility. Web owns a culled incremental visible-cell renderer and shared sheet lease. Optional [terrain collision](tilemap-collision.md) uses the same CollisionWorld with ID defaults/cell overrides and dedicated TileContact events. No per-cell Actor/Component is added.
+
+Canvas panels also support `move(child, finalIndex)` without disposal and `clear()` with aggregate cleanup. CanvasUI owns logical focus and scrolled bounds; [Canvas contracts](canvas-ui.md) and [Host migration](host-boundary.md) cover scroll range, exact text metrics, native AbortSignal compatibility and the portable CancellationSignal.
