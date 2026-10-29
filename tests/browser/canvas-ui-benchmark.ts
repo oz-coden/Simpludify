@@ -21,6 +21,71 @@ const summarize = (raw: number[]) => {
     raw,
   };
 };
+function profileDisposal(game: Game, renderer: PixiRenderer) {
+  const phases: Record<string, { calls: number; ms: number }> = {};
+  const wrap = (target: object | undefined, key: string, label: string) => {
+    const methods = target as
+      | Record<string, (...args: unknown[]) => unknown>
+      | undefined;
+    const original = methods?.[key];
+    if (!methods || typeof original !== "function") return;
+    methods[key] = function (...args: unknown[]) {
+      const start = performance.now();
+      try {
+        return original.apply(this, args);
+      } finally {
+        phases[label] ??= { calls: 0, ms: 0 };
+        const value = phases[label];
+        value.calls++;
+        value.ms += performance.now() - start;
+      }
+    };
+  };
+  const host = game as unknown as Record<string, object>;
+  for (const key of [
+    "canvasPresentation",
+    "canvas",
+    "pointers",
+    "keyboard",
+    "ui",
+    "prepared",
+    "renderer",
+    "engine",
+  ])
+    wrap(host[key], "dispose", key);
+  wrap(game.element, "remove", "DOM removal");
+  const internal = renderer as unknown as {
+    images: object;
+    app: {
+      destroy(): void;
+      renderer: { destroy(): void; type: number; gl?: WebGL2RenderingContext };
+    };
+  };
+  wrap(internal.images, "dispose", "shared images");
+  wrap(internal.app, "destroy", "Pixi Application.destroy");
+  wrap(internal.app.renderer, "destroy", "Pixi Renderer.destroy");
+  const gl = internal.app.renderer.gl;
+  if (gl) {
+    for (const key of [
+      "deleteBuffer",
+      "deleteTexture",
+      "deleteProgram",
+      "deleteShader",
+      "deleteVertexArray",
+      "deleteFramebuffer",
+      "deleteRenderbuffer",
+      "useProgram",
+      "finish",
+    ])
+      wrap(gl, key, `WebGL.${key}`);
+    wrap(
+      gl.getExtension("WEBGL_lose_context") ?? undefined,
+      "loseContext",
+      "WEBGL_lose_context.loseContext",
+    );
+  }
+  return phases;
+}
 export async function browserWorkload(count: number) {
   let renderer!: PixiRenderer, ui!: CanvasUI;
   const game = new Game({
@@ -28,10 +93,15 @@ export async function browserWorkload(count: number) {
     frames: { request: () => 1, cancel() {} },
     renderer: (host) => (renderer = new PixiRenderer(host, "#000000")),
   });
-  const label = CanvasLabel("Dynamic text"),
+  const label = CanvasLabel(
+      "Dynamic text 日本語と English を折り返して表示する。",
+      { maxWidth: 200, minHeight: 20, shrink: 0 },
+    ),
     buttons = Array.from({ length: count }, (_, i) =>
       CanvasButton(String(i), () => {}, {
         width: 60,
+        minWidth: 40,
+        maxWidth: 80,
         height: 28,
         padding: 0,
         fontSize: 14,
@@ -71,7 +141,7 @@ export async function browserWorkload(count: number) {
     idleExtraLayouts += ui.diagnostics.layouts - idleBefore;
     idleExtraSyncs += renderer.canvasDiagnostics.syncs - syncBefore;
     start = performance.now();
-    label.setText(`Dynamic text ${i}`);
+    label.setText(`Dynamic text ${i} 日本語と English を折り返して表示する。`);
     presentation.update(width, height);
     edit.push(performance.now() - start);
     start = performance.now();
@@ -115,6 +185,7 @@ export async function browserWorkload(count: number) {
   const afterPointer = ui.diagnostics,
     counts = renderer.canvasDiagnostics;
   const rendererType = inspectCanvasResources(renderer).rendererType;
+  const disposalPhases = profileDisposal(game, renderer);
   const end = performance.now();
   game.dispose();
   const disposeMs = performance.now() - end;
@@ -154,6 +225,7 @@ export async function browserWorkload(count: number) {
       (afterPointer.hitVisits - beforePointer.hitVisits) / 30,
     hitTestsPerGesture: (afterPointer.hitTests - beforePointer.hitTests) / 30,
     disposeMs,
+    disposalPhases,
     released,
   };
 }

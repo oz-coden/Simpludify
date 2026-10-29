@@ -179,3 +179,40 @@ export async function pendingTerrain() {
     errors: f.errors,
   };
 }
+
+let wallSamples: unknown[] = [];
+let stopWallTrace: (() => void) | undefined;
+/** Test-only real-RAF observations; does not replace browser keyboard integration. */
+export function beginWallTrace() {
+  wallSamples = [];
+  const { game } = window.tilemapDemo;
+  stopWallTrace = game.engine.scene.onUpdate((delta) => {
+    if (wallSamples.length >= 500) return;
+    const player = game.engine.scene.find("explorer")?.require(Transform.type);
+    wallSamples.push({
+      now: performance.now(),
+      delta,
+      step: game.engine.stepCount,
+      x: player?.x,
+      y: player?.y,
+      input: game.engine.input.snapshot(),
+      hidden: document.hidden,
+      focus: document.activeElement?.className,
+      contacts: window.tilemapDemo.world?.tileDiagnostics.contacts,
+      response: window.tilemapDemo.world?.responseDiagnostics,
+    });
+  });
+}
+export function endWallTrace() {
+  stopWallTrace?.();
+  stopWallTrace = undefined;
+  return {
+    samples: wallSamples,
+    userAgent: navigator.userAgent,
+    fixedStep: false,
+    maxDelta: 0.05,
+    speed: 180,
+    wallLeft: 448,
+    radius: 14,
+  };
+}

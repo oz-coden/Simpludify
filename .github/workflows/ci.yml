@@ -5,10 +5,14 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+# Preserve the newest checkpoint; obsolete runs otherwise occupy runners for minutes.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
-  web:
+  quality:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: actions/setup-node@v7.1.0
@@ -18,17 +22,59 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm test
-      - run: npx playwright install --with-deps chromium --only-shell
-      - run: npm run test:browser
-      - run: npm run test:build
-      - run: npm run test:build:game
       - run: npm run bench
       - run: npm run bench:practical -- --out test-results/practical-core.json
       - run: npm run bench:response -- --out test-results/response-core.json
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
-          name: web-validation
+          name: core-validation
+          path: test-results/
+          if-no-files-found: ignore
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      # Each viewport gets its own runner, browser and single foreground worker.
+      matrix:
+        project: [desktop, narrow]
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium --only-shell
+      - run: npm run test:browser -- --project=${{ matrix.project }}
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/browser.json
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: browser-validation-${{ matrix.project }}
+          path: test-results/
+          if-no-files-found: ignore
+  production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium --only-shell
+      - run: npm run test:build
+      - run: npm run test:build:game
+      - run: npm run build -- --target web --example canvas-ui --base /Simpludify/
+      - run: node scripts/smoke-build.mjs --example canvas-ui
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: production-validation
           path: |
             dist/
             test-results/
@@ -61,3 +107,25 @@ jobs:
           name: site-validation-${{ matrix.artifact }}
           path: test-results/site/
           if-no-files-found: ignore
+      - uses: actions/upload-pages-artifact@v4
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && matrix.artifact == 'project'
+        with:
+          path: site-dist
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [quality, browser, production, site-bases]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      # Pages must already be enabled by an administrator.
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: false
+      - uses: actions/deploy-pages@v4
+        id: deployment

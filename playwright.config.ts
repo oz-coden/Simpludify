@@ -5,6 +5,7 @@ export default defineConfig({
   // Focus/blur and held-input fixtures need one foreground game at a time.
   workers: 1,
   retries: 0,
+  reporter: process.env.CI ? [["list"], ["json"]] : "list",
   use: {
     baseURL: "http://127.0.0.1:4173",
     trace: "retain-on-failure",

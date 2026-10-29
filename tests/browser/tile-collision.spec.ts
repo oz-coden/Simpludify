@@ -90,22 +90,39 @@ for (const fallback of [false, true])
           window.demo.dispose();
           await import(url);
         }, `/@fs/${process.cwd()}/examples/tilemap/main.ts`);
+        await page.evaluate(
+          async (url) => (await import(url)).beginWallTrace(),
+          url,
+        );
         await page.locator(".simpludify").focus();
         await page.keyboard.down("KeyD");
-        await expect
-          .poll(
-            () =>
-              page.evaluate(
-                () =>
-                  (
-                    window.tilemapDemo.game.engine.scene.find("explorer") as {
-                      x?: number;
-                    }
-                  )?.x ?? 0,
-              ),
-            { timeout: 15_000 },
-          )
-          .toBe(434);
+        try {
+          await expect
+            .poll(
+              () =>
+                page.evaluate(
+                  () =>
+                    (
+                      window.tilemapDemo.game.engine.scene.find("explorer") as {
+                        x?: number;
+                      }
+                    )?.x ?? 0,
+                ),
+              { timeout: 15_000 },
+            )
+            .toBe(434);
+        } finally {
+          const telemetry = await page.evaluate(
+            async (url) => (await import(url)).endWallTrace(),
+            url,
+          );
+          await test
+            .info()
+            .attach("wall-raf-input.json", {
+              body: JSON.stringify(telemetry, null, 2),
+              contentType: "application/json",
+            });
+        }
         // Access through public Transform inside the browser module instead of a test-only physics port.
         await page.keyboard.down("KeyS");
         await expect

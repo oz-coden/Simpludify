@@ -71,7 +71,7 @@ try {
       document.body.replaceChildren();
     });
     const url = `/@fs/${root}/tests/browser/canvas-ui-benchmark.ts`;
-    for (const count of [10, 100, 1000]) {
+    for (const count of [10, 100, 1000, 5000]) {
       const result = await page.evaluate(
         async ({ url, count }) => (await import(url)).browserWorkload(count),
         { url, count },

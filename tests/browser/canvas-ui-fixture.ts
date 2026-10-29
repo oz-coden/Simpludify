@@ -73,15 +73,6 @@ export async function canvasFixture(responsive = false) {
         "日本語と English を自動で折り返す。👨‍👩‍👧‍👦\n明示的な改行",
       );
       label.setStyle({ maxWidth: 300, fontFamily: "monospace", shrink: 0 });
-      click.setText("Continue 日本語の説明付きボタン 👨‍👩‍👧‍👦");
-      click.setStyle({
-        width: "80%",
-        maxWidth: 240,
-        minWidth: 100,
-        height: 0,
-        minHeight: 0,
-      });
-      // Use a fresh auto-height button because style patches deliberately retain dimensions.
       click.dispose();
       click = CanvasButton(
         "Continue 日本語の説明付きボタン 👨‍👩‍👧‍👦",
@@ -171,24 +162,26 @@ export async function canvasFixture(responsive = false) {
     renderer,
     rendererType: inspectCanvasResources(renderer).rendererType,
     textBox(node: CanvasNode) {
-      const presentation = (
-        game as unknown as {
-          canvasPresentation: {
-            entries: Map<
-              CanvasNode,
-              {
-                text?: {
-                  text: string;
-                  width: number;
-                  height: number;
-                  style: { fontSize: number; fontFamily: unknown };
-                };
-              }
-            >;
-          };
-        }
-      ).canvasPresentation;
-      const text = presentation.entries.get(node)?.text;
+      const presentation = [
+        ...(
+          renderer as unknown as {
+            canvasPresentations: Set<{
+              entries: Map<
+                CanvasNode,
+                {
+                  text?: {
+                    text: string;
+                    width: number;
+                    height: number;
+                    style: { fontSize: number; fontFamily: unknown };
+                  };
+                }
+              >;
+            }>;
+          }
+        ).canvasPresentations,
+      ][0];
+      const text = presentation?.entries.get(node)?.text;
       if (!text) throw Error("Missing rendered text");
       return {
         text: text.text,
