@@ -2,7 +2,7 @@
 
 Final measured runtime: `94065a6f5ccaa66d488df08c2e61e6d4f60b9307`. Node v24.22.1, linux, AMD EPYC 9V74 80-Core Processor; Chromium 156.0.8078.4, SwiftShader WebGL and forced Canvas2D. Browser type is asserted (1/4), not inferred from pixels alone. Runs were sequential, with no concurrent local tests/builds.
 
-Raw reports: [model](../benchmarks/canvas-ui/model.json), [browser](../benchmarks/canvas-ui/browser.json), [bundles](../benchmarks/canvas-ui/bundles.json). Time units below are milliseconds. Node timings are not browser FPS; synthetic dispatch timings are not physical-device input latency.
+Raw reports: [model](../benchmarks/canvas-ui/model.json), [browser](../benchmarks/canvas-ui/browser.json), [earlier esnext bundles](../benchmarks/canvas-ui/bundles.json), [CLI-default bundle totals](../benchmarks/canvas-ui/bundles-cli-summary.json). Time units below are milliseconds. Node timings are not browser FPS; synthetic dispatch timings are not physical-device input latency.
 
 ## Model/layout/router
 
@@ -64,15 +64,15 @@ This is a short forced-GC observation, not proof of no leaks. Pixi’s current w
 
 ## Bundle and library selection
 
-The following saved comparison used Vite8.3.5 production/esnext minification (a CLI-default-target refresh is pending), gzip level9 per emitted file, summed across **all** JS chunks (including optional renderer/fallback chunks). These totals are not initial network transfer, decoded WASM memory or installed package size. Same DOM UI/scenes entry is used before/after; Canvas trail additionally uses Sprite/Tilemap/Collision game code.
+The CLI-default refresh at `4c9460470674e6ed18dc9fcbd688e2f0a054510d` used Vite8.3.5's production minifier/default target (runtime sources unchanged from `94065a6`), gzip level9 per emitted file, summed across **all** JS chunks (including optional renderer/fallback chunks). These totals are not initial network transfer, decoded WASM memory or installed package size. Same DOM UI/scenes entry is used before/after; Canvas trail additionally uses Sprite/Tilemap/Collision game code.
 
 | Build                           | JS bytes | JS gzip bytes | CSS bytes | CSS gzip bytes |
 | ------------------------------- | -------- | ------------- | --------- | -------------- |
-| baseline DOM UI/scenes          | 605047   | 178404        | 2002      | 879            |
-| current same DOM UI/scenes      | 664047   | 196733        | 2232      | 925            |
-| current integrated Canvas trail | 702963   | 207412        | 2232      | 925            |
+| baseline DOM UI/scenes          | 605047   | 178404        | 2027      | 887            |
+| current same DOM UI/scenes      | 664047   | 196733        | 2257      | 932            |
+| current integrated Canvas trail | 702963   | 207412        | 2257      | 932            |
 
-Same-entry JS increase: 59000 raw bytes, 18329 gzip bytes (17.90KiB); CSS gzip +46 bytes. No runtime layout dependency or lockfile change.
+Same-entry JS increase: 59000 raw bytes, 18329 gzip bytes (17.90KiB); CSS gzip +45 bytes. No runtime layout dependency or lockfile change. The successful refresh's aggregate totals were observed before the temporary environment disconnected; its complete /tmp asset manifest was unavailable for copying. The summary records that limit explicitly; the earlier complete esnext report is retained separately.
 
 | Micro entry                   | Raw JS | Gzip JS |
 | ----------------------------- | ------ | ------- |

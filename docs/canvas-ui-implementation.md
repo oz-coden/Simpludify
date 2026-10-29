@@ -1,73 +1,176 @@
-# Canvas UI implementation record
+# Canvas UI implementation and validation
 
-Work starts from `89491c638e070c575fcee89cb08635fbaac67f01` on `codex/working-collision`; remote head matched the requested SHA. `main` starts at `8b6babe9157c0dbb2ceb288afc8a4595ed8535dd`. All work is checkpointed to `codex/working-canvas-ui`. Main integration requires the final validation gates below.
+## Status and source ancestry
 
-## Existing contracts and adopted direction
+Implementation, tests, sample, performance data and developer documentation are saved on `codex/working-canvas-ui`. The requested `codex/working-collision` remote matched `89491c638e070c575fcee89cb08635fbaac67f01` at start. That source already contains the Sprite, Tilemap, Collision design and formal Collision work. Main was `8b6babe9157c0dbb2ceb288afc8a4595ed8535dd`; it is an ancestor of this work. The four preceding development branches are preserved unchanged.
 
-- Core remains DOM-free. Engine captures all ActionControllers before dispatch, including paused steps. Buttons retain ordered short taps; axes combine independent sources. Reset is silent and clears contributions; Scene replacement clears input. Preserve these contracts and the existing physical-code/IME/native-control exclusion.
-- ActionController already handles keyboard rebinding, typed dimensions, independent sources, cross-Engine ownership and staged Scene isolation. Do not replace it. Web `context.actions(definitions, bindings?)` supplies that factory's Scene and Game input explicitly; `game.actions` supplies the current Scene. The Core constructor stays available for headless code.
-- Existing DOM Panel/Label/Button/HoldButton keep their native layout, text editing and focus behavior. Canvas widgets use explicitly prefixed names, not duplicate implicit modes of those functions.
-- Canvas UI is Web presentation, not a set of simulation Actors. One Scene-owned tree is staged and committed with the Scene; Pixi draws it above the world in host CSS coordinates divided by an independent UI scale. Camera/DPR do not change UI layout units.
-- A bounded Flex subset is planned: row/column, gap/padding, numeric/percentage sizes, grow/shrink, align/justify, explicit wrap and clipping. No CSS parser, absolute layout, grid, intrinsic percentage cycles or CSS-wide claim. Yoga remains a comparison candidate; measure current bundled size before selecting.
-- Pointer events have one DOM capture-phase router per Game. UI hit testing follows visible paint order and clipping. Ownership is fixed on down through up/cancel; no Pixi federated interaction is used for these widgets. Empty UI space routes to a Scene-scoped world event bus. Capture, blur, hidden state, disable and disposal must release holds.
-- Native invisible semantic buttons supplement the rendered buttons for Tab/Enter/Space and accessible names. They do not duplicate pointer hit testing. Canvas text is not a full document accessibility tree or text editor.
+At this documentation checkpoint, local engine/browser/production/project-base site checks pass. GitHub Actions is independently validating the engine and both site bases. **Main integration is pending those results**; do not interpret implementation completion as a successful main push. [CI runs](https://github.com/oz-coden/Simpludify/actions?query=branch%3Acodex%2Fworking-canvas-ui) and the final integration receipt record the final decision.
 
-## Validation gates (pending)
+The temporary execution environment disconnected after the project-base site smoke. All runtime work was already pushed. GitHub's non-deploying CI now runs the project and root site bases separately, without depending on that environment. Existing Pages configuration is unchanged; no release/package publication, DNS or Pages enablement is part of this work.
 
-Retain Actor/Sprite/Tilemap/Collision regressions; strict types/DOM-free boundary/lint/licenses; focused Action/UI/layout/router tests; real WebGL and forced Canvas2D mouse, CDP touch and keyboard at desktop/narrow sizes; high DPI, Scene preparation/failure/disposal, pointer capture and overlapping input; production builds/site both bases; recorded layout/input/bundle/memory observations. Do not report completion or advance main before all gates pass.
+## Design decisions
 
-## External design references
+- Keep Core DOM-free and retain its existing ActionController, ActionSource, input-frame capture, ordered Button edges, source composition, pause/reset and Scene ownership contracts. No Core runtime change is required.
+- Add Web `context.actions(definitions, bindings?)` to supply the staged Scene and Game input safely. `game.actions` covers the current/default Scene; the explicit Core constructor remains appropriate for headless code. No global current-Scene singleton is introduced.
+- Preserve DOM Panel/Label/Button/HoldButton. Canvas-prefixed factories explicitly select Pixi presentation. Use DOM for forms, selectable text, scrolling and richer accessibility.
+- A Canvas tree is one Scene-owned Web presentation above the world, rather than one Actor/Component per widget. Existing Lifetime and async Scene transactions govern staging, activation, failure and disposal.
+- Choose a documented dependency-free Flex subset. Row/Column, uniform gap/padding, finite/percentage sizes, grow/shrink, align/justify, wrap and clipping cover the tested HUDs. Yoga3.2.1 has broader mature layout behavior; the isolated comparison measured bytes and one canonical row, not comparative speed or full CSS equivalence. No runtime dependency or lockfile change is added.
+- UI layout units are host CSS dimensions divided by independent UI scale. World Camera, Fit bars, zoom and physical DPR remain separate.
+- One Game-owned capture-phase DOM pointer adapter routes to Canvas node buses or a Scene-owned world bus. UI Pixi containers disable federated interaction, avoiding duplicate delivery and window-bubbling initialization assumptions. Down fixes ownership until up/cancel; multiple pointer IDs remain independent.
+- Native pointer-transparent semantic buttons provide Tab/Enter/Space, names and focus state, synchronized with Canvas paint order/bounds. This is not a complete Canvas document accessibility tree.
 
-[Pixi events](https://pixijs.com/8.x/guides/components/events) distinguishes none/passive/static interaction. Disable UI subtree interaction to avoid a second path. [Pointer Events](https://www.w3.org/TR/pointerevents3/) defines capture/cancel and touch-action; native event order must be verified with real browser input. [Yoga](https://www.yogalayout.dev/docs/about-yoga) is a box layout system, not rendering or input; adding it would not replace tree ownership or routing.
+See [supported API/contracts](canvas-ui.md), [Japanese guide](../site/ja/canvas-ui.md), [Action input](action-input.md) and [Canvas trail](../examples/canvas-ui/README.md) for executable examples. The formal guide includes Action movement, title screen, Flex HUD, Button clicks, HoldButton sources, world selection and Scene disposal in one verified sample.
 
-## Routing/presentation checkpoint
+## Correctness findings resolved
 
-The Scene-owned model, dirty Flex subset, Pixi screen presentation, semantic button mirror and DOM capture-phase router are implemented. 534 unit tests and strict TypeScript pass at this checkpoint; real-browser validation is still pending. Twenty-five new model/routing cases cover fixed ownership, multi-pointer/keyboard holds, cancellation, native Action frame semantics, nested wrapping, clipped hits and disposal. The current custom Flex subset has no runtime dependency; library/bundle/performance comparison remains pending.
+1. Capture-phase window blur observes descendant blur too. Only actual window blur releases all gestures; moving ordinary focus must preserve unrelated holds.
+2. Pointer-operated Canvas controls focus the Game surface so WASD and touch sources compose. Tab explicitly enters native controls, whose Enter/Space do not leak to gameplay.
+3. A disabled/removed/old-Scene gesture stays suppressed until physical release or fresh down. It cannot transfer into a new world or newly enabled button. A canceled keyboard press cannot activate after re-enable.
+4. Release flushes pending layout before click eligibility, so moving a button cannot activate its stale rectangle. Native overlay priority, nested clipping, visibility and disabled ancestry match hit testing and painting.
+5. WebGL stencil Graphics must remain renderable for Pixi's mask collection. The real clipped-pixel regression caught a Canvas2D/WebGL difference; expected pixels were preserved.
+6. Wrapped descendants remeasure auto cross size after grow/shrink allocation. Equal/paint-only changes skip Flex; unchanged frames skip layout and visual synchronization. Diagnostics separate arrange visits from intrinsic/constrained measurement work.
+7. Pixi8.22 `Graphics.destroy({children:true})` does not destroy an owned GraphicsContext. Private UI contexts and Text styles are explicitly destroyed.
+8. Pinned CanvasGraphicsPipe and UID-keyed text bookkeeping retain destroyed/null entries. An isolated helper removes only exact destroyed UI-owned Graphics and unused UI text keys after normal rendering/destruction. It never purges live/shared images or global caches. DPR transitions track replaced keys too.
+9. Disposal clears callbacks, owner-linked ActionSources and obsolete default UI handles. Failed/pending Scene preparations leave the old presentation valid. Canvas trail pause/Camera reset occurs on activation, preserving the old Scene during staging.
+10. Async Button work receives an AbortSignal and busy state; rejected work reaches the Game observer. Hold callbacks remain synchronous, with returned Promises diagnosed and consumed.
 
-## Browser findings and corrections
+The raw failed/intermediate resource experiments remain separately named in [benchmarks/canvas-ui](../benchmarks/canvas-ui/). They are investigation evidence, not successful performance claims.
 
-- DOM capture-phase window blur also observes descendant blur. Restrict release to `event.target === window`; ordinary native/game focus movement must not cancel an unrelated gesture.
-- Canvas pointer controls keep game focus, permitting physical keyboard and logical touch sources to compose. Tab explicitly enters the native semantic controls, where Enter/Space belong to UI. Keyup without a corresponding button keydown cannot activate a button.
-- Canceled/disposed/disabled gesture IDs remain suppressed until physical up/cancel (or a new down). Scene replacement must not transfer an already-started operation into the new world. Terminal Game disposal clears those IDs.
-- Avoid per-node full-screen stencil masks when no explicit ancestor clip exists; the canvas already clips its bounds. Cache resolved visual signatures and only replace text styles when font/color change. The initial cold SwiftShader run exceeded the original test timeout while redundant redraws were present; after these changes all 12 desktop cases pass. Idle rendering is exercised for three real frames, with 100 no-layout calls covered by the model test, rather than issuing 30 unnecessary GPU draws inside one synchronous evaluate.
-- Narrow-screen Fit letterbox coordinates are not world hit points. Tests derive world drag starts from the current view clip, retaining the same UI/world ownership assertions.
+## Validation ledger
 
-Canvas keyboard/AT support is a button mirror, not complete screen-reader document semantics. Flex is a documented subset rather than a CSS layout implementation. Broader browser, performance and final regression gates remain pending at this checkpoint.
+Local source environment: Node24.22.1, Linux AMD EPYC9V74, pinned Chromium156.0.8078.4, Pixi8.22.0, Vite8.3.5 and TypeScript7.0.2. The complete runtime was finalized at `94065a6f5ccaa66d488df08c2e61e6d4f60b9307`; later changes are documentation, measurement/validation harnesses and CI.
 
-## Expanded contract/measurement checkpoint
+| Gate | Observed result |
+| --- | --- |
+| Unit regression | 539/539 in 40 files, including 30 new layout/router cases; all prior Actor/Action/Sprite/Tilemap/Collision tests retained |
+| Strict types and architecture | Pass; Core compiles without DOM/Node ambient types; no new Core imports |
+| Lint/licenses | Pass; existing 12 warnings/11 infos, 116 locked dependencies; benchmark JSON values preserved through formatting |
+| Actual IDE completion probes | Pass for UI Action/style/align/pointer and existing Sprite/Collision contracts |
+| Chromium regression | 230/230, retries 0, 5.4 minutes; 52 new Canvas cases plus 178 existing cases |
+| Renderer/viewports | Asserted WebGL type1 and forced Canvas2D type4; 1440×900 and 390×844 |
+| Real input/pixels | Mouse capture outside host, CDP simultaneous touches, keyboard Tab/Enter/Space, colored/clipped/focus pixels, native overlay priority, WASD/source composition |
+| Resize/DPR/scale | Resize, UI scale1.5 with actual click, DPR2 and dynamic DPR1→3→2; Camera/world transforms remain independent |
+| Lifecycle | Scene round trips, failed/pending setup, cancellation, disposal, async errors, stale gestures, dynamically ordered controls; no unexpected page/console errors |
+| Production standalone | Default UI/scenes and Canvas trail build/smoke under /Simpludify/, both viewport sizes |
+| Project-base site locally | Build/check/smoke pass: 57 HTML, 3321 links/assets, 52 independently typechecked TS snippets, all nine examples |
+| Project-base site gameplay | Canvas title/start, actual button pixels, WASD wall stop at x434, pause/resume, Menu/Start rebuild and forced Canvas2D pass |
+| Root-base site | Pending independent CI job added in 34ef201 |
+| Remote all-engine CI | Pending; includes strict checks, unit/browser, both standalone production smokes and existing Core benchmarks |
+| Main integration | Pending final CI, history/ref lease and source review |
 
-The real clipped-pixel test exposed an additional WebGL-only defect: setting a stencil Graphics `renderable=false` excluded it from `StencilMaskPipe.collectRenderables`, while Canvas2D still used its shape. A clipped mask now remains renderable, with Pixi controlling `includeInBuild`; an unused mask is nonrenderable. All four clipped-pixel cases pass, with no relaxed pixel expectations. Nested wrapped descendants also remeasure auto cross size after grow/shrink allocation. Layout diagnostics distinguish arranged nodes, intrinsic helper visits and constrained helper visits; arrange counts alone must not be described as all layout work.
+The new 230 count is measured here, not borrowed from a past prototype. Software Chromium/SwiftShader and synthetic benchmarks do not establish physical mobile, all-browser, native/GPU-byte or long-soak conformance.
 
-Supported English/Japanese API docs, type fixtures, gallery navigation and reproducible model/browser/bundle harnesses are saved before recording performance. Current model/router unit cases: 28 passed. The expanded 36-case browser suite and production/site validation remain in progress. Yoga 3.2.1 is fetched only for isolated comparison; no dependency or lockfile change is adopted.
+## Performance and limits
 
-## Owned Pixi resource correction
+[Performance report](canvas-ui-performance.md) contains scope, raw links and reproduction commands. Model 1000-button dirty layout p50 is 0.275ms; 5000 is 1.448ms. Browser 1000-button edit/layout/Pixi/native synchronization p50 is 2.8ms WebGL and 1.4ms Canvas2D. Unchanged frames add zero layouts and zero visual synchronizations. Hit testing is linear: eight queries visit 8×(N+1) nodes; dirty Flex recomputes the root, and nested measurement can cost more than arranged-node counts suggest.
 
-Initial browser heap growth led to a concrete ownership bug: in Pixi8 Graphics.destroy, an options object containing only `children:true` does not destroy its owned GraphicsContext. UI entry teardown now explicitly destroys its private background/mask contexts and private Text styles before the container. Invisible empty backgrounds are not submitted as Graphics. Four new real-browser repeated-Scene tests inspect live managed Pixi contexts/texts/textures, separately from null hash slots, and pass on both renderers/sizes. The browser benchmark now clears the preceding host and asserts all 240 deliveries and 240 UI hit tests for each 30-gesture workload; revised timing/heap results remain pending until remeasurement.
+Thirty 100-button UI→empty round trips return all live UI Graphics/Text/Texture objects and text metadata to baseline. Short forced-GC heap observations changed about +0.164MiB WebGL/+0.213MiB Canvas2D; they are not proof of leak freedom. Whole Game.dispose in software WebGL took up to 2537ms in one observation, distinct from per-Scene UI removal (about 4.4–4.8ms p50). Its internal renderer teardown cost remains unprofiled.
 
-Custom fonts must be ready before constructing the Canvas tree. The host uses native font loading in async Scene setup; there is no automatic web-font cache manager. Paint-only style patches skip Flex. Dynamic native button order follows the current visual tree without moving already correctly ordered focused controls.
+The matched CLI-default build adds 18329 gzip JS bytes (17.90KiB) and 45 gzip CSS bytes, summed across all emitted chunks, not initial transfer. The CLI summary preserves observed totals; the disconnected environment prevented copying its full /tmp asset manifest. The earlier complete esnext manifest remains labeled separately.
 
-A second measured browser run confirmed the context fix and exposed Pixi8.22 CanvasGraphicsPipe's separate destroyed-renderable hash retention. The Web renderer now drops only its own destroyed UI Graphics from that exact pinned hash after normal destruction. This small compatibility path is isolated and covered by real Canvas2D resource inspections; dependency upgrades must rerun those tests. Pointer release flushes dirty layout before click eligibility. Dynamic native button ordering, overlapping DOM hover priority, inherited disable painting and paint-only style invalidation are also covered. Focused resource/layout-release tests: 16 passed; focused DOM/Tab cases: 8 passed. Final full regression and post-fix measurements remain pending.
+Supported limits: maximum layout depth64; no full CSS Flex conformance, min/max/basis/margins/order/Grid/absolute positioning or automatic text wrapping. No UI virtualization, stationary-pointer hover synthesis, wheel/pressure/tilt, implicit Actor hit selection, full joystick, complete screen-reader/IME model or automatic custom-font cache invalidation. Load fonts before constructing the tree. Upgrade Pixi only after rerunning exact ownership/resource regressions.
 
-## Text metadata and current-scene activation
+## Reproduction and integration gates
 
-The third browser report (`browser-graphics-fix.json`, source `f5e2eca`) verifies no retained UI Graphics/Text/Texture objects after Scene round trips. It also exposes UID-keyed null text bookkeeping: 3000 text/texture slots after thirty scenes despite zero live entries. UI-owned resources now remove their exact null hash slots after destruction, and a renderer-local pending-key set prunes only replaced UI text keys after Pixi releases them during rendering. DPR changes register the previous UI text keys before resolution changes. No live texture, global cache, other renderer's resource or shared image is purged. New actual browser tests verify fifty HUD changes and DPR1→3→2 leave only the three live UI text/texture slots; all eight focused resource/text cases pass. A pinned-Pixi compatibility helper isolates these details for future upgrades.
+Run the following on the recorded source with pinned dependencies. Browser commands require the pinned Playwright Chromium or compatible `CHROMIUM_PATH`; execute measurements without concurrent local tests/builds.
 
-Scene resets in Canvas trail now run on activation, keeping the old Scene's pause/camera state intact during candidate preparation. Async hold callbacks are diagnosed (matching synchronous input/event semantics); one-shot async Button tasks keep their AbortSignal. Thirty model/router cases pass. Full final runs and post-metadata-cleanup measurements are the remaining gates.
+```sh
+npm ci
+npm run check
+npm test
+node scripts/check-ui-completions.mjs
+npm run test:browser
+npm run test:build
+npm run test:build:game
+npm run build -- --target web --example canvas-ui --base /Simpludify/
+node scripts/smoke-build.mjs --example canvas-ui
+npm run site:build -- --base /Simpludify/
+npm run site:check
+npm run test:site
+npm run site:build -- --base /
+npm run site:check
+npm run test:site
+```
 
-The post-text-cleanup report (`browser-text-fix.json`, `fe5603b`) confirms zero UI text/texture slots at every sampled empty Scene, not just zero live objects. Short-run used-heap changes are about +0.16MiB WebGL/+0.20MiB Canvas2D over thirty round trips; this is not a native/GPU or long-soak guarantee. Subsequent local corrections reject a canceled keyboard button release even if the node is re-enabled before the next frame, and clear default-presentation handles/owned callbacks when no longer needed. The Canvas trail Scene resets occur on activation. Final measurement includes explicit Scene creation/removal times in addition to full Game teardown.
+CI's `site-bases` matrix supplies both site build bases explicitly and does not deploy. Before main integration, re-read current main/work refs, verify main is an ancestor, inspect all inherited Sprite/Tilemap/Collision and UI changes, and verify the final runtime gates. A normal non-force fast-forward with an expected-head lease is preferred. Preserve all existing development branches. If checks, permissions or protection block integration, leave main unchanged and report the exact remaining gate.
 
-## Final measurement checkpoint
+## Changed-file inventory
 
-All final measurement reports now use clean runtime `94065a6f5ccaa66d488df08c2e61e6d4f60b9307`. Model, browser, Scene-transition, live-resource/metadata and matched bundle/Yoga reports are saved in `benchmarks/canvas-ui/`; investigation runs remain separately named. The supported performance page replaces preliminary findings with explicit scope/limits. Actual TypeScript IDE completions are checked by `scripts/check-ui-completions.mjs` (Action names, style properties, align literals and pointer fields). No runtime change is introduced in this checkpoint. Final all-engine tests, production builds/site and main history/ref gates follow.
+The following 55 files differ from collision base `89491c6` including this documentation/CI checkpoint. Core runtime and dependency manifests/lockfile are unchanged.
 
-## All-engine validation checkpoint
+- [.github/workflows/ci.yml](../.github/workflows/ci.yml)
+- [README.md](../README.md)
+- [benchmarks/canvas-ui/browser-graphics-fix.json](../benchmarks/canvas-ui/browser-graphics-fix.json)
+- [benchmarks/canvas-ui/browser-initial-unvalidated.json](../benchmarks/canvas-ui/browser-initial-unvalidated.json)
+- [benchmarks/canvas-ui/browser-owned-context-fix.json](../benchmarks/canvas-ui/browser-owned-context-fix.json)
+- [benchmarks/canvas-ui/browser-text-fix.json](../benchmarks/canvas-ui/browser-text-fix.json)
+- [benchmarks/canvas-ui/browser.json](../benchmarks/canvas-ui/browser.json)
+- [benchmarks/canvas-ui/bundles-cli-summary.json](../benchmarks/canvas-ui/bundles-cli-summary.json)
+- [benchmarks/canvas-ui/bundles.json](../benchmarks/canvas-ui/bundles.json)
+- [benchmarks/canvas-ui/model.json](../benchmarks/canvas-ui/model.json)
+- [docs/action-input.md](../docs/action-input.md)
+- [docs/api.md](../docs/api.md)
+- [docs/architecture.md](../docs/architecture.md)
+- [docs/canvas-ui-implementation.md](../docs/canvas-ui-implementation.md)
+- [docs/canvas-ui-performance.md](../docs/canvas-ui-performance.md)
+- [docs/canvas-ui.md](../docs/canvas-ui.md)
+- [docs/input-unification.md](../docs/input-unification.md)
+- [docs/roadmap.md](../docs/roadmap.md)
+- [examples/canvas-ui/README.md](../examples/canvas-ui/README.md)
+- [examples/canvas-ui/index.html](../examples/canvas-ui/index.html)
+- [examples/canvas-ui/main.ts](../examples/canvas-ui/main.ts)
+- [packages/web/src/canvas-layout.ts](../packages/web/src/canvas-layout.ts)
+- [packages/web/src/canvas-node.ts](../packages/web/src/canvas-node.ts)
+- [packages/web/src/canvas-ui.ts](../packages/web/src/canvas-ui.ts)
+- [packages/web/src/canvas-visual.ts](../packages/web/src/canvas-visual.ts)
+- [packages/web/src/game.ts](../packages/web/src/game.ts)
+- [packages/web/src/index.ts](../packages/web/src/index.ts)
+- [packages/web/src/input.ts](../packages/web/src/input.ts)
+- [packages/web/src/pixi-ui-cleanup.ts](../packages/web/src/pixi-ui-cleanup.ts)
+- [packages/web/src/pointer-routing.ts](../packages/web/src/pointer-routing.ts)
+- [packages/web/src/pointer.ts](../packages/web/src/pointer.ts)
+- [packages/web/src/renderer.ts](../packages/web/src/renderer.ts)
+- [packages/web/src/style.css](../packages/web/src/style.css)
+- [scripts/benchmark-canvas-ui-browser.mjs](../scripts/benchmark-canvas-ui-browser.mjs)
+- [scripts/benchmark-canvas-ui.mjs](../scripts/benchmark-canvas-ui.mjs)
+- [scripts/check-ui-completions.mjs](../scripts/check-ui-completions.mjs)
+- [scripts/cli.mjs](../scripts/cli.mjs)
+- [scripts/measure-ui-bundles.mjs](../scripts/measure-ui-bundles.mjs)
+- [scripts/site-canvas-test.mjs](../scripts/site-canvas-test.mjs)
+- [scripts/site-smoke.mjs](../scripts/site-smoke.mjs)
+- [scripts/smoke-build.mjs](../scripts/smoke-build.mjs)
+- [site/config.mjs](../site/config.mjs)
+- [site/ja/api.md](../site/ja/api.md)
+- [site/ja/canvas-ui.md](../site/ja/canvas-ui.md)
+- [site/ja/examples.md](../site/ja/examples.md)
+- [site/ja/index.md](../site/ja/index.md)
+- [site/ja/limitations.md](../site/ja/limitations.md)
+- [site/ja/scenes-ui.md](../site/ja/scenes-ui.md)
+- [tests/browser/canvas-ui-benchmark.ts](../tests/browser/canvas-ui-benchmark.ts)
+- [tests/browser/canvas-ui-fixture.ts](../tests/browser/canvas-ui-fixture.ts)
+- [tests/browser/canvas-ui.spec.ts](../tests/browser/canvas-ui.spec.ts)
+- [tests/helpers/canvas-resources.ts](../tests/helpers/canvas-resources.ts)
+- [tests/types/canvas-ui.ts](../tests/types/canvas-ui.ts)
+- [tests/unit/canvas-layout.test.ts](../tests/unit/canvas-layout.test.ts)
+- [tests/unit/pointer-routing.test.ts](../tests/unit/pointer-routing.test.ts)
 
-539 unit tests in 40 files pass. Strict TypeScript/DOM-free Core, architecture/required-file boundaries and license checks pass (116 locked dependencies). Biome reports only the existing 12 warnings/11 infos after formatting the new Markdown/JSON; parsed benchmark values were checked unchanged before/after formatting. UI, Collision/SpriteSheet and SpriteAnimation completion probes pass against the actual pinned TypeScript API. The full zero-retry Chromium regression is in progress; production/site and integration gates remain pending.
+## Saved commits
 
-Full regression now passes: **230 Chromium cases, retries 0, 5.4 minutes**, including 52 Canvas cases and every existing Action/DOM UI/Sprite/Tilemap/Collision/game fixture. Standalone default UI/scenes and Canvas trail production builds/smokes pass under /Simpludify/ at 1440×900 and 390×844. The production smoke helper now exercises Canvas start, actual colored button pixels, WASD wall stop, pause/resume and Scene recreation. Remote main and all four baseline development refs still match the initial SHAs. Site both-base validation and final ref integration remain pending. The bundle harness is being aligned to CLI's default Vite target rather than the earlier explicit esnext setting; no runtime code changes.
+The following implementation/checkpoint commits precede this final documentation checkpoint. Each was pushed immediately after creation. The [complete comparison](https://github.com/oz-coden/Simpludify/compare/89491c638e070c575fcee89cb08635fbaac67f01...codex/working-canvas-ui) includes subsequent validation receipts and their exact SHAs.
 
-## Production site checkpoint and environment recovery
-
-The project-base production site validation also passed locally at source `4c9460470674e6ed18dc9fcbd688e2f0a054510d`: `site:build -- --base /Simpludify/`, `site:check` (57 HTML files, 3321 local links/assets, 52 independently typechecked TypeScript snippets), and `test:site` (all nine samples at desktop/narrow sizes, actual Canvas trail pixels/movement/collision/pause/Scene recreation and forced Canvas2D). No runtime changes followed the recorded 539-unit/230-browser result.
-
-The local execution environment disconnected before root-base validation and before the CLI-default bundle report could be copied from /tmp. GitHub holds every implementation commit. Main has not been advanced. CI now validates both project and root site bases as independent non-deploying jobs, so the remaining gate can complete without the temporary environment. Final integration is still conditional on their results and all-engine CI. Existing Pages deployment configuration is unchanged.
+- [7db2ddc](https://github.com/oz-coden/Simpludify/commit/7db2ddc3b69a44d70f65294d469925a2021a6e88) refactor(web): add Scene-scoped Action creation without replacing input contracts
+- [8ae4b5f](https://github.com/oz-coden/Simpludify/commit/8ae4b5f49f72097edf909986e1f5b8273ebd78b1) feat(web): checkpoint Scene-owned Canvas nodes and bounded dirty Flex layout
+- [3fbb4bb](https://github.com/oz-coden/Simpludify/commit/3fbb4bbbb04873c649b1cd76c56f6752a39c37f0) feat(web): integrate Canvas presentation and fixed-owner pointer routing (browser validation pending)
+- [2903c2c](https://github.com/oz-coden/Simpludify/commit/2903c2c32b04ff39e50be749d1842b838328e5cd) feat(examples): checkpoint integrated Canvas trail and browser interaction fixtures (validation in progress)
+- [07ead1e](https://github.com/oz-coden/Simpludify/commit/07ead1e6b57ef64ea52d8e629d0a300cee07621e) fix(web): preserve keyboard and gesture ownership across focus changes and avoid redundant UI draws
+- [a437f49](https://github.com/oz-coden/Simpludify/commit/a437f49bbf818b4db010a8733392840fb300d32c) test(web): document Canvas contracts and save expanded clipping lifecycle and measurement workloads
+- [0e9da59](https://github.com/oz-coden/Simpludify/commit/0e9da595fdbac843c113965bb9fc8bf1aa978fd5) perf: record isolated Canvas model layout routing and disposal measurements
+- [13988ef](https://github.com/oz-coden/Simpludify/commit/13988efa5da775ba6137f18b8448c439aca52d1c) perf: preserve unvalidated browser run and flag retained heap and pointer harness findings
+- [e6f3cd0](https://github.com/oz-coden/Simpludify/commit/e6f3cd0f3d02d02ae11dc518e0dc558f9ffefca1) fix(web): destroy privately owned Pixi UI contexts and verify live resources through Scene cycles
+- [f5e2eca](https://github.com/oz-coden/Simpludify/commit/f5e2eca235e0007651faf3424f580246e0e696e3) fix(web): release pinned Canvas graphics retention and synchronize layout pointer and focus state
+- [fe5603b](https://github.com/oz-coden/Simpludify/commit/fe5603b01d4fedcbc4e642539f71519154eeee30) fix(web): bound owned UI text metadata across content and DPR changes
+- [94065a6](https://github.com/oz-coden/Simpludify/commit/94065a6f5ccaa66d488df08c2e61e6d4f60b9307) fix(web): suppress canceled keyboard clicks and release obsolete UI ownership handles
+- [ab7825f](https://github.com/oz-coden/Simpludify/commit/ab7825fe86802ae236d255dcc3866c0d6edaa60e) perf: publish validated Canvas layout pointer memory and bundle measurements
+- [57b3b70](https://github.com/oz-coden/Simpludify/commit/57b3b7067f1661d0e62bf88fc98e59be3f637a51) docs: normalize Canvas reports and record passing engine and type validation
+- [4c94604](https://github.com/oz-coden/Simpludify/commit/4c9460470674e6ed18dc9fcbd688e2f0a054510d) test(web): record full browser regression and production Canvas smoke validation
+- [34ef201](https://github.com/oz-coden/Simpludify/commit/34ef2015345d9f135f1eb3ecd4f65728b8bf7e76) ci: validate both production site bases and preserve successful project-base verification

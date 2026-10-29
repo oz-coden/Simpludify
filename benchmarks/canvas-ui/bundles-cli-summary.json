@@ -1,0 +1,67 @@
+{
+  "revision": "4c9460470674e6ed18dc9fcbd688e2f0a054510d",
+  "baseline": "89491c638e070c575fcee89cb08635fbaac67f01",
+  "time": "2026-10-29T09:53:16.939Z",
+  "node": "v24.22.1",
+  "versions": {
+    "vite": "8.3.5",
+    "yoga": "3.2.1"
+  },
+  "scope": "CLI-default Vite production target/minifier, no sourcemaps. gzip level9 sums every emitted JS/CSS asset independently, including optional/lazy renderer and fallback chunks. Not initial transfer, installed bytes or runtime heap.",
+  "provenance": "Aggregate measurements observed from the successful clean-source CLI-target refresh. The temporary execution environment disconnected before its complete per-asset report could be copied from /tmp. This summary preserves observed totals without reconstructing unavailable asset manifests. The earlier complete esnext-target report remains bundles.json; rerun measure-ui-bundles.mjs for a complete CLI-default manifest.",
+  "games": [
+    {
+      "name": "baseline DOM UI/scenes",
+      "jsBytes": 605047,
+      "jsGzip": 178404,
+      "cssBytes": 2027,
+      "cssGzip": 887
+    },
+    {
+      "name": "current same DOM UI/scenes",
+      "jsBytes": 664047,
+      "jsGzip": 196733,
+      "cssBytes": 2257,
+      "cssGzip": 932
+    },
+    {
+      "name": "current integrated Canvas trail",
+      "jsBytes": 702963,
+      "jsGzip": 207412,
+      "cssBytes": 2257,
+      "cssGzip": 932
+    }
+  ],
+  "micro": [
+    {
+      "name": "empty micro entry",
+      "jsBytes": 23,
+      "jsGzip": 43
+    },
+    {
+      "name": "custom layout micro entry",
+      "jsBytes": 22281,
+      "jsGzip": 7516
+    },
+    {
+      "name": "Yoga 3.2.1 module micro entry",
+      "jsBytes": 126723,
+      "jsGzip": 51226
+    }
+  ],
+  "yogaCanonicalRow": [
+    {
+      "x": 10,
+      "y": 10,
+      "width": 50,
+      "height": 20
+    },
+    {
+      "x": 68,
+      "y": 10,
+      "width": 140,
+      "height": 20
+    }
+  ],
+  "decision": "Use the documented custom Flex subset with no new dependency/async WASM ownership. Yoga offers broader mature behavior; this comparison establishes size and one canonical row only, not comparative speed or full CSS conformance."
+}
