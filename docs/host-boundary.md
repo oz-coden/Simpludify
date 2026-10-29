@@ -1,6 +1,6 @@
 # Core modules and Host contracts
 
-Simpludify is a code-first, lightweight 2D content engine. Games are its primary use, alongside interactive animation, mini-games, simulations and small 2D tools. Standard UI/content definitions do not need HTML, CSS or Pixi calls. The private `@simpludify/core` and `@simpludify/web` source workspaces remain the only packages; module folders are internal, not new install/import targets.
+Simpludify is a code-first, lightweight, AI-native 2D content engine. Typed APIs, explicit lifecycle/ownership and diagnostic tooling support human and AI-assisted development without requiring an AI service. Games are its primary use, alongside interactive animation, mini-games, simulations and small 2D tools. Standard UI/content definitions do not need HTML, CSS or Pixi calls. The private `@simpludify/core` and `@simpludify/web` source workspaces remain the only packages; module folders are internal, not new install/import targets.
 
 ## Internal responsibility map
 

@@ -2,7 +2,7 @@
 
 [公式ドキュメント・サンプル](https://oz-coden.github.io/Simpludify/) · [日本語ガイドのソース](site/ja/index.md) · [English API](docs/api.md)
 
-TypeScriptのコードで2Dゲームやインタラクティブコンテンツをつくる、軽量な実験的エンジンです。理解しやすく、一貫性があり、保守しやすいAPIを優先します。公開npm SDKではなく、ソースワークスペースを取得して利用します。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できる9つのサンプルを公式サイトにまとめています。
+コード主導・軽量・AIネイティブな、TypeScript製の実験的2Dコンテンツエンジンです。ゲームやインタラクティブコンテンツを、理解しやすい標準APIで構築します。理解しやすく、一貫性があり、保守しやすいAPIを優先します。公開npm SDKではなく、ソースワークスペースを取得して利用します。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できる9つのサンプルを公式サイトにまとめています。
 
 A code-first TypeScript 2D game engine. Create a visible character, responsive UI, and scene navigation using ordinary code and browser tooling.
 

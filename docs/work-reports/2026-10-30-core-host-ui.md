@@ -1,5 +1,93 @@
 # Core modules and host-independent Canvas UI
 
+## Final implementation result
+
+**Implementation and review complete; source CI passed. Main integration is the next step.** The exact tested source is `61dbb7b6d3a94fd773b5d73c9347fb20738d1d12`. Final integration and deployment receipts will be added here after they actually complete.
+
+The two existing private packages remain. Core now owns Canvas UI state, layout, clipping, scroll/focus and abstract pointer/key routing. Web owns actual Pixi painting, exact font metrics, native semantic mirrors, browser capture/input, resource loading and asynchronous scene transactions. No Electron/Tauri/Android build or new npm package was added. Run To Exit was inspected as reference and remains unchanged.
+
+## Design decisions and implemented behavior
+
+- Core has shallow foundation, scene, graphics, ui, interaction, animation, game and runtime modules. Transform/Renderable data is separate from Motion/ActionMovement. Foundation timers and runtime fixed stepping follow their actual dependencies. Tilemap remains an integrated game facade because placement and optional collision policies are already coupled.
+- Scene depends on a narrow identity/input owner, not the Engine implementation. UI depends only on foundation/UI; graphics cannot depend on game behaviors. ES2022-only compilation, relative path escape checks, module direction checks and runtime import-cycle detection run in the existing check command. No value-import cycles were found among the 49 Core sources.
+- Existing UI algorithms were moved, preserving Flex constraints, width-aware text wrapping, pointer ownership, cancellation, Action sources and renderer resource lifetimes. Text measurement remains injected by the renderer/Host.
+- CanvasScroll supports vertical/horizontal/both scrolling, clipped bounds shared by paint/hit/native mirrors, nested normalized wheel routing, clamped ranges after resize/removal and button-based touch-screen scroll controls. Main-axis overflow is retained. There is no virtualization or inertia.
+- Panels support add/remove, identity-preserving move(child, finalIndex) and aggregate clear(). Core owns logical focus, scroll reveal and Enter/Space activation; Web mirrors native semantics. Traversal excludes permanently clipped/pointer-transparent controls while retaining scroll-reachable entries.
+- Canvas trail's UI list lab uses the same Core-only screen definition as headless tests: text, selection, add/remove/reverse, scrolling and navigation. It needs no Scene/Actor/Component knowledge in the screen definition and no direct DOM/Pixi calls. The list viewport is bounded so both narrow and desktop screens exercise overflow.
+- Work report index/checkpoints and contributor/startup instructions now require pushed implementation/verification/handoff records before long operations and integration. This report contains the material findings and limitations used for final communication.
+
+## Main changed files
+
+| Area                 | Files                                                                                                                                    |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Core modules         | packages/core/src/{foundation,scene,graphics,ui,interaction,animation,game,runtime}, index.ts and components.ts                          |
+| Shared UI            | ui/canvas-node.ts, canvas-layout.ts, canvas-text.ts, canvas-ui.ts; interaction/pointer-routing.ts; foundation/cancellation.ts            |
+| Web adapters         | packages/web/src/canvas-node.ts, canvas-visual.ts, pointer.ts, game.ts, renderer.ts, index.ts; export-only probe forwarders              |
+| Boundary checks      | scripts/core-boundary.mjs and scripts/validate.mjs; internal-path updates in benchmark/prototype tools                                   |
+| Compatibility screen | examples/canvas-ui/portable-screen.ts, main.ts and README.md                                                                             |
+| Behavioral tests     | portable-ui.test.ts, web-cancellation.test.ts, core-boundary.test.ts and browser/portable-ui.spec.ts; moved-source import updates        |
+| Guides and recovery  | docs/host-boundary.md, architecture/API/Canvas/roadmap docs, Japanese guides/site route, AGENTS.md, CODEX-START.md and this report/index |
+
+## Public API and migration
+
+Existing package-level imports remain. Experimental internal file paths changed; import from package roots rather than private source paths. Web CanvasButton callbacks still receive a native AbortSignal. Core CanvasButton callbacks and CanvasNode.signal now use CancellationSignal (aborted, onCancel, throwIfCancelled); browserAbortSignal explicitly bridges an owner into fetch/DOM APIs. CanvasNode.ui is a narrow owner interface; retain the CanvasUI returned by canvasUI(root) for focus/layout/diagnostics. CanvasUI accepts a LifetimeOwner and its legacy scene property identifies that owner; retain a separate Scene reference for Scene-specific fields. Core lifecycle/update phase order, image leases and asynchronous Web readiness contracts remain unchanged.
+
+The Host guide documents renderer versus Host versus distribution target, actual portability boundaries, escape-hatch ownership and a concrete alternative Host implementation checklist. Standard API definitions are portable models; identical fonts/GPU output, OS accessibility or unimplemented targets are not guarantees.
+
+## Verification results
+
+| Command / environment                                                                         | Result                                                                                                                                                                      |
+| --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| npm ci                                                                                        | Passed locally and in CI; no dependency changes                                                                                                                             |
+| npm run check                                                                                 | Passed: repository and ES2022-only Core types, formatting, dependencies/cycles, required files and license notices; 12 pre-existing warnings / 11 informational diagnostics |
+| npm test                                                                                      | **570 passed, 0 failed, 45 files**                                                                                                                                          |
+| test:browser, desktop shard 1/2                                                               | **61 passed, 0 failed**                                                                                                                                                     |
+| test:browser, desktop shard 2/2                                                               | **58 passed, 0 failed**                                                                                                                                                     |
+| test:browser, narrow shard 1/2                                                                | **61 passed, 0 failed**                                                                                                                                                     |
+| test:browser, narrow shard 2/2                                                                | **58 passed, 0 failed**                                                                                                                                                     |
+| Browser total (Chromium, Actions)                                                             | **238 passed, 0 failed, 15 files**, including portable UI in WebGL and Canvas2D at both widths                                                                              |
+| npm run build -- --target web                                                                 | Passed locally                                                                                                                                                              |
+| npm run build -- --target web --example canvas-ui --base /Simpludify/                         | Passed locally and CI                                                                                                                                                       |
+| npm run test:build; npm run test:build:game; node scripts/smoke-build.mjs --example canvas-ui | Passed in Actions; UI/scenes, Signal Run and Canvas trail production smoke paths                                                                                            |
+| site:build -- --base /Simpludify/; site:check; test:site                                      | Passed; 58 HTML documents, 3470 references, 54 standalone typed snippets; real gallery/samples validated in Actions                                                         |
+| site:build -- --base /; site:check; test:site                                                 | Passed with the same static counts and real site smoke                                                                                                                      |
+| npm run bench; bench:practical; bench:response                                                | Passed in CI quality job; not a new comparative performance claim                                                                                                           |
+| Local real browser execution                                                                  | **Not run**: Chromium download returned truncated/non-ZIP data. Real browser evidence above is from Actions                                                                 |
+| Electron/Tauri/Android, other browser engines and physical mobile/IME/AT                      | **Not implemented or not verified**                                                                                                                                         |
+
+Final source CI: [40935579831 — success](https://github.com/oz-coden/Simpludify/actions/runs/40935579831), source `61dbb7b6d3a94fd773b5d73c9347fb20738d1d12`; 8 validation jobs succeeded, deploy skipped on PR as intended. [PR #1](https://github.com/oz-coden/Simpludify/pull/1) contains the complete change. Earlier failures and fixes are preserved in the checkpoint history below. Report/overview-only metadata may be committed after the tested source without repeating unchanged source tests; main integration must still run its full CI.
+
+## Known limits and next priorities
+
+No major unresolved implementation failure is known at the tested source. Deferred scope is explicit:
+
+1. Dedicated select/number/text controls and a Host text/IME bridge; current example selection is button composition, not a native form control.
+2. Touch-drag scrolling, inertia, scrollbars and virtualized/incremental large lists; scroll currently relayouts the dirty root and uses immediate child extents.
+3. Automatic font readiness/invalidation and panel-to-world viewport binding helpers. Exact text metrics must match painting; custom RendererPort still needs a Canvas presentation capability.
+4. Alternate Host/renderer compatibility tests, then Electron/Tauri packaging and target-specific validation. These targets are architectural preparation only.
+
+Native API/DOM/Pixi escape hatches remain available; callers own portability and cleanup for bypassed abstractions. No cross-platform executable guarantee or physical screen-reader/IME validation is claimed.
+
+## Branch, commits and integration receipt
+
+Baseline: latest main at task start, `152ec2e35789ec512f53ea988d7f0d54d7ff1ead`. Work branch: `refactor/core-host-ui-2026-10-30`. All implementation/checkpoint commits were saved remotely without force push or release/package publication.
+
+| Commit                                                                                            | Purpose                                              |
+| ------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| [c7d4a28](https://github.com/oz-coden/Simpludify/commit/c7d4a28fd9e4948c7b350d2a368a5f3a2eb7b88e) | Investigation and initial report                     |
+| [96a75f6](https://github.com/oz-coden/Simpludify/commit/96a75f69d3ce7f5f86112b482d51a7f3eacf0195) | Core modules and graphics/movement separation        |
+| [dce3cef](https://github.com/oz-coden/Simpludify/commit/dce3cef75107439baec947fe3341f5af5f75d035) | Shared Core UI/layout/routing extraction             |
+| [43bf178](https://github.com/oz-coden/Simpludify/commit/43bf1782b5bed6c97350d01589c226c92a4f1e8c) | Scroll/list/focus and portable screen                |
+| [f6bc1ce](https://github.com/oz-coden/Simpludify/commit/f6bc1ce62b70a9330b33ffa1ecc700b8becb64e7) | Site link/input fixture corrections and review       |
+| [c04df92](https://github.com/oz-coden/Simpludify/commit/c04df927c7527c18537bbdacbd1b477e71fdf524) | Static clip focus regression                         |
+| [61dbb7b](https://github.com/oz-coden/Simpludify/commit/61dbb7b6d3a94fd773b5d73c9347fb20738d1d12) | Narrow/desktop portable fixture; final tested source |
+
+Main integration: **pending**. Integration SHA and post-integration CI: not yet available. The work branch and report are present on remote GitHub. Resume by reading this receipt and the branch history; do not infer integration from the successful source CI alone.
+
+## Historical checkpoints
+
+The following notes record observations at their checkpoint, including superseded pending states; the final implementation result above is the current source status.
+
 ## Scope and baseline
 
 - Date: 2026-10-30 (JST).
@@ -35,7 +123,7 @@
 - Commits: initial checkpoint is the commit containing this report; later revisions will list stable SHAs.
 - Main integration: not performed. Final SHA: unavailable until integration.
 
-## Current handoff
+## Initial handoff (superseded by later checkpoints)
 
 Implementation has not started. Resume from checkpoint branch, inspect this ledger, install dependencies if needed, then implement the planned extraction. Known limitations: current UI lacks scrolling/reorder API and Core lacks a portable cancellation abstraction; Electron/Tauri/Android are not implemented or verified.
 
