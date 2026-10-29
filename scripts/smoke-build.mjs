@@ -2,12 +2,13 @@ import assert from "node:assert/strict";
 import { resolve } from "node:path";
 import { chromium } from "@playwright/test";
 import { preview } from "vite";
+import { testCanvasUI } from "./site-canvas-test.mjs";
 
 const exampleIndex = process.argv.indexOf("--example");
 const example = exampleIndex < 0 ? "ui-scenes" : process.argv[exampleIndex + 1];
 assert.ok(
-  ["ui-scenes", "composition", "signal-run"].includes(example),
-  "Choose ui-scenes, composition or signal-run",
+  ["ui-scenes", "composition", "signal-run", "canvas-ui"].includes(example),
+  "Choose ui-scenes, composition, signal-run or canvas-ui",
 );
 const server = await preview({
   configFile: false,
@@ -38,7 +39,9 @@ try {
     page.on("pageerror", (error) => errors.push(error.message));
     const response = await page.goto("http://127.0.0.1:4175/Simpludify/");
     assert.equal(response?.status(), 200);
-    if (example === "signal-run") {
+    if (example === "canvas-ui") {
+      await testCanvasUI(page, page);
+    } else if (example === "signal-run") {
       await page
         .getByRole("button", { name: "Start run", exact: true })
         .click();

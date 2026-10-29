@@ -64,7 +64,7 @@ This is a short forced-GC observation, not proof of no leaks. Pixi’s current w
 
 ## Bundle and library selection
 
-Vite8.3.5 production/esnext minification, gzip level9 per emitted file, summed across **all** JS chunks (including optional renderer/fallback chunks). These totals are not initial network transfer, decoded WASM memory or installed package size. Same DOM UI/scenes entry is used before/after; Canvas trail additionally uses Sprite/Tilemap/Collision game code.
+The following saved comparison used Vite8.3.5 production/esnext minification (a CLI-default-target refresh is pending), gzip level9 per emitted file, summed across **all** JS chunks (including optional renderer/fallback chunks). These totals are not initial network transfer, decoded WASM memory or installed package size. Same DOM UI/scenes entry is used before/after; Canvas trail additionally uses Sprite/Tilemap/Collision game code.
 
 | Build                           | JS bytes | JS gzip bytes | CSS bytes | CSS gzip bytes |
 | ------------------------------- | -------- | ------------- | --------- | -------------- |

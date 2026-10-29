@@ -35,7 +35,6 @@ async function bundle(name, worktree, example, extra) {
     },
     build: {
       write: false,
-      target: "esnext",
       minify: true,
       ...(extra ? { rollupOptions: { input: extra } } : {}),
     },
@@ -151,7 +150,7 @@ const report = {
   time: new Date().toISOString(),
   node: process.version,
   scope:
-    "Same Vite8 production minifier, esnext target, no sourcemaps. JS/CSS gzip level9 sums each emitted asset independently; not package tarball or runtime heap. Extra module micro entries include only publicly referenced code. Full game comparison holds the DOM UI/scenes entry constant; Canvas trail includes different game/features.",
+    "Same current CLI Vite8 production minifier/default target, no sourcemaps. JS/CSS gzip level9 sums each emitted asset independently; not package tarball or runtime heap. Extra module micro entries include only publicly referenced code. Full game comparison holds the DOM UI/scenes entry constant; Canvas trail includes different game/features.",
   versions: {
     vite: JSON.parse(readFileSync("node_modules/vite/package.json", "utf8"))
       .version,
