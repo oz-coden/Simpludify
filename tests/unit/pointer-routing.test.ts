@@ -9,12 +9,6 @@ import {
 } from "@simpludify/core";
 import { expect, it } from "vitest";
 import {
-  CanvasButton,
-  CanvasHoldButton,
-  CanvasPanel,
-} from "../../packages/web/src/canvas-node";
-import { CanvasUI } from "../../packages/web/src/canvas-ui";
-import {
   PointerCancel,
   PointerClick,
   PointerDown,
@@ -25,7 +19,13 @@ import {
   PointerRouting,
   PointerUp,
   ScenePointer,
-} from "../../packages/web/src/pointer-routing";
+} from "../../packages/core/src/interaction/pointer-routing";
+import {
+  CanvasButton,
+  CanvasHoldButton,
+  CanvasPanel,
+} from "../../packages/core/src/ui/canvas-node";
+import { CanvasUI } from "../../packages/core/src/ui/canvas-ui";
 
 const data = (id = 1, x = 10, y = 10, inside = true): PointerInfo => ({
   pointerId: id,

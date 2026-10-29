@@ -6,8 +6,8 @@ import {
   CanvasLabel,
   CanvasPanel,
   CanvasRow,
-} from "../../packages/web/src/canvas-node";
-import { CanvasUI } from "../../packages/web/src/canvas-ui";
+} from "../../packages/core/src/ui/canvas-node";
+import { CanvasUI } from "../../packages/core/src/ui/canvas-ui";
 
 const metrics = (n: { text: string }) => ({
   width: n.text.length * 10,
@@ -140,7 +140,7 @@ it("copies styles and children, validates numbers and single ownership atomicall
   expect(() => parent.setStyle({ fontSize: 0 })).toThrow();
 });
 it("Scene disposes nodes, subscriptions, pending button task signals and owned sources", () => {
-  let signal: AbortSignal | undefined;
+  let signal: import("@simpludify/core").CancellationSignal | undefined;
   let release = () => {};
   const b = CanvasButton("async", (s) => {
     signal = s;

@@ -1,11 +1,11 @@
+import type { PointerInfo } from "@simpludify/core";
 import {
   containsScreenPoint,
+  PointerRouting,
   screenPoint,
   type ViewTransform,
   type WorldPoint,
 } from "@simpludify/core";
-import type { PointerInfo } from "./pointer-routing";
-import { PointerRouting } from "./pointer-routing";
 /** One DOM capture-phase adapter per Game; Pixi federated events never route these widgets. */
 export class BrowserPointer {
   readonly routing: PointerRouting;

@@ -90,7 +90,7 @@ const customEntry = join(temporary, "custom.mjs"),
   emptyEntry = join(temporary, "empty.mjs");
 writeFileSync(
   customEntry,
-  `import {layoutCanvas} from ${JSON.stringify(join(root, "packages/web/src/canvas-layout.ts"))}; globalThis.layout=layoutCanvas;`,
+  `import {layoutCanvas} from ${JSON.stringify(join(root, "packages/core/src/ui/canvas-layout.ts"))}; globalThis.layout=layoutCanvas;`,
 );
 writeFileSync(
   yogaEntry,

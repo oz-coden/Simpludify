@@ -1,4 +1,15 @@
-import { cleanupAll, EngineError } from "@simpludify/core";
+import type {
+  CanvasNode,
+  CanvasUI,
+  PointerRouting,
+  UIBounds,
+} from "@simpludify/core";
+import {
+  cleanupAll,
+  EngineError,
+  intersectUI,
+  wrapCanvasText,
+} from "@simpludify/core";
 import {
   CanvasTextMetrics,
   Container,
@@ -6,11 +17,6 @@ import {
   Text,
   TextStyle,
 } from "pixi.js";
-import { intersectUI } from "./canvas-layout";
-import type { CanvasNode, UIBounds } from "./canvas-node";
-import { wrapCanvasText } from "./canvas-text";
-import type { CanvasUI } from "./canvas-ui";
-import type { PointerRouting } from "./pointer-routing";
 
 export interface CanvasPresentation {
   update(width: number, height: number): void;

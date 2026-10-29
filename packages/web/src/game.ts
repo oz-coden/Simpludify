@@ -1,3 +1,4 @@
+import type { CanvasNode } from "@simpludify/core";
 import {
   type ActionBindings,
   ActionController,
@@ -5,6 +6,8 @@ import {
   type Actor,
   Aspect,
   Camera,
+  CanvasUI,
+  type CanvasUIOptions,
   createViewTransform,
   Engine,
   EngineError,
@@ -13,12 +16,14 @@ import {
   type FrameDriver,
   type JsonValue,
   type LogicalResolution,
+  type PointerRouting,
   type PreparedScene,
   positive,
   type RendererPort,
   type ReplayControllers,
   ReplayPlayer,
   Scene,
+  ScenePointer,
   SceneState,
   type ScreenPoint,
   screenPoint,
@@ -28,12 +33,9 @@ import {
   type WorldPoint,
   worldToScreen,
 } from "@simpludify/core";
-import type { CanvasNode } from "./canvas-node";
-import { CanvasUI, type CanvasUIOptions } from "./canvas-ui";
 import type { CanvasPresentation } from "./canvas-visual";
 import { BrowserInput } from "./input";
 import { BrowserPointer } from "./pointer";
-import { type PointerRouting, ScenePointer } from "./pointer-routing";
 import { PixiRenderer } from "./renderer";
 import {
   type MountedUI,

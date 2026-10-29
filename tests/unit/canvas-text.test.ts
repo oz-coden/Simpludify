@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { wrapCanvasText } from "../../packages/web/src/canvas-text";
+import { wrapCanvasText } from "../../packages/core/src/ui/canvas-text";
 
 const clusters = new Intl.Segmenter(undefined, { granularity: "grapheme" });
 const measure = (text: string) =>

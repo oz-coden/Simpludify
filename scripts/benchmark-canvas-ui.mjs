@@ -31,13 +31,15 @@ try {
     "/packages/core/src/index.ts",
   );
   const { CanvasButton, CanvasPanel, CanvasRow } = await server.ssrLoadModule(
-    "/packages/web/src/canvas-node.ts",
+    "/packages/core/src/ui/canvas-node.ts",
   );
   const { CanvasUI } = await server.ssrLoadModule(
-    "/packages/web/src/canvas-ui.ts",
+    "/packages/core/src/ui/canvas-ui.ts",
   );
   const { PointerRouting, ScenePointer, PointerDown } =
-    await server.ssrLoadModule("/packages/web/src/pointer-routing.ts");
+    await server.ssrLoadModule(
+      "/packages/core/src/interaction/pointer-routing.ts",
+    );
   const measure = () => ({ width: 30, height: 20 });
   function setup(count) {
     const scene = new Scene("ui-benchmark"),

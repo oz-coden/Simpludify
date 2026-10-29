@@ -51,3 +51,13 @@ Implementation has not started. Resume from checkpoint branch, inspect this ledg
 
 - Phase 2 final `npm run check`: passed, including ES2022-only Core compilation, boundary and license validation (existing Biome warnings remain).
 - Local Chromium installer: failed with truncated/non-ZIP download; browser results are not yet available. GitHub Actions remains the independent browser verification path.
+
+## Phase 3 checkpoint
+
+- Portable CanvasNode ownership/state, Flex layout, text wrapping, CanvasUI hit testing/clipping and ScenePointer/PointerRouting moved into Core. Web source forwarders retain old internal probe paths without duplicating algorithms.
+- CanvasUI accepts a LifetimeOwner, so UI construction/layout no longer requires an Engine or Scene. Exact text metrics are still supplied by the Host. Core uses CancellationSignal; Web CanvasButton preserves native AbortSignal callbacks via browserAbortSignal. Direct node.signal consumers migrate to the portable contract or this explicit bridge.
+- Web retains Pixi drawing, image/texture leases, native button mirrors, browser pointer capture/keyboard input and asynchronous Game transitions.
+- Added module dependency enforcement, including escaping relative import rejection. Graphics cannot import game behaviors; UI depends only on foundation/UI; Scene's input identity reference is type-only.
+- `npm test`: 43 files / 558 tests passed after extraction, including existing layout, routing, ownership and cancellation behavior.
+- UI scrolling/reorder/logical focus, API guides and final browser/build checks remain pending. Main is unchanged.
+- Phase 2 implementation: [96a75f6](https://github.com/oz-coden/Simpludify/commit/96a75f69d3ce7f5f86112b482d51a7f3eacf0195).

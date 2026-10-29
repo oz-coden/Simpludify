@@ -1,5 +1,6 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { validateCoreDependency } from "./core-boundary.mjs";
 
 const core = "packages/core/src";
 function files(dir) {
@@ -11,9 +12,22 @@ function files(dir) {
 }
 for (const file of files(core)) {
   const source = readFileSync(file, "utf8");
-  for (const match of source.matchAll(/(?:from\s*|import\s*)['"]([^'"]+)['"]/g))
-    if (!match[1].startsWith("."))
-      throw new Error(`CORE_BOUNDARY: ${file}: ${match[1]}`);
+  for (const match of source.matchAll(
+    /(?:import|export)\s+(type\s+)?(\{[^}]*\}|\*(?:\s+as\s+\w+)?|\w+)\s*from\s*["']([^"']+)["']/g,
+  )) {
+    const typeOnly = Boolean(
+      match[1] ||
+        (match[2].startsWith("{") &&
+          match[2]
+            .slice(1, -1)
+            .split(",")
+            .filter((s) => s.trim())
+            .every((s) => s.trim().startsWith("type "))),
+    );
+    validateCoreDependency(core, file, match[3], typeOnly);
+  }
+  for (const match of source.matchAll(/import\s*(?:\(\s*)?["']([^"']+)["']/g))
+    validateCoreDependency(core, file, match[1]);
 }
 for (const file of [
   "examples/character/index.html",
