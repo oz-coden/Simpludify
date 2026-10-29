@@ -40,6 +40,31 @@ describe("formal CollisionWorld continuous tile boundaries", () => {
                 expect(result.maxUnresolved).toBe(0);
               }
             });
+  for (const circle of [true, false])
+    for (const rotation of circle ? [0] : [0.37, -0.64])
+      for (const horizontal of [false, true])
+        for (const side of [-1, 1] as const)
+          for (const tangent of [-1, 1] as const)
+            it(`matches convex Actor corner: circle=${circle}, rot=${rotation}, horizontal=${horizontal}, side=${side}, tangent=${tangent}`, () => {
+              for (const [tileWidth, tileHeight] of [
+                [32, 32],
+                [48, 20],
+              ]) {
+                if (!tileWidth || !tileHeight) throw Error();
+                const result = runWallScenario({
+                  corner: true,
+                  circle,
+                  rotation,
+                  horizontal,
+                  side,
+                  tangent,
+                  tileWidth,
+                  tileHeight,
+                });
+                expect(result.maxError).toBeLessThan(1e-6);
+                expect(result.maxUnresolved).toBe(0);
+              }
+            });
   it.each([true, false])(
     "stops at concave wall corners without seam displacement (circle=%s)",
     (circle) => {

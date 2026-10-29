@@ -31,3 +31,9 @@ The existing World now discovers placed TilemapLayer objects and queries only Ac
 Contact and contactsFor remain Actor-only. TileContactEnter/Stay/Exit and tileContactsFor are direct typed terrain APIs. No target union is exposed. Policy-change Exit uses a copied old observation before the new Enter; image IDs and frozen policy values are captured before callbacks. Response, filtered bounds, map/collision gates and Scene lifetime are independent of Camera/images/rendering.
 
 Integrated focused regression passed 107 tests (60 pre-existing Actor geometry/response plus 47 formal terrain/continuous-wall cases). The exact former circle slide counterexample is included in the real World comparison, alongside rotated boxes, both axes/directions and non-square cells. Further browser, full-suite and performance validation remains pending.
+
+## Sample/browser fixture checkpoint (validation pending)
+
+Tile trail now has stone/tree walls, pass-through water, a Solid/body-equipped explorer, a dedicated TileContact label, wall creation/destruction ahead, collision toggling and Scene recreation. Three independent maps still share their image pool. Existing Paint under player and gallery hooks remain available.
+
+New browser fixtures cover actual stopped pixels, hidden/offscreen terrain, policy-only edits without Sprite visits, dynamic gaps/regeneration, pending-image collision and release, plus real sample WASD/sliding/Trigger/edit/Scene controls. These fixtures are saved before the longer browser run; success is not claimed until executed. Continuous-wall tests were extended to exposed convex corners, bringing the formal wall/corner matrix to 50 unit cases (each straight/convex trajectory also tests both cell aspect ratios).

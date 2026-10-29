@@ -13,6 +13,7 @@ import {
   Transform,
 } from "@simpludify/core";
 export interface WallScenarioOptions {
+  corner?: boolean;
   circle: boolean;
   rotation: number;
   horizontal: boolean;
@@ -68,8 +69,13 @@ export function runWallScenario(options: WallScenarioOptions) {
     side > 0
       ? (horizontal ? 2 * h : 2 * w) - extent
       : (horizontal ? 3 * h : 3 * w) + extent;
-  const along =
-    tangent > 0 ? (horizontal ? w : h) / 2 : 23 * (horizontal ? w : h);
+  const along = options.corner
+    ? tangent > 0
+      ? -4
+      : 24 * (horizontal ? w : h) + 4
+    : tangent > 0
+      ? (horizontal ? w : h) / 2
+      : 23 * (horizontal ? w : h);
   function body(engine: Engine) {
     const actor = engine.scene.add(new Actor());
     const transform = actor.add(
