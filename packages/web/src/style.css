@@ -132,3 +132,22 @@
 .simpludify .s-hold[aria-pressed="true"] {
   filter: brightness(0.8);
 }
+
+/* Semantic keyboard/AT mirrors; all visible rendering and pointer hits use Pixi. */
+.s-canvas-accessibility {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.s-canvas-accessibility button {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+.simpludify > canvas {
+  touch-action: none;
+}

@@ -19,3 +19,7 @@ Retain Actor/Sprite/Tilemap/Collision regressions; strict types/DOM-free boundar
 ## External design references
 
 [Pixi events](https://pixijs.com/8.x/guides/components/events) distinguishes none/passive/static interaction. Disable UI subtree interaction to avoid a second path. [Pointer Events](https://www.w3.org/TR/pointerevents3/) defines capture/cancel and touch-action; native event order must be verified with real browser input. [Yoga](https://www.yogalayout.dev/docs/about-yoga) is a box layout system, not rendering or input; adding it would not replace tree ownership or routing.
+
+## Routing/presentation checkpoint
+
+The Scene-owned model, dirty Flex subset, Pixi screen presentation, semantic button mirror and DOM capture-phase router are implemented. 534 unit tests and strict TypeScript pass at this checkpoint; real-browser validation is still pending. Twenty-five new model/routing cases cover fixed ownership, multi-pointer/keyboard holds, cancellation, native Action frame semantics, nested wrapping, clipped hits and disposal. The current custom Flex subset has no runtime dependency; library/bundle/performance comparison remains pending.

@@ -71,6 +71,65 @@ export function layoutCanvas(
     naturalCache.set(node, result);
     return result;
   };
+  // Auto cross size of a wrapped container depends on its constrained main size.
+  const constrained = (
+    node: CanvasNode,
+    aw: number,
+    ah: number,
+    stretchWidth: boolean,
+    stretchHeight: boolean,
+    depth: number,
+  ): UISizeValue => {
+    if (depth > 64)
+      throw new EngineError(
+        "INVALID_UI",
+        "UI trees support at most 64 nested levels",
+      );
+    const s = node.style,
+      n = natural(node, depth),
+      row = s.direction === "row";
+    let w = size(s.width, aw) ?? (stretchWidth ? aw : n.width),
+      h = size(s.height, ah) ?? (stretchHeight ? ah : n.height);
+    if (node.kind !== "panel") return { width: w, height: h };
+    const cw = Math.max(0, w - s.padding * 2),
+      ch = Math.max(0, h - s.padding * 2),
+      main = row ? cw : ch;
+    let used = 0,
+      lineCross = 0,
+      totalCross = 0,
+      count = 0;
+    for (const child of node.children) {
+      if (!child.visible || child.disposed) continue;
+      const align = child.style.alignSelf ?? s.align;
+      const c = constrained(
+        child,
+        cw,
+        ch,
+        !row && align === "stretch" && child.style.width === undefined,
+        row && align === "stretch" && child.style.height === undefined,
+        depth + 1,
+      );
+      const m = row ? c.width : c.height,
+        k = row ? c.height : c.width;
+      if (s.wrap && count && used + s.gap + m > main) {
+        totalCross += lineCross + s.gap;
+        used = 0;
+        lineCross = 0;
+        count = 0;
+      }
+      used += (count ? s.gap : 0) + m;
+      lineCross = Math.max(lineCross, k);
+      count++;
+    }
+    if (s.wrap) {
+      totalCross += lineCross + s.padding * 2;
+      if (row && s.height === undefined && !stretchHeight) h = totalCross;
+      if (!row && s.width === undefined && !stretchWidth) w = totalCross;
+    } else if (!row && s.height === undefined && !stretchHeight) {
+      h = used + s.padding * 2;
+    }
+    return { width: finite(w), height: finite(h) };
+  };
   const arrange = (
     node: CanvasNode,
     x: number,
@@ -101,9 +160,20 @@ export function layoutCanvas(
     const lines: Line[] = [{ items: [], main: 0, cross: 0 }];
     for (const child of node.children) {
       if (!child.visible || child.disposed) continue;
-      const n = natural(child, depth + 1),
-        a = size(child.style.width, cw) ?? n.width,
-        b = size(child.style.height, ch) ?? n.height;
+      const align = child.style.alignSelf ?? s.align;
+      const n = constrained(
+          child,
+          cw,
+          ch,
+          !row && align === "stretch" && child.style.width === undefined,
+          row &&
+            !s.wrap &&
+            align === "stretch" &&
+            child.style.height === undefined,
+          depth + 1,
+        ),
+        a = n.width,
+        b = n.height;
       const item: Item = {
         node: child,
         main: row ? a : b,
@@ -125,22 +195,39 @@ export function layoutCanvas(
     let lineOffset = 0;
     for (const line of lines) {
       const free = main - line.main;
-      const weight = line.items.reduce(
-        (sum, i) =>
-          sum + (free >= 0 ? i.node.style.grow : i.node.style.shrink * i.main),
-        0,
-      );
-      for (const i of line.items)
+      if (free >= 0) {
+        const weight = line.items.reduce(
+          (sum, i) => sum + i.node.style.grow,
+          0,
+        );
         if (weight > 0)
-          i.main = Math.max(
+          for (const i of line.items)
+            i.main = finite(i.main + (free * i.node.style.grow) / weight);
+      } else {
+        // Freeze zero-size items and redistribute the remaining deficit.
+        let deficit = -free;
+        let remaining = line.items.filter(
+          (i) => i.node.style.shrink > 0 && i.main > 0,
+        );
+        while (deficit > 1e-9 && remaining.length) {
+          const weight = remaining.reduce(
+            (sum, i) => sum + i.node.style.shrink * i.main,
             0,
-            i.main +
-              (free *
-                (free >= 0
-                  ? i.node.style.grow
-                  : i.node.style.shrink * i.main)) /
-                weight,
           );
+          let removed = 0;
+          for (const i of remaining) {
+            const amount = Math.min(
+              i.main,
+              (deficit * i.node.style.shrink * i.main) / weight,
+            );
+            i.main -= amount;
+            removed += amount;
+          }
+          deficit -= removed;
+          remaining = remaining.filter((i) => i.main > 1e-9);
+          if (removed < 1e-9) break;
+        }
+      }
       const left = Math.max(
         0,
         main -

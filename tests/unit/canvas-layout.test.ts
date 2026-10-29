@@ -173,3 +173,25 @@ it("removal disposes subtree and invalidates layout; cleanup continues after a f
   expect(ui.disposed).toBe(true);
   expect(b.disposed).toBe(true);
 });
+it("sizes nested wrapped rows from their constrained width", () => {
+  const children = Array.from({ length: 3 }, () =>
+    CanvasLabel("a", { width: 90, height: 30, shrink: 0 }),
+  );
+  const wrapped = CanvasRow(children, {
+    wrap: true,
+    gap: 10,
+    align: "start",
+    shrink: 0,
+  });
+  const after = CanvasLabel("after");
+  setup(CanvasColumn([wrapped, after]), 200, 200);
+  expect(wrapped.bounds.height).toBe(70);
+  expect(after.bounds.y).toBe(70);
+  expect(children[2]?.bounds.y).toBe(40);
+});
+it("redistributes shrink after an item reaches zero", () => {
+  const a = CanvasLabel("a", { width: 100, shrink: 100 }),
+    b = CanvasLabel("b", { width: 100, shrink: 1 });
+  setup(CanvasRow([a, b]), 10, 100);
+  expect(a.bounds.width + b.bounds.width).toBeCloseTo(10);
+});

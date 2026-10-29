@@ -75,7 +75,8 @@ export class BrowserInput {
     host.addEventListener(
       "pointerdown",
       (event) => {
-        if (!editable(event.target)) host.focus({ preventScroll: true });
+        if (!event.defaultPrevented && !editable(event.target))
+          host.focus({ preventScroll: true });
       },
       options,
     );

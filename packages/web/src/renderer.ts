@@ -13,12 +13,15 @@ import {
   type VisualSource,
 } from "@simpludify/core";
 import { Application, Container, Graphics, Sprite, Texture } from "pixi.js";
+import type { CanvasUI } from "./canvas-ui";
+
+import { type CanvasPresentation, CanvasVisual } from "./canvas-visual";
+import type { PointerRouting } from "./pointer-routing";
 import {
   type ImageLease,
   type ImageResource,
   SharedImages,
 } from "./shared-images";
-
 import { TilemapVisual } from "./tilemap-visual";
 
 interface Visual {
@@ -47,6 +50,52 @@ interface Visual {
 }
 export class PixiRenderer implements RendererPort {
   private readonly app = new Application();
+  private readonly canvasPresentations = new Set<CanvasVisual>();
+  get canvasDiagnostics() {
+    let nodes = 0,
+      buttons = 0,
+      syncs = 0,
+      textMetrics = 0;
+    for (const p of this.canvasPresentations) {
+      const d = p.diagnostics;
+      nodes += d.nodes;
+      buttons += d.buttons;
+      syncs += d.syncs;
+      textMetrics += d.textMetrics;
+    }
+    return {
+      presentations: this.canvasPresentations.size,
+      nodes,
+      buttons,
+      syncs,
+      textMetrics,
+    };
+  }
+  prepareCanvasUI(ui: CanvasUI, routing: PointerRouting): CanvasPresentation {
+    if (!this.ready || this.dead)
+      throw new EngineError("RENDERER_NOT_READY", "Renderer is not available");
+    const visual = new CanvasVisual(ui, this.host, routing);
+    this.canvasPresentations.add(visual);
+    let disposed = false;
+    const off = ui.onDispose(() => {
+      this.canvasPresentations.delete(visual);
+    });
+    return {
+      update: (width, height) => {
+        if (disposed || ui.disposed) return;
+        if (!visual.display.parent) this.app.stage.addChild(visual.display);
+        visual.update(width, height);
+      },
+      focus: (node) => visual.focus(node),
+      dispose: () => {
+        if (disposed) return;
+        disposed = true;
+        off();
+        this.canvasPresentations.delete(visual);
+        visual.dispose();
+      },
+    };
+  }
   private readonly scenes = new Set<PreparedScene>();
   private readonly images = new SharedImages((url, signal) =>
     this.image(url, signal),
@@ -117,6 +166,7 @@ export class PixiRenderer implements RendererPort {
         "Renderer disposed during initialization",
       );
     }
+    this.app.stage.sortableChildren = true;
     this.app.canvas.setAttribute("aria-label", "Game world");
     this.host.prepend(this.app.canvas);
   }
@@ -699,6 +749,10 @@ export class PixiRenderer implements RendererPort {
     cleanupAll(
       [
         ...scenes.map((scene) => scene.dispose),
+        ...[...this.canvasPresentations].map((p) => () => {
+          this.canvasPresentations.delete(p);
+          p.dispose();
+        }),
         () => this.images.dispose(),
         () => this.destroyApp(),
       ],

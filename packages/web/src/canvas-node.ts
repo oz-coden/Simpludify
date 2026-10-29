@@ -137,7 +137,7 @@ export class CanvasNode implements LifetimeOwner {
   readonly events = new EventBus();
   readonly signal: AbortSignal;
   private readonly abort = new AbortController();
-  private list: CanvasNode[] = [];
+  private list: readonly CanvasNode[] = Object.freeze([]);
   private parentNode: CanvasNode | undefined;
   /** @internal Only a root can be claimed by a Scene UI. */ owner:
     | CanvasUI
@@ -224,6 +224,7 @@ export class CanvasNode implements LifetimeOwner {
       this.shown &&
       this.active &&
       !this.working &&
+      this.config.pointerEvents !== "none" &&
       (!this.parentNode || this.parentNode.available) &&
       !this.ui?.disposed
     );
@@ -282,10 +283,8 @@ export class CanvasNode implements LifetimeOwner {
       for (let p: CanvasNode | undefined = this; p; p = p.parentNode)
         if (p === node) throw new EngineError("UI_OWNERSHIP", "UI tree cycle");
     }
-    for (const node of nodes) {
-      node.parentNode = this;
-      this.list.push(node);
-    }
+    for (const node of nodes) node.parentNode = this;
+    this.list = Object.freeze([...this.list, ...nodes]);
     this.changed(true);
     return this;
   }
@@ -325,9 +324,12 @@ export class CanvasNode implements LifetimeOwner {
   dispose(): void {
     if (this.disposed) return;
     const ui = this.ui;
-    const children = this.list.splice(0);
+    const children = this.list;
+    this.list = Object.freeze([]);
     if (this.parentNode) {
-      this.parentNode.list = this.parentNode.list.filter((n) => n !== this);
+      this.parentNode.list = Object.freeze(
+        this.parentNode.list.filter((n) => n !== this),
+      );
       this.parentNode = undefined;
     }
     cleanupAll(

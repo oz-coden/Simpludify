@@ -28,7 +28,12 @@ import {
   type WorldPoint,
   worldToScreen,
 } from "@simpludify/core";
+import type { CanvasNode } from "./canvas-node";
+import { CanvasUI, type CanvasUIOptions } from "./canvas-ui";
+import type { CanvasPresentation } from "./canvas-visual";
 import { BrowserInput } from "./input";
+import { BrowserPointer } from "./pointer";
+import { type PointerRouting, ScenePointer } from "./pointer-routing";
 import { PixiRenderer } from "./renderer";
 import {
   type MountedUI,
@@ -44,6 +49,8 @@ export interface SceneContext {
   readonly signal: AbortSignal;
   add<T extends Actor>(actor: T): T;
   ui(...nodes: UINode[]): void;
+  canvasUI(root: CanvasNode, options?: CanvasUIOptions): CanvasUI;
+  readonly pointer: ScenePointer;
   actions<A extends ActionSet>(
     actions: A,
     bindings?: ActionBindings<A>,
@@ -76,6 +83,26 @@ export class Game<SceneId extends string = string> {
   readonly camera: Camera;
   private readonly renderer: RendererPort;
   private readonly keyboard: BrowserInput;
+  private readonly pointers: BrowserPointer;
+  private readonly pointerChannels = new WeakMap<Scene, ScenePointer>();
+  private canvas: CanvasUI | undefined;
+  private canvasPresentation: CanvasPresentation | undefined;
+  private defaultCanvas: CanvasUI | undefined;
+  get pointer(): ScenePointer {
+    this.assertAlive();
+    return this.channelFor(this.engine.scene);
+  }
+  get pointerDiagnostics() {
+    return this.pointers.routing.diagnostics;
+  }
+  private channelFor(scene: Scene): ScenePointer {
+    let channel = this.pointerChannels.get(scene);
+    if (!channel) {
+      channel = new ScenePointer(scene);
+      this.pointerChannels.set(scene, channel);
+    }
+    return channel;
+  }
   private readonly observer: ResizeObserver;
   private readonly frames: FrameDriver;
   private readonly options: GameOptions;
@@ -176,6 +203,25 @@ export class Game<SceneId extends string = string> {
       cancel: (handle) => cancelAnimationFrame(handle),
     };
     this.keyboard = new BrowserInput(this.element, this.engine.input);
+    this.pointers = new BrowserPointer(
+      this.element,
+      (event) => {
+        const rect = this.element.getBoundingClientRect();
+        if (rect.width <= 0 || rect.height <= 0)
+          throw new EngineError(
+            "VIEWPORT_UNAVAILABLE",
+            "Game has no visible bounds",
+          );
+        const screen = screenPoint(
+          ((event.clientX - rect.left) * this.width) / rect.width,
+          ((event.clientY - rect.top) * this.height) / rect.height,
+        );
+        return { screen, world: this.screenToWorld(screen), view: this.view };
+      },
+      this.report,
+      () => this.canvasPresentation,
+      () => this.canvasPresentation?.update(this.width, this.height),
+    );
     document.addEventListener(
       "visibilitychange",
       () => {
@@ -204,12 +250,14 @@ export class Game<SceneId extends string = string> {
   }
   pause(): void {
     this.assertAlive();
+    this.pointers.release();
     this.engine.pause();
     this.previousTime = undefined;
     this.fixed?.reset();
   }
   resume(): void {
     this.assertAlive();
+    this.pointers.release();
     this.engine.resume();
     this.previousTime = undefined;
     this.fixed?.reset();
@@ -273,6 +321,16 @@ export class Game<SceneId extends string = string> {
     this.assertAlive();
     return this.engine.scene.remove(actor);
   }
+  canvasUI(root: CanvasNode, options: CanvasUIOptions = {}): CanvasUI {
+    this.assertAlive();
+    if (this.startPromise || this.defaultCanvas)
+      throw new EngineError(
+        "UI_ALREADY_STARTED",
+        "Define one default Canvas UI before run",
+      );
+    this.defaultCanvas = new CanvasUI(this.engine.scene, root, options);
+    return this.defaultCanvas;
+  }
   uiOverlay(...nodes: UINode[]): void {
     this.assertAlive();
     if (this.startPromise)
@@ -322,7 +380,12 @@ export class Game<SceneId extends string = string> {
         this.assertAlive();
         this.rendererReady = true;
         if (initialScene !== undefined) await this.navigate(initialScene);
-        else await this.present(this.engine.scene, this.defaultUI);
+        else
+          await this.present(
+            this.engine.scene,
+            this.defaultUI,
+            this.defaultCanvas,
+          );
         this.assertAlive();
         this.ready = true;
         this.resize();
@@ -361,6 +424,8 @@ export class Game<SceneId extends string = string> {
         const scene = new Scene(id),
           nodes: UINode[] = [],
           controller = new AbortController();
+        let canvas: CanvasUI | undefined;
+        const pointer = this.channelFor(scene);
         this.staging = scene;
         scene.onDispose(() => controller.abort());
         try {
@@ -371,6 +436,16 @@ export class Game<SceneId extends string = string> {
                 signal: controller.signal,
                 add: (actor) => scene.add(actor),
                 ui: (...items) => nodes.push(...items),
+                pointer,
+                canvasUI: (root, options) => {
+                  if (canvas)
+                    throw new EngineError(
+                      "UI_OWNERSHIP",
+                      "A Scene has one Canvas UI root",
+                    );
+                  canvas = new CanvasUI(scene, root, options);
+                  return canvas;
+                },
                 actions: (actions, bindings) =>
                   new ActionController(actions, {
                     scene,
@@ -385,7 +460,7 @@ export class Game<SceneId extends string = string> {
             ),
           );
           this.assertAlive();
-          await this.present(scene, nodes);
+          await this.present(scene, nodes, canvas);
         } catch (error) {
           try {
             scene.dispose();
@@ -404,10 +479,15 @@ export class Game<SceneId extends string = string> {
     this.queue = task.catch(() => {});
     return task;
   }
-  private async present(scene: Scene, nodes: readonly UINode[]): Promise<void> {
+  private async present(
+    scene: Scene,
+    nodes: readonly UINode[],
+    canvas?: CanvasUI,
+  ): Promise<void> {
     let prepared: PreparedScene | undefined,
       ui: MountedUI | undefined,
       committed = false;
+    let canvasPresentation: CanvasPresentation | undefined;
     try {
       const preparing = this.renderer.prepare(scene);
       void preparing.then(
@@ -426,6 +506,25 @@ export class Game<SceneId extends string = string> {
       this.assertAlive();
       ui = mountUI(nodes, this.report);
       scene.onDispose(ui.dispose);
+      if (canvas) {
+        canvas.setErrorHandler(this.report);
+        const renderer = this.renderer as RendererPort & {
+          prepareCanvasUI?: (
+            ui: CanvasUI,
+            routing: PointerRouting,
+          ) => CanvasPresentation;
+        };
+        if (!renderer.prepareCanvasUI)
+          throw new EngineError(
+            "RENDERER_CAPABILITY",
+            "Renderer does not support Canvas UI",
+          );
+        canvasPresentation = renderer.prepareCanvasUI(
+          canvas,
+          this.pointers.routing,
+        );
+        scene.onDispose(() => canvasPresentation?.dispose());
+      }
       scene.markReady();
       this.errorBox.hidden = true;
       try {
@@ -438,14 +537,19 @@ export class Game<SceneId extends string = string> {
       }
       this.assertAlive();
       const oldPrepared = this.prepared,
-        oldUI = this.ui;
+        oldUI = this.ui,
+        oldCanvas = this.canvasPresentation;
       this.prepared = prepared;
       this.ui = ui;
+      this.canvas = canvas;
+      this.canvasPresentation = canvasPresentation;
+      this.pointers.routing.setScene(this.channelFor(scene), canvas);
       committed = true;
       this.element.append(ui.element);
       for (const cleanup of [
         () => oldPrepared?.dispose(),
         () => oldUI?.dispose(),
+        () => oldCanvas?.dispose(),
       ]) {
         try {
           cleanup();
@@ -464,6 +568,7 @@ export class Game<SceneId extends string = string> {
         for (const cleanup of [
           () => prepared?.dispose(),
           () => ui?.dispose(),
+          () => canvasPresentation?.dispose(),
         ]) {
           try {
             cleanup();
@@ -586,6 +691,7 @@ export class Game<SceneId extends string = string> {
   }
   private render(): void {
     this.updateProjection();
+    this.canvasPresentation?.update(this.width, this.height);
     this.prepared?.render(this.projection);
   }
   private readonly tick = (time: number): void => {
@@ -637,7 +743,10 @@ export class Game<SceneId extends string = string> {
     for (const cleanup of [
       () => this.stopReplay(),
       () => this.staging?.dispose(),
+      () => this.pointers.dispose(),
       () => this.keyboard.dispose(),
+      () => this.canvasPresentation?.dispose(),
+      () => this.canvas?.dispose(),
       () => this.observer.disconnect(),
       () => this.ui?.dispose(),
       () => this.prepared?.dispose(),
@@ -654,6 +763,9 @@ export class Game<SceneId extends string = string> {
     this.ui = undefined;
     this.prepared = undefined;
     this.staging = undefined;
+    this.canvas = undefined;
+    this.canvasPresentation = undefined;
+    this.defaultCanvas = undefined;
     this.defaultUI.length = 0;
     this.scenes.clear();
     this.pendingScenes.clear();
