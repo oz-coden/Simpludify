@@ -95,7 +95,12 @@ for (const fallback of [false, true])
       const p = await center(page, "hold");
       await page.mouse.move(p.x, p.y);
       await page.mouse.down();
-      await page.mouse.move(320, 230);
+      expect(
+        await page.evaluate(() =>
+          window.canvasProbe.game.element.hasPointerCapture(1),
+        ),
+      ).toBe(true);
+      await page.mouse.move(-20, -20);
       await page.evaluate(() => window.canvasProbe.step());
       expect(
         await page.evaluate(() =>
@@ -276,6 +281,14 @@ for (const fallback of [false, true])
       page,
     }) => {
       await boot(page);
+      const scaled = await page.evaluate(() => {
+        const f = window.canvasProbe;
+        f.root.scale = 1.5;
+        f.step();
+        return f.center(f.click);
+      });
+      await page.mouse.click(scaled.x, scaled.y);
+      expect(await page.evaluate(() => window.canvasProbe.clicks)).toBe(1);
       const r = await page.evaluate(async () => {
         const f = window.canvasProbe;
         f.root.scale = 1.5;
@@ -397,6 +410,15 @@ for (const fallback of [false, true])
         f.game.element.append(b);
         f.game.engine.scene.onDispose(() => b.remove());
       }, p);
+      const hover = await center(page, "hold");
+      await page.mouse.move(hover.x, hover.y);
+      expect(await page.evaluate(() => window.canvasProbe.hold.hovered)).toBe(
+        true,
+      );
+      await page.mouse.move(p.x, p.y);
+      expect(await page.evaluate(() => window.canvasProbe.hold.hovered)).toBe(
+        false,
+      );
       await page.mouse.click(p.x, p.y);
       expect(await page.evaluate(() => window.canvasProbe.clicks)).toBe(0);
       expect(await page.evaluate(() => window.canvasProbe.label.text)).toBe(
@@ -433,8 +455,44 @@ for (const fallback of [false, true])
       expect(r.empty.texts).toBe(1);
       expect(r.empty.textures).toBe(1);
       expect(r.empty.graphics).toBeLessThanOrEqual(2);
+      // WebGL also owns the current world clip; Canvas2D has just the Return background.
+      expect(r.empty.graphicsObjects).toBeLessThanOrEqual(2);
       expect(r.counts.nodes).toBe(0);
       expect(r.counts.presentations).toBe(0);
+    });
+    test("flushes layout before release so a moved target cannot receive a stale click", async ({
+      page,
+    }) => {
+      await boot(page);
+      const p = await center(page, "click");
+      await page.mouse.move(p.x, p.y);
+      await page.mouse.down();
+      await page.evaluate(() =>
+        window.canvasProbe.root.root.setStyle({ padding: 80 }),
+      );
+      await page.mouse.up();
+      expect(await page.evaluate(() => window.canvasProbe.clicks)).toBe(0);
+    });
+    test("keeps native Tab order in sync after adding controls to an earlier nested panel", async ({
+      page,
+    }) => {
+      await boot(page);
+      await page.evaluate(
+        async (url) => (await import(url)).addLast(window.canvasProbe),
+        url,
+      );
+      await page.getByRole("button", { name: "Last", exact: true }).focus();
+      await page.evaluate(
+        async (url) => (await import(url)).addBetween(window.canvasProbe),
+        url,
+      );
+      await expect(
+        page.getByRole("button", { name: "Last", exact: true }),
+      ).toBeFocused();
+      await page.keyboard.press("Shift+Tab");
+      await expect(
+        page.getByRole("button", { name: "Between", exact: true }),
+      ).toBeFocused();
     });
     test("actual integrated Canvas trail starts, moves into collision, pauses and recreates Scenes", async ({
       page,

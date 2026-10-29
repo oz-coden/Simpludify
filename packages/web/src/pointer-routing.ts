@@ -161,6 +161,9 @@ export class PointerRouting {
     );
     return node;
   }
+  hasHover(id: number): boolean {
+    return this.hovering.has(id);
+  }
   has(id: number): boolean {
     return this.gestures.has(id);
   }

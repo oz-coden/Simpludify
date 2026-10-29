@@ -52,8 +52,11 @@ export class BrowserPointer {
       "pointermove",
       (e) =>
         this.guard(() => {
-          if (!this.routing.owns(e.pointerId) && !this.surface(e.target))
+          if (!this.routing.owns(e.pointerId) && !this.surface(e.target)) {
+            if (this.routing.hasHover(e.pointerId))
+              this.routing.leave(this.data(e));
             return;
+          }
           this.flush();
           this.routing.move(this.data(e));
         }),
@@ -65,6 +68,7 @@ export class BrowserPointer {
         this.guard(() => {
           if (this.routing.owns(e.pointerId)) {
             e.preventDefault();
+            this.flush();
             this.routing.up(this.data(e));
           }
         }),

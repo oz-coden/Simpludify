@@ -91,6 +91,7 @@ try {
     await page.evaluate(async (url) => {
       window.canvasCycles = await (await import(url)).createCycleProbe();
     }, url);
+    const baseline = await page.evaluate(() => window.canvasCycles.baseline);
     const client = await page.context().newCDPSession(page);
     await client.send("HeapProfiler.collectGarbage");
     const initial = await client.send("Runtime.getHeapUsage"),
@@ -101,11 +102,16 @@ try {
       assert.equal(released.visuals.presentations, 0);
       assert.equal(released.mirrors, 0);
       assert.equal(released.pointers.captures, 0);
+      assert.equal(released.pixi.graphicsObjects, baseline.graphicsObjects);
+      assert.equal(released.pixi.texts, 0);
+      assert.equal(released.pixi.textures, 0);
+      assert.equal(released.pixi.graphics, baseline.graphics);
       if ((i + 1) % 5 === 0) {
         await client.send("HeapProfiler.collectGarbage");
         heap.push({
           cycle: i + 1,
           ...(await client.send("Runtime.getHeapUsage")),
+          resources: released.pixi,
         });
       }
     }
@@ -116,6 +122,7 @@ try {
       count: 30,
       buttons: 100,
       initial,
+      baseline,
       heap,
       released,
       scope:

@@ -74,7 +74,17 @@ export class PixiRenderer implements RendererPort {
   prepareCanvasUI(ui: CanvasUI, routing: PointerRouting): CanvasPresentation {
     if (!this.ready || this.dead)
       throw new EngineError("RENDERER_NOT_READY", "Renderer is not available");
-    const visual = new CanvasVisual(ui, this.host, routing);
+    const visual = new CanvasVisual(ui, this.host, routing, (graphics) => {
+      // Pixi8.22 CanvasGraphicsPipe registers a renderable without GPU data;
+      // GCManagedHash.remove then returns early on unload. Drop exactly our
+      // destroyed Graphics, rather than retaining it until Pixi's timed GC.
+      const pipe = this.app.renderer.renderPipes.graphics as unknown as {
+        _managedGraphics?: { items: Record<number, unknown> };
+      };
+      const items = pipe._managedGraphics?.items;
+      if (graphics.destroyed && items?.[graphics.uid] === graphics)
+        delete items[graphics.uid];
+    });
     this.canvasPresentations.add(visual);
     let disposed = false;
     const off = ui.onDispose(() => {

@@ -219,15 +219,22 @@ export class CanvasNode implements LifetimeOwner {
     return this.kind === "button" || this.kind === "hold-button";
   }
   get available(): boolean {
-    return (
-      !this.disposed &&
-      this.shown &&
-      this.active &&
-      !this.working &&
-      this.config.pointerEvents !== "none" &&
-      (!this.parentNode || this.parentNode.available) &&
-      !this.ui?.disposed
-    );
+    for (
+      let node: CanvasNode | undefined = this;
+      node;
+      node = node.parentNode
+    ) {
+      if (
+        node.disposed ||
+        !node.shown ||
+        !node.active ||
+        node.working ||
+        node.config.pointerEvents === "none" ||
+        node.owner?.disposed
+      )
+        return false;
+    }
+    return true;
   }
   onDispose(callback: () => void): () => void {
     return this.lifetime.onDispose(callback);
@@ -255,8 +262,24 @@ export class CanvasNode implements LifetimeOwner {
       )
     )
       return;
+    const geometry: readonly (keyof CanvasStyle)[] = [
+      "width",
+      "height",
+      "direction",
+      "gap",
+      "padding",
+      "grow",
+      "shrink",
+      "align",
+      "alignSelf",
+      "justify",
+      "wrap",
+      "fontSize",
+      "fontFamily",
+    ];
+    const layout = geometry.some((key) => next[key] !== this.config[key]);
     this.config = next;
-    this.changed(true);
+    this.changed(layout);
   }
   setText(text: string): void {
     this.assertAlive();

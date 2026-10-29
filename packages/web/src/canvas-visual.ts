@@ -39,14 +39,11 @@ export class CanvasVisual implements CanvasPresentation {
   private active = false;
   private readonly subscriptions: Array<() => void> = [];
   private syncs = 0;
-  private readonly fonts = () => {
-    this.metrics.clear();
-    this.ui.invalidate(true);
-  };
   constructor(
     private readonly ui: CanvasUI,
     private readonly host: HTMLElement,
     private readonly routing: PointerRouting,
+    private readonly releaseGraphics: (graphics: Graphics) => void,
   ) {
     this.display.eventMode = "none";
     this.display.zIndex = 1;
@@ -58,7 +55,6 @@ export class CanvasVisual implements CanvasPresentation {
       }),
       ui.onDispose(() => this.dispose()),
     );
-    document.fonts?.addEventListener("loadingdone", this.fonts);
   }
   get diagnostics() {
     return {
@@ -191,7 +187,8 @@ export class CanvasVisual implements CanvasPresentation {
     this.dirty = false;
     this.syncs++;
     this.display.scale.set(this.ui.scale);
-    const visited = new Set<CanvasNode>();
+    const visited = new Set<CanvasNode>(),
+      buttons: HTMLButtonElement[] = [];
     let order = 0;
     this.ui.walk((node, clip) => {
       visited.add(node);
@@ -216,8 +213,12 @@ export class CanvasVisual implements CanvasPresentation {
       }
       this.display.setChildIndex(entry.display, order++);
       this.display.setChildIndex(entry.mask, order++);
+      if (entry.button) buttons.push(entry.button);
       const b = node.bounds,
         s = node.style;
+      let enabled = !node.busy;
+      for (let p: CanvasNode | undefined = node; p; p = p.parent)
+        enabled &&= p.enabled;
       const signature = JSON.stringify([
         node.paintRevision,
         b.x,
@@ -229,6 +230,7 @@ export class CanvasVisual implements CanvasPresentation {
         clip.width,
         clip.height,
         node.available,
+        enabled,
         this.ui.scale,
       ]);
       if (entry.signature === signature) return;
@@ -278,9 +280,6 @@ export class CanvasVisual implements CanvasPresentation {
             )
             .stroke({ color: 0xffd36b, width: 3 });
       }
-      let enabled = !node.busy;
-      for (let p: CanvasNode | undefined = node; p; p = p.parent)
-        enabled &&= p.enabled;
       entry.display.alpha = enabled ? 1 : 0.45;
       if (entry.text) {
         entry.text.text = node.text;
@@ -315,6 +314,12 @@ export class CanvasVisual implements CanvasPresentation {
         this.metrics.delete(node);
         this.releaseEntry(entry);
       }
+    for (let i = 0; i < buttons.length; i++) {
+      const button = buttons[i];
+      if (!button) continue;
+      const current = this.element.children.item(i);
+      if (current !== button) this.element.insertBefore(button, current);
+    }
   }
   private releaseEntry(entry: Entry): void {
     cleanupAll(
@@ -327,6 +332,8 @@ export class CanvasVisual implements CanvasPresentation {
         () => entry.text?.destroy({ style: true }),
         () => entry.display.destroy({ children: true }),
         () => entry.mask.destroy({ context: true }),
+        () => this.releaseGraphics(entry.background),
+        () => this.releaseGraphics(entry.mask),
       ],
       "Canvas visual entry cleanup failed",
     );
@@ -340,7 +347,6 @@ export class CanvasVisual implements CanvasPresentation {
     cleanupAll(
       [
         ...this.subscriptions.splice(0),
-        () => document.fonts?.removeEventListener("loadingdone", this.fonts),
         ...entries.map((e) => () => this.releaseEntry(e)),
         () => this.display.destroy({ children: true }),
         () => this.element.remove(),

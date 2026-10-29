@@ -245,3 +245,11 @@ export async function ownedResourceCycle(
   f.game.dispose();
   return { active, empty, counts: f.renderer.canvasDiagnostics };
 }
+export function addLast(f: Awaited<ReturnType<typeof canvasFixture>>) {
+  f.root.root.add(CanvasButton("Last", () => {}));
+  f.step();
+}
+export function addBetween(f: Awaited<ReturnType<typeof canvasFixture>>) {
+  f.root.root.children[1]?.add(CanvasButton("Between", () => {}));
+  f.step();
+}

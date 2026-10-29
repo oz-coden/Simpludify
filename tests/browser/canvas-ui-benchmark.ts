@@ -175,6 +175,7 @@ export async function createCycleProbe() {
   game.scene("empty", () => {});
   await game.run("empty");
   return {
+    baseline: inspectCanvasResources(renderer),
     async cycle() {
       await game.goTo("ui");
       await game.goTo("empty");

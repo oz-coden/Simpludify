@@ -209,3 +209,13 @@ it("remeasures a wrapped descendant after its flex main size grows", () => {
   expect(wrapped.bounds).toEqual({ x: 0, y: 0, width: 300, height: 60 });
   expect(children[3]?.bounds.y).toBe(30);
 });
+it("paint-only style changes do not run Flex or text measurement", () => {
+  const b = CanvasButton("color", () => {});
+  const { ui } = setup(CanvasPanel([b]));
+  const before = ui.diagnostics.layouts;
+  b.setStyle({ color: 0xff0000, background: 0x0000ff, radius: 2, clip: true });
+  expect(ui.layout(300, 200, metrics)).toBe(false);
+  expect(ui.diagnostics.layouts).toBe(before);
+  b.setStyle({ fontSize: 20 });
+  expect(ui.layout(300, 200, metrics)).toBe(true);
+});

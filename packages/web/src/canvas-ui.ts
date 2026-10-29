@@ -147,7 +147,10 @@ export class CanvasUI implements LifetimeOwner {
     const walk = (node: CanvasNode, clip: UIBounds) => {
       this.hitVisits++;
       if (
-        !node.available ||
+        node.disposed ||
+        !node.visible ||
+        !node.enabled ||
+        node.busy ||
         node.style.pointerEvents === "none" ||
         !containsUI(clip, x, y)
       )
