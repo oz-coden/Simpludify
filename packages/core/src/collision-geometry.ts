@@ -13,6 +13,11 @@ export interface GeometryEntry {
   readonly transform: Transform;
   readonly geometry: Geometry;
 }
+/** Narrow phase needs shape data only, not Actor ownership or a Transform. */
+export interface ManifoldEntry {
+  readonly collider: Pick<Collider, "shape">;
+  readonly geometry: Geometry;
+}
 export interface Manifold {
   normalX: number;
   normalY: number;
@@ -165,8 +170,8 @@ function axis(
 }
 /** Exact existing circle/OBB tests, extended to return a minimum translation normal. */
 export function contactManifold(
-  a: GeometryEntry,
-  b: GeometryEntry,
+  a: ManifoldEntry,
+  b: ManifoldEntry,
   out: Manifold,
   tolerance = 0,
 ): boolean {

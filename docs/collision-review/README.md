@@ -39,3 +39,15 @@ Camera, visible tiles, Viewport and texture readiness have no collision role. No
 - A failed geometry pass can retain previous tracked pairs in diagnostics while contactsFor filters by current pass; this is not transactional rollback.
 
 No confirmed runtime defect is asserted by this initial inventory. Additional tests, API alternatives, measured results and a concrete implementation plan will be linked here before completion.
+
+## First executable checks (checkpoint)
+
+24 new focused tests pass: twelve current Actor contract cases, four candidate-search cases, five policy/identity cases, three naive response probes. Strict TypeScript passes with positive/negative proposed API examples. These probes are under `tests/prototypes`, not exported or installed into Scenes.
+
+The naive shared circle/box narrow phase + per-cell correction probe **reproduces seam-induced circle tangent displacement** and unresolved deep embedding. This is a formal implementation acceptance gate, not a fixed production defect: current Tilemap does not yet have collision. A normal single cell separates correctly. Candidate strategy equality alone must not be mistaken for solver correctness.
+
+The only production changes so far relax *internal parameter types*: narrow phase accepts shape/geometry without Actor/Transform ownership, and correction accepts x/y positions. Function bodies and existing Actor behavior are unchanged. No tile Actor, Collider instance, Scene hook, public collision API or runtime dependency is introduced.
+
+`tests/prototypes/collision-api.ts` is a declaration-only API sketch; `tests/types/collision-proposal.ts` checks inferred names, explicit policies and target narrowing. The preferred shape is one existing Contact event family with `other.kind` and a deliberate source migration, rather than pretending a tile is an Actor or installing duplicate physics worlds. The final recommendation will document migration sites and alternatives.
+
+Next: record isolated search/index timings only after this checkpoint is pushed; retain raw samples and disclose geometry/event costs omitted by that benchmark.

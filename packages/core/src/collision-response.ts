@@ -3,8 +3,8 @@ import type { Transform } from "./components";
 import { EngineError } from "./diagnostics";
 /** Translate along the minimum separation axis, preserving tangential movement intent. */
 export function correctPositions(
-  a: Transform,
-  b: Transform,
+  a: Pick<Transform, "x" | "y">,
+  b: Pick<Transform, "x" | "y">,
   contact: Manifold,
   ia: number,
   ib: number,
