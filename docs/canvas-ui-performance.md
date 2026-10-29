@@ -1,21 +1,102 @@
 # Canvas UI measurements
 
-Measurement scripts and recorded results will be linked here after the current implementation is validated. No runtime layout dependency has been added. The selected implementation is a bounded Flex subset, not full CSS conformance. Dirty changes traverse the root and hit testing is O(visible nodes); static frames skip layout and visual synchronization.
+Final measured runtime: `94065a6f5ccaa66d488df08c2e61e6d4f60b9307`. Node v24.22.1, linux, AMD EPYC 9V74 80-Core Processor; Chromium 156.0.8078.4, SwiftShader WebGL and forced Canvas2D. Browser type is asserted (1/4), not inferred from pixels alone. Runs were sequential, with no concurrent local tests/builds.
 
-The baseline for bundle comparison is `89491c638e070c575fcee89cb08635fbaac67f01`. Yoga 3.2.1 is inspected in an isolated temporary directory, not installed into the engine. The published package reports MIT, 224272 unpacked bytes and includes a base64 WebAssembly loader; actual production/gzip comparisons, behavioral comparison and CPU/memory observations are pending. Historical trial sizes in earlier conversations are not current measurements.
+Raw reports: [model](../benchmarks/canvas-ui/model.json), [browser](../benchmarks/canvas-ui/browser.json), [bundles](../benchmarks/canvas-ui/bundles.json). Time units below are milliseconds. Node timings are not browser FPS; synthetic dispatch timings are not physical-device input latency.
 
-## Model measurement checkpoint
+## Model/layout/router
 
-[`model.json`](../benchmarks/canvas-ui/model.json) records clean source `a437f49bbf818b4db010a8733392840fb300d32c`, Node 24.22.1/Linux/AMD EPYC 9V74. No other local tests/builds ran during recording. With synthetic fixed text metrics, dirty-layout p50 was 0.0226 / 0.0567 / 0.2681 / 1.3733ms for 10 / 100 / 1000 / 5000 buttons (plus a root). Each recorded row has 10 warmups and 100 samples. Idle calls caused no additional layout. Pointer gesture p50 (down + five moves + up, plus Click delivery) was 0.0169 / 0.0644 / 0.5898 / 3.3369ms; eight hit queries visit 8×(N+1) nodes. These are Node model/router timings, not browser FPS or hardware input latency.
+Synthetic fixed text metrics, a wrapped row, 10 warmups and 100 recorded dirty-layout/gesture samples. A gesture is down + five moves + up, with one additional Click delivery. Idle values divide batches of 1000 calls and include assertion overhead. Disposal is one observation per size.
 
-One disposal observation per size was 1.07 / 1.31 / 10.03 / 53.16ms, so large UI teardown is not claimed free. Every recorded disposal has zero UI nodes, subscriptions, captured/suppressed pointers and event listeners. The 100×100-button Scene-cycle forced-GC heap observations are in the raw report (including Vite/tooling and measurement allocations); they do not establish native/GPU memory behavior or leak freedom. The constrained/intrinsic helper counters and depth16/32/64 workload expose extra work in deeply nested trees beyond the arranged-node count.
+| Buttons (+1 root) | Dirty layout p50 | One text edit + layout p50 | Idle call p50 | Gesture p50 | Hit visits / gesture | Dispose |
+| --- | --- | --- | --- | --- | --- | --- |
+| 10 | 0.0206 | 0.0060 | 0.0000108 | 0.0154 | 88 | 0.984 |
+| 100 | 0.0535 | 0.0301 | 0.0000297 | 0.0514 | 808 | 0.964 |
+| 1000 | 0.2748 | 0.2246 | 0.0000033 | 0.4777 | 8008 | 8.722 |
+| 5000 | 1.4484 | 1.4077 | 0.0000277 | 2.5616 | 40008 | 45.761 |
 
-## Initial browser run: investigation evidence, not accepted performance
+Unchanged calls produced zero extra layouts. Paint-only style changes also skip Flex (unit regression). Eight hit queries visit 8×(N+1) nodes: there is no spatial-index or sublinear-hit-test claim. Every disposal asserts zero model nodes/subscriptions, captured/suppressed pointers and event listeners. Dirty layout can reposition siblings/percentage children, so the root is recomputed; visual signatures avoid recreating unchanged text styles/geometry.
 
-[`browser-initial-unvalidated.json`](../benchmarks/canvas-ui/browser-initial-unvalidated.json) preserves the first browser run on `0e9da59`. Its synthetic pointer timings are **invalid**: the existing example's empty #app preceded a new body-mounted Game, and client coordinates omitted the host offset. Therefore pointer events did not necessarily hit the UI. The corrected harness must assert actual deliveries/candidate visits before reporting timings.
+| Nesting depth | Layout p50 | Arrange visits / layout | Intrinsic helper visits / layout | Constrained helper visits / layout |
+| --- | --- | --- | --- | --- |
+| 16 | 0.0383 | 16 | 256 | 240 |
+| 32 | 0.0712 | 32 | 1024 | 992 |
+| 64 | 0.2544 | 64 | 4096 | 4032 |
 
-The Scene-cycle heap observations are an unresolved finding at this checkpoint: WebGL usedSize rose from about 14.0 to 24.8MB over thirty 100-button round trips; Canvas2D from 15.7 to 18.0MB. Ownership counters reached zero, but those counters alone do not prove release of Pixi-owned contexts/styles or engine references. Main integration is blocked pending investigation and remeasurement. The first browser run is deliberately retained rather than rewritten as success.
+Arranged-node count is not all computation. Deep nesting adds constrained measurement work; 64 levels is the supported limit. The 100×100-button model Scene-cycle forced-GC heap record includes Vite/SSR and measurement allocations, and does not establish leak freedom.
 
-[`browser-owned-context-fix.json`](../benchmarks/canvas-ui/browser-owned-context-fix.json) preserves the second run (`e6f3cd0`): pointer geometry/delivery assertions are now valid and WebGL retained heap is substantially reduced, but Canvas2D still retains destroyed Graphics through its pinned internal hash. Inspection identified CanvasGraphicsPipe registering Graphics without per-renderer GPU data; GCManagedHash.remove returns early for such entries. The subsequent renderer-local compatibility cleanup deletes only its own already-destroyed UI Graphics from that exact hash. It does not alter Pixi globally, delete live objects, change the dependency version or touch other games. Regression tests count live Graphics objects/contexts/Text textures independently from null bookkeeping slots. Final post-cleanup remeasurement is still required.
+## Browser synchronization and input
 
-[`browser-graphics-fix.json`](../benchmarks/canvas-ui/browser-graphics-fix.json) is the third investigation report. Live UI resources return to empty-scene baseline on both renderers, but UID-keyed null text metadata remains measurable. The next source checkpoint removes only those owned, unused keys; the final report must distinguish that source from this retained investigation evidence. No native/GPU byte or multi-hour leak-freedom conclusion follows from any of these short runs.
+Viewport 1000×700, DPR1. Twenty recorded samples; five initial draw warmups and ten pointer warmups. Synchronization includes model layout, real font measurement, Pixi object/Graphics commands and native mirror updates, but excludes app.render. Draw submission is synchronous CPU/driver time, not GPU completion. All 30 synthetic gestures assert 240 deliveries and 240 UI hit tests. Functional mouse/CDP-touch/keyboard tests are separate.
+
+| Renderer | Buttons (+3 model nodes) | Edit/layout/sync p50 | Resize/sync p50 | Idle update p50 | Gesture p50 | Draw submission p50 |
+| --- | --- | --- | --- | --- | --- | --- |
+| WebGL | 10 | 0.200 | 0.150 | 0.000000 | 0.200 | 0.500 |
+| WebGL | 100 | 0.300 | 0.600 | 0.000000 | 0.300 | 0.950 |
+| WebGL | 1000 | 2.800 | 10.825 | 0.000000 | 2.900 | 13.950 |
+| Canvas2D | 10 | 0.200 | 0.150 | 0.000000 | 0.200 | 0.400 |
+| Canvas2D | 100 | 0.200 | 0.500 | 0.000000 | 0.300 | 0.700 |
+| Canvas2D | 1000 | 1.400 | 6.250 | 0.000000 | 1.700 | 8.450 |
+
+Idle updates produce zero extra layouts and zero extra visual synchronizations. Offscreen but model-visible nodes still participate in layout/traversal and retain display objects; this version does not virtualize large UI trees.
+
+| Renderer | Buttons | Initial run (one observation) | Full Game.dispose (one observation) |
+| --- | --- | --- | --- |
+| WebGL | 10 | 62.300 | 689.200 |
+| WebGL | 100 | 58.300 | 1347.900 |
+| WebGL | 1000 | 289.500 | 2537.000 |
+| Canvas2D | 10 | 18.600 | 2.100 |
+| Canvas2D | 100 | 39.400 | 5.000 |
+| Canvas2D | 1000 | 249.000 | 38.600 |
+
+Full Game disposal includes Pixi renderer/context/global-resource cleanup. The large WebGL teardown times are a measured limitation in this software-rendering environment; their internal cause was not separately profiled. They must not be presented as per-Scene UI removal time.
+
+## Scene round trips and retained resources
+
+Thirty complete 100-button UI→empty round trips per renderer; CDP GC after each five cycles. Creation/removal include Scene transaction completion and its first render. All samples return to the empty Scene’s live Pixi baseline: WebGL keeps one current world clip; Canvas2D keeps none. UI Text/Texture objects and their null slots are zero. Terminal disposal asserts zero UI presentations/nodes/buttons/text metrics/mirrors and input sources.
+
+| Renderer | UI Scene creation p50 | UI Scene removal p50 | Initial V8 heap MiB | After 30 MiB | Change MiB |
+| --- | --- | --- | --- | --- | --- |
+| WebGL | 16.850 | 4.750 | 13.450 | 13.614 | +0.164 |
+| Canvas2D | 11.050 | 4.400 | 15.013 | 15.226 | +0.213 |
+
+This is a short forced-GC observation, not proof of no leaks. Pixi’s current world-clip null hash slots and bounded text-metric/global pools are distinct from live UI resources. Native canvas backing storage, GPU allocations, hardware rendering, physical mobile devices and multi-hour soaks were not measured.
+
+## Bundle and library selection
+
+Vite8.3.5 production/esnext minification, gzip level9 per emitted file, summed across **all** JS chunks (including optional renderer/fallback chunks). These totals are not initial network transfer, decoded WASM memory or installed package size. Same DOM UI/scenes entry is used before/after; Canvas trail additionally uses Sprite/Tilemap/Collision game code.
+
+| Build | JS bytes | JS gzip bytes | CSS bytes | CSS gzip bytes |
+| --- | --- | --- | --- | --- |
+| baseline DOM UI/scenes | 605047 | 178404 | 2002 | 879 |
+| current same DOM UI/scenes | 664047 | 196733 | 2232 | 925 |
+| current integrated Canvas trail | 702963 | 207412 | 2232 | 925 |
+
+Same-entry JS increase: 59000 raw bytes, 18329 gzip bytes (17.90KiB); CSS gzip +46 bytes. No runtime layout dependency or lockfile change.
+
+| Micro entry | Raw JS | Gzip JS |
+| --- | --- | --- |
+| empty micro entry | 23 | 43 |
+| custom layout micro entry | 22281 | 7516 |
+| Yoga 3.2.1 module micro entry | 126723 | 51226 |
+
+The custom layout micro entry includes reachable Core error/module initialization code; it is not an isolated algorithm-only byte count. Yoga3.2.1 is MIT and was fetched/extracted only in /tmp, not bundled in the engine. Its ESM entry includes an asynchronous base64 WebAssembly loader. Both engines produce the same canonical padded row coordinates tested in the harness; this does not establish complete CSS equivalence or comparative speed. Yoga offers a broader, mature layout surface. The selected custom subset meets the current Row/Column/gap/padding/percentage/grow/shrink/align/justify/wrap needs with no extra runtime/ownership boundary. Reconsider it if actual games require min/max, richer intrinsic layout or CSS conformance.
+
+## Reproduce
+
+Start from the recorded clean source, install the pinned workspace dependencies, prepare a detached baseline checkout at `89491c6` and extract `yoga-layout@3.2.1`. The bundle script aliases each checkout’s internal packages explicitly, so a shared node_modules cannot accidentally substitute current sources for the baseline. Run sequentially; save outputs outside the checkout until all clean-source guards have completed.
+
+```sh
+CHROMIUM_PATH=/path/to/chromium node scripts/benchmark-canvas-ui-browser.mjs /tmp/ui-browser.json
+node --expose-gc scripts/benchmark-canvas-ui.mjs /tmp/ui-model.json
+node scripts/measure-ui-bundles.mjs /tmp/simpludify-ui-base /tmp/simpludify-yoga/package /tmp/ui-bundles.json
+```
+
+## Preserved investigation evidence
+
+- [Initial unvalidated run](../benchmarks/canvas-ui/browser-initial-unvalidated.json): synthetic pointer client geometry was wrong; do not use those input timings. It exposed owned GraphicsContext retention.
+- [Explicit-context correction](../benchmarks/canvas-ui/browser-owned-context-fix.json): pointer assertions pass, but Canvas2D destroyed Graphics remain in a pinned Pixi hash.
+- [Graphics-object correction](../benchmarks/canvas-ui/browser-graphics-fix.json): live UI resources return to baseline; UID-keyed text null metadata remains.
+- [Text-key correction](../benchmarks/canvas-ui/browser-text-fix.json): text/texture slots return to zero; the final report above adds cancellation/lifetime fixes and Scene timing.
+
+The engine isolates pinned Pixi8.22 cleanup in `packages/web/src/pixi-ui-cleanup.ts`. It removes only destroyed owned Graphics and null keys belonging to replaced/disposed UI Text; it never purges a live/shared image or the global cache. Dependency upgrades must rerun the resource regression suite. Custom fonts must be ready before tree construction; automatic web-font cache invalidation is outside this release. See [supported contracts](canvas-ui.md) and [validation](canvas-ui-implementation.md).
