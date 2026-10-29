@@ -88,3 +88,9 @@ Implementation has not started. Resume from checkpoint branch, inspect this ledg
 
 - Initial narrow browser shard 1: 59 passed / 2 failed. Both new tests incorrectly tried to pointer-click the intentionally pointer-transparent semantic button mirrors; Canvas correctly intercepted these. Tests now use native keyboard activation for named controls, while real pointer wheel routing still targets Canvas coordinates. This is a fixture correction, not a change to production pointer routing. Narrow shard 2 passed 58/58. Browser suite enumeration: 238 tests / 15 files across desktop and narrow projects.
 - Explicit Canvas trail production subpath build (`npm run build -- --target web --example canvas-ui --base /Simpludify/`): passed.
+
+## Focus boundary review checkpoint
+
+- A final review identified a potential Tab trap: an interactive node permanently hidden by a static clip was still a logical traversal candidate. Core now projects possible ancestor scroll reveal before testing clipping, excludes permanently unreachable and pointer-transparent controls, and retains offscreen scroll entries. Added a behavioral regression for this distinction.
+- `npm run check`: passed. Focus/portable suite: 9/9; full suite: 45 files / 569 tests passed.
+- The preceding source revision [f6bc1ce](https://github.com/oz-coden/Simpludify/commit/f6bc1ce62b70a9330b33ffa1ecc700b8becb64e7) passed quality, production and both site-base jobs in [40934715453](https://github.com/oz-coden/Simpludify/actions/runs/40934715453). Browser results were still pending when the focus correction checkpoint was prepared; final source CI must be checked separately.

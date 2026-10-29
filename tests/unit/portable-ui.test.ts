@@ -228,3 +228,34 @@ it("horizontal scrolling and resize recompute ranges without introducing negativ
   expect(root.scrollX).toBe(50);
   f.owner.dispose();
 });
+
+it("focus traversal skips permanently clipped and pointer-transparent controls while retaining offscreen scroll entries", () => {
+  const first = CanvasButton("first", () => {}, {
+    height: 40,
+    padding: 0,
+    shrink: 0,
+  });
+  const clipped = CanvasButton("clipped", () => {}, {
+    height: 40,
+    padding: 0,
+    shrink: 0,
+  });
+  const transparent = CanvasButton("transparent", () => {}, {
+    pointerEvents: "children",
+    height: 40,
+    padding: 0,
+  });
+  const last = CanvasButton("last", () => {}, { height: 40, padding: 0 });
+  const viewport = CanvasColumn([first, clipped], {
+    height: 40,
+    clip: true,
+    shrink: 0,
+  });
+  const f = mount(CanvasColumn([viewport, transparent, last]), 200, 160);
+  expect(f.ui.focusNext()).toBe(first);
+  expect(f.ui.focusNext()).toBe(last);
+  expect(f.ui.focusNext()).toBeUndefined();
+  expect(() => f.ui.focus(clipped)).toThrow();
+  expect(() => f.ui.focus(transparent)).toThrow();
+  f.owner.dispose();
+});

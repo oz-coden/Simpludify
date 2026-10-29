@@ -106,16 +106,10 @@ export class CanvasUI implements LifetimeOwner {
   focus(node?: CanvasNode): void {
     if (this.disposed)
       throw new EngineError("OWNER_DISPOSED", "UI has been disposed");
-    if (
-      node &&
-      (node.ui !== this ||
-        !node.available ||
-        !node.interactive ||
-        node.style.pointerEvents !== "auto")
-    )
+    if (node && !this.canFocus(node))
       throw new EngineError(
         "UI_OWNERSHIP",
-        "Focus requires an available interactive node in this UI",
+        "Focus requires a reachable interactive node in this UI",
       );
     if (this.focusNode === node) return;
     const previous = this.focusNode;
@@ -134,12 +128,7 @@ export class CanvasUI implements LifetimeOwner {
   focusNext(reverse = false): CanvasNode | undefined {
     const order: CanvasNode[] = [];
     this.walk((node) => {
-      if (
-        node.available &&
-        node.interactive &&
-        node.style.pointerEvents === "auto"
-      )
-        order.push(node);
+      if (this.canFocus(node)) order.push(node);
     });
     const index = this.focusNode ? order.indexOf(this.focusNode) : -1;
     const node =
@@ -152,6 +141,47 @@ export class CanvasUI implements LifetimeOwner {
       ];
     if (node) this.focus(node);
     return node;
+  }
+  /** Project scroll reveal before testing clips; static clipped controls must not trap Tab. */
+  private canFocus(node: CanvasNode): boolean {
+    if (
+      node.ui !== this ||
+      !node.available ||
+      !node.interactive ||
+      node.style.pointerEvents !== "auto"
+    )
+      return false;
+    let box: UIBounds = node.bounds;
+    for (let parent = node.parent; parent; parent = parent.parent) {
+      const b = parent.bounds,
+        pad = parent.style.padding;
+      if (parent.style.scroll) {
+        const dx =
+          box.x < b.x + pad
+            ? box.x - b.x - pad
+            : Math.max(0, box.x + box.width - b.x - b.width + pad);
+        const dy =
+          box.y < b.y + pad
+            ? box.y - b.y - pad
+            : Math.max(0, box.y + box.height - b.y - b.height + pad);
+        const sx =
+          Math.max(0, Math.min(parent.maxScrollX, parent.scrollX + dx)) -
+          parent.scrollX;
+        const sy =
+          Math.max(0, Math.min(parent.maxScrollY, parent.scrollY + dy)) -
+          parent.scrollY;
+        box = { ...box, x: box.x - sx, y: box.y - sy };
+      }
+      if (parent.style.clip || parent.style.scroll) box = intersectUI(box, b);
+      if (box.width <= 0 || box.height <= 0) return false;
+    }
+    const visible = intersectUI(box, {
+      x: 0,
+      y: 0,
+      width: Math.max(0, this.width / this.factor),
+      height: Math.max(0, this.height / this.factor),
+    });
+    return visible.width > 0 && visible.height > 0;
   }
   /** Scroll ancestors just enough to reveal a focused descendant. */
   private reveal(node: CanvasNode): void {
