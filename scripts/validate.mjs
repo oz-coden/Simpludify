@@ -51,7 +51,7 @@ const workspaceVersion = JSON.parse(
   readFileSync("package.json", "utf8"),
 ).version;
 const sourceVersion = readFileSync(
-  "packages/core/src/version.ts",
+  "packages/core/src/foundation/version.ts",
   "utf8",
 ).match(/ENGINE_VERSION = "([^"]+)"/)?.[1];
 if (workspaceVersion !== sourceVersion)

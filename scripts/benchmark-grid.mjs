@@ -15,7 +15,9 @@ const server = await createServer({
 });
 let Grid;
 try {
-  ({ Grid } = await server.ssrLoadModule("/packages/core/src/grid.ts"));
+  ({ Grid } = await server.ssrLoadModule(
+    "/packages/core/src/foundation/grid.ts",
+  ));
 } finally {
   await server.close();
 }
@@ -200,7 +202,7 @@ const report = {
       encoding: "utf8",
     }).trim(),
     gridSourceSha256: createHash("sha256")
-      .update(readFileSync("packages/core/src/grid.ts"))
+      .update(readFileSync("packages/core/src/foundation/grid.ts"))
       .digest("hex"),
   },
   conditions: {

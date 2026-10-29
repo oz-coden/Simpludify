@@ -4,8 +4,8 @@ import {
   contactManifold,
   createGeometry,
   type ManifoldEntry,
-} from "../../packages/core/src/collision-geometry";
-import { correctPositions } from "../../packages/core/src/collision-response";
+} from "../../packages/core/src/game/collision-geometry";
+import { correctPositions } from "../../packages/core/src/game/collision-response";
 import { candidateRange } from "./tile-candidates";
 
 interface Position {

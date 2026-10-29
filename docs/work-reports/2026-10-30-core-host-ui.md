@@ -38,3 +38,16 @@
 ## Current handoff
 
 Implementation has not started. Resume from checkpoint branch, inspect this ledger, install dependencies if needed, then implement the planned extraction. Known limitations: current UI lacks scrolling/reorder API and Core lacks a portable cancellation abstraction; Electron/Tauri/Android are not implemented or verified.
+
+## Phase 2 checkpoint
+
+- Internal sources grouped into foundation, scene, graphics, interaction, animation, game and runtime; package root exports remain stable. Transform/Renderable are now graphics data; Motion/ActionMovement are game behaviors. The components aggregator preserves exports without forcing internal graphics consumers through movement code.
+- Tilemap remains an integrated game facade because its existing collision policy support is a real dependency. Simulation timers are foundation utilities; fixed-step Engine execution is runtime. Scene references a narrow identity/input ownership contract instead of importing Engine.
+- `npm ci`: passed (68 packages installed).
+- Initial `npm run check`: caught stale relative component paths and Markdown formatting; corrected before this checkpoint. Final check result follows below.
+- `npm test`: 42 files / 556 tests passed after the component import correction.
+- Source checkpoint: [c7d4a28](https://github.com/oz-coden/Simpludify/commit/c7d4a28fd9e4948c7b350d2a368a5f3a2eb7b88e).
+- UI extraction, browser validation and integration remain pending.
+
+- Phase 2 final `npm run check`: passed, including ES2022-only Core compilation, boundary and license validation (existing Biome warnings remain).
+- Local Chromium installer: failed with truncated/non-ZIP download; browser results are not yet available. GitHub Actions remains the independent browser verification path.
