@@ -57,5 +57,6 @@ Next: record isolated search/index timings only after this checkpoint is pushed;
 - [Tilemap API, ownership, target migration and event contract](tilemap-contract.md)
 - [216 search measurements, current Actor sweep costs, response counterexamples and algorithm recommendation](performance.md)
 - [Next formal implementation scope, changed files, tests, acceptance gates and open hypotheses](implementation-plan.md)
+- [Validation, browser environment and recovery checkpoints](validation.md)
 
 The recommendation is direct local lookup with shared CollisionWorld orchestration and stable per-cell identity. A naive per-cell solver is **not** approved for release: seam response remains a concrete implementation gate. The proposed target union is a deliberate future source migration; this review branch keeps the existing Contact API unchanged.
