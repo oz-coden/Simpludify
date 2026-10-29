@@ -1,0 +1,59 @@
+{
+  "run": 40887374151,
+  "job": 123495389660,
+  "revision": "904b7b9883937c2a220efe14d1ccbae6a5ba4da4",
+  "browserTests": 117,
+  "retries": 0,
+  "browserSeconds": 562.3,
+  "scope": "Successful intermediate desktop job; per-test wall time includes real frame waits and teardown, not GPU completion. Full log is preserved by GitHub.",
+  "slowest": [
+    {
+      "seconds": 29,
+      "line": "2026-10-29T14:10:52.9194170Z   ✓  102 [desktop] › tests/browser/tile-collision.spec.ts:86:7 › terrain collision WebGL › actual Tile trail uses WASD for walls/sliding, editing, Trigger and Scene recreation (29.0s)"
+    },
+    {
+      "seconds": 28.6,
+      "line": "2026-10-29T14:06:09.3423862Z   ✓   29 [desktop] › tests/browser/canvas-ui.spec.ts:587:5 › Canvas UI WebGL › drops unused text keys after live HUD changes and DPR changes (28.6s)"
+    },
+    {
+      "seconds": 27.8,
+      "line": "2026-10-29T14:08:23.0827213Z   ✓   67 [desktop] › tests/browser/replay.spec.ts:123:1 › Web plays a JSON Prism Raid victory, excludes live keys and releases Replay at navigation (27.8s)"
+    },
+    {
+      "seconds": 26.5,
+      "line": "2026-10-29T14:12:01.7803704Z   ✓  110 [desktop] › tests/browser/tilemap.spec.ts:131:5 › tilemap WebGL › actual tile trail moves camera, edits data and returns through Scenes (26.5s)"
+    },
+    {
+      "seconds": 24.7,
+      "line": "2026-10-29T14:11:19.2026819Z   ✓  105 [desktop] › tests/browser/tile-collision.spec.ts:86:7 › terrain collision Canvas2D › actual Tile trail uses WASD for walls/sliding, editing, Trigger and Scene recreation (24.7s)"
+    },
+    {
+      "seconds": 22.5,
+      "line": "2026-10-29T14:06:31.8764073Z   ✓   30 [desktop] › tests/browser/canvas-ui.spec.ts:601:5 › Canvas UI WebGL › actual integrated Canvas trail starts, moves into collision, pauses and recreates Scenes (22.5s)"
+    },
+    {
+      "seconds": 18.1,
+      "line": "2026-10-29T14:05:32.1353847Z   ✓   26 [desktop] › tests/browser/canvas-ui.spec.ts:533:5 › Canvas UI WebGL › destroys private Pixi Graphics contexts and Text styles across repeated Scene cycles (18.1s)"
+    },
+    {
+      "seconds": 16.7,
+      "line": "2026-10-29T14:12:21.8044148Z   ✓  115 [desktop] › tests/browser/tilemap.spec.ts:131:5 › tilemap Canvas2D › actual tile trail moves camera, edits data and returns through Scenes (16.7s)"
+    },
+    {
+      "seconds": 13,
+      "line": "2026-10-29T14:08:54.0973644Z   ✓   79 [desktop] › tests/browser/signal-run.spec.ts:11:1 › plays using keyboard, pointer and hold controls, pauses and restarts (13.0s)"
+    },
+    {
+      "seconds": 11.3,
+      "line": "2026-10-29T14:12:33.1647374Z   ✓  116 [desktop] › tests/browser/triangle.spec.ts:5:3 › Triangle pixels, transforms, live properties and cleanup (WebGL) (11.3s)"
+    },
+    {
+      "seconds": 11.2,
+      "line": "2026-10-29T14:04:49.2599138Z   ✓   21 [desktop] › tests/browser/canvas-ui.spec.ts:302:5 › Canvas UI WebGL › Tab focus, Enter/Space, disabled/hidden state and Scene cleanup stay synchronized (11.2s)"
+    },
+    {
+      "seconds": 10.5,
+      "line": "2026-10-29T14:10:13.1557779Z   ✓   94 [desktop] › tests/browser/sprites.spec.ts:139:5 › sprites WebGL › runs the actual example with WASD, visible frame changes and scene round trips (10.5s)"
+    }
+  ]
+}

@@ -37,9 +37,10 @@ jobs:
     timeout-minutes: 20
     strategy:
       fail-fast: false
-      # Each viewport gets its own runner, browser and single foreground worker.
+      # Shards have separate runners/browsers and one foreground worker each.
       matrix:
         project: [desktop, narrow]
+        shard: [1, 2]
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: actions/setup-node@v7.1.0
@@ -48,13 +49,13 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium --only-shell
-      - run: npm run test:browser -- --project=${{ matrix.project }}
+      - run: npm run test:browser -- --project=${{ matrix.project }} --shard=${{ matrix.shard }}/2
         env:
           PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/browser.json
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
-          name: browser-validation-${{ matrix.project }}
+          name: browser-validation-${{ matrix.project }}-${{ matrix.shard }}
           path: test-results/
           if-no-files-found: ignore
   production:

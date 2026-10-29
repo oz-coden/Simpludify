@@ -1,0 +1,27 @@
+{
+  "total": 234,
+  "counts": [
+    {
+      "project": "desktop",
+      "shard": 1,
+      "count": 59
+    },
+    {
+      "project": "desktop",
+      "shard": 2,
+      "count": 58
+    },
+    {
+      "project": "narrow",
+      "shard": 1,
+      "count": 59
+    },
+    {
+      "project": "narrow",
+      "shard": 2,
+      "count": 58
+    }
+  ],
+  "unique": 234,
+  "scope": "Playwright actual collected test IDs compared between the full run and all four shards; no test execution or context sharing."
+}
