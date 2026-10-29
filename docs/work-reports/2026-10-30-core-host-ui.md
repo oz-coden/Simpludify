@@ -2,7 +2,7 @@
 
 ## Final implementation result
 
-**Implementation and review complete; source CI passed. Main integration is the next step.** The exact tested source is `61dbb7b6d3a94fd773b5d73c9347fb20738d1d12`. Final integration and deployment receipts will be added here after they actually complete.
+**Implementation and review complete; source CI passed; PR #1 merged into main.** The exact tested source is `61dbb7b6d3a94fd773b5d73c9347fb20738d1d12`. Integration SHA: `ba1345e7ba71f8ab6b8a4717a8980b98414d2cc5`. Post-integration CI/deployment are running; their final results will be added only after completion.
 
 The two existing private packages remain. Core now owns Canvas UI state, layout, clipping, scroll/focus and abstract pointer/key routing. Web owns actual Pixi painting, exact font metrics, native semantic mirrors, browser capture/input, resource loading and asynchronous scene transactions. No Electron/Tauri/Android build or new npm package was added. Run To Exit was inspected as reference and remains unchanged.
 
@@ -82,7 +82,9 @@ Baseline: latest main at task start, `152ec2e35789ec512f53ea988d7f0d54d7ff1ead`.
 | [c04df92](https://github.com/oz-coden/Simpludify/commit/c04df927c7527c18537bbdacbd1b477e71fdf524) | Static clip focus regression                         |
 | [61dbb7b](https://github.com/oz-coden/Simpludify/commit/61dbb7b6d3a94fd773b5d73c9347fb20738d1d12) | Narrow/desktop portable fixture; final tested source |
 
-Main integration: **pending**. Integration SHA and post-integration CI: not yet available. The work branch and report are present on remote GitHub. Resume by reading this receipt and the branch history; do not infer integration from the successful source CI alone.
+Main integration: **completed** via [PR #1](https://github.com/oz-coden/Simpludify/pull/1). Integration SHA: [ba1345e](https://github.com/oz-coden/Simpludify/commit/ba1345e7ba71f8ab6b8a4717a8980b98414d2cc5). The pre-merge complete report is [ef34877](https://github.com/oz-coden/Simpludify/commit/ef348779bd4e8e819b1ed23164726e657f616db0). Post-integration main CI: [40936947127](https://github.com/oz-coden/Simpludify/actions/runs/40936947127), currently running. Source tests are successful; deployment must not be inferred from that alone. The branch was fast-forwarded to the merge before recording this handoff. Documentation-only receipt commits use [skip ci]; runtime source changes still require full CI.
+
+Next step if interrupted: inspect main CI 40936947127, record its actual job/test/deploy results, then fast-forward main to the final report receipt once verification succeeds. No implementation work remains unless CI exposes a failure.
 
 ## Historical checkpoints
 
