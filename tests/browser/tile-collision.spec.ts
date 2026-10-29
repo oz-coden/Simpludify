@@ -93,15 +93,16 @@ for (const fallback of [false, true])
         await page.locator(".simpludify").focus();
         await page.keyboard.down("KeyD");
         await expect
-          .poll(() =>
-            page.evaluate(
-              () =>
-                (
-                  window.tilemapDemo.game.engine.scene.find("explorer") as {
-                    x?: number;
-                  }
-                )?.x ?? 0,
-            ),
+          .poll(
+            () =>
+              page.evaluate(
+                () =>
+                  (
+                    window.tilemapDemo.game.engine.scene.find("explorer") as {
+                      x?: number;
+                    }
+                  )?.x ?? 0,
+              ),
             { timeout: 15_000 },
           )
           .toBe(434);
