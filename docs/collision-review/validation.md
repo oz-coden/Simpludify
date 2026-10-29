@@ -1,5 +1,7 @@
 # Collision review validation and recovery record
 
+> Historical design review. The public Contact union proposal is superseded by the [implementation decision](../collision-implementation.md): Actor Contact stays unchanged; dedicated TileContact events share the same internal World/solver. Recorded measurements and counterexamples remain historical evidence, not current Solver throughput.
+
 Status: review validation complete. This review does not ship formal Tilemap collision. The runtime Contact type, Scene structure, Actor solver and rendering behavior remain unchanged. Production diff is limited to internal shape/position parameter types, enabling probes to reuse real geometry/correction without fake Actor/Collider instances.
 
 ## Validation results

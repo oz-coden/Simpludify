@@ -1,5 +1,7 @@
 # 正式実装タスクへの引き継ぎ
 
+> Historical design review. The public Contact union proposal is superseded by the [implementation decision](../collision-implementation.md): Actor Contact stays unchanged; dedicated TileContact events share the same internal World/solver. Recorded measurements and counterexamples remain historical evidence, not current Solver throughput.
+
 この資料は設計ブランチの成果であり、Tilemap Collisionの正式実装完了を示さない。元の会話は不要。[契約案](tilemap-contract.md)、[現行調査](README.md)、[測定と限界](performance.md)、`tests/prototypes/`を合わせて読む。
 
 ## 決定済み

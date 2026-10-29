@@ -1,5 +1,7 @@
 # Collision review and Tilemap integration
 
+> Historical design review. The public Contact union proposal is superseded by the [implementation decision](../collision-implementation.md): Actor Contact stays unchanged; dedicated TileContact events share the same internal World/solver. Recorded measurements and counterexamples remain historical evidence, not current Solver throughput.
+
 Status: design review complete; formal Tilemap collision remains the next implementation stage. This branch does **not** implement Tilemap collision as a supported engine feature.
 
 Base: `codex/working-tilemap` at `77479d59b58f26aadc4e89f773d90b9b5ba1752b`.

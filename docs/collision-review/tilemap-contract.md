@@ -1,5 +1,7 @@
 # Tilemap Collision 統合契約案
 
+> Historical design review. The public Contact union proposal is superseded by the [implementation decision](../collision-implementation.md): Actor Contact stays unchanged; dedicated TileContact events share the same internal World/solver. Recorded measurements and counterexamples remain historical evidence, not current Solver throughput.
+
 **設計決定。正式APIは未実装。** 基準は Tilemap `77479d59b58f26aadc4e89f773d90b9b5ba1752b`。宣言のみの型試作は `tests/prototypes/collision-api.ts`、正例・負例は `tests/types/collision-proposal.ts`。次段階でこれらを公開APIへ移すまで、以下のコードを既存エンジンへコピーしても動作しない。
 
 ## 責務と所有権

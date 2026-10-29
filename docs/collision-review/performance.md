@@ -1,5 +1,7 @@
 # Collision search measurements and response probes
 
+> Historical design review. The public Contact union proposal is superseded by the [implementation decision](../collision-implementation.md): Actor Contact stays unchanged; dedicated TileContact events share the same internal World/solver. Recorded measurements and counterexamples remain historical evidence, not current Solver throughput.
+
 Status: isolated design evidence, not production Tilemap collision throughput. Full raw data is [results.json](../../benchmarks/collision-design/results.json), with the twelve linked `samples/` files. Measured source: `1d1d0c018a7fea44d1b24dc7e538f55ecf088b66`, clean worktree at start. No other local test/build ran during measurement.
 
 ## Reproduction and scope

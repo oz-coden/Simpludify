@@ -6,12 +6,15 @@ import { defineEvent, type EventType } from "./events";
 export const CollisionShape = { Box: "box", Circle: "circle" } as const;
 export type CollisionShape =
   (typeof CollisionShape)[keyof typeof CollisionShape];
-export const CollisionResponse = {
-  Trigger: "trigger",
-  Solid: "solid",
-} as const;
-export type CollisionResponse =
-  (typeof CollisionResponse)[keyof typeof CollisionResponse];
+
+import {
+  CollisionResponse,
+  collisionBits,
+  collisionResponse,
+} from "./collision-policy";
+
+export { CollisionResponse } from "./collision-policy";
+
 type ShapeOptions =
   | { shape?: typeof CollisionShape.Box; width?: number; height?: number }
   | { shape: typeof CollisionShape.Circle; radius?: number };
@@ -22,13 +25,15 @@ export type ColliderOptions = ShapeOptions & {
   layer?: number;
   mask?: number;
 };
-export interface Contact {
+export interface ContactGeometry {
   /** Unit normal from self toward other at detection, before position correction. */
   readonly normalX: number;
   readonly normalY: number;
   readonly depth: number;
   readonly response: CollisionResponse;
   readonly resolved: boolean;
+}
+export interface Contact extends ContactGeometry {
   readonly self: Collider;
   readonly other: Collider;
   readonly selfActor: Actor;
@@ -42,18 +47,6 @@ function finite(value: number, name: string): number {
     throw new EngineError("INVALID_VALUE", `${name} must be finite`, {
       field: name,
     });
-  return value;
-}
-function bits(value: number, name: string, allowZero: boolean): number {
-  if (
-    !Number.isInteger(value) ||
-    value < (allowZero ? 0 : 1) ||
-    value > 0xffffffff
-  )
-    throw new EngineError(
-      "INVALID_VALUE",
-      `${name} must be an unsigned 32-bit ${allowZero ? "mask" : "nonzero layer"}`,
-    );
   return value;
 }
 /** Geometry and contact policy. CollisionBody separately controls position correction. */
@@ -74,9 +67,9 @@ export class Collider extends Component {
   readonly mask: number;
   constructor(options: ColliderOptions = {}) {
     super();
-    this.response = options.response ?? CollisionResponse.Trigger;
-    if (!Object.values(CollisionResponse).includes(this.response))
-      throw new EngineError("INVALID_VALUE", "Unknown collision response");
+    this.response = collisionResponse(
+      options.response ?? CollisionResponse.Trigger,
+    );
     this.shape = options.shape ?? CollisionShape.Box;
     if (
       this.shape !== CollisionShape.Box &&
@@ -97,8 +90,8 @@ export class Collider extends Component {
         : 0;
     this.offsetX = finite(options.offsetX ?? 0, "offsetX");
     this.offsetY = finite(options.offsetY ?? 0, "offsetY");
-    this.layer = bits(options.layer ?? 1, "layer", false);
-    this.mask = bits(options.mask ?? 0xffffffff, "mask", true);
+    this.layer = collisionBits(options.layer ?? 1, "layer", false);
+    this.mask = collisionBits(options.mask ?? 0xffffffff, "mask", true);
   }
   /** @internal */ notify(type: EventType<Contact>, contact: Contact): void {
     this.emit(type, contact);

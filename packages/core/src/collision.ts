@@ -8,6 +8,7 @@ import {
   ContactStay,
 } from "./collider";
 import { CollisionBody } from "./collision-body";
+import { contactPhase, observeContact } from "./collision-contact";
 import {
   contactManifold,
   createGeometry,
@@ -15,6 +16,7 @@ import {
   type Manifold,
   updateGeometry,
 } from "./collision-geometry";
+import { allowsPair, pairResponse } from "./collision-policy";
 import { correctPositions } from "./collision-response";
 import { Transform } from "./components";
 import { EngineError } from "./diagnostics";
@@ -214,25 +216,13 @@ export class CollisionWorld {
       group.set(b, pair);
       this.contactCount++;
     }
-    if (pair.seen !== this.pass) {
-      pair.aContact.depth = -1;
-      pair.aContact.resolved = false;
-      pair.bContact.resolved = false;
-    }
-    if (manifold.depth >= pair.aContact.depth) {
-      pair.aContact.normalX = sign * manifold.normalX;
-      pair.aContact.normalY = sign * manifold.normalY;
-      pair.aContact.depth = manifold.depth;
-      pair.bContact.normalX = -pair.aContact.normalX;
-      pair.bContact.normalY = -pair.aContact.normalY;
-      pair.bContact.depth = manifold.depth;
-    }
-    pair.aContact.response = pair.bContact.response =
-      a.collider.response === CollisionResponse.Solid &&
-      b.collider.response === CollisionResponse.Solid
-        ? CollisionResponse.Solid
-        : CollisionResponse.Trigger;
-    pair.seen = this.pass;
+    observeContact(
+      pair,
+      this.pass,
+      manifold,
+      pairResponse(a.collider, b.collider),
+      sign,
+    );
     return pair;
   }
   private remove(pair: Pair): void {
@@ -258,27 +248,16 @@ export class CollisionWorld {
         if (!b || b.geometry.minX > a.geometry.maxX + this.tolerance) break;
         this.candidates++;
         const solid =
-          a.collider.response === CollisionResponse.Solid &&
-          b.collider.response === CollisionResponse.Solid;
+          pairResponse(a.collider, b.collider) === CollisionResponse.Solid;
         if (
           (solidOnly && !solid) ||
           a.geometry.maxY + this.tolerance < b.geometry.minY ||
           b.geometry.maxY + this.tolerance < a.geometry.minY ||
-          !(a.collider.mask & b.collider.layer) ||
-          !(b.collider.mask & a.collider.layer)
+          !allowsPair(a.collider, b.collider)
         )
           continue;
         this.tests++;
         if (contactManifold(a, b, this.manifold, this.tolerance)) {
-          if (
-            !Number.isFinite(this.manifold.depth) ||
-            !Number.isFinite(this.manifold.normalX) ||
-            !Number.isFinite(this.manifold.normalY)
-          )
-            throw new EngineError(
-              "INVALID_VALUE",
-              "Contact geometry overflowed",
-            );
           const pair = this.pair(a, b, this.manifold);
           if (solidOnly) this.solving.push(pair);
           else if (
@@ -384,11 +363,17 @@ export class CollisionWorld {
             notify(pair.b.collider, ContactExit, pair.bContact);
           continue;
         }
-        const aType = pair.aEntered ? ContactStay : ContactEnter;
+        const aType =
+          contactPhase(pair.aEntered, true) === "stay"
+            ? ContactStay
+            : ContactEnter;
         pair.aEntered = true;
         notify(pair.a.collider, aType, pair.aContact);
         if (this.disposed || !this.valid(pair)) continue;
-        const bType = pair.bEntered ? ContactStay : ContactEnter;
+        const bType =
+          contactPhase(pair.bEntered, true) === "stay"
+            ? ContactStay
+            : ContactEnter;
         pair.bEntered = true;
         notify(pair.b.collider, bType, pair.bContact);
       }
