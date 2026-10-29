@@ -164,6 +164,7 @@ This integrates documentation and all eight browser examples into `site-dist/`, 
 - [Random, Replay and fixed steps](docs/replay.md)
 - [API and defaults](docs/api.md)
 - [Architecture and lifecycle decisions](docs/architecture.md)
+- [Collision review and proposed Tilemap integration (design, not implemented)](docs/collision-review/README.md)
 - [Performance methodology and recorded limitations](docs/performance.md)
 - [Implementation status and next milestone](docs/roadmap.md)
 - [Practical game validation](docs/practical-validation.md)

@@ -23,6 +23,8 @@ An alternative reviewed was @pixi/tilemap 5.0.2: its package declares pixi.js >=
 
 ## Collision extension proposal (not implemented)
 
+This foundation-era proposal is refined by the [dedicated Collision review](https://github.com/oz-coden/Simpludify/tree/codex/working-collision-design/docs/collision-review): it selects direct local lookup, defines the target-union source migration and per-cell event contract, and records a seam-response acceptance gate. Neither document claims formal Tilemap collision is implemented.
+
 Current Collider requires Transform and models one box/circle per Actor. CollisionBody controls inverse-mass correction independently from Trigger/Solid policy. Contact currently hard-codes other Collider/Actor; adding Tilemap collisions without a public contact-target change would require fake per-cell Actors. Do not do that.
 
 Future tile collision data should be separate from image IDs: optional ID-to-policy definitions (response, layer/mask), plus sparse cell overrides including explicit none. Absence of all collision data means rendering only. Visibility and collisionEnabled are independent. A separate collision-data revision can invalidate spatial data without redrawing. Data should be copied/validated through APIs rather than exposing a mutable collision Grid. No speculative collision API is public in this foundation.

@@ -46,8 +46,16 @@ No confirmed runtime defect is asserted by this initial inventory. Additional te
 
 The naive shared circle/box narrow phase + per-cell correction probe **reproduces seam-induced circle tangent displacement** and unresolved deep embedding. This is a formal implementation acceptance gate, not a fixed production defect: current Tilemap does not yet have collision. A normal single cell separates correctly. Candidate strategy equality alone must not be mistaken for solver correctness.
 
-The only production changes so far relax *internal parameter types*: narrow phase accepts shape/geometry without Actor/Transform ownership, and correction accepts x/y positions. Function bodies and existing Actor behavior are unchanged. No tile Actor, Collider instance, Scene hook, public collision API or runtime dependency is introduced.
+The only production changes so far relax _internal parameter types_: narrow phase accepts shape/geometry without Actor/Transform ownership, and correction accepts x/y positions. Function bodies and existing Actor behavior are unchanged. No tile Actor, Collider instance, Scene hook, public collision API or runtime dependency is introduced.
 
 `tests/prototypes/collision-api.ts` is a declaration-only API sketch; `tests/types/collision-proposal.ts` checks inferred names, explicit policies and target narrowing. The preferred shape is one existing Contact event family with `other.kind` and a deliberate source migration, rather than pretending a tile is an Actor or installing duplicate physics worlds. The final recommendation will document migration sites and alternatives.
 
 Next: record isolated search/index timings only after this checkpoint is pushed; retain raw samples and disclose geometry/event costs omitted by that benchmark.
+
+## Review deliverables
+
+- [Tilemap API, ownership, target migration and event contract](tilemap-contract.md)
+- [216 search measurements, current Actor sweep costs, response counterexamples and algorithm recommendation](performance.md)
+- [Next formal implementation scope, changed files, tests, acceptance gates and open hypotheses](implementation-plan.md)
+
+The recommendation is direct local lookup with shared CollisionWorld orchestration and stable per-cell identity. A naive per-cell solver is **not** approved for release: seam response remains a concrete implementation gate. The proposed target union is a deliberate future source migration; this review branch keeps the existing Contact API unchanged.
