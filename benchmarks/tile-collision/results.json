@@ -1,0 +1,7551 @@
+{
+  "status": "formal CollisionWorld / headless Engine measurements",
+  "environment": {
+    "date": "2026-10-29T05:31:38.558Z",
+    "node": "v24.22.1",
+    "platform": "linux",
+    "cpu": "AMD EPYC 9V74 80-Core Processor",
+    "sourceRevision": "12255c346f3ce0da5f4313c7ca2206e1041543a2",
+    "sourceCleanAtStart": true
+  },
+  "methodology": {
+    "repeats": 3,
+    "warmups": 10,
+    "samples": 20,
+    "actorCounts": [1, 128],
+    "dimensions": [32, 100, 256],
+    "cellSize": [32, 32],
+    "collider": "radius-10 Solid circle, dynamic mass1; Actor layer1/mask2, terrain layer2/mask1",
+    "dense": "75% filled, one free corridor row per four rows",
+    "scattered": "coordinate hash 1/8 occupancy except free corridors",
+    "movement": "deterministic poses reset outside timed region each step, press 2 units into a floor; endpoint response, no Motion component",
+    "edits": "8 distinct floor image cells toggle Solid/null per dynamic step; no render subscriptions",
+    "phases": "separate instrumented runs wrap internal methods with performance.now; query includes filtering/narrow phase/contact recording, response includes recompute/features/translation; delivery includes event handlers. Wrapper overhead affects profiled times. Plain Engine.step timings are not instrumented.",
+    "build": "map time includes input Grid construction, initial Solid/floor inventory and Tilemap copied-grid validation; actor time includes components/subscriptions; first step includes registration/pair creation",
+    "percentiles": "ordinary median and nearest-rank p95; raw samples retained"
+  },
+  "results": [
+    {
+      "size": 32,
+      "pattern": "dense",
+      "actors": 1,
+      "dynamic": false,
+      "repeat": 0,
+      "samples": "samples/32-dense.json",
+      "mapCells": 1024,
+      "initialSolidCells": 768,
+      "buildMapMs": 1.849222999999938,
+      "buildActorsMs": 0.2912290000000439,
+      "firstStepMs": 2.7307199999999057,
+      "disposeMs": 2.6330740000000787,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00017550000001165245,
+        "p95": 0.00031999999998788553
+      },
+      "stepMs": {
+        "p50": 0.04185300000000325,
+        "p95": 0.07412199999998847
+      },
+      "totalMs": {
+        "p50": 0.04207849999994551,
+        "p95": 0.0744120000000521
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.004236999999989166,
+          "p95": 0.004968000000076245
+        },
+        "actorQuery": {
+          "p50": 0.0007664999999974498,
+          "p95": 0.001021000000150707
+        },
+        "tileQuery": {
+          "p50": 0.010636499999975513,
+          "p95": 0.01905900000008387
+        },
+        "response": {
+          "p50": 0.00571849999994356,
+          "p95": 0.007471000000009553
+        },
+        "delivery": {
+          "p50": 0.0024129999999900065,
+          "p95": 0.01711600000010094
+        }
+      }
+    },
+    {
+      "size": 32,
+      "pattern": "dense",
+      "actors": 1,
+      "dynamic": true,
+      "repeat": 0,
+      "samples": "samples/32-dense.json",
+      "mapCells": 1024,
+      "initialSolidCells": 768,
+      "buildMapMs": 0.22649100000001,
+      "buildActorsMs": 0.05588500000010299,
+      "firstStepMs": 0.14424699999995028,
+      "disposeMs": 0.09113800000000083,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.005353000000013708,
+        "p95": 0.01614499999993768
+      },
+      "stepMs": {
+        "p50": 0.021201999999959753,
+        "p95": 0.03755699999999251
+      },
+      "totalMs": {
+        "p50": 0.026129000000025826,
+        "p95": 0.04715099999998529
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.003355499999941003,
+          "p95": 0.003977000000077169
+        },
+        "actorQuery": {
+          "p50": 0.0005505000000312066,
+          "p95": 0.0006809999999859428
+        },
+        "tileQuery": {
+          "p50": 0.004640999999935502,
+          "p95": 0.010777000000189219
+        },
+        "response": {
+          "p50": 0.0020480000000588916,
+          "p95": 0.005668000000014217
+        },
+        "delivery": {
+          "p50": 0.0020630000000210202,
+          "p95": 0.003435000000081345
+        }
+      }
+    },
+    {
+      "size": 32,
+      "pattern": "dense",
+      "actors": 128,
+      "dynamic": false,
+      "repeat": 0,
+      "samples": "samples/32-dense.json",
+      "mapCells": 1024,
+      "initialSolidCells": 768,
+      "buildMapMs": 0.14014100000008511,
+      "buildActorsMs": 1.263311999999928,
+      "firstStepMs": 2.79243299999996,
+      "disposeMs": 3.050771999999938,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00019000000003188688,
+        "p95": 0.0002899999999499414
+      },
+      "stepMs": {
+        "p50": 1.0795300000000339,
+        "p95": 1.2298620000000255
+      },
+      "totalMs": {
+        "p50": 1.0797355000000266,
+        "p95": 1.2301519999999755
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.06197349999996504,
+          "p95": 0.10546899999997095
+        },
+        "actorQuery": {
+          "p50": 0.06274900000005346,
+          "p95": 0.11108600000000024
+        },
+        "tileQuery": {
+          "p50": 0.22493900000000622,
+          "p95": 0.4171090000000959
+        },
+        "response": {
+          "p50": 0.15246449999955303,
+          "p95": 0.3295599999995602
+        },
+        "delivery": {
+          "p50": 0.07955949999995937,
+          "p95": 0.1279820000000882
+        }
+      }
+    },
+    {
+      "size": 32,
+      "pattern": "dense",
+      "actors": 128,
+      "dynamic": true,
+      "repeat": 0,
+      "samples": "samples/32-dense.json",
+      "mapCells": 1024,
+      "initialSolidCells": 768,
+      "buildMapMs": 0.14449799999999868,
+      "buildActorsMs": 0.6454919999999902,
+      "firstStepMs": 0.8365089999999782,
+      "disposeMs": 0.44549000000006345,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0036100000000374166,
+        "p95": 0.005016999999952532
+      },
+      "stepMs": {
+        "p50": 0.6452510000000302,
+        "p95": 0.8883669999999029
+      },
+      "totalMs": {
+        "p50": 0.6492225000000076,
+        "p95": 0.8919119999999339
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.053420500000015636,
+          "p95": 0.06597900000008394
+        },
+        "actorQuery": {
+          "p50": 0.05731599999990067,
+          "p95": 0.07714599999997063
+        },
+        "tileQuery": {
+          "p50": 0.14056649999992032,
+          "p95": 0.1934009999998807
+        },
+        "response": {
+          "p50": 0.09939199999996617,
+          "p95": 0.14060700000015913
+        },
+        "delivery": {
+          "p50": 0.05934949999999617,
+          "p95": 0.06866299999990133
+        }
+      }
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 1,
+      "dynamic": false,
+      "repeat": 0,
+      "samples": "samples/32-scattered.json",
+      "mapCells": 1024,
+      "initialSolidCells": 96,
+      "buildMapMs": 0.2899059999999736,
+      "buildActorsMs": 0.01694499999996424,
+      "firstStepMs": 0.1368959999999788,
+      "disposeMs": 0.04989499999999225,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00009549999998625935,
+        "p95": 0.00015099999995982216
+      },
+      "stepMs": {
+        "p50": 0.0058385000000384935,
+        "p95": 0.03953999999998814
+      },
+      "totalMs": {
+        "p50": 0.005954000000031101,
+        "p95": 0.03966000000002623
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0008920000000784967,
+          "p95": 0.001241999999933796
+        },
+        "actorQuery": {
+          "p50": 0.0001699999999686952,
+          "p95": 0.00018000000000029104
+        },
+        "tileQuery": {
+          "p50": 0.0012279999999122992,
+          "p95": 0.0013219999999591892
+        },
+        "response": {
+          "p50": 0.0011420000000157415,
+          "p95": 0.0012120000000095388
+        },
+        "delivery": {
+          "p50": 0.0005704999999807114,
+          "p95": 0.0009509999999863794
+        }
+      }
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 1,
+      "dynamic": true,
+      "repeat": 0,
+      "samples": "samples/32-scattered.json",
+      "mapCells": 1024,
+      "initialSolidCells": 96,
+      "buildMapMs": 0.06912399999998797,
+      "buildActorsMs": 0.006020000000034997,
+      "firstStepMs": 0.023826000000099157,
+      "disposeMs": 0.022563999999988482,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0016075000000341788,
+        "p95": 0.002514000000019223
+      },
+      "stepMs": {
+        "p50": 0.004957499999989068,
+        "p95": 0.007360999999946216
+      },
+      "totalMs": {
+        "p50": 0.006615000000010696,
+        "p95": 0.009864999999990687
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0009405000000128894,
+          "p95": 0.0014120000000730215
+        },
+        "actorQuery": {
+          "p50": 0.00017000000008238203,
+          "p95": 0.00018000000000029104
+        },
+        "tileQuery": {
+          "p50": 0.0012325000000146247,
+          "p95": 0.0013630000000830478
+        },
+        "response": {
+          "p50": 0.0011419999999588981,
+          "p95": 0.0012719999999717402
+        },
+        "delivery": {
+          "p50": 0.0005509999999731008,
+          "p95": 0.0006809999999859428
+        }
+      }
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 128,
+      "dynamic": false,
+      "repeat": 0,
+      "samples": "samples/32-scattered.json",
+      "mapCells": 1024,
+      "initialSolidCells": 96,
+      "buildMapMs": 0.15913000000000466,
+      "buildActorsMs": 0.4089360000000397,
+      "firstStepMs": 1.0845720000000938,
+      "disposeMs": 0.29678599999999733,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00009999999997489795,
+        "p95": 0.00012100000003556488
+      },
+      "stepMs": {
+        "p50": 0.5544745000000262,
+        "p95": 0.6966390000000047
+      },
+      "totalMs": {
+        "p50": 0.5545544999999947,
+        "p95": 0.6967389999999796
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.056135000000040236,
+          "p95": 0.09831800000006297
+        },
+        "actorQuery": {
+          "p50": 0.15221399999990126,
+          "p95": 0.28142300000001796
+        },
+        "tileQuery": {
+          "p50": 0.10923450000007051,
+          "p95": 0.19127800000001116
+        },
+        "response": {
+          "p50": 0.09313150000065207,
+          "p95": 0.23956400000088252
+        },
+        "delivery": {
+          "p50": 0.05174249999993208,
+          "p95": 0.09749599999997827
+        }
+      }
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 128,
+      "dynamic": true,
+      "repeat": 0,
+      "samples": "samples/32-scattered.json",
+      "mapCells": 1024,
+      "initialSolidCells": 96,
+      "buildMapMs": 0.09015600000009272,
+      "buildActorsMs": 0.3275429999999915,
+      "firstStepMs": 0.6707000000000107,
+      "disposeMs": 0.3027559999999312,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0024080000000026303,
+        "p95": 0.0043560000000297805
+      },
+      "stepMs": {
+        "p50": 0.47419400000006817,
+        "p95": 0.7146559999999909
+      },
+      "totalMs": {
+        "p50": 0.476652500000057,
+        "p95": 0.7190120000000206
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.053926499999988664,
+          "p95": 0.08460700000000543
+        },
+        "actorQuery": {
+          "p50": 0.14965950000004113,
+          "p95": 0.22485900000003767
+        },
+        "tileQuery": {
+          "p50": 0.11708649999997078,
+          "p95": 0.14144299999986742
+        },
+        "response": {
+          "p50": 0.09290799999962474,
+          "p95": 0.1463240000003907
+        },
+        "delivery": {
+          "p50": 0.046113999999988664,
+          "p95": 0.069274000000064
+        }
+      }
+    },
+    {
+      "size": 100,
+      "pattern": "dense",
+      "actors": 1,
+      "dynamic": false,
+      "repeat": 0,
+      "samples": "samples/100-dense.json",
+      "mapCells": 10000,
+      "initialSolidCells": 7500,
+      "buildMapMs": 1.2373320000000376,
+      "buildActorsMs": 0.016745000000014443,
+      "firstStepMs": 0.03479200000003857,
+      "disposeMs": 0.02044100000000526,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00006050000007462586,
+        "p95": 0.00009099999999762076
+      },
+      "stepMs": {
+        "p50": 0.004641999999989821,
+        "p95": 0.005168000000026041
+      },
+      "totalMs": {
+        "p50": 0.004718000000025313,
+        "p95": 0.005238000000076681
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0017024999999648571,
+          "p95": 0.002082999999970525
+        },
+        "actorQuery": {
+          "p50": 0.0003104999999550273,
+          "p95": 0.0003309999999601132
+        },
+        "tileQuery": {
+          "p50": 0.0027040000001079534,
+          "p95": 0.0032340000000203872
+        },
+        "response": {
+          "p50": 0.0016230000000518885,
+          "p95": 0.0019419999999854554
+        },
+        "delivery": {
+          "p50": 0.0009009999999989304,
+          "p95": 0.0017830000000458313
+        }
+      }
+    },
+    {
+      "size": 100,
+      "pattern": "dense",
+      "actors": 1,
+      "dynamic": true,
+      "repeat": 0,
+      "samples": "samples/100-dense.json",
+      "mapCells": 10000,
+      "initialSolidCells": 7500,
+      "buildMapMs": 0.6771489999999858,
+      "buildActorsMs": 0.00910399999997935,
+      "firstStepMs": 0.02504799999996976,
+      "disposeMs": 0.019949999999880674,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0012470000000348591,
+        "p95": 0.0014120000000730215
+      },
+      "stepMs": {
+        "p50": 0.004115999999953601,
+        "p95": 0.004447000000027401
+      },
+      "totalMs": {
+        "p50": 0.005333000000064203,
+        "p95": 0.005689000000074884
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.001607500000204709,
+          "p95": 0.0019330000000081782
+        },
+        "actorQuery": {
+          "p50": 0.00029000000006362825,
+          "p95": 0.00032000000010157237
+        },
+        "tileQuery": {
+          "p50": 0.002358500000013919,
+          "p95": 0.003333999999995285
+        },
+        "response": {
+          "p50": 0.0015779999998812855,
+          "p95": 0.0017529999997805135
+        },
+        "delivery": {
+          "p50": 0.0008809999999357387,
+          "p95": 0.0015329999998812127
+        }
+      }
+    },
+    {
+      "size": 100,
+      "pattern": "dense",
+      "actors": 128,
+      "dynamic": false,
+      "repeat": 0,
+      "samples": "samples/100-dense.json",
+      "mapCells": 10000,
+      "initialSolidCells": 7500,
+      "buildMapMs": 0.5194019999999,
+      "buildActorsMs": 0.36798399999997855,
+      "firstStepMs": 0.6234179999999014,
+      "disposeMs": 0.3502970000001824,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00009999999997489795,
+        "p95": 0.0001300000001265289
+      },
+      "stepMs": {
+        "p50": 0.3936825000000681,
+        "p95": 0.5623270000000957
+      },
+      "totalMs": {
+        "p50": 0.3937975000001188,
+        "p95": 0.5624270000000706
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.053289500000119006,
+          "p95": 0.13763799999992443
+        },
+        "actorQuery": {
+          "p50": 0.020290000000159125,
+          "p95": 0.02388599999994767
+        },
+        "tileQuery": {
+          "p50": 0.14183350000007522,
+          "p95": 0.17482299999983297
+        },
+        "response": {
+          "p50": 0.09891749999917465,
+          "p95": 0.1344739999963167
+        },
+        "delivery": {
+          "p50": 0.047947000000021944,
+          "p95": 0.06860299999993913
+        }
+      }
+    },
+    {
+      "size": 100,
+      "pattern": "dense",
+      "actors": 128,
+      "dynamic": true,
+      "repeat": 0,
+      "samples": "samples/100-dense.json",
+      "mapCells": 10000,
+      "initialSolidCells": 7500,
+      "buildMapMs": 0.4883549999999559,
+      "buildActorsMs": 0.35772799999995186,
+      "firstStepMs": 0.5242789999999786,
+      "disposeMs": 0.2623240000000351,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.001857500000028267,
+        "p95": 0.00243399999999383
+      },
+      "stepMs": {
+        "p50": 0.36584050000010393,
+        "p95": 0.5390310000000227
+      },
+      "totalMs": {
+        "p50": 0.36792400000001635,
+        "p95": 0.5410240000001068
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.04650000000003729,
+          "p95": 0.10002099999996972
+        },
+        "actorQuery": {
+          "p50": 0.019279000000096858,
+          "p95": 0.0343319999999494
+        },
+        "tileQuery": {
+          "p50": 0.14184400000010555,
+          "p95": 0.15739799999983006
+        },
+        "response": {
+          "p50": 0.09603800000013507,
+          "p95": 0.1097350000015922
+        },
+        "delivery": {
+          "p50": 0.04544800000007854,
+          "p95": 0.08447700000010627
+        }
+      }
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 1,
+      "dynamic": false,
+      "repeat": 0,
+      "samples": "samples/100-scattered.json",
+      "mapCells": 10000,
+      "initialSolidCells": 939,
+      "buildMapMs": 0.3870929999998225,
+      "buildActorsMs": 0.013078999999834195,
+      "firstStepMs": 0.02790200000004006,
+      "disposeMs": 0.020471000000043205,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00006000000007588824,
+        "p95": 0.00007000000005064066
+      },
+      "stepMs": {
+        "p50": 0.0036604999999099164,
+        "p95": 0.0038759999999911088
+      },
+      "totalMs": {
+        "p50": 0.003730499999960557,
+        "p95": 0.003936000000066997
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007510000001502704,
+          "p95": 0.000941000000011627
+        },
+        "actorQuery": {
+          "p50": 0.0001604999999926804,
+          "p95": 0.00017999999977291736
+        },
+        "tileQuery": {
+          "p50": 0.001242500000103064,
+          "p95": 0.0013020000001233711
+        },
+        "response": {
+          "p50": 0.0008520000001226435,
+          "p95": 0.0008909999999104912
+        },
+        "delivery": {
+          "p50": 0.000431000000048698,
+          "p95": 0.0007709999999860884
+        }
+      }
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 1,
+      "dynamic": true,
+      "repeat": 0,
+      "samples": "samples/100-scattered.json",
+      "mapCells": 10000,
+      "initialSolidCells": 939,
+      "buildMapMs": 0.5778900000000249,
+      "buildActorsMs": 0.0069200000000364525,
+      "firstStepMs": 0.021371999999928448,
+      "disposeMs": 0.022093000000040774,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0018329999999195934,
+        "p95": 0.002523000000110187
+      },
+      "stepMs": {
+        "p50": 0.005613000000039392,
+        "p95": 0.007180999999945925
+      },
+      "totalMs": {
+        "p50": 0.007451500000001943,
+        "p95": 0.009704000000056112
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0008005000000821383,
+          "p95": 0.0015439999999671272
+        },
+        "actorQuery": {
+          "p50": 0.00017050000008111965,
+          "p95": 0.00026000000002568413
+        },
+        "tileQuery": {
+          "p50": 0.0012129999998933272,
+          "p95": 0.0020549999999275315
+        },
+        "response": {
+          "p50": 0.0008660000000872969,
+          "p95": 0.0015919999998459389
+        },
+        "delivery": {
+          "p50": 0.00045050000005630864,
+          "p95": 0.0014519999999720312
+        }
+      }
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 128,
+      "dynamic": false,
+      "repeat": 0,
+      "samples": "samples/100-scattered.json",
+      "mapCells": 10000,
+      "initialSolidCells": 939,
+      "buildMapMs": 0.32368700000006356,
+      "buildActorsMs": 0.5014550000000781,
+      "firstStepMs": 0.5664029999998093,
+      "disposeMs": 0.25592500000016116,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00009000000000014552,
+        "p95": 0.0001199999999244028
+      },
+      "stepMs": {
+        "p50": 0.36631599999998343,
+        "p95": 0.4324810000000525
+      },
+      "totalMs": {
+        "p50": 0.3664165000000139,
+        "p95": 0.4326009999999769
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.04698050000013154,
+          "p95": 0.0525790000001507
+        },
+        "actorQuery": {
+          "p50": 0.05079749999993055,
+          "p95": 0.08647899999982656
+        },
+        "tileQuery": {
+          "p50": 0.11499700000013036,
+          "p95": 0.1362850000000435
+        },
+        "response": {
+          "p50": 0.09344700000121975,
+          "p95": 0.11165200000209552
+        },
+        "delivery": {
+          "p50": 0.04361549999998715,
+          "p95": 0.047290999999859196
+        }
+      }
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 128,
+      "dynamic": true,
+      "repeat": 0,
+      "samples": "samples/100-scattered.json",
+      "mapCells": 10000,
+      "initialSolidCells": 939,
+      "buildMapMs": 0.3467720000001009,
+      "buildActorsMs": 0.3341819999998279,
+      "firstStepMs": 0.5695180000000164,
+      "disposeMs": 0.2533220000000256,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0017329999999446954,
+        "p95": 0.002464000000145461
+      },
+      "stepMs": {
+        "p50": 0.3772480000000087,
+        "p95": 0.4677440000000388
+      },
+      "totalMs": {
+        "p50": 0.37882550000006177,
+        "p95": 0.46974699999987024
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.048067000000060034,
+          "p95": 0.05576399999995374
+        },
+        "actorQuery": {
+          "p50": 0.050260499999922104,
+          "p95": 0.09181899999998677
+        },
+        "tileQuery": {
+          "p50": 0.11138199999993503,
+          "p95": 0.13074600000004466
+        },
+        "response": {
+          "p50": 0.09195749999958025,
+          "p95": 0.10328800000002047
+        },
+        "delivery": {
+          "p50": 0.04348600000002989,
+          "p95": 0.053850999999895066
+        }
+      }
+    },
+    {
+      "size": 256,
+      "pattern": "dense",
+      "actors": 1,
+      "dynamic": false,
+      "repeat": 0,
+      "samples": "samples/256-dense.json",
+      "mapCells": 65536,
+      "initialSolidCells": 49152,
+      "buildMapMs": 4.529346999999916,
+      "buildActorsMs": 0.015464000000065425,
+      "firstStepMs": 0.0746919999999136,
+      "disposeMs": 0.024777999999969325,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00007000000005064066,
+        "p95": 0.00012999999989915523
+      },
+      "stepMs": {
+        "p50": 0.003955999999902815,
+        "p95": 0.0043969999999262654
+      },
+      "totalMs": {
+        "p50": 0.0040159999998650164,
+        "p95": 0.004537000000027547
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007309999999733918,
+          "p95": 0.0009320000001480366
+        },
+        "actorQuery": {
+          "p50": 0.00018000000022766471,
+          "p95": 0.00019200000019736763
+        },
+        "tileQuery": {
+          "p50": 0.0015369999998711137,
+          "p95": 0.0016930000001593726
+        },
+        "response": {
+          "p50": 0.0009064999999282009,
+          "p95": 0.0009419999998954154
+        },
+        "delivery": {
+          "p50": 0.00043549999998049316,
+          "p95": 0.0004610000000866421
+        }
+      }
+    },
+    {
+      "size": 256,
+      "pattern": "dense",
+      "actors": 1,
+      "dynamic": true,
+      "repeat": 0,
+      "samples": "samples/256-dense.json",
+      "mapCells": 65536,
+      "initialSolidCells": 49152,
+      "buildMapMs": 3.7831639999999425,
+      "buildActorsMs": 0.011347000000114349,
+      "firstStepMs": 0.031267000000070766,
+      "disposeMs": 0.020449999999982538,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0012520000000222353,
+        "p95": 0.0014320000000225264
+      },
+      "stepMs": {
+        "p50": 0.0038660000000163564,
+        "p95": 0.004196000000092681
+      },
+      "totalMs": {
+        "p50": 0.0051425000000335785,
+        "p95": 0.0054480000001149165
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007365000000163491,
+          "p95": 0.000831999999945765
+        },
+        "actorQuery": {
+          "p50": 0.0001654999999800566,
+          "p95": 0.00017099999990932702
+        },
+        "tileQuery": {
+          "p50": 0.0015769999998838102,
+          "p95": 0.0017129999998815038
+        },
+        "response": {
+          "p50": 0.000886499999978696,
+          "p95": 0.0009399999999004649
+        },
+        "delivery": {
+          "p50": 0.0004209999999602587,
+          "p95": 0.0005400000000008731
+        }
+      }
+    },
+    {
+      "size": 256,
+      "pattern": "dense",
+      "actors": 128,
+      "dynamic": false,
+      "repeat": 0,
+      "samples": "samples/256-dense.json",
+      "mapCells": 65536,
+      "initialSolidCells": 49152,
+      "buildMapMs": 3.201389000000063,
+      "buildActorsMs": 0.36077300000010837,
+      "firstStepMs": 0.5355059999999412,
+      "disposeMs": 0.3918590000000677,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00009049999994203972,
+        "p95": 0.00013999999987390765
+      },
+      "stepMs": {
+        "p50": 0.3455455000000711,
+        "p95": 0.39647599999989325
+      },
+      "totalMs": {
+        "p50": 0.34566050000000814,
+        "p95": 0.3965469999998277
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.04548350000004575,
+          "p95": 0.07026599999994687
+        },
+        "actorQuery": {
+          "p50": 0.011627999999973326,
+          "p95": 0.015071000000034473
+        },
+        "tileQuery": {
+          "p50": 0.14253000000007887,
+          "p95": 0.14946600000007493
+        },
+        "response": {
+          "p50": 0.09531899999694815,
+          "p95": 0.09803000000124484
+        },
+        "delivery": {
+          "p50": 0.041297000000099615,
+          "p95": 0.055362999999942986
+        }
+      }
+    },
+    {
+      "size": 256,
+      "pattern": "dense",
+      "actors": 128,
+      "dynamic": true,
+      "repeat": 0,
+      "samples": "samples/256-dense.json",
+      "mapCells": 65536,
+      "initialSolidCells": 49152,
+      "buildMapMs": 3.3931569999999738,
+      "buildActorsMs": 0.319039999999859,
+      "firstStepMs": 0.5699680000000171,
+      "disposeMs": 0.3817450000001372,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0017374999999901775,
+        "p95": 0.0024439999999685824
+      },
+      "stepMs": {
+        "p50": 0.3548044999998865,
+        "p95": 0.42365700000004836
+      },
+      "totalMs": {
+        "p50": 0.35670199999992747,
+        "p95": 0.42523000000005595
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.048443000000247594,
+          "p95": 0.08393600000022161
+        },
+        "actorQuery": {
+          "p50": 0.012173500000017157,
+          "p95": 0.02338499999996202
+        },
+        "tileQuery": {
+          "p50": 0.13765749999993204,
+          "p95": 0.24587899999983165
+        },
+        "response": {
+          "p50": 0.09723349999978836,
+          "p95": 0.17973499999948217
+        },
+        "delivery": {
+          "p50": 0.04501750000008542,
+          "p95": 0.10532899999998335
+        }
+      }
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 1,
+      "dynamic": false,
+      "repeat": 0,
+      "samples": "samples/256-scattered.json",
+      "mapCells": 65536,
+      "initialSolidCells": 6144,
+      "buildMapMs": 4.465932000000066,
+      "buildActorsMs": 0.01753599999983635,
+      "firstStepMs": 0.05236899999999878,
+      "disposeMs": 0.03873799999996663,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00011000000006333721,
+        "p95": 0.0001999999999497959
+      },
+      "stepMs": {
+        "p50": 0.006409999999959837,
+        "p95": 0.011488000000099419
+      },
+      "totalMs": {
+        "p50": 0.006544999999846368,
+        "p95": 0.011608000000023821
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007209999998849526,
+          "p95": 0.0009209999998347485
+        },
+        "actorQuery": {
+          "p50": 0.00016000000005078618,
+          "p95": 0.0001700000002529123
+        },
+        "tileQuery": {
+          "p50": 0.0012215000001560838,
+          "p95": 0.0014419999995425314
+        },
+        "response": {
+          "p50": 0.000860999999872547,
+          "p95": 0.0009419999998954154
+        },
+        "delivery": {
+          "p50": 0.0004209999999602587,
+          "p95": 0.0005609999998341664
+        }
+      }
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 1,
+      "dynamic": true,
+      "repeat": 0,
+      "samples": "samples/256-scattered.json",
+      "mapCells": 65536,
+      "initialSolidCells": 6144,
+      "buildMapMs": 2.541836000000103,
+      "buildActorsMs": 0.009393999999929292,
+      "firstStepMs": 0.02409699999998338,
+      "disposeMs": 0.01903900000002068,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.001266499999928783,
+        "p95": 0.0016619999998965795
+      },
+      "stepMs": {
+        "p50": 0.0034900000000561704,
+        "p95": 0.0037460000000919536
+      },
+      "totalMs": {
+        "p50": 0.004722000000015214,
+        "p95": 0.005419000000074448
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007360000000744549,
+          "p95": 0.0008920000000216532
+        },
+        "actorQuery": {
+          "p50": 0.00016499999992447556,
+          "p95": 0.00017999999977291736
+        },
+        "tileQuery": {
+          "p50": 0.0012214999998150233,
+          "p95": 0.0015920000000733125
+        },
+        "response": {
+          "p50": 0.0008609999999862339,
+          "p95": 0.0009120000001985318
+        },
+        "delivery": {
+          "p50": 0.0004454999999552456,
+          "p95": 0.000661000000036438
+        }
+      }
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 128,
+      "dynamic": false,
+      "repeat": 0,
+      "samples": "samples/256-scattered.json",
+      "mapCells": 65536,
+      "initialSolidCells": 6144,
+      "buildMapMs": 2.418459999999868,
+      "buildActorsMs": 0.3136220000001231,
+      "firstStepMs": 0.5006129999999303,
+      "disposeMs": 0.3281939999999395,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00008550000006835035,
+        "p95": 0.00011000000017702405
+      },
+      "stepMs": {
+        "p50": 0.32556499999998323,
+        "p95": 0.4014239999999063
+      },
+      "totalMs": {
+        "p50": 0.3257254999998622,
+        "p95": 0.40153399999985595
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.05633450000004814,
+          "p95": 0.07906899999989037
+        },
+        "actorQuery": {
+          "p50": 0.019729999999867687,
+          "p95": 0.022895000000062282
+        },
+        "tileQuery": {
+          "p50": 0.11657549999995354,
+          "p95": 0.14901400000007925
+        },
+        "response": {
+          "p50": 0.10885600000062823,
+          "p95": 0.14174600000228565
+        },
+        "delivery": {
+          "p50": 0.050085500000022876,
+          "p95": 0.06899399999997513
+        }
+      }
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 128,
+      "dynamic": true,
+      "repeat": 0,
+      "samples": "samples/256-scattered.json",
+      "mapCells": 65536,
+      "initialSolidCells": 6144,
+      "buildMapMs": 2.557800000000043,
+      "buildActorsMs": 0.5783910000000105,
+      "firstStepMs": 0.5987009999998918,
+      "disposeMs": 0.4706180000000586,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0023834999999508,
+        "p95": 0.0031850000000304135
+      },
+      "stepMs": {
+        "p50": 0.3858554999999342,
+        "p95": 0.48746300000016163
+      },
+      "totalMs": {
+        "p50": 0.388704999999959,
+        "p95": 0.4892560000000685
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.056615499999907115,
+          "p95": 0.06359599999996135
+        },
+        "actorQuery": {
+          "p50": 0.01954399999999623,
+          "p95": 0.02293399999985013
+        },
+        "tileQuery": {
+          "p50": 0.11582849999990685,
+          "p95": 0.1389689999998609
+        },
+        "response": {
+          "p50": 0.11300599999924543,
+          "p95": 0.1341630000022178
+        },
+        "delivery": {
+          "p50": 0.054602000000045336,
+          "p95": 0.07746599999995851
+        }
+      }
+    },
+    {
+      "size": 32,
+      "pattern": "dense",
+      "actors": 1,
+      "dynamic": false,
+      "repeat": 1,
+      "samples": "samples/32-dense.json",
+      "mapCells": 1024,
+      "initialSolidCells": 768,
+      "buildMapMs": 0.1381579999999758,
+      "buildActorsMs": 0.013940999999931591,
+      "firstStepMs": 0.027450999999928172,
+      "disposeMs": 0.024846999999908803,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00007000000005064066,
+        "p95": 0.0014119999998456478
+      },
+      "stepMs": {
+        "p50": 0.0037909999999783395,
+        "p95": 0.00528800000006413
+      },
+      "totalMs": {
+        "p50": 0.003886000000079548,
+        "p95": 0.0058689999998478015
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007715000001553562,
+          "p95": 0.002161999999998443
+        },
+        "actorQuery": {
+          "p50": 0.00016000000005078618,
+          "p95": 0.0001700000002529123
+        },
+        "tileQuery": {
+          "p50": 0.0016074999998636486,
+          "p95": 0.0029740000002220768
+        },
+        "response": {
+          "p50": 0.000891500000079759,
+          "p95": 0.0009520000000975415
+        },
+        "delivery": {
+          "p50": 0.00043000000005122274,
+          "p95": 0.00187299999993229
+        }
+      }
+    },
+    {
+      "size": 32,
+      "pattern": "dense",
+      "actors": 1,
+      "dynamic": true,
+      "repeat": 1,
+      "samples": "samples/32-dense.json",
+      "mapCells": 1024,
+      "initialSolidCells": 768,
+      "buildMapMs": 0.19789800000012292,
+      "buildActorsMs": 0.009193999999979496,
+      "firstStepMs": 0.016645999999809646,
+      "disposeMs": 0.017937000000074477,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0017824999999902502,
+        "p95": 0.002774000000044907
+      },
+      "stepMs": {
+        "p50": 0.004015499999923122,
+        "p95": 0.008823000000120373
+      },
+      "totalMs": {
+        "p50": 0.005964000000062697,
+        "p95": 0.010125000000016371
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007265000000415966,
+          "p95": 0.0016630000000077416
+        },
+        "actorQuery": {
+          "p50": 0.00014000000010128133,
+          "p95": 0.0001810000003388268
+        },
+        "tileQuery": {
+          "p50": 0.0008265000000164946,
+          "p95": 0.00243399999999383
+        },
+        "response": {
+          "p50": 0.0004360000000360742,
+          "p95": 0.0009720000000470463
+        },
+        "delivery": {
+          "p50": 0.00048600000002352317,
+          "p95": 0.0016420000001744484
+        }
+      }
+    },
+    {
+      "size": 32,
+      "pattern": "dense",
+      "actors": 128,
+      "dynamic": false,
+      "repeat": 1,
+      "samples": "samples/32-dense.json",
+      "mapCells": 1024,
+      "initialSolidCells": 768,
+      "buildMapMs": 0.0635859999999866,
+      "buildActorsMs": 0.681536000000051,
+      "firstStepMs": 1.0266649999998663,
+      "disposeMs": 0.2652189999998882,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0000804999999672873,
+        "p95": 0.0001199999999244028
+      },
+      "stepMs": {
+        "p50": 0.404604000000063,
+        "p95": 0.5037979999999607
+      },
+      "totalMs": {
+        "p50": 0.40469450000000506,
+        "p95": 0.5038779999999861
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.04732100000001083,
+          "p95": 0.0527399999998579
+        },
+        "actorQuery": {
+          "p50": 0.05617899999992915,
+          "p95": 0.05752599999982522
+        },
+        "tileQuery": {
+          "p50": 0.13928999999973257,
+          "p95": 0.1567360000001372
+        },
+        "response": {
+          "p50": 0.09620149999921068,
+          "p95": 0.1122769999983575
+        },
+        "delivery": {
+          "p50": 0.04297950000000128,
+          "p95": 0.04790200000002187
+        }
+      }
+    },
+    {
+      "size": 32,
+      "pattern": "dense",
+      "actors": 128,
+      "dynamic": true,
+      "repeat": 1,
+      "samples": "samples/32-dense.json",
+      "mapCells": 1024,
+      "initialSolidCells": 768,
+      "buildMapMs": 0.08846399999993082,
+      "buildActorsMs": 0.3025549999999839,
+      "firstStepMs": 0.5924219999999423,
+      "disposeMs": 0.4887550000000829,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0015925000000152068,
+        "p95": 0.002514000000019223
+      },
+      "stepMs": {
+        "p50": 0.40300649999994675,
+        "p95": 0.45476400000006834
+      },
+      "totalMs": {
+        "p50": 0.4050045000000182,
+        "p95": 0.45629699999994955
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.059855999999967935,
+          "p95": 0.06835300000011557
+        },
+        "actorQuery": {
+          "p50": 0.05669999999997799,
+          "p95": 0.059338000000025204
+        },
+        "tileQuery": {
+          "p50": 0.14887449999991986,
+          "p95": 0.19326099999966573
+        },
+        "response": {
+          "p50": 0.11517350000121951,
+          "p95": 0.1484829999988051
+        },
+        "delivery": {
+          "p50": 0.0567754999999579,
+          "p95": 0.07351000000016938
+        }
+      }
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 1,
+      "dynamic": false,
+      "repeat": 1,
+      "samples": "samples/32-scattered.json",
+      "mapCells": 1024,
+      "initialSolidCells": 96,
+      "buildMapMs": 0.18789300000003095,
+      "buildActorsMs": 0.17586499999993066,
+      "firstStepMs": 0.04166299999997136,
+      "disposeMs": 0.03533300000003692,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00011000000017702405,
+        "p95": 0.0001199999999244028
+      },
+      "stepMs": {
+        "p50": 0.007660999999984597,
+        "p95": 0.01043600000002698
+      },
+      "totalMs": {
+        "p50": 0.007775999999921623,
+        "p95": 0.01054599999997663
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0012870000001612425,
+          "p95": 0.0027439999998932763
+        },
+        "actorQuery": {
+          "p50": 0.0002899999999499414,
+          "p95": 0.00032000000010157237
+        },
+        "tileQuery": {
+          "p50": 0.002113000000122156,
+          "p95": 0.0023130000001856388
+        },
+        "response": {
+          "p50": 0.0014924999998129351,
+          "p95": 0.0029039999999440624
+        },
+        "delivery": {
+          "p50": 0.000816000000099848,
+          "p95": 0.0020629999999073334
+        }
+      }
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 1,
+      "dynamic": true,
+      "repeat": 1,
+      "samples": "samples/32-scattered.json",
+      "mapCells": 1024,
+      "initialSolidCells": 96,
+      "buildMapMs": 0.08782299999984389,
+      "buildActorsMs": 0.009072999999943931,
+      "firstStepMs": 0.027601999999887994,
+      "disposeMs": 0.031197000000020125,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0034399999999550346,
+        "p95": 0.004245999999966443
+      },
+      "stepMs": {
+        "p50": 0.007516500000065207,
+        "p95": 0.008602999999993699
+      },
+      "totalMs": {
+        "p50": 0.010014999999953034,
+        "p95": 0.012138000000049942
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0012719999999717402,
+          "p95": 0.0026349999998274143
+        },
+        "actorQuery": {
+          "p50": 0.0002899999999499414,
+          "p95": 0.0003010000000358559
+        },
+        "tileQuery": {
+          "p50": 0.0020675000000665023,
+          "p95": 0.0022030000002359884
+        },
+        "response": {
+          "p50": 0.001472000000035223,
+          "p95": 0.003044999999929132
+        },
+        "delivery": {
+          "p50": 0.0007659999999987122,
+          "p95": 0.002392999999983658
+        }
+      }
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 128,
+      "dynamic": false,
+      "repeat": 1,
+      "samples": "samples/32-scattered.json",
+      "mapCells": 1024,
+      "initialSolidCells": 96,
+      "buildMapMs": 0.05375099999992017,
+      "buildActorsMs": 0.6286359999999149,
+      "firstStepMs": 0.7604440000000068,
+      "disposeMs": 0.974377000000004,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00010499999996227416,
+        "p95": 0.00014999999984866008
+      },
+      "stepMs": {
+        "p50": 0.5309639999999263,
+        "p95": 0.6667230000000473
+      },
+      "totalMs": {
+        "p50": 0.5310539999999264,
+        "p95": 0.6668329999999969
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.052794000000062624,
+          "p95": 0.06362600000011298
+        },
+        "actorQuery": {
+          "p50": 0.14990550000004532,
+          "p95": 0.18798400000014226
+        },
+        "tileQuery": {
+          "p50": 0.11205900000015845,
+          "p95": 0.12708200000020042
+        },
+        "response": {
+          "p50": 0.09445999999945798,
+          "p95": 0.17367899999862857
+        },
+        "delivery": {
+          "p50": 0.04492749999997159,
+          "p95": 0.08193300000016279
+        }
+      }
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 128,
+      "dynamic": true,
+      "repeat": 1,
+      "samples": "samples/32-scattered.json",
+      "mapCells": 1024,
+      "initialSolidCells": 96,
+      "buildMapMs": 0.07417099999997845,
+      "buildActorsMs": 0.31691700000010314,
+      "firstStepMs": 0.6877959999999348,
+      "disposeMs": 0.31258100000013656,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.001622499999939464,
+        "p95": 0.0022930000000087603
+      },
+      "stepMs": {
+        "p50": 0.46119899999996505,
+        "p95": 0.5638390000001436
+      },
+      "totalMs": {
+        "p50": 0.4628264999998919,
+        "p95": 0.5652610000001914
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.049659499999961554,
+          "p95": 0.06549900000004527
+        },
+        "actorQuery": {
+          "p50": 0.14868449999994482,
+          "p95": 0.18434799999999996
+        },
+        "tileQuery": {
+          "p50": 0.10333600000012666,
+          "p95": 0.13736699999958546
+        },
+        "response": {
+          "p50": 0.08136650000074042,
+          "p95": 0.10998800000152187
+        },
+        "delivery": {
+          "p50": 0.04804249999995136,
+          "p95": 0.06294499999989966
+        }
+      }
+    },
+    {
+      "size": 100,
+      "pattern": "dense",
+      "actors": 1,
+      "dynamic": false,
+      "repeat": 1,
+      "samples": "samples/100-dense.json",
+      "mapCells": 10000,
+      "initialSolidCells": 7500,
+      "buildMapMs": 0.5352860000000419,
+      "buildActorsMs": 0.01114699999993718,
+      "firstStepMs": 0.025789000000031592,
+      "disposeMs": 0.02123200000005454,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00006000000007588824,
+        "p95": 0.00007000000005064066
+      },
+      "stepMs": {
+        "p50": 0.0038710000001174194,
+        "p95": 0.004357000000027256
+      },
+      "totalMs": {
+        "p50": 0.003941000000054373,
+        "p95": 0.004427000000077896
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007309999999733918,
+          "p95": 0.0008920000000216532
+        },
+        "actorQuery": {
+          "p50": 0.00016050000010636722,
+          "p95": 0.00017099999968195334
+        },
+        "tileQuery": {
+          "p50": 0.0015825000000404543,
+          "p95": 0.0016330000000834843
+        },
+        "response": {
+          "p50": 0.0008960000001252411,
+          "p95": 0.0010019999999713036
+        },
+        "delivery": {
+          "p50": 0.00041549999991730147,
+          "p95": 0.0004510000001118897
+        }
+      }
+    },
+    {
+      "size": 100,
+      "pattern": "dense",
+      "actors": 1,
+      "dynamic": true,
+      "repeat": 1,
+      "samples": "samples/100-dense.json",
+      "mapCells": 10000,
+      "initialSolidCells": 7500,
+      "buildMapMs": 0.4316400000000158,
+      "buildActorsMs": 0.005018000000063694,
+      "firstStepMs": 0.011017000000038024,
+      "disposeMs": 0.01160699999991266,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0012415000001055887,
+        "p95": 0.001322000000072876
+      },
+      "stepMs": {
+        "p50": 0.003730500000074244,
+        "p95": 0.003956000000016502
+      },
+      "totalMs": {
+        "p50": 0.004948000000013053,
+        "p95": 0.0052680000001146254
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007359999998470812,
+          "p95": 0.0008219999999710126
+        },
+        "actorQuery": {
+          "p50": 0.00016100000004826143,
+          "p95": 0.00018000000000029104
+        },
+        "tileQuery": {
+          "p50": 0.0015425000001414446,
+          "p95": 0.001702000000022963
+        },
+        "response": {
+          "p50": 0.0008710000000746732,
+          "p95": 0.0009420000001227891
+        },
+        "delivery": {
+          "p50": 0.0004360000000360742,
+          "p95": 0.0005009999999856518
+        }
+      }
+    },
+    {
+      "size": 100,
+      "pattern": "dense",
+      "actors": 128,
+      "dynamic": false,
+      "repeat": 1,
+      "samples": "samples/100-dense.json",
+      "mapCells": 10000,
+      "initialSolidCells": 7500,
+      "buildMapMs": 0.4521109999998316,
+      "buildActorsMs": 0.27221000000008644,
+      "firstStepMs": 0.5223060000000714,
+      "disposeMs": 0.2736320000001342,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00008550000006835035,
+        "p95": 0.00010999999994965037
+      },
+      "stepMs": {
+        "p50": 0.35386750000009215,
+        "p95": 0.37880999999993037
+      },
+      "totalMs": {
+        "p50": 0.3539425000000165,
+        "p95": 0.3789009999998143
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.04601900000011483,
+          "p95": 0.06520799999998417
+        },
+        "actorQuery": {
+          "p50": 0.018668499999989763,
+          "p95": 0.020500999999967462
+        },
+        "tileQuery": {
+          "p50": 0.13785199999995257,
+          "p95": 0.15798800000015945
+        },
+        "response": {
+          "p50": 0.0960460000015928,
+          "p95": 0.0978639999977986
+        },
+        "delivery": {
+          "p50": 0.0434099999999944,
+          "p95": 0.04825299999993149
+        }
+      }
+    },
+    {
+      "size": 100,
+      "pattern": "dense",
+      "actors": 128,
+      "dynamic": true,
+      "repeat": 1,
+      "samples": "samples/100-dense.json",
+      "mapCells": 10000,
+      "initialSolidCells": 7500,
+      "buildMapMs": 0.45537500000000364,
+      "buildActorsMs": 0.3076730000000225,
+      "firstStepMs": 0.5057409999999436,
+      "disposeMs": 0.3487049999998817,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0016420000000607615,
+        "p95": 0.007321000000047206
+      },
+      "stepMs": {
+        "p50": 0.3590105000000676,
+        "p95": 0.4661020000000917
+      },
+      "totalMs": {
+        "p50": 0.36800400000004174,
+        "p95": 0.4674440000001141
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.04717999999979838,
+          "p95": 0.08454699999992954
+        },
+        "actorQuery": {
+          "p50": 0.019129500000076405,
+          "p95": 0.023034999999708816
+        },
+        "tileQuery": {
+          "p50": 0.14001100000007227,
+          "p95": 0.20132300000000214
+        },
+        "response": {
+          "p50": 0.09632149999697504,
+          "p95": 0.0995510000025206
+        },
+        "delivery": {
+          "p50": 0.04569899999989957,
+          "p95": 0.06563899999991918
+        }
+      }
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 1,
+      "dynamic": false,
+      "repeat": 1,
+      "samples": "samples/100-scattered.json",
+      "mapCells": 10000,
+      "initialSolidCells": 939,
+      "buildMapMs": 0.43407300000012583,
+      "buildActorsMs": 0.012159000000110609,
+      "firstStepMs": 0.028172000000040498,
+      "disposeMs": 0.019389000000046508,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00006000000007588824,
+        "p95": 0.00007100000016180275
+      },
+      "stepMs": {
+        "p50": 0.0035100000000056752,
+        "p95": 0.0038159999999152205
+      },
+      "totalMs": {
+        "p50": 0.0035699999999678766,
+        "p95": 0.0038759999999911088
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007259999998723288,
+          "p95": 0.0008209999998598505
+        },
+        "actorQuery": {
+          "p50": 0.00016000000016447302,
+          "p95": 0.00018000000000029104
+        },
+        "tileQuery": {
+          "p50": 0.0012309999999615684,
+          "p95": 0.0013429999999061693
+        },
+        "response": {
+          "p50": 0.0008714999999028805,
+          "p95": 0.0010319999996681872
+        },
+        "delivery": {
+          "p50": 0.00043099999993501115,
+          "p95": 0.0005109999999604042
+        }
+      }
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 1,
+      "dynamic": true,
+      "repeat": 1,
+      "samples": "samples/100-scattered.json",
+      "mapCells": 10000,
+      "initialSolidCells": 939,
+      "buildMapMs": 0.3170070000001033,
+      "buildActorsMs": 0.00426700000002711,
+      "firstStepMs": 0.012289000000009764,
+      "disposeMs": 0.012568999999984953,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0012014999998655185,
+        "p95": 0.0014530000000831933
+      },
+      "stepMs": {
+        "p50": 0.003405000000043401,
+        "p95": 0.0038759999999911088
+      },
+      "totalMs": {
+        "p50": 0.0046820000000025175,
+        "p95": 0.005298000000038883
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007409999999481443,
+          "p95": 0.0008499999999003194
+        },
+        "actorQuery": {
+          "p50": 0.00016000000005078618,
+          "p95": 0.0001700000002529123
+        },
+        "tileQuery": {
+          "p50": 0.0011819999999715947,
+          "p95": 0.0012720000001991139
+        },
+        "response": {
+          "p50": 0.0008610000000999207,
+          "p95": 0.00102100000003702
+        },
+        "delivery": {
+          "p50": 0.0004409999999097636,
+          "p95": 0.0005009999999856518
+        }
+      }
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 128,
+      "dynamic": false,
+      "repeat": 1,
+      "samples": "samples/100-scattered.json",
+      "mapCells": 10000,
+      "initialSolidCells": 939,
+      "buildMapMs": 0.345841000000064,
+      "buildActorsMs": 0.27171900000007554,
+      "firstStepMs": 0.6141840000000229,
+      "disposeMs": 0.43537500000002183,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0000850000000127693,
+        "p95": 0.00012000000015177648
+      },
+      "stepMs": {
+        "p50": 0.3602219999999079,
+        "p95": 0.4019550000000436
+      },
+      "totalMs": {
+        "p50": 0.3603124999999636,
+        "p95": 0.4020660000001044
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.048262500000078035,
+          "p95": 0.07348099999990154
+        },
+        "actorQuery": {
+          "p50": 0.05066650000014761,
+          "p95": 0.06379700000002231
+        },
+        "tileQuery": {
+          "p50": 0.11336599999992814,
+          "p95": 0.13259900000002744
+        },
+        "response": {
+          "p50": 0.09331350000195471,
+          "p95": 0.1137420000009115
+        },
+        "delivery": {
+          "p50": 0.04276900000002115,
+          "p95": 0.07918000000017855
+        }
+      }
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 128,
+      "dynamic": true,
+      "repeat": 1,
+      "samples": "samples/100-scattered.json",
+      "mapCells": 10000,
+      "initialSolidCells": 939,
+      "buildMapMs": 0.37382300000012947,
+      "buildActorsMs": 0.2847079999999096,
+      "firstStepMs": 0.5083259999998972,
+      "disposeMs": 0.2714889999999741,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.001727500000015425,
+        "p95": 0.0022930000000087603
+      },
+      "stepMs": {
+        "p50": 0.3694104999999581,
+        "p95": 0.437347999999929
+      },
+      "totalMs": {
+        "p50": 0.3710529999999608,
+        "p95": 0.43887999999992644
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.05038600000011684,
+          "p95": 0.09149699999989025
+        },
+        "actorQuery": {
+          "p50": 0.051026499999920816,
+          "p95": 0.09964000000013584
+        },
+        "tileQuery": {
+          "p50": 0.11666550000018105,
+          "p95": 0.173080999999911
+        },
+        "response": {
+          "p50": 0.09298649999755071,
+          "p95": 0.16594700000155171
+        },
+        "delivery": {
+          "p50": 0.04783199999997123,
+          "p95": 0.09136800000010226
+        }
+      }
+    },
+    {
+      "size": 256,
+      "pattern": "dense",
+      "actors": 1,
+      "dynamic": false,
+      "repeat": 1,
+      "samples": "samples/256-dense.json",
+      "mapCells": 65536,
+      "initialSolidCells": 49152,
+      "buildMapMs": 3.399016000000074,
+      "buildActorsMs": 0.015323000000080356,
+      "firstStepMs": 0.03361999999992804,
+      "disposeMs": 0.02141200000005483,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00006099999995967664,
+        "p95": 0.00009000000000014552
+      },
+      "stepMs": {
+        "p50": 0.0037204999999858046,
+        "p95": 0.003944999999930587
+      },
+      "totalMs": {
+        "p50": 0.003781000000117274,
+        "p95": 0.004005999999890264
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007459999999355205,
+          "p95": 0.0010010000000875152
+        },
+        "actorQuery": {
+          "p50": 0.00016000000016447302,
+          "p95": 0.0001710000001367007
+        },
+        "tileQuery": {
+          "p50": 0.0015775000000530781,
+          "p95": 0.0017419999999219726
+        },
+        "response": {
+          "p50": 0.0009110000000873697,
+          "p95": 0.0011819999999715947
+        },
+        "delivery": {
+          "p50": 0.0004410000000234504,
+          "p95": 0.0005410000001120352
+        }
+      }
+    },
+    {
+      "size": 256,
+      "pattern": "dense",
+      "actors": 1,
+      "dynamic": true,
+      "repeat": 1,
+      "samples": "samples/256-dense.json",
+      "mapCells": 65536,
+      "initialSolidCells": 49152,
+      "buildMapMs": 3.2739680000001954,
+      "buildActorsMs": 0.010866000000078202,
+      "firstStepMs": 0.02740100000005441,
+      "disposeMs": 0.021351999999978943,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0012320000000727305,
+        "p95": 0.001491999999871041
+      },
+      "stepMs": {
+        "p50": 0.0037705000000869404,
+        "p95": 0.004245999999966443
+      },
+      "totalMs": {
+        "p50": 0.004997500000058608,
+        "p95": 0.0055089999998472194
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007469999999329957,
+          "p95": 0.0011019999999462016
+        },
+        "actorQuery": {
+          "p50": 0.00016100000004826143,
+          "p95": 0.00018099999988407944
+        },
+        "tileQuery": {
+          "p50": 0.001567499999850952,
+          "p95": 0.001751999999896725
+        },
+        "response": {
+          "p50": 0.0008964999999534484,
+          "p95": 0.0010910000000876607
+        },
+        "delivery": {
+          "p50": 0.00043000000005122274,
+          "p95": 0.00048000000015235855
+        }
+      }
+    },
+    {
+      "size": 256,
+      "pattern": "dense",
+      "actors": 128,
+      "dynamic": false,
+      "repeat": 1,
+      "samples": "samples/256-dense.json",
+      "mapCells": 65536,
+      "initialSolidCells": 49152,
+      "buildMapMs": 3.359175999999934,
+      "buildActorsMs": 0.29640599999993356,
+      "firstStepMs": 0.6068840000000364,
+      "disposeMs": 0.3532420000001366,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00009000000000014552,
+        "p95": 0.00014000000010128133
+      },
+      "stepMs": {
+        "p50": 0.407463000000007,
+        "p95": 0.6939250000000357
+      },
+      "totalMs": {
+        "p50": 0.40755350000006274,
+        "p95": 0.6940650000001369
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.045738499999856685,
+          "p95": 0.0510269999999764
+        },
+        "actorQuery": {
+          "p50": 0.01074149999999463,
+          "p95": 0.012399000000186788
+        },
+        "tileQuery": {
+          "p50": 0.13927000000012413,
+          "p95": 0.16409700000008343
+        },
+        "response": {
+          "p50": 0.09613450000028934,
+          "p95": 0.11010700000088036
+        },
+        "delivery": {
+          "p50": 0.04504300000007788,
+          "p95": 0.06126300000005358
+        }
+      }
+    },
+    {
+      "size": 256,
+      "pattern": "dense",
+      "actors": 128,
+      "dynamic": true,
+      "repeat": 1,
+      "samples": "samples/256-dense.json",
+      "mapCells": 65536,
+      "initialSolidCells": 49152,
+      "buildMapMs": 3.5202580000000125,
+      "buildActorsMs": 0.3926610000000892,
+      "firstStepMs": 0.6932939999999235,
+      "disposeMs": 0.30148400000007314,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0016374999999015927,
+        "p95": 0.002492999999958556
+      },
+      "stepMs": {
+        "p50": 0.35363699999993514,
+        "p95": 0.4139430000000175
+      },
+      "totalMs": {
+        "p50": 0.35523000000000593,
+        "p95": 0.41635599999995065
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.045278000000053,
+          "p95": 0.06186300000013034
+        },
+        "actorQuery": {
+          "p50": 0.01136299999984658,
+          "p95": 0.0128300000001218
+        },
+        "tileQuery": {
+          "p50": 0.13922500000001037,
+          "p95": 0.17780800000014096
+        },
+        "response": {
+          "p50": 0.0964204999983167,
+          "p95": 0.154276000002028
+        },
+        "delivery": {
+          "p50": 0.043209999999930915,
+          "p95": 0.07089599999994789
+        }
+      }
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 1,
+      "dynamic": false,
+      "repeat": 1,
+      "samples": "samples/256-scattered.json",
+      "mapCells": 65536,
+      "initialSolidCells": 6144,
+      "buildMapMs": 2.490579000000025,
+      "buildActorsMs": 0.012408999999934167,
+      "firstStepMs": 0.0332300000000032,
+      "disposeMs": 0.02038100000004306,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00006000000007588824,
+        "p95": 0.00009000000000014552
+      },
+      "stepMs": {
+        "p50": 0.003399999999942338,
+        "p95": 0.0034849999999551073
+      },
+      "totalMs": {
+        "p50": 0.0034699999999929787,
+        "p95": 0.0035450000000309956
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007410000000618311,
+          "p95": 0.0008210000000872242
+        },
+        "actorQuery": {
+          "p50": 0.00016549999975268292,
+          "p95": 0.0001700000002529123
+        },
+        "tileQuery": {
+          "p50": 0.0012070000000221626,
+          "p95": 0.0012910000000374566
+        },
+        "response": {
+          "p50": 0.0008709999999609863,
+          "p95": 0.0010019999999713036
+        },
+        "delivery": {
+          "p50": 0.00042100000007394556,
+          "p95": 0.0006209999999100546
+        }
+      }
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 1,
+      "dynamic": true,
+      "repeat": 1,
+      "samples": "samples/256-scattered.json",
+      "mapCells": 65536,
+      "initialSolidCells": 6144,
+      "buildMapMs": 2.3570270000000164,
+      "buildActorsMs": 0.01272900000003574,
+      "firstStepMs": 0.26508899999998903,
+      "disposeMs": 0.020931999999902473,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0007809999999608408,
+        "p95": 0.0008709999999609863
+      },
+      "stepMs": {
+        "p50": 0.0034949999999298598,
+        "p95": 0.003804999999829306
+      },
+      "totalMs": {
+        "p50": 0.004291000000080203,
+        "p95": 0.004525999999941632
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007215000000542204,
+          "p95": 0.0008500000001276931
+        },
+        "actorQuery": {
+          "p50": 0.0001609999999345746,
+          "p95": 0.0001710000001367007
+        },
+        "tileQuery": {
+          "p50": 0.0012115000001813314,
+          "p95": 0.0013020000003507448
+        },
+        "response": {
+          "p50": 0.0008710000000746732,
+          "p95": 0.0010219999999208085
+        },
+        "delivery": {
+          "p50": 0.0004310000001623848,
+          "p95": 0.0005409999998846615
+        }
+      }
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 128,
+      "dynamic": false,
+      "repeat": 1,
+      "samples": "samples/256-scattered.json",
+      "mapCells": 65536,
+      "initialSolidCells": 6144,
+      "buildMapMs": 2.4383000000000266,
+      "buildActorsMs": 0.30567999999993845,
+      "firstStepMs": 0.520422999999937,
+      "disposeMs": 0.3639769999999771,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00009999999997489795,
+        "p95": 0.0001300000001265289
+      },
+      "stepMs": {
+        "p50": 0.3489305000000513,
+        "p95": 0.538189999999986
+      },
+      "totalMs": {
+        "p50": 0.3490504999999757,
+        "p95": 0.5382809999998699
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.04635500000006232,
+          "p95": 0.09914900000012494
+        },
+        "actorQuery": {
+          "p50": 0.021086499999910302,
+          "p95": 0.022784999999885258
+        },
+        "tileQuery": {
+          "p50": 0.11508300000002691,
+          "p95": 0.1829659999998512
+        },
+        "response": {
+          "p50": 0.09251699999947505,
+          "p95": 0.11711300000047231
+        },
+        "delivery": {
+          "p50": 0.04535800000007839,
+          "p95": 0.055323000000043976
+        }
+      }
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 128,
+      "dynamic": true,
+      "repeat": 1,
+      "samples": "samples/256-scattered.json",
+      "mapCells": 65536,
+      "initialSolidCells": 6144,
+      "buildMapMs": 2.6815970000000107,
+      "buildActorsMs": 0.4786709999998493,
+      "firstStepMs": 0.6317010000000209,
+      "disposeMs": 0.36103300000013405,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0010865000000421787,
+        "p95": 0.0016219999999975698
+      },
+      "stepMs": {
+        "p50": 0.33396749999997155,
+        "p95": 0.4895970000000034
+      },
+      "totalMs": {
+        "p50": 0.3349984999999833,
+        "p95": 0.49054799999998977
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0487830000000713,
+          "p95": 0.058827999999721214
+        },
+        "actorQuery": {
+          "p50": 0.020680999999854066,
+          "p95": 0.022905000000037035
+        },
+        "tileQuery": {
+          "p50": 0.11452750000000833,
+          "p95": 0.18893400000001748
+        },
+        "response": {
+          "p50": 0.09360100000048988,
+          "p95": 0.1465649999991001
+        },
+        "delivery": {
+          "p50": 0.04591900000013993,
+          "p95": 0.08995600000002923
+        }
+      }
+    },
+    {
+      "size": 32,
+      "pattern": "dense",
+      "actors": 1,
+      "dynamic": false,
+      "repeat": 2,
+      "samples": "samples/32-dense.json",
+      "mapCells": 1024,
+      "initialSolidCells": 768,
+      "buildMapMs": 0.0854589999999007,
+      "buildActorsMs": 0.01075700000001234,
+      "firstStepMs": 0.023555999999871347,
+      "disposeMs": 0.01054599999997663,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00006000000007588824,
+        "p95": 0.00008000000002539309
+      },
+      "stepMs": {
+        "p50": 0.0037360000000035143,
+        "p95": 0.005317999999988388
+      },
+      "totalMs": {
+        "p50": 0.0037959999999657157,
+        "p95": 0.005368000000089523
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007315000000289729,
+          "p95": 0.0008609999997588602
+        },
+        "actorQuery": {
+          "p50": 0.0001654999999800566,
+          "p95": 0.0001710000001367007
+        },
+        "tileQuery": {
+          "p50": 0.0015525000000025102,
+          "p95": 0.001702000000022963
+        },
+        "response": {
+          "p50": 0.0008820000000469008,
+          "p95": 0.0009710000001632579
+        },
+        "delivery": {
+          "p50": 0.00043099999993501115,
+          "p95": 0.0007010000001628214
+        }
+      }
+    },
+    {
+      "size": 32,
+      "pattern": "dense",
+      "actors": 1,
+      "dynamic": true,
+      "repeat": 2,
+      "samples": "samples/32-dense.json",
+      "mapCells": 1024,
+      "initialSolidCells": 768,
+      "buildMapMs": 0.07601399999998648,
+      "buildActorsMs": 0.004105999999865162,
+      "firstStepMs": 0.012138000000049942,
+      "disposeMs": 0.009853999999904772,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0007809999999608408,
+        "p95": 0.0008409999998093554
+      },
+      "stepMs": {
+        "p50": 0.0027145000000246,
+        "p95": 0.004155999999966298
+      },
+      "totalMs": {
+        "p50": 0.003500499999972817,
+        "p95": 0.004938000000038301
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0005704999999807114,
+          "p95": 0.0007419999997182458
+        },
+        "actorQuery": {
+          "p50": 0.00013549999994211248,
+          "p95": 0.0001700000000255386
+        },
+        "tileQuery": {
+          "p50": 0.0007959999999229694,
+          "p95": 0.0020039999997152336
+        },
+        "response": {
+          "p50": 0.00043049999999311694,
+          "p95": 0.0009519999998701678
+        },
+        "delivery": {
+          "p50": 0.0004909999998972125,
+          "p95": 0.0007809999999608408
+        }
+      }
+    },
+    {
+      "size": 32,
+      "pattern": "dense",
+      "actors": 128,
+      "dynamic": false,
+      "repeat": 2,
+      "samples": "samples/32-dense.json",
+      "mapCells": 1024,
+      "initialSolidCells": 768,
+      "buildMapMs": 0.05636499999991429,
+      "buildActorsMs": 0.26833399999986796,
+      "firstStepMs": 0.5236780000000181,
+      "disposeMs": 0.26329599999985476,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00009999999997489795,
+        "p95": 0.0001199999999244028
+      },
+      "stepMs": {
+        "p50": 0.3955555000000004,
+        "p95": 0.4733519999999771
+      },
+      "totalMs": {
+        "p50": 0.39564550000000054,
+        "p95": 0.4734520000001794
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.04954949999989822,
+          "p95": 0.0937709999998333
+        },
+        "actorQuery": {
+          "p50": 0.056485000000066066,
+          "p95": 0.09153799999990042
+        },
+        "tileQuery": {
+          "p50": 0.138864000000126,
+          "p95": 0.22110200000020086
+        },
+        "response": {
+          "p50": 0.09513600000207134,
+          "p95": 0.11018700000158788
+        },
+        "delivery": {
+          "p50": 0.04383100000006834,
+          "p95": 0.06568900000002031
+        }
+      }
+    },
+    {
+      "size": 32,
+      "pattern": "dense",
+      "actors": 128,
+      "dynamic": true,
+      "repeat": 2,
+      "samples": "samples/32-dense.json",
+      "mapCells": 1024,
+      "initialSolidCells": 768,
+      "buildMapMs": 0.17151800000010553,
+      "buildActorsMs": 0.3923500000000786,
+      "firstStepMs": 0.505820999999969,
+      "disposeMs": 0.2479129999999259,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0011114999999790598,
+        "p95": 0.0019320000001243898
+      },
+      "stepMs": {
+        "p50": 0.3985699999999497,
+        "p95": 0.5688159999999698
+      },
+      "totalMs": {
+        "p50": 0.3996359999999868,
+        "p95": 0.5699570000001586
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.04806650000000445,
+          "p95": 0.05996000000004642
+        },
+        "actorQuery": {
+          "p50": 0.05563350000022638,
+          "p95": 0.058098000000200045
+        },
+        "tileQuery": {
+          "p50": 0.13929000000007363,
+          "p95": 0.16496800000027179
+        },
+        "response": {
+          "p50": 0.09502050000071449,
+          "p95": 0.1185789999994995
+        },
+        "delivery": {
+          "p50": 0.04501300000003994,
+          "p95": 0.05970999999999549
+        }
+      }
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 1,
+      "dynamic": false,
+      "repeat": 2,
+      "samples": "samples/32-scattered.json",
+      "mapCells": 1024,
+      "initialSolidCells": 96,
+      "buildMapMs": 0.07196800000019721,
+      "buildActorsMs": 0.011346999999886975,
+      "firstStepMs": 0.02232400000002599,
+      "disposeMs": 0.010524999999915963,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00006000000007588824,
+        "p95": 0.00007000000005064066
+      },
+      "stepMs": {
+        "p50": 0.0036000000001195076,
+        "p95": 0.0040159999998650164
+      },
+      "totalMs": {
+        "p50": 0.00366050000013729,
+        "p95": 0.004076999999824693
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007309999999733918,
+          "p95": 0.0008920000000216532
+        },
+        "actorQuery": {
+          "p50": 0.00016000000027815986,
+          "p95": 0.00018000000022766471
+        },
+        "tileQuery": {
+          "p50": 0.0012065000000802684,
+          "p95": 0.0012520000000222353
+        },
+        "response": {
+          "p50": 0.0008510000001251683,
+          "p95": 0.0009720000000470463
+        },
+        "delivery": {
+          "p50": 0.0004310000001623848,
+          "p95": 0.000730999999859705
+        }
+      }
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 1,
+      "dynamic": true,
+      "repeat": 2,
+      "samples": "samples/32-scattered.json",
+      "mapCells": 1024,
+      "initialSolidCells": 96,
+      "buildMapMs": 0.04184299999997165,
+      "buildActorsMs": 0.0037160000001676963,
+      "firstStepMs": 0.035634000000072774,
+      "disposeMs": 0.009724000000005617,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0007719999999835636,
+        "p95": 0.0008109999998850981
+      },
+      "stepMs": {
+        "p50": 0.0034705000000485597,
+        "p95": 0.0037159999999403226
+      },
+      "totalMs": {
+        "p50": 0.004246999999850232,
+        "p95": 0.004506999999875916
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007319999999708671,
+          "p95": 0.0008310000000619766
+        },
+        "actorQuery": {
+          "p50": 0.0001604999999926804,
+          "p95": 0.0001720000000204891
+        },
+        "tileQuery": {
+          "p50": 0.001222000000097978,
+          "p95": 0.0013820000001487642
+        },
+        "response": {
+          "p50": 0.0008555000000569635,
+          "p95": 0.0008820000000469008
+        },
+        "delivery": {
+          "p50": 0.000450999999884516,
+          "p95": 0.0005209999999351567
+        }
+      }
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 128,
+      "dynamic": false,
+      "repeat": 2,
+      "samples": "samples/32-scattered.json",
+      "mapCells": 1024,
+      "initialSolidCells": 96,
+      "buildMapMs": 0.04118200000016259,
+      "buildActorsMs": 0.32473899999990863,
+      "firstStepMs": 0.5521410000001197,
+      "disposeMs": 0.23465299999998024,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00009549999992941594,
+        "p95": 0.0001999999999497959
+      },
+      "stepMs": {
+        "p50": 0.4671680000000151,
+        "p95": 0.5555859999999484
+      },
+      "totalMs": {
+        "p50": 0.46729800000002797,
+        "p95": 0.5556859999999233
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.049730000000067776,
+          "p95": 0.07292999999981475
+        },
+        "actorQuery": {
+          "p50": 0.14851400000009107,
+          "p95": 0.19132799999988492
+        },
+        "tileQuery": {
+          "p50": 0.1118984999999384,
+          "p95": 0.16957499999966785
+        },
+        "response": {
+          "p50": 0.09400950000190278,
+          "p95": 0.1021430000005239
+        },
+        "delivery": {
+          "p50": 0.04567850000000817,
+          "p95": 0.06277499999987413
+        }
+      }
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 128,
+      "dynamic": true,
+      "repeat": 2,
+      "samples": "samples/32-scattered.json",
+      "mapCells": 1024,
+      "initialSolidCells": 96,
+      "buildMapMs": 0.09417200000007142,
+      "buildActorsMs": 0.3606830000001082,
+      "firstStepMs": 0.6693480000001273,
+      "disposeMs": 0.3499859999999444,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0010565000000042346,
+        "p95": 0.0014920000000984146
+      },
+      "stepMs": {
+        "p50": 0.4599869999999555,
+        "p95": 0.5572389999999814
+      },
+      "totalMs": {
+        "p50": 0.4609884999999849,
+        "p95": 0.5587310000000798
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.051602499999944484,
+          "p95": 0.06479699999999866
+        },
+        "actorQuery": {
+          "p50": 0.15045150000014473,
+          "p95": 0.17273099999988517
+        },
+        "tileQuery": {
+          "p50": 0.11624950000009449,
+          "p95": 0.1496159999999236
+        },
+        "response": {
+          "p50": 0.09271050000063497,
+          "p95": 0.1301099999982398
+        },
+        "delivery": {
+          "p50": 0.04674549999992905,
+          "p95": 0.06027100000005703
+        }
+      }
+    },
+    {
+      "size": 100,
+      "pattern": "dense",
+      "actors": 1,
+      "dynamic": false,
+      "repeat": 2,
+      "samples": "samples/100-dense.json",
+      "mapCells": 10000,
+      "initialSolidCells": 7500,
+      "buildMapMs": 0.513443000000052,
+      "buildActorsMs": 0.010815999999977066,
+      "firstStepMs": 0.0248980000001211,
+      "disposeMs": 0.01212800000007519,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00006000000007588824,
+        "p95": 0.00009000000000014552
+      },
+      "stepMs": {
+        "p50": 0.003710500000011052,
+        "p95": 0.004005999999890264
+      },
+      "totalMs": {
+        "p50": 0.0037704999999732536,
+        "p95": 0.0040959999998904095
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007319999999708671,
+          "p95": 0.0009609999999611318
+        },
+        "actorQuery": {
+          "p50": 0.00016550000009374344,
+          "p95": 0.0001710000001367007
+        },
+        "tileQuery": {
+          "p50": 0.0015720000000101209,
+          "p95": 0.0018219999999473657
+        },
+        "response": {
+          "p50": 0.0009159999999610591,
+          "p95": 0.0010220000001481822
+        },
+        "delivery": {
+          "p50": 0.00043599999992238736,
+          "p95": 0.0005909999999857973
+        }
+      }
+    },
+    {
+      "size": 100,
+      "pattern": "dense",
+      "actors": 1,
+      "dynamic": true,
+      "repeat": 2,
+      "samples": "samples/100-dense.json",
+      "mapCells": 10000,
+      "initialSolidCells": 7500,
+      "buildMapMs": 0.4300869999999577,
+      "buildActorsMs": 0.004597000000103435,
+      "firstStepMs": 0.011447000000089247,
+      "disposeMs": 0.00878299999999399,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0007815000000164218,
+        "p95": 0.0009110000000873697
+      },
+      "stepMs": {
+        "p50": 0.0037110000000666332,
+        "p95": 0.004005999999890264
+      },
+      "totalMs": {
+        "p50": 0.004471999999964282,
+        "p95": 0.004818000000113898
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007470000000466825,
+          "p95": 0.0008499999999003194
+        },
+        "actorQuery": {
+          "p50": 0.00016050000022005406,
+          "p95": 0.00018000000000029104
+        },
+        "tileQuery": {
+          "p50": 0.0015624999998635758,
+          "p95": 0.0016130000001339795
+        },
+        "response": {
+          "p50": 0.0009014999999408246,
+          "p95": 0.0010819999999966967
+        },
+        "delivery": {
+          "p50": 0.00043099999993501115,
+          "p95": 0.00047099999983402085
+        }
+      }
+    },
+    {
+      "size": 100,
+      "pattern": "dense",
+      "actors": 128,
+      "dynamic": false,
+      "repeat": 2,
+      "samples": "samples/100-dense.json",
+      "mapCells": 10000,
+      "initialSolidCells": 7500,
+      "buildMapMs": 0.4499270000001161,
+      "buildActorsMs": 0.26686099999983526,
+      "firstStepMs": 0.5456510000001344,
+      "disposeMs": 0.23044700000014018,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00008000000002539309,
+        "p95": 0.00010999999994965037
+      },
+      "stepMs": {
+        "p50": 0.3510989999999765,
+        "p95": 0.4635080000000471
+      },
+      "totalMs": {
+        "p50": 0.35119399999996403,
+        "p95": 0.463608000000022
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.04842800000005809,
+          "p95": 0.054270999999971536
+        },
+        "actorQuery": {
+          "p50": 0.018877999999972417,
+          "p95": 0.0346809999996367
+        },
+        "tileQuery": {
+          "p50": 0.13950900000008915,
+          "p95": 0.1410329999998794
+        },
+        "response": {
+          "p50": 0.0978865000015503,
+          "p95": 0.11404099999981554
+        },
+        "delivery": {
+          "p50": 0.04089649999991707,
+          "p95": 0.044286999999940235
+        }
+      }
+    },
+    {
+      "size": 100,
+      "pattern": "dense",
+      "actors": 128,
+      "dynamic": true,
+      "repeat": 2,
+      "samples": "samples/100-dense.json",
+      "mapCells": 10000,
+      "initialSolidCells": 7500,
+      "buildMapMs": 0.529517000000169,
+      "buildActorsMs": 0.37015800000017407,
+      "firstStepMs": 0.5081149999998615,
+      "disposeMs": 0.4149449999999888,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0011020000000598884,
+        "p95": 0.0018829999999070424
+      },
+      "stepMs": {
+        "p50": 0.3661009999999578,
+        "p95": 0.57602699999984
+      },
+      "totalMs": {
+        "p50": 0.3674835000000485,
+        "p95": 0.5769279999999526
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.04766199999994569,
+          "p95": 0.05464299999971445
+        },
+        "actorQuery": {
+          "p50": 0.019244000000071537,
+          "p95": 0.0216530000000148
+        },
+        "tileQuery": {
+          "p50": 0.142413999999917,
+          "p95": 0.1985690000001341
+        },
+        "response": {
+          "p50": 0.09778499999879386,
+          "p95": 0.1334510000017417
+        },
+        "delivery": {
+          "p50": 0.044857500000034634,
+          "p95": 0.11879799999996976
+        }
+      }
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 1,
+      "dynamic": false,
+      "repeat": 2,
+      "samples": "samples/100-scattered.json",
+      "mapCells": 10000,
+      "initialSolidCells": 939,
+      "buildMapMs": 0.3724609999999302,
+      "buildActorsMs": 0.01015600000005179,
+      "firstStepMs": 0.023835999999846536,
+      "disposeMs": 0.01181799999994837,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00006050000001778244,
+        "p95": 0.00011000000017702405
+      },
+      "stepMs": {
+        "p50": 0.0033700000000180808,
+        "p95": 0.0035450000000309956
+      },
+      "totalMs": {
+        "p50": 0.003430500000035863,
+        "p95": 0.0036059999999906722
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007410000000618311,
+          "p95": 0.0009620000000722939
+        },
+        "actorQuery": {
+          "p50": 0.0001609999999345746,
+          "p95": 0.0001710000001367007
+        },
+        "tileQuery": {
+          "p50": 0.001216499999941334,
+          "p95": 0.0013510000001133449
+        },
+        "response": {
+          "p50": 0.0008565000000544387,
+          "p95": 0.0009510000002137531
+        },
+        "delivery": {
+          "p50": 0.00043000000005122274,
+          "p95": 0.0006209999999100546
+        }
+      }
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 1,
+      "dynamic": true,
+      "repeat": 2,
+      "samples": "samples/100-scattered.json",
+      "mapCells": 10000,
+      "initialSolidCells": 939,
+      "buildMapMs": 0.38025199999992765,
+      "buildActorsMs": 0.004516999999850668,
+      "firstStepMs": 0.013691000000108033,
+      "disposeMs": 0.010485000000016953,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0007965000000922373,
+        "p95": 0.0010819999999966967
+      },
+      "stepMs": {
+        "p50": 0.0035899999999173815,
+        "p95": 0.004187000000001717
+      },
+      "totalMs": {
+        "p50": 0.004392000000052576,
+        "p95": 0.005529000000024098
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007260000000997024,
+          "p95": 0.0007909999999355932
+        },
+        "actorQuery": {
+          "p50": 0.00016050000022005406,
+          "p95": 0.00017100000036407437
+        },
+        "tileQuery": {
+          "p50": 0.0012064999998528947,
+          "p95": 0.0014120000000730215
+        },
+        "response": {
+          "p50": 0.0008615000000418149,
+          "p95": 0.001031999999895561
+        },
+        "delivery": {
+          "p50": 0.000431000000048698,
+          "p95": 0.0005609999998341664
+        }
+      }
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 128,
+      "dynamic": false,
+      "repeat": 2,
+      "samples": "samples/100-scattered.json",
+      "mapCells": 10000,
+      "initialSolidCells": 939,
+      "buildMapMs": 0.31610599999999067,
+      "buildActorsMs": 0.28922499999998763,
+      "firstStepMs": 0.4491160000000036,
+      "disposeMs": 0.2283030000000963,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00009999999997489795,
+        "p95": 0.0001199999999244028
+      },
+      "stepMs": {
+        "p50": 0.36340199999983724,
+        "p95": 0.43568500000014865
+      },
+      "totalMs": {
+        "p50": 0.3635074999999688,
+        "p95": 0.4357560000000831
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.04737099999988459,
+          "p95": 0.05379199999993034
+        },
+        "actorQuery": {
+          "p50": 0.05038149999984398,
+          "p95": 0.06313500000010208
+        },
+        "tileQuery": {
+          "p50": 0.1138664999998582,
+          "p95": 0.13654600000018036
+        },
+        "response": {
+          "p50": 0.09213849999900958,
+          "p95": 0.12100899999950343
+        },
+        "delivery": {
+          "p50": 0.04130200000008699,
+          "p95": 0.05322000000001026
+        }
+      }
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 128,
+      "dynamic": true,
+      "repeat": 2,
+      "samples": "samples/100-scattered.json",
+      "mapCells": 10000,
+      "initialSolidCells": 939,
+      "buildMapMs": 0.37550599999985934,
+      "buildActorsMs": 0.2796010000001843,
+      "firstStepMs": 0.4534320000000207,
+      "disposeMs": 0.22833399999990434,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0010259999999107094,
+        "p95": 0.001603000000159227
+      },
+      "stepMs": {
+        "p50": 0.3677539999999908,
+        "p95": 0.4157960000000003
+      },
+      "totalMs": {
+        "p50": 0.36890549999998257,
+        "p95": 0.4168970000000627
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.048583000000007814,
+          "p95": 0.06159199999979137
+        },
+        "actorQuery": {
+          "p50": 0.050180500000124084,
+          "p95": 0.060010000000147556
+        },
+        "tileQuery": {
+          "p50": 0.11151199999983419,
+          "p95": 0.12330699999984063
+        },
+        "response": {
+          "p50": 0.09292200000174944,
+          "p95": 0.12244700000064768
+        },
+        "delivery": {
+          "p50": 0.04464200000006713,
+          "p95": 0.04927399999996851
+        }
+      }
+    },
+    {
+      "size": 256,
+      "pattern": "dense",
+      "actors": 1,
+      "dynamic": false,
+      "repeat": 2,
+      "samples": "samples/256-dense.json",
+      "mapCells": 65536,
+      "initialSolidCells": 49152,
+      "buildMapMs": 3.2823900000000776,
+      "buildActorsMs": 0.01227799999992385,
+      "firstStepMs": 0.07554399999980888,
+      "disposeMs": 0.02031099999999242,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00006000000007588824,
+        "p95": 0.00007000000005064066
+      },
+      "stepMs": {
+        "p50": 0.00386100000002898,
+        "p95": 0.00447600000006787
+      },
+      "totalMs": {
+        "p50": 0.003930999999965934,
+        "p95": 0.004537000000027547
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007215000000542204,
+          "p95": 0.0010709999999107822
+        },
+        "actorQuery": {
+          "p50": 0.00016549999986636976,
+          "p95": 0.00018000000022766471
+        },
+        "tileQuery": {
+          "p50": 0.0015675000001920125,
+          "p95": 0.001922999999806052
+        },
+        "response": {
+          "p50": 0.0008910000001378648,
+          "p95": 0.0011210000002392917
+        },
+        "delivery": {
+          "p50": 0.0004209999999602587,
+          "p95": 0.0005109999999604042
+        }
+      }
+    },
+    {
+      "size": 256,
+      "pattern": "dense",
+      "actors": 1,
+      "dynamic": true,
+      "repeat": 2,
+      "samples": "samples/256-dense.json",
+      "mapCells": 65536,
+      "initialSolidCells": 49152,
+      "buildMapMs": 3.1386539999998604,
+      "buildActorsMs": 0.006759999999985666,
+      "firstStepMs": 0.01830700000004981,
+      "disposeMs": 0.015483000000131142,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0007760000000871514,
+        "p95": 0.0009009999998852436
+      },
+      "stepMs": {
+        "p50": 0.0038459999999531647,
+        "p95": 0.004075999999940905
+      },
+      "totalMs": {
+        "p50": 0.004596999999989748,
+        "p95": 0.004907000000002881
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007310000000870787,
+          "p95": 0.000771000000213462
+        },
+        "actorQuery": {
+          "p50": 0.0001604999999926804,
+          "p95": 0.00017099999990932702
+        },
+        "tileQuery": {
+          "p50": 0.0015524999998888234,
+          "p95": 0.0017029999999067513
+        },
+        "response": {
+          "p50": 0.0008810000001631124,
+          "p95": 0.0009520000000975415
+        },
+        "delivery": {
+          "p50": 0.0004209999999602587,
+          "p95": 0.00048100000003614696
+        }
+      }
+    },
+    {
+      "size": 256,
+      "pattern": "dense",
+      "actors": 128,
+      "dynamic": false,
+      "repeat": 2,
+      "samples": "samples/256-dense.json",
+      "mapCells": 65536,
+      "initialSolidCells": 49152,
+      "buildMapMs": 3.6869689999998627,
+      "buildActorsMs": 0.40424799999982497,
+      "firstStepMs": 0.488695000000007,
+      "disposeMs": 0.2302159999999276,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00009999999997489795,
+        "p95": 0.00012000000015177648
+      },
+      "stepMs": {
+        "p50": 0.35384799999997085,
+        "p95": 0.48053299999992305
+      },
+      "totalMs": {
+        "p50": 0.353937999999971,
+        "p95": 0.4806229999999232
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.04724099999975806,
+          "p95": 0.08361699999977645
+        },
+        "actorQuery": {
+          "p50": 0.011297500000182481,
+          "p95": 0.013761999999587715
+        },
+        "tileQuery": {
+          "p50": 0.14082700000017212,
+          "p95": 0.1820439999996779
+        },
+        "response": {
+          "p50": 0.09765500000298744,
+          "p95": 0.27340600000115955
+        },
+        "delivery": {
+          "p50": 0.043851499999846055,
+          "p95": 0.06780200000002878
+        }
+      }
+    },
+    {
+      "size": 256,
+      "pattern": "dense",
+      "actors": 128,
+      "dynamic": true,
+      "repeat": 2,
+      "samples": "samples/256-dense.json",
+      "mapCells": 65536,
+      "initialSolidCells": 49152,
+      "buildMapMs": 3.3964320000000043,
+      "buildActorsMs": 0.28167400000029374,
+      "firstStepMs": 0.5018549999999777,
+      "disposeMs": 0.4555449999998018,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.001042000000097687,
+        "p95": 0.001352000000224507
+      },
+      "stepMs": {
+        "p50": 0.3400214999999207,
+        "p95": 0.382394999999633
+      },
+      "totalMs": {
+        "p50": 0.3412935000001198,
+        "p95": 0.3833169999998063
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.048131999999895925,
+          "p95": 0.06597999999985404
+        },
+        "actorQuery": {
+          "p50": 0.011767500000132713,
+          "p95": 0.013100000000122236
+        },
+        "tileQuery": {
+          "p50": 0.13790749999998297,
+          "p95": 0.17930900000010297
+        },
+        "response": {
+          "p50": 0.09586750000084976,
+          "p95": 0.11674299999913273
+        },
+        "delivery": {
+          "p50": 0.042619000000058804,
+          "p95": 0.08800199999996039
+        }
+      }
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 1,
+      "dynamic": false,
+      "repeat": 2,
+      "samples": "samples/256-scattered.json",
+      "mapCells": 65536,
+      "initialSolidCells": 6144,
+      "buildMapMs": 2.65219100000013,
+      "buildActorsMs": 0.012808999999833759,
+      "firstStepMs": 0.028583000000253378,
+      "disposeMs": 0.01937900000029913,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00006999999982326699,
+        "p95": 0.00009000000000014552
+      },
+      "stepMs": {
+        "p50": 0.003480000000081418,
+        "p95": 0.003614999999626889
+      },
+      "totalMs": {
+        "p50": 0.0035450000000309956,
+        "p95": 0.0036860000000160653
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007310000000870787,
+          "p95": 0.0008610000004409812
+        },
+        "actorQuery": {
+          "p50": 0.00016999999979816494,
+          "p95": 0.0001809999994293321
+        },
+        "tileQuery": {
+          "p50": 0.00122699999951692,
+          "p95": 0.0013009999997848354
+        },
+        "response": {
+          "p50": 0.0008510000000114815,
+          "p95": 0.0009520000003249152
+        },
+        "delivery": {
+          "p50": 0.00042600000006132177,
+          "p95": 0.0006409999996321858
+        }
+      }
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 1,
+      "dynamic": true,
+      "repeat": 2,
+      "samples": "samples/256-scattered.json",
+      "mapCells": 65536,
+      "initialSolidCells": 6144,
+      "buildMapMs": 2.329486000000088,
+      "buildActorsMs": 0.00815199999988181,
+      "firstStepMs": 0.018007000000125117,
+      "disposeMs": 0.012318000000050233,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0007659999998850253,
+        "p95": 0.0009209999998347485
+      },
+      "stepMs": {
+        "p50": 0.003460000000131913,
+        "p95": 0.0037750000001324224
+      },
+      "totalMs": {
+        "p50": 0.004241500000034648,
+        "p95": 0.004626999999800319
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.0007210000001123262,
+          "p95": 0.0008419999999205174
+        },
+        "actorQuery": {
+          "p50": 0.00016050000022005406,
+          "p95": 0.0001710000001367007
+        },
+        "tileQuery": {
+          "p50": 0.0012214999999287102,
+          "p95": 0.001281999999719119
+        },
+        "response": {
+          "p50": 0.0008515000001807493,
+          "p95": 0.0009610000001885055
+        },
+        "delivery": {
+          "p50": 0.00042099999973288504,
+          "p95": 0.0004610000000866421
+        }
+      }
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 128,
+      "dynamic": false,
+      "repeat": 2,
+      "samples": "samples/256-scattered.json",
+      "mapCells": 65536,
+      "initialSolidCells": 6144,
+      "buildMapMs": 2.516417999999703,
+      "buildActorsMs": 0.277306999999837,
+      "firstStepMs": 0.5157759999997324,
+      "disposeMs": 0.3245489999999336,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.00009000000000014552,
+        "p95": 0.0001700000002529123
+      },
+      "stepMs": {
+        "p50": 0.3236420000000635,
+        "p95": 0.39572499999985666
+      },
+      "totalMs": {
+        "p50": 0.3237220000000889,
+        "p95": 0.3961759999997412
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.04583950000005643,
+          "p95": 0.051217000000178814
+        },
+        "actorQuery": {
+          "p50": 0.01946949999978642,
+          "p95": 0.021423000000140746
+        },
+        "tileQuery": {
+          "p50": 0.11605950000034682,
+          "p95": 0.1350430000002234
+        },
+        "response": {
+          "p50": 0.09308700000110548,
+          "p95": 0.10893699999951423
+        },
+        "delivery": {
+          "p50": 0.04110250000007909,
+          "p95": 0.04536899999993693
+        }
+      }
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 128,
+      "dynamic": true,
+      "repeat": 2,
+      "samples": "samples/256-scattered.json",
+      "mapCells": 65536,
+      "initialSolidCells": 6144,
+      "buildMapMs": 2.498511000000235,
+      "buildActorsMs": 0.2920089999997799,
+      "firstStepMs": 0.5607540000000881,
+      "disposeMs": 0.24144399999977395,
+      "released": {
+        "actors": 0,
+        "maps": 0,
+        "contacts": 0,
+        "retainedCells": 0,
+        "inputSources": 0
+      },
+      "editMs": {
+        "p50": 0.0010309999997843988,
+        "p95": 0.0014620000001741573
+      },
+      "stepMs": {
+        "p50": 0.3281090000000404,
+        "p95": 0.3425560000000587
+      },
+      "totalMs": {
+        "p50": 0.32922000000007756,
+        "p95": 0.3435869999998431
+      },
+      "profiledPhasesMs": {
+        "capture": {
+          "p50": 0.04673549999984061,
+          "p95": 0.06112200000006851
+        },
+        "actorQuery": {
+          "p50": 0.019690000000082364,
+          "p95": 0.021811999999499676
+        },
+        "tileQuery": {
+          "p50": 0.11648499999978412,
+          "p95": 0.2331610000001092
+        },
+        "response": {
+          "p50": 0.09355250000135129,
+          "p95": 0.11478699999815944
+        },
+        "delivery": {
+          "p50": 0.04481749999990825,
+          "p95": 0.05823800000007395
+        }
+      }
+    }
+  ],
+  "seams": [
+    {
+      "corner": false,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": false,
+      "side": -1,
+      "tangent": -1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 106,
+        "y": 616
+      },
+      "reference": {
+        "x": 106,
+        "y": 616
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": false,
+      "side": -1,
+      "tangent": -1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 154,
+        "y": 340
+      },
+      "reference": {
+        "x": 154,
+        "y": 340
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 2,
+        "corrections": 1,
+        "responseTests": 4,
+        "unresolved": 0,
+        "neighborProbes": 16,
+        "retainedCells": 2
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": false,
+      "side": -1,
+      "tangent": 1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 106,
+        "y": 136
+      },
+      "reference": {
+        "x": 106,
+        "y": 136
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": false,
+      "side": -1,
+      "tangent": 1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 154,
+        "y": 130
+      },
+      "reference": {
+        "x": 154,
+        "y": 130
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 18,
+        "policyRejected": 9,
+        "narrowTests": 9,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": false,
+      "side": 1,
+      "tangent": -1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 54,
+        "y": 616
+      },
+      "reference": {
+        "x": 54,
+        "y": 616
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": false,
+      "side": 1,
+      "tangent": -1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 86,
+        "y": 340
+      },
+      "reference": {
+        "x": 86,
+        "y": 340
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 2,
+        "corrections": 1,
+        "responseTests": 4,
+        "unresolved": 0,
+        "neighborProbes": 16,
+        "retainedCells": 2
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": false,
+      "side": 1,
+      "tangent": 1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 54,
+        "y": 136
+      },
+      "reference": {
+        "x": 54,
+        "y": 136
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": false,
+      "side": 1,
+      "tangent": 1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 86,
+        "y": 130
+      },
+      "reference": {
+        "x": 86,
+        "y": 130
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 18,
+        "policyRejected": 9,
+        "narrowTests": 9,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": true,
+      "side": -1,
+      "tangent": -1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 616,
+        "y": 106
+      },
+      "reference": {
+        "x": 616,
+        "y": 106
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": true,
+      "side": -1,
+      "tangent": -1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 984,
+        "y": 70
+      },
+      "reference": {
+        "x": 984,
+        "y": 70
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 8,
+        "policyRejected": 5,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": true,
+      "side": -1,
+      "tangent": 1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 136,
+        "y": 106
+      },
+      "reference": {
+        "x": 136,
+        "y": 106
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": true,
+      "side": -1,
+      "tangent": 1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 144,
+        "y": 70
+      },
+      "reference": {
+        "x": 144,
+        "y": 70
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 16,
+        "policyRejected": 10,
+        "narrowTests": 6,
+        "contacts": 2,
+        "corrections": 1,
+        "responseTests": 4,
+        "unresolved": 0,
+        "neighborProbes": 16,
+        "retainedCells": 2
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": true,
+      "side": 1,
+      "tangent": -1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 616,
+        "y": 54
+      },
+      "reference": {
+        "x": 616,
+        "y": 54
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": true,
+      "side": 1,
+      "tangent": -1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 984,
+        "y": 30
+      },
+      "reference": {
+        "x": 984,
+        "y": 30
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 8,
+        "policyRejected": 5,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": true,
+      "side": 1,
+      "tangent": 1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 136,
+        "y": 54
+      },
+      "reference": {
+        "x": 136,
+        "y": 54
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": true,
+      "side": 1,
+      "tangent": 1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 144,
+        "y": 30
+      },
+      "reference": {
+        "x": 144,
+        "y": 30
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 16,
+        "policyRejected": 10,
+        "narrowTests": 6,
+        "contacts": 2,
+        "corrections": 1,
+        "responseTests": 4,
+        "unresolved": 0,
+        "neighborProbes": 16,
+        "retainedCells": 2
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": false,
+      "side": -1,
+      "tangent": -1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 107.49296604785012,
+        "y": 616
+      },
+      "reference": {
+        "x": 107.49296604785012,
+        "y": 616
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": false,
+      "side": -1,
+      "tangent": -1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 155.49296604785013,
+        "y": 340
+      },
+      "reference": {
+        "x": 155.49296604785013,
+        "y": 340
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 2,
+        "corrections": 1,
+        "responseTests": 3,
+        "unresolved": 0,
+        "neighborProbes": 12,
+        "retainedCells": 2
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": false,
+      "side": -1,
+      "tangent": 1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 107.49296604785012,
+        "y": 136
+      },
+      "reference": {
+        "x": 107.49296604785012,
+        "y": 136
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": false,
+      "side": -1,
+      "tangent": 1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 155.49296604785013,
+        "y": 130
+      },
+      "reference": {
+        "x": 155.49296604785013,
+        "y": 130
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": false,
+      "side": 1,
+      "tangent": -1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 52.50703395214988,
+        "y": 616
+      },
+      "reference": {
+        "x": 52.50703395214988,
+        "y": 616
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": false,
+      "side": 1,
+      "tangent": -1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 84.50703395214988,
+        "y": 340
+      },
+      "reference": {
+        "x": 84.50703395214988,
+        "y": 340
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 2,
+        "corrections": 1,
+        "responseTests": 3,
+        "unresolved": 0,
+        "neighborProbes": 12,
+        "retainedCells": 2
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": false,
+      "side": 1,
+      "tangent": 1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 52.50703395214988,
+        "y": 136
+      },
+      "reference": {
+        "x": 52.50703395214988,
+        "y": 136
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": false,
+      "side": 1,
+      "tangent": 1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 84.50703395214988,
+        "y": 130
+      },
+      "reference": {
+        "x": 84.50703395214988,
+        "y": 130
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": true,
+      "side": -1,
+      "tangent": -1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 616,
+        "y": 105.21011839328582
+      },
+      "reference": {
+        "x": 616,
+        "y": 105.21011839328582
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": true,
+      "side": -1,
+      "tangent": -1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 984,
+        "y": 69.21011839328582
+      },
+      "reference": {
+        "x": 984,
+        "y": 69.21011839328582
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": true,
+      "side": -1,
+      "tangent": 1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 136,
+        "y": 105.21011839328582
+      },
+      "reference": {
+        "x": 136,
+        "y": 105.21011839328582
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": true,
+      "side": -1,
+      "tangent": 1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 144,
+        "y": 69.21011839328582
+      },
+      "reference": {
+        "x": 144,
+        "y": 69.21011839328582
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": true,
+      "side": 1,
+      "tangent": -1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 616,
+        "y": 54.789881606714175
+      },
+      "reference": {
+        "x": 616,
+        "y": 54.789881606714175
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": true,
+      "side": 1,
+      "tangent": -1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 984,
+        "y": 30.789881606714175
+      },
+      "reference": {
+        "x": 984,
+        "y": 30.789881606714175
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": true,
+      "side": 1,
+      "tangent": 1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 136,
+        "y": 54.789881606714175
+      },
+      "reference": {
+        "x": 136,
+        "y": 54.789881606714175
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": true,
+      "side": 1,
+      "tangent": 1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 144,
+        "y": 30.789881606714175
+      },
+      "reference": {
+        "x": 144,
+        "y": 30.789881606714175
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": false,
+      "side": -1,
+      "tangent": -1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 107.60413022701728,
+        "y": 616
+      },
+      "reference": {
+        "x": 107.60413022701728,
+        "y": 616
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": false,
+      "side": -1,
+      "tangent": -1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 155.60413022701727,
+        "y": 340
+      },
+      "reference": {
+        "x": 155.60413022701727,
+        "y": 340
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 2,
+        "corrections": 1,
+        "responseTests": 3,
+        "unresolved": 0,
+        "neighborProbes": 12,
+        "retainedCells": 2
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": false,
+      "side": -1,
+      "tangent": 1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 107.60413022701728,
+        "y": 136
+      },
+      "reference": {
+        "x": 107.60413022701728,
+        "y": 136
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": false,
+      "side": -1,
+      "tangent": 1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 155.60413022701727,
+        "y": 130
+      },
+      "reference": {
+        "x": 155.60413022701727,
+        "y": 130
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 18,
+        "policyRejected": 9,
+        "narrowTests": 9,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": false,
+      "side": 1,
+      "tangent": -1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 52.39586977298272,
+        "y": 616
+      },
+      "reference": {
+        "x": 52.39586977298272,
+        "y": 616
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": false,
+      "side": 1,
+      "tangent": -1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 84.39586977298272,
+        "y": 340
+      },
+      "reference": {
+        "x": 84.39586977298272,
+        "y": 340
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 2,
+        "corrections": 1,
+        "responseTests": 3,
+        "unresolved": 0,
+        "neighborProbes": 12,
+        "retainedCells": 2
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": false,
+      "side": 1,
+      "tangent": 1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 52.39586977298272,
+        "y": 136
+      },
+      "reference": {
+        "x": 52.39586977298272,
+        "y": 136
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": false,
+      "side": 1,
+      "tangent": 1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 84.39586977298272,
+        "y": 130
+      },
+      "reference": {
+        "x": 84.39586977298272,
+        "y": 130
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 18,
+        "policyRejected": 9,
+        "narrowTests": 9,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": true,
+      "side": -1,
+      "tangent": -1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 616,
+        "y": 106.78452896092968
+      },
+      "reference": {
+        "x": 616,
+        "y": 106.78452896092968
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": true,
+      "side": -1,
+      "tangent": -1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 984,
+        "y": 70.78452896092968
+      },
+      "reference": {
+        "x": 984,
+        "y": 70.78452896092968
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 8,
+        "policyRejected": 5,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": true,
+      "side": -1,
+      "tangent": 1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 136,
+        "y": 106.78452896092968
+      },
+      "reference": {
+        "x": 136,
+        "y": 106.78452896092968
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": true,
+      "side": -1,
+      "tangent": 1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 144,
+        "y": 70.78452896092968
+      },
+      "reference": {
+        "x": 144,
+        "y": 70.78452896092968
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 16,
+        "policyRejected": 10,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": true,
+      "side": 1,
+      "tangent": -1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 616,
+        "y": 53.21547103907032
+      },
+      "reference": {
+        "x": 616,
+        "y": 53.21547103907032
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": true,
+      "side": 1,
+      "tangent": -1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 984,
+        "y": 29.215471039070323
+      },
+      "reference": {
+        "x": 984,
+        "y": 29.215471039070323
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 8,
+        "policyRejected": 5,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": true,
+      "side": 1,
+      "tangent": 1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 136,
+        "y": 53.21547103907032
+      },
+      "reference": {
+        "x": 136,
+        "y": 53.21547103907032
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": false,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": true,
+      "side": 1,
+      "tangent": 1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 144,
+        "y": 29.215471039070323
+      },
+      "reference": {
+        "x": 144,
+        "y": 29.215471039070323
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 16,
+        "policyRejected": 10,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": false,
+      "side": -1,
+      "tangent": -1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 106,
+        "y": 652.5514680302346
+      },
+      "reference": {
+        "x": 106,
+        "y": 652.5514680302346
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": false,
+      "side": -1,
+      "tangent": -1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 154,
+        "y": 364.5514680302347
+      },
+      "reference": {
+        "x": 154,
+        "y": 364.5514680302347
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 2,
+        "corrections": 1,
+        "responseTests": 3,
+        "unresolved": 0,
+        "neighborProbes": 12,
+        "retainedCells": 2
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": false,
+      "side": -1,
+      "tangent": 1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 2.220446049250313e-15,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 106,
+        "y": 115.44853196976536
+      },
+      "reference": {
+        "x": 106,
+        "y": 115.44853196976536
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": false,
+      "side": -1,
+      "tangent": 1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 2.220446049250313e-15,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 154,
+        "y": 115.44853196976536
+      },
+      "reference": {
+        "x": 154,
+        "y": 115.44853196976536
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 2,
+        "corrections": 1,
+        "responseTests": 3,
+        "unresolved": 0,
+        "neighborProbes": 12,
+        "retainedCells": 2
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": false,
+      "side": 1,
+      "tangent": -1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 54,
+        "y": 652.5514680302346
+      },
+      "reference": {
+        "x": 54,
+        "y": 652.5514680302346
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": false,
+      "side": 1,
+      "tangent": -1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 86,
+        "y": 364.5514680302347
+      },
+      "reference": {
+        "x": 86,
+        "y": 364.5514680302347
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 2,
+        "corrections": 1,
+        "responseTests": 3,
+        "unresolved": 0,
+        "neighborProbes": 12,
+        "retainedCells": 2
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": false,
+      "side": 1,
+      "tangent": 1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 2.220446049250313e-15,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 54,
+        "y": 115.44853196976536
+      },
+      "reference": {
+        "x": 54,
+        "y": 115.44853196976536
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": false,
+      "side": 1,
+      "tangent": 1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 2.220446049250313e-15,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 86,
+        "y": 115.44853196976536
+      },
+      "reference": {
+        "x": 86,
+        "y": 115.44853196976536
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 2,
+        "corrections": 1,
+        "responseTests": 3,
+        "unresolved": 0,
+        "neighborProbes": 12,
+        "retainedCells": 2
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": true,
+      "side": -1,
+      "tangent": -1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 652.5514680302346,
+        "y": 106
+      },
+      "reference": {
+        "x": 652.5514680302346,
+        "y": 106
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": true,
+      "side": -1,
+      "tangent": -1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 1036.5514680302347,
+        "y": 70
+      },
+      "reference": {
+        "x": 1036.5514680302347,
+        "y": 70
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 8,
+        "policyRejected": 5,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": true,
+      "side": -1,
+      "tangent": 1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 2.220446049250313e-15,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 115.44853196976536,
+        "y": 106
+      },
+      "reference": {
+        "x": 115.44853196976536,
+        "y": 106
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": true,
+      "side": -1,
+      "tangent": 1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 1.4432899320127035e-14,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 115.44853196976536,
+        "y": 70
+      },
+      "reference": {
+        "x": 115.44853196976537,
+        "y": 70
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 8,
+        "policyRejected": 5,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": true,
+      "side": 1,
+      "tangent": -1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 652.5514680302346,
+        "y": 54
+      },
+      "reference": {
+        "x": 652.5514680302346,
+        "y": 54
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": true,
+      "side": 1,
+      "tangent": -1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 1036.5514680302347,
+        "y": 30
+      },
+      "reference": {
+        "x": 1036.5514680302347,
+        "y": 30
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 8,
+        "policyRejected": 5,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": true,
+      "side": 1,
+      "tangent": 1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 2.220446049250313e-15,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 115.44853196976536,
+        "y": 54
+      },
+      "reference": {
+        "x": 115.44853196976536,
+        "y": 54
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": true,
+      "rotation": 0,
+      "horizontal": true,
+      "side": 1,
+      "tangent": 1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 1.4432899320127035e-14,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 115.44853196976536,
+        "y": 30
+      },
+      "reference": {
+        "x": 115.44853196976537,
+        "y": 30
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 8,
+        "policyRejected": 5,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": false,
+      "side": -1,
+      "tangent": -1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 1.4210854715202004e-14,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 107.49296604785012,
+        "y": 654.961584811294
+      },
+      "reference": {
+        "x": 107.49296604785012,
+        "y": 654.961584811294
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": false,
+      "side": -1,
+      "tangent": -1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 5.684341886080802e-14,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 155.49296604785013,
+        "y": 366.961584811294
+      },
+      "reference": {
+        "x": 155.49296604785013,
+        "y": 366.961584811294
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": false,
+      "side": -1,
+      "tangent": 1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 5.684341886080802e-14,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 0.2947747379319239,
+        "y": 48.21214711768059
+      },
+      "reference": {
+        "x": 0.29477473793190967,
+        "y": 48.21214711768059
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 2,
+        "policyRejected": 2,
+        "narrowTests": 0,
+        "contacts": 0,
+        "corrections": 0,
+        "responseTests": 0,
+        "unresolved": 0,
+        "neighborProbes": 0,
+        "retainedCells": 0
+      },
+      "referenceResponse": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": false,
+      "side": -1,
+      "tangent": 1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 5.684341886080802e-14,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 48.29477473793193,
+        "y": 32.21214711768058
+      },
+      "reference": {
+        "x": 48.29477473793192,
+        "y": 32.21214711768059
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 8,
+        "policyRejected": 8,
+        "narrowTests": 0,
+        "contacts": 0,
+        "corrections": 0,
+        "responseTests": 0,
+        "unresolved": 0,
+        "neighborProbes": 0,
+        "retainedCells": 0
+      },
+      "referenceResponse": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": false,
+      "side": 1,
+      "tangent": -1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 1.1368683772161603e-13,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 159.7052252620681,
+        "y": 719.7878528823194
+      },
+      "reference": {
+        "x": 159.7052252620681,
+        "y": 719.7878528823194
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 2,
+        "policyRejected": 2,
+        "narrowTests": 0,
+        "contacts": 0,
+        "corrections": 0,
+        "responseTests": 0,
+        "unresolved": 0,
+        "neighborProbes": 0,
+        "retainedCells": 0
+      },
+      "referenceResponse": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": false,
+      "side": 1,
+      "tangent": -1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 8.526512829121202e-14,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 191.7052252620681,
+        "y": 447.7878528823194
+      },
+      "reference": {
+        "x": 191.7052252620681,
+        "y": 447.7878528823193
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 8,
+        "policyRejected": 8,
+        "narrowTests": 0,
+        "contacts": 0,
+        "corrections": 0,
+        "responseTests": 0,
+        "unresolved": 0,
+        "neighborProbes": 0,
+        "retainedCells": 0
+      },
+      "referenceResponse": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": false,
+      "side": 1,
+      "tangent": 1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 1.4210854715202004e-14,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 52.50703395214988,
+        "y": 113.03841518870598
+      },
+      "reference": {
+        "x": 52.50703395214988,
+        "y": 113.03841518870598
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": false,
+      "side": 1,
+      "tangent": 1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 1.4210854715202004e-14,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 84.50703395214988,
+        "y": 113.038415188706
+      },
+      "reference": {
+        "x": 84.50703395214988,
+        "y": 113.03841518870598
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": true,
+      "side": -1,
+      "tangent": -1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 652,
+        "y": 105.21011839328582
+      },
+      "reference": {
+        "x": 652,
+        "y": 105.21011839328582
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": true,
+      "side": -1,
+      "tangent": -1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 1036,
+        "y": 69.21011839328582
+      },
+      "reference": {
+        "x": 1036,
+        "y": 69.21011839328582
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": true,
+      "side": -1,
+      "tangent": 1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 2.842170943040401e-14,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 109.97195121619093,
+        "y": 105.21011839328582
+      },
+      "reference": {
+        "x": 109.97195121619092,
+        "y": 105.21011839328582
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": true,
+      "side": -1,
+      "tangent": 1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 4.263256414560601e-14,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 109.97195121619093,
+        "y": 69.21011839328582
+      },
+      "reference": {
+        "x": 109.97195121619092,
+        "y": 69.21011839328582
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": true,
+      "side": 1,
+      "tangent": -1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 2.1316282072803006e-14,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 658.0280487838089,
+        "y": 54.789881606714175
+      },
+      "reference": {
+        "x": 658.0280487838089,
+        "y": 54.789881606714175
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": true,
+      "side": 1,
+      "tangent": -1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 2.1316282072803006e-14,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 1042.028048783809,
+        "y": 30.789881606714175
+      },
+      "reference": {
+        "x": 1042.028048783809,
+        "y": 30.789881606714175
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": true,
+      "side": 1,
+      "tangent": 1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 116,
+        "y": 54.789881606714175
+      },
+      "reference": {
+        "x": 116,
+        "y": 54.789881606714175
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": 0.37,
+      "horizontal": true,
+      "side": 1,
+      "tangent": 1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 116,
+        "y": 30.789881606714175
+      },
+      "reference": {
+        "x": 116,
+        "y": 30.789881606714175
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": false,
+      "side": -1,
+      "tangent": -1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 1.1368683772161603e-13,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 48.87212918463438,
+        "y": 767.857671650317
+      },
+      "reference": {
+        "x": 48.87212918463434,
+        "y": 767.8576716503169
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 2,
+        "policyRejected": 2,
+        "narrowTests": 0,
+        "contacts": 0,
+        "corrections": 0,
+        "responseTests": 0,
+        "unresolved": 0,
+        "neighborProbes": 0,
+        "retainedCells": 0
+      },
+      "referenceResponse": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": false,
+      "side": -1,
+      "tangent": -1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 5.684341886080802e-14,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 98.31347173205594,
+        "y": 490.78452896092966
+      },
+      "reference": {
+        "x": 98.31347173205592,
+        "y": 490.78452896092966
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": false,
+      "side": -1,
+      "tangent": 1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 1.4654943925052066e-14,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 107.60413022701728,
+        "y": 111.99918361631245
+      },
+      "reference": {
+        "x": 107.60413022701728,
+        "y": 111.99918361631245
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": false,
+      "side": -1,
+      "tangent": 1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 2.842170943040401e-14,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 155.60413022701727,
+        "y": 111.99918361631244
+      },
+      "reference": {
+        "x": 155.60413022701727,
+        "y": 111.99918361631242
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": false,
+      "side": 1,
+      "tangent": -1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 7.105427357601002e-15,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 52.39586977298272,
+        "y": 656.0008163836875
+      },
+      "reference": {
+        "x": 52.39586977298272,
+        "y": 656.0008163836875
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": false,
+      "side": 1,
+      "tangent": -1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 2.842170943040401e-14,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 84.39586977298272,
+        "y": 368.00081638368755
+      },
+      "reference": {
+        "x": 84.39586977298272,
+        "y": 368.00081638368755
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": false,
+      "side": 1,
+      "tangent": 1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 6.261657858885883e-14,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 111.12787081536577,
+        "y": 0.14232834968325037
+      },
+      "reference": {
+        "x": 111.1278708153658,
+        "y": 0.1423283496833072
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 2,
+        "policyRejected": 2,
+        "narrowTests": 0,
+        "contacts": 0,
+        "corrections": 0,
+        "responseTests": 0,
+        "unresolved": 0,
+        "neighborProbes": 0,
+        "retainedCells": 0
+      },
+      "referenceResponse": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": false,
+      "side": 1,
+      "tangent": 1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 1.5631940186722204e-13,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 141.68652826794397,
+        "y": -10.784528960929677
+      },
+      "reference": {
+        "x": 141.6865282679441,
+        "y": -10.784528960929677
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": true,
+      "side": -1,
+      "tangent": -1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 2.842170943040401e-14,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 672.3889372814804,
+        "y": 106.78452896092968
+      },
+      "reference": {
+        "x": 672.3889372814804,
+        "y": 106.78452896092968
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": true,
+      "side": -1,
+      "tangent": -1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 4.263256414560601e-14,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 1056.3889372814804,
+        "y": 70.78452896092968
+      },
+      "reference": {
+        "x": 1056.3889372814804,
+        "y": 70.78452896092968
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 16,
+        "policyRejected": 10,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": true,
+      "side": -1,
+      "tangent": 1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 116,
+        "y": 106.78452896092968
+      },
+      "reference": {
+        "x": 116,
+        "y": 106.78452896092968
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": true,
+      "side": -1,
+      "tangent": 1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 116,
+        "y": 70.78452896092968
+      },
+      "reference": {
+        "x": 116,
+        "y": 70.78452896092968
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 8,
+        "policyRejected": 5,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": true,
+      "side": 1,
+      "tangent": -1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 652,
+        "y": 53.21547103907032
+      },
+      "reference": {
+        "x": 652,
+        "y": 53.21547103907032
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 6,
+        "policyRejected": 3,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": true,
+      "side": 1,
+      "tangent": -1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 0,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 1036,
+        "y": 29.215471039070323
+      },
+      "reference": {
+        "x": 1036,
+        "y": 29.215471039070323
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 8,
+        "policyRejected": 5,
+        "narrowTests": 3,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": true,
+      "side": 1,
+      "tangent": 1,
+      "tileWidth": 32,
+      "tileHeight": 32,
+      "maxError": 4.973799150320701e-14,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 95.61106271851952,
+        "y": 53.21547103907032
+      },
+      "reference": {
+        "x": 95.6110627185195,
+        "y": 53.21547103907032
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 12,
+        "policyRejected": 6,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "corner": true,
+      "circle": false,
+      "rotation": -0.64,
+      "horizontal": true,
+      "side": 1,
+      "tangent": 1,
+      "tileWidth": 48,
+      "tileHeight": 20,
+      "maxError": 5.684341886080802e-14,
+      "maxUnresolved": 0,
+      "final": {
+        "x": 95.61106271851952,
+        "y": 29.215471039070323
+      },
+      "reference": {
+        "x": 95.61106271851952,
+        "y": 29.215471039070323
+      },
+      "tileDiagnostics": {
+        "maps": 1,
+        "candidateCells": 16,
+        "policyRejected": 10,
+        "narrowTests": 6,
+        "contacts": 1,
+        "corrections": 1,
+        "responseTests": 2,
+        "unresolved": 0,
+        "neighborProbes": 8,
+        "retainedCells": 1
+      },
+      "referenceResponse": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    }
+  ],
+  "limitations": [
+    "Shared Linux/Node JIT host; no browser/GPU/FPS or hardware guarantee",
+    "One map, static axis-aligned terrain and radius10 circles, masks intentionally exclude Actor/Actor response; existing Actor Solver has separate regression evidence",
+    "Phased timings are diagnostic instrumented observations, not zero-overhead production costs; components of profiled and plain runs must not be summed together",
+    "Pose resets keep comparable repeated endpoint penetrations; this is not a full game/session or CCD workload",
+    "Retained cell/pair counters are logical resources, not heap/native/GPU byte measurements; no long soak measured",
+    "The dense map contains free corridors; it is not a claim of recovery from arbitrary fully embedded terrain"
+  ]
+}

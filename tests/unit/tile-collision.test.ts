@@ -407,3 +407,106 @@ describe("dynamic terrain observation and lifetime", () => {
     engine.dispose();
   });
 });
+
+describe("terrain pass boundaries and recovery", () => {
+  it("defers a map created by a contact handler until the next collision pass", () => {
+    const { engine, scene, add } = setup();
+    const a = add(-5, 16, { width: 20, height: 20, response: R.Trigger });
+    let enters = 0;
+    a.collider.events.on(TileContactEnter, () => {
+      if (++enters === 1)
+        new Tilemap({
+          sheet,
+          tiles: [["water"]],
+          tileWidth: 32,
+          tileHeight: 32,
+          collision: { tiles: [{ tile: "water", response: R.Trigger }] },
+        }).place(scene);
+    });
+    engine.step(0);
+    expect(enters).toBe(1);
+    engine.step(0);
+    expect(enters).toBe(2);
+    engine.dispose();
+  });
+  it("clears silently on Scene replacement and permits independent fresh terrain", () => {
+    const { engine, world, map, add } = setup();
+    const a = add();
+    let exits = 0;
+    a.collider.events.on(TileContactExit, () => exits++);
+    engine.step(0);
+    const next = new Scene("next"),
+      nextWorld = new CollisionWorld(next);
+    new Tilemap({
+      sheet,
+      tiles: [["wall"]],
+      tileWidth: 32,
+      tileHeight: 32,
+      collision: { tiles: [{ tile: "wall", response: R.Solid }] },
+    }).place(next);
+    engine.activate(next);
+    engine.step(0);
+    expect(world.disposed).toBe(true);
+    expect(map.disposed).toBe(true);
+    expect(exits).toBe(0);
+    expect(world.tileDiagnostics.retainedCells).toBe(0);
+    expect(nextWorld.tileDiagnostics.maps).toBe(1);
+    engine.dispose();
+  });
+  it("validates every Actor geometry before terrain correction and recovers after repair", () => {
+    const { engine, add } = setup();
+    const a = add(),
+      bad = add(1000, 1000, { shape: CollisionShape.Circle, radius: 10 });
+    bad.t.scaleX = 2;
+    expect(() => engine.step(0)).toThrow(
+      expect.objectContaining({ code: "COLLIDER_SCALE_UNSUPPORTED" }),
+    );
+    expect(a.t.x).toBe(-5);
+    bad.t.scaleY = 2;
+    engine.step(0);
+    expect(a.t.x).toBe(-10);
+    engine.dispose();
+  });
+  it("can disable terrain in an old-policy Exit without receiving the replacement Enter", () => {
+    const { engine, map, add } = setup();
+    const a = add(),
+      calls = phases(a.collider);
+    engine.step(0);
+    map.setCollision(0, 0, { response: R.Trigger });
+    a.collider.events.on(TileContactExit, () => {
+      map.collisionEnabled = false;
+    });
+    engine.step(0);
+    expect(calls.map((c) => c.phase)).toEqual(["enter", "exit"]);
+    map.collisionEnabled = true;
+    engine.step(0);
+    expect(calls.map((c) => c.phase)).toEqual(["enter", "exit", "enter"]);
+    engine.dispose();
+  });
+  it("terminates remaining delivery when a tile handler destroys its Scene", () => {
+    const { engine, world, scene, add } = setup();
+    const a = add(32, 16, { width: 20, height: 20, response: R.Trigger });
+    let enters = 0;
+    a.collider.events.on(TileContactEnter, () => {
+      enters++;
+      scene.dispose();
+    });
+    engine.step(0);
+    expect(enters).toBe(1);
+    expect(world.disposed).toBe(true);
+    expect(world.tileDiagnostics.contacts).toBe(0);
+    engine.dispose();
+  });
+  it("samples explicit static-terrain translation on the next pass", () => {
+    const { engine, map, add } = setup();
+    const a = add(-5, 16, { width: 20, height: 20, response: R.Trigger }),
+      calls = phases(a.collider);
+    engine.step(0);
+    map.x = 100;
+    engine.step(0);
+    map.x = 0;
+    engine.step(0);
+    expect(calls.map((c) => c.phase)).toEqual(["enter", "exit", "enter"]);
+    engine.dispose();
+  });
+});
