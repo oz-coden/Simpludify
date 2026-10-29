@@ -247,6 +247,7 @@ export class CanvasVisual implements CanvasPresentation {
           .clear()
           .rect(clip.x, clip.y, clip.width, clip.height)
           .fill(0xffffff);
+      entry.background.visible = s.background !== undefined || node.interactive;
       entry.background.clear();
       if (s.background !== undefined || node.interactive) {
         entry.background
@@ -320,8 +321,12 @@ export class CanvasVisual implements CanvasPresentation {
       [
         () => entry.abort.abort(),
         () => entry.button?.remove(),
+        // These Graphics contexts and Text styles are private to this presentation.
+        // An options object with only children:true does not destroy owned GraphicsContext in Pixi8.
+        () => entry.background.destroy({ context: true }),
+        () => entry.text?.destroy({ style: true }),
         () => entry.display.destroy({ children: true }),
-        () => entry.mask.destroy(),
+        () => entry.mask.destroy({ context: true }),
       ],
       "Canvas visual entry cleanup failed",
     );

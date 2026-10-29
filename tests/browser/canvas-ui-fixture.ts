@@ -19,6 +19,7 @@ import {
   PointerMove,
   PointerUp,
 } from "@simpludify/web";
+import { inspectCanvasResources } from "../helpers/canvas-resources";
 export async function canvasFixture() {
   window.demo.dispose();
   document.body.replaceChildren();
@@ -228,4 +229,19 @@ export function throwingHold(f: Awaited<ReturnType<typeof canvasFixture>>) {
   f.root.root.add(b);
   f.step();
   return f.center(b);
+}
+
+export async function ownedResourceCycle(
+  f: Awaited<ReturnType<typeof canvasFixture>>,
+) {
+  const active = inspectCanvasResources(f.renderer);
+  for (let i = 0; i < 10; i++) {
+    await f.game.goTo("empty");
+    await f.game.goTo("first");
+  }
+  await f.game.goTo("empty");
+  // The empty Scene has one ordinary world clip plus its Return button.
+  const empty = inspectCanvasResources(f.renderer);
+  f.game.dispose();
+  return { active, empty, counts: f.renderer.canvasDiagnostics };
 }

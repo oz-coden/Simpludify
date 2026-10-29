@@ -66,7 +66,10 @@ try {
       });
     await page.goto("http://127.0.0.1:4173");
     await page.waitForFunction(() => !!window.demo);
-    await page.evaluate(() => window.demo.dispose());
+    await page.evaluate(() => {
+      window.demo.dispose();
+      document.body.replaceChildren();
+    });
     const url = `/@fs/${root}/tests/browser/canvas-ui-benchmark.ts`;
     for (const count of [10, 100, 1000]) {
       const result = await page.evaluate(

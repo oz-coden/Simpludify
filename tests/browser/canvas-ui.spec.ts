@@ -420,6 +420,22 @@ for (const fallback of [false, true])
         ),
       ).toBe(0);
     });
+    test("destroys private Pixi Graphics contexts and Text styles across repeated Scene cycles", async ({
+      page,
+    }) => {
+      await boot(page);
+      const r = await page.evaluate(
+        async (url) =>
+          (await import(url)).ownedResourceCycle(window.canvasProbe),
+        url,
+      );
+      expect(r.active.texts).toBe(3);
+      expect(r.empty.texts).toBe(1);
+      expect(r.empty.textures).toBe(1);
+      expect(r.empty.graphics).toBeLessThanOrEqual(2);
+      expect(r.counts.nodes).toBe(0);
+      expect(r.counts.presentations).toBe(0);
+    });
     test("actual integrated Canvas trail starts, moves into collision, pauses and recreates Scenes", async ({
       page,
     }) => {

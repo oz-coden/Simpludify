@@ -8,6 +8,7 @@ import {
   Game,
   PixiRenderer,
 } from "@simpludify/web";
+import { inspectCanvasResources } from "../helpers/canvas-resources";
 
 const summarize = (raw: number[]) => {
   const v = [...raw].sort((a, b) => a - b);
@@ -81,6 +82,7 @@ export async function browserWorkload(count: number) {
     game.setViewport();
     draw.push(performance.now() - start);
   }
+  const beforeDeliveries = game.pointerDiagnostics.deliveries;
   const beforePointer = ui.diagnostics,
     button = buttons[0];
   if (!button) throw Error("Missing benchmark button");
@@ -106,6 +108,10 @@ export async function browserWorkload(count: number) {
     window.dispatchEvent(new PointerEvent("pointerup", { ...p, buttons: 0 }));
     if (i >= 10) pointer.push(performance.now() - start);
   }
+  if (game.pointerDiagnostics.deliveries - beforeDeliveries !== 30 * 8)
+    throw Error("Synthetic benchmark did not route all pointer events");
+  if (ui.diagnostics.hitTests - beforePointer.hitTests !== 30 * 8)
+    throw Error("Synthetic benchmark did not hit UI for all pointer events");
   const afterPointer = ui.diagnostics,
     counts = renderer.canvasDiagnostics;
   const end = performance.now();
@@ -176,6 +182,7 @@ export async function createCycleProbe() {
         visuals: renderer.canvasDiagnostics,
         mirrors: document.querySelectorAll(".s-canvas-accessibility").length,
         pointers: game.pointerDiagnostics,
+        pixi: inspectCanvasResources(renderer),
       };
     },
     dispose() {
