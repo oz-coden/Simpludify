@@ -1,0 +1,7042 @@
+{
+  "status": "isolated prototype; not production Tilemap collision",
+  "environment": {
+    "measuredAt": "2026-10-29T03:19:42.751Z",
+    "node": "v24.22.1",
+    "platform": "linux",
+    "cpu": "AMD EPYC 9V74 80-Core Processor",
+    "sourceRevision": "1d1d0c018a7fea44d1b24dc7e538f55ecf088b66",
+    "sourceCleanAtStart": true
+  },
+  "methodology": {
+    "warmups": 10,
+    "samples": 20,
+    "repeats": 3,
+    "cellUnits": "integer cell ranges, each body queries side*side cells; no Camera or renderer",
+    "chunkSize": 16,
+    "patterns": "uniform=all Solid; scattered=deterministic coordinate hash modulo 8",
+    "identity": "all strategies enumerate semantic cell IDs after geometry search; checksums/hit counts asserted equal each pass; exact sets checked in unit tests",
+    "timing": "one pass over all actor footprints; edit+index commit and search+cell enumeration separated; excludes input Grid generation, production policy/filter/narrow phase/solver/pair events",
+    "percentiles": "p50 ordinary median, p95 nearest-rank ceil(.95*n)-1; raw values retained",
+    "rawFormat": "Raw per-pass samples grouped by workload after measurement; original floating-point values preserved. Summary uses ordinary median / nearest-rank p95."
+  },
+  "results": [
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.1132070000001022,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.00045099999999820284,
+        "p95": 0.00102100000003702
+      },
+      "queryMs": {
+        "p50": 0.10461499999996704,
+        "p95": 0.24309999999991305
+      },
+      "totalMs": {
+        "p50": 0.10513050000008661,
+        "p95": 0.24359099999992395
+      },
+      "samples": "samples/32-uniform-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.5207700000000841,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 4,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.0004004999999551728,
+        "p95": 0.0008009999999103457
+      },
+      "queryMs": {
+        "p50": 0.1421900000000278,
+        "p95": 0.18156900000008136
+      },
+      "totalMs": {
+        "p50": 0.1425454999999829,
+        "p95": 0.18184900000005655
+      },
+      "samples": "samples/32-uniform-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.444917999999916,
+      "retained": {
+        "rectangles": 4,
+        "bucketReferences": 4,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.00029050000000552245,
+        "p95": 0.000559999999950378
+      },
+      "queryMs": {
+        "p50": 0.028257000000053267,
+        "p95": 0.20090700000014294
+      },
+      "totalMs": {
+        "p50": 0.028572000000053777,
+        "p95": 0.2013080000001537
+      },
+      "samples": "samples/32-uniform-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.009743999999955122,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.003100000000017644,
+        "p95": 0.004286000000092827
+      },
+      "queryMs": {
+        "p50": 0.01837749999992866,
+        "p95": 0.042492999999922176
+      },
+      "totalMs": {
+        "p50": 0.02139699999986533,
+        "p95": 0.048551999999972395
+      },
+      "samples": "samples/32-uniform-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.1593359999999393,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 4,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.028672000000028675,
+        "p95": 0.09256699999991724
+      },
+      "queryMs": {
+        "p50": 0.030475499999965905,
+        "p95": 0.06161100000008446
+      },
+      "totalMs": {
+        "p50": 0.05969849999996768,
+        "p95": 0.12664799999993193
+      },
+      "samples": "samples/32-uniform-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.06021899999996094,
+      "retained": {
+        "rectangles": 4,
+        "bucketReferences": 4,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.0073754999999664506,
+        "p95": 0.008813000000145621
+      },
+      "queryMs": {
+        "p50": 0.031131000000073072,
+        "p95": 0.04922199999987242
+      },
+      "totalMs": {
+        "p50": 0.03855200000009518,
+        "p95": 0.057413999999880616
+      },
+      "samples": "samples/32-uniform-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.012138000000049942,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.00020999999992454832,
+        "p95": 0.00022999999987405317
+      },
+      "queryMs": {
+        "p50": 0.017731000000026143,
+        "p95": 0.019598999999971056
+      },
+      "totalMs": {
+        "p50": 0.01793099999997594,
+        "p95": 0.019789999999829888
+      },
+      "samples": "samples/32-scattered-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.06770999999980631,
+      "retained": {
+        "rectangles": 128,
+        "bucketReferences": 128,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.0002849999999625652,
+        "p95": 0.0006109999999353022
+      },
+      "queryMs": {
+        "p50": 0.38712199999997665,
+        "p95": 0.6601659999998901
+      },
+      "totalMs": {
+        "p50": 0.38741749999996955,
+        "p95": 0.6607769999998254
+      },
+      "samples": "samples/32-scattered-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.20915899999999965,
+      "retained": {
+        "rectangles": 128,
+        "bucketReferences": 128,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.00030600000002323213,
+        "p95": 0.0008409999998093554
+      },
+      "queryMs": {
+        "p50": 0.34898600000008173,
+        "p95": 0.39427200000000084
+      },
+      "totalMs": {
+        "p50": 0.34993199999996705,
+        "p95": 0.39450299999998606
+      },
+      "samples": "samples/32-scattered-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.03317900000001828,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.0019730000000208747,
+        "p95": 0.021391999999877953
+      },
+      "queryMs": {
+        "p50": 0.10322799999994459,
+        "p95": 0.11337800000001153
+      },
+      "totalMs": {
+        "p50": 0.10607200000004013,
+        "p95": 0.1166929999999411
+      },
+      "samples": "samples/32-scattered-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.3103889999999865,
+      "retained": {
+        "rectangles": 128,
+        "bucketReferences": 128,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.20872850000000653,
+        "p95": 0.3262130000000525
+      },
+      "queryMs": {
+        "p50": 0.4075880000000325,
+        "p95": 0.6248040000000401
+      },
+      "totalMs": {
+        "p50": 0.6229359999999815,
+        "p95": 0.7981899999999769
+      },
+      "samples": "samples/32-scattered-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.14824899999985064,
+      "retained": {
+        "rectangles": 128,
+        "bucketReferences": 128,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.0046070000000781874,
+        "p95": 0.006018000000040047
+      },
+      "queryMs": {
+        "p50": 0.04444049999995059,
+        "p95": 0.09592099999986203
+      },
+      "totalMs": {
+        "p50": 0.04938300000003437,
+        "p95": 0.10028799999986404
+      },
+      "samples": "samples/32-scattered-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 10000,
+      "initialSolidCells": 10000,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0064600000000609725,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.00025550000009388896,
+        "p95": 0.0009720000000470463
+      },
+      "queryMs": {
+        "p50": 0.320173000000068,
+        "p95": 0.5879889999998795
+      },
+      "totalMs": {
+        "p50": 0.32058900000004087,
+        "p95": 0.5891110000000026
+      },
+      "samples": "samples/100-uniform-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 10000,
+      "initialSolidCells": 10000,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.04243300000007366,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 49,
+        "buckets": 49
+      },
+      "editMs": {
+        "p50": 0.00033049999990453216,
+        "p95": 0.0005909999999857973
+      },
+      "queryMs": {
+        "p50": 0.40499399999998786,
+        "p95": 0.4572259999999915
+      },
+      "totalMs": {
+        "p50": 0.40526950000003126,
+        "p95": 0.4574959999999919
+      },
+      "samples": "samples/100-uniform-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 10000,
+      "initialSolidCells": 10000,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.19784199999980956,
+      "retained": {
+        "rectangles": 49,
+        "bucketReferences": 49,
+        "buckets": 49
+      },
+      "editMs": {
+        "p50": 0.0004409999999097636,
+        "p95": 0.0006410000000869331
+      },
+      "queryMs": {
+        "p50": 0.39056749999997464,
+        "p95": 0.440501999999924
+      },
+      "totalMs": {
+        "p50": 0.3910679999999047,
+        "p95": 0.44087199999989934
+      },
+      "samples": "samples/100-uniform-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 10000,
+      "initialSolidCells": 10000,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.010424999999941065,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.0020430000000715154,
+        "p95": 0.0026439999999183783
+      },
+      "queryMs": {
+        "p50": 0.37081799999998566,
+        "p95": 0.4220940000000155
+      },
+      "totalMs": {
+        "p50": 0.3730364999998983,
+        "p95": 0.42403699999999844
+      },
+      "samples": "samples/100-uniform-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 10000,
+      "initialSolidCells": 10000,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.06579699999997501,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 49,
+        "buckets": 49
+      },
+      "editMs": {
+        "p50": 0.049919000000045344,
+        "p95": 0.05640399999992951
+      },
+      "queryMs": {
+        "p50": 0.4084134999999378,
+        "p95": 0.47798599999987346
+      },
+      "totalMs": {
+        "p50": 0.45922399999994923,
+        "p95": 0.5316760000000613
+      },
+      "samples": "samples/100-uniform-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 10000,
+      "initialSolidCells": 10000,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.1800660000001244,
+      "retained": {
+        "rectangles": 49,
+        "bucketReferences": 49,
+        "buckets": 49
+      },
+      "editMs": {
+        "p50": 0.007566500000052656,
+        "p95": 0.009764000000132
+      },
+      "queryMs": {
+        "p50": 0.387087000000065,
+        "p95": 0.43374100000005456
+      },
+      "totalMs": {
+        "p50": 0.39340149999998175,
+        "p95": 0.44309499999985746
+      },
+      "samples": "samples/100-uniform-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 10000,
+      "initialSolidCells": 1251,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.007510999999794876,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.0005109999999604042,
+        "p95": 0.0008409999998093554
+      },
+      "queryMs": {
+        "p50": 0.3898710000000847,
+        "p95": 0.4805709999998271
+      },
+      "totalMs": {
+        "p50": 0.3904420000000073,
+        "p95": 0.4810609999999542
+      },
+      "samples": "samples/100-scattered-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 10000,
+      "initialSolidCells": 1251,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.4182379999999739,
+      "retained": {
+        "rectangles": 1251,
+        "bucketReferences": 1251,
+        "buckets": 49
+      },
+      "editMs": {
+        "p50": 0.00034099999993486563,
+        "p95": 0.0005109999999604042
+      },
+      "queryMs": {
+        "p50": 0.4422735000000557,
+        "p95": 0.49270799999999326
+      },
+      "totalMs": {
+        "p50": 0.44271950000006655,
+        "p95": 0.4930890000000545
+      },
+      "samples": "samples/100-scattered-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 10000,
+      "initialSolidCells": 1251,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.26641399999994064,
+      "retained": {
+        "rectangles": 1251,
+        "bucketReferences": 1251,
+        "buckets": 49
+      },
+      "editMs": {
+        "p50": 0.0004109999999855063,
+        "p95": 0.0020930000000589644
+      },
+      "queryMs": {
+        "p50": 0.4695440000000417,
+        "p95": 0.5554409999999734
+      },
+      "totalMs": {
+        "p50": 0.4699194999999463,
+        "p95": 0.5558819999998832
+      },
+      "samples": "samples/100-scattered-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 10000,
+      "initialSolidCells": 1251,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.008273000000144748,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.002464000000031774,
+        "p95": 0.002913999999918815
+      },
+      "queryMs": {
+        "p50": 0.4147129999998924,
+        "p95": 0.46285499999999047
+      },
+      "totalMs": {
+        "p50": 0.4233110000000124,
+        "p95": 0.4651280000000497
+      },
+      "samples": "samples/100-scattered-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 10000,
+      "initialSolidCells": 1251,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.3805019999999786,
+      "retained": {
+        "rectangles": 1251,
+        "bucketReferences": 1251,
+        "buckets": 49
+      },
+      "editMs": {
+        "p50": 0.34368349999999737,
+        "p95": 0.38386800000012045
+      },
+      "queryMs": {
+        "p50": 0.476494500000058,
+        "p95": 0.526548000000048
+      },
+      "totalMs": {
+        "p50": 0.8309335000000146,
+        "p95": 0.8751540000000659
+      },
+      "samples": "samples/100-scattered-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 10000,
+      "initialSolidCells": 1251,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.24885700000004363,
+      "retained": {
+        "rectangles": 1251,
+        "bucketReferences": 1251,
+        "buckets": 49
+      },
+      "editMs": {
+        "p50": 0.010905999999977212,
+        "p95": 0.014982999999801905
+      },
+      "queryMs": {
+        "p50": 0.4638109999999642,
+        "p95": 0.5124370000000908
+      },
+      "totalMs": {
+        "p50": 0.47524799999996503,
+        "p95": 0.5243450000000394
+      },
+      "samples": "samples/100-scattered-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.010495999999875494,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.0002610000000231594,
+        "p95": 0.00046099999985926843
+      },
+      "queryMs": {
+        "p50": 0.40704649999997855,
+        "p95": 0.4390889999999672
+      },
+      "totalMs": {
+        "p50": 0.4073114999999916,
+        "p95": 0.4394999999999527
+      },
+      "samples": "samples/256-uniform-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.3010550000001331,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.00022050000006856862,
+        "p95": 0.00035100000013699173
+      },
+      "queryMs": {
+        "p50": 0.39802850000000944,
+        "p95": 0.442393999999922
+      },
+      "totalMs": {
+        "p50": 0.3984295000000202,
+        "p95": 0.4426139999998213
+      },
+      "samples": "samples/256-uniform-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.9650369999999384,
+      "retained": {
+        "rectangles": 256,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 8.04999999672873e-5,
+        "p95": 0.00043099999993501115
+      },
+      "queryMs": {
+        "p50": 0.006679999999960273,
+        "p95": 0.41037699999992583
+      },
+      "totalMs": {
+        "p50": 0.006765500000028624,
+        "p95": 0.4105869999998504
+      },
+      "samples": "samples/256-uniform-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.004235999999991691,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.0004205000000183645,
+        "p95": 0.0004500000000007276
+      },
+      "queryMs": {
+        "p50": 0.004340999999953965,
+        "p95": 0.004797000000053231
+      },
+      "totalMs": {
+        "p50": 0.004772000000002663,
+        "p95": 0.005227999999988242
+      },
+      "samples": "samples/256-uniform-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.16580500000009124,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.2302549999999428,
+        "p95": 0.3681140000001051
+      },
+      "queryMs": {
+        "p50": 0.007361000000059903,
+        "p95": 0.05848599999990256
+      },
+      "totalMs": {
+        "p50": 0.24166199999990567,
+        "p95": 0.37576500000000124
+      },
+      "samples": "samples/256-uniform-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.6128060000000914,
+      "retained": {
+        "rectangles": 256,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.0021484999999756837,
+        "p95": 0.0029339999998683197
+      },
+      "queryMs": {
+        "p50": 0.006785000000036234,
+        "p95": 0.01174799999989773
+      },
+      "totalMs": {
+        "p50": 0.008978500000125678,
+        "p95": 0.013950999999906344
+      },
+      "samples": "samples/256-uniform-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.004516999999850668,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 6.000000007588824e-5,
+        "p95": 8.100000013655517e-5
+      },
+      "queryMs": {
+        "p50": 0.004205999999953747,
+        "p95": 0.0043969999999262654
+      },
+      "totalMs": {
+        "p50": 0.004265999999915948,
+        "p95": 0.004457000000002154
+      },
+      "samples": "samples/256-scattered-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 1.6204850000001443,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 6.499999994957761e-5,
+        "p95": 0.00030999999989944627
+      },
+      "queryMs": {
+        "p50": 0.036719499999890104,
+        "p95": 0.17041200000016943
+      },
+      "totalMs": {
+        "p50": 0.036789499999940745,
+        "p95": 0.17049199999996745
+      },
+      "samples": "samples/256-scattered-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 1.0228720000000067,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 6.499999994957761e-5,
+        "p95": 9.000000000014552e-5
+      },
+      "queryMs": {
+        "p50": 0.03285849999997481,
+        "p95": 0.035021999999798936
+      },
+      "totalMs": {
+        "p50": 0.03294349999998758,
+        "p95": 0.03510199999982433
+      },
+      "samples": "samples/256-scattered-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.03882700000008299,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.0004099999998743442,
+        "p95": 0.0006809999999859428
+      },
+      "queryMs": {
+        "p50": 0.004196500000148262,
+        "p95": 0.00920300000007046
+      },
+      "totalMs": {
+        "p50": 0.004611500000009983,
+        "p95": 0.009594000000106462
+      },
+      "samples": "samples/256-scattered-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 1.5212890000000243,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 1.5234120000000075,
+        "p95": 2.2633660000001328
+      },
+      "queryMs": {
+        "p50": 0.06146099999989474,
+        "p95": 0.27042900000014924
+      },
+      "totalMs": {
+        "p50": 1.5840220000000045,
+        "p95": 2.7425439999999526
+      },
+      "samples": "samples/256-scattered-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 1.2461620000001403,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.0033399999999801366,
+        "p95": 0.003785000000107175
+      },
+      "queryMs": {
+        "p50": 0.033459999999877255,
+        "p95": 0.03480200000012701
+      },
+      "totalMs": {
+        "p50": 0.03677949999996599,
+        "p95": 0.03824599999984457
+      },
+      "samples": "samples/256-scattered-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 256,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0027239999999437714,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 6.000000007588824e-5,
+        "p95": 8.09999999091815e-5
+      },
+      "queryMs": {
+        "p50": 0.03274850000002516,
+        "p95": 0.09494999999992615
+      },
+      "totalMs": {
+        "p50": 0.03281349999997474,
+        "p95": 0.09501000000000204
+      },
+      "samples": "samples/256-uniform-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 256,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 0,
+      "buildMs": 1.3578379999999015,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 7.549999997991108e-5,
+        "p95": 0.00012999999989915523
+      },
+      "queryMs": {
+        "p50": 0.050614999999993415,
+        "p95": 0.13678200000003926
+      },
+      "totalMs": {
+        "p50": 0.05067499999995562,
+        "p95": 0.13690300000007483
+      },
+      "samples": "samples/256-uniform-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 256,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.5487309999998615,
+      "retained": {
+        "rectangles": 256,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 7.500000003801688e-5,
+        "p95": 0.0002110000000357104
+      },
+      "queryMs": {
+        "p50": 0.05478049999999257,
+        "p95": 0.14202000000000226
+      },
+      "totalMs": {
+        "p50": 0.0548710000000483,
+        "p95": 0.14208000000007814
+      },
+      "samples": "samples/256-uniform-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 256,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.002334000000018932,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.0004454999999552456,
+        "p95": 0.0006300000000010186
+      },
+      "queryMs": {
+        "p50": 0.03202249999992546,
+        "p95": 0.05901700000003984
+      },
+      "totalMs": {
+        "p50": 0.03249249999987569,
+        "p95": 0.059497999999848616
+      },
+      "samples": "samples/256-uniform-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 256,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.16954099999998107,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.1643130000001065,
+        "p95": 0.33308199999987664
+      },
+      "queryMs": {
+        "p50": 0.052787999999964086,
+        "p95": 0.05773599999997714
+      },
+      "totalMs": {
+        "p50": 0.22190299999999752,
+        "p95": 0.3864209999999275
+      },
+      "samples": "samples/256-uniform-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 256,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.6169419999998809,
+      "retained": {
+        "rectangles": 256,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.0022035000000641958,
+        "p95": 0.002774000000044907
+      },
+      "queryMs": {
+        "p50": 0.052848000000039974,
+        "p95": 0.11800500000003922
+      },
+      "totalMs": {
+        "p50": 0.05501199999991968,
+        "p95": 0.12017800000012357
+      },
+      "samples": "samples/256-uniform-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 16,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.002943999999843072,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 6.000000007588824e-5,
+        "p95": 9.999999997489795e-5
+      },
+      "queryMs": {
+        "p50": 0.040740000000027976,
+        "p95": 0.1174039999998513
+      },
+      "totalMs": {
+        "p50": 0.040825000000040745,
+        "p95": 0.11751399999980094
+      },
+      "samples": "samples/256-uniform-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 16,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.26985899999999674,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 6.099999995967664e-5,
+        "p95": 0.00013999999987390765
+      },
+      "queryMs": {
+        "p50": 0.046768999999926564,
+        "p95": 0.16511399999990317
+      },
+      "totalMs": {
+        "p50": 0.0468394999999191,
+        "p95": 0.16523499999993874
+      },
+      "samples": "samples/256-uniform-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 16,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.44659100000012586,
+      "retained": {
+        "rectangles": 256,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 6.099999995967664e-5,
+        "p95": 0.00010999999994965037
+      },
+      "queryMs": {
+        "p50": 0.05128049999996165,
+        "p95": 0.1358909999999014
+      },
+      "totalMs": {
+        "p50": 0.05134099999997943,
+        "p95": 0.13594100000000253
+      },
+      "samples": "samples/256-uniform-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 16,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.0027039999999942665,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.00042100000007394556,
+        "p95": 0.0009010000001126173
+      },
+      "queryMs": {
+        "p50": 0.04081500000006599,
+        "p95": 0.11073400000009315
+      },
+      "totalMs": {
+        "p50": 0.04122100000006412,
+        "p95": 0.11131399999999303
+      },
+      "samples": "samples/256-uniform-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 16,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.28363899999999376,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.16284599999994498,
+        "p95": 0.3015660000000935
+      },
+      "queryMs": {
+        "p50": 0.04794049999998151,
+        "p95": 0.06303300000013223
+      },
+      "totalMs": {
+        "p50": 0.21104649999995218,
+        "p95": 0.3626970000000256
+      },
+      "samples": "samples/256-uniform-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 16,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.45691499999998086,
+      "retained": {
+        "rectangles": 256,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.0022089999998797794,
+        "p95": 0.002644000000145752
+      },
+      "queryMs": {
+        "p50": 0.05129099999999198,
+        "p95": 0.05341900000007627
+      },
+      "totalMs": {
+        "p50": 0.05359950000001845,
+        "p95": 0.05586199999993369
+      },
+      "samples": "samples/256-uniform-32-16.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 1,
+      "side": 8,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0006809999999859428,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 5.000000010113581e-5,
+        "p95": 7.000000005064066e-5
+      },
+      "queryMs": {
+        "p50": 0.0005009999999856518,
+        "p95": 0.0005210000001625303
+      },
+      "totalMs": {
+        "p50": 0.0005510000000867876,
+        "p95": 0.0005909999999857973
+      },
+      "samples": "samples/32-uniform-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 1,
+      "side": 8,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.005177000000003318,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 4,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 6.000000007588824e-5,
+        "p95": 7.000000005064066e-5
+      },
+      "queryMs": {
+        "p50": 0.000630999999884807,
+        "p95": 0.000661000000036438
+      },
+      "totalMs": {
+        "p50": 0.0006909999999606953,
+        "p95": 0.0007209999998849526
+      },
+      "samples": "samples/32-uniform-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 1,
+      "side": 8,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.007070000000112486,
+      "retained": {
+        "rectangles": 4,
+        "bucketReferences": 4,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 6.000000007588824e-5,
+        "p95": 8.000000002539309e-5
+      },
+      "queryMs": {
+        "p50": 0.0006609999998090643,
+        "p95": 0.0007009999999354477
+      },
+      "totalMs": {
+        "p50": 0.0007209999998849526,
+        "p95": 0.0007610000000113359
+      },
+      "samples": "samples/32-uniform-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 1,
+      "side": 8,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.00016000000005078618,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.0006710000000111904,
+        "p95": 0.0010219999999208085
+      },
+      "queryMs": {
+        "p50": 0.0008564999999407519,
+        "p95": 0.0010610000001634035
+      },
+      "totalMs": {
+        "p50": 0.0015824999999267675,
+        "p95": 0.003095000000030268
+      },
+      "samples": "samples/32-uniform-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 1,
+      "side": 8,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.005569000000150481,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 4,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.004807000000027983,
+        "p95": 0.009675000000015643
+      },
+      "queryMs": {
+        "p50": 0.0007910000000492801,
+        "p95": 0.0009519999998701678
+      },
+      "totalMs": {
+        "p50": 0.005652999999938402,
+        "p95": 0.011157000000139305
+      },
+      "samples": "samples/32-uniform-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 1,
+      "side": 8,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.007912000000033004,
+      "retained": {
+        "rectangles": 4,
+        "bucketReferences": 4,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.002138000000059037,
+        "p95": 0.005838999999923544
+      },
+      "queryMs": {
+        "p50": 0.0008559999999988577,
+        "p95": 0.00141299999995681
+      },
+      "totalMs": {
+        "p50": 0.0030095000000756045,
+        "p95": 0.007231000000047061
+      },
+      "samples": "samples/32-uniform-1-8.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 256,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0029540000000451982,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 6.000000007588824e-5,
+        "p95": 8.000000002539309e-5
+      },
+      "queryMs": {
+        "p50": 0.03258800000003248,
+        "p95": 0.03413999999997941
+      },
+      "totalMs": {
+        "p50": 0.03264800000010837,
+        "p95": 0.0342000000000553
+      },
+      "samples": "samples/256-scattered-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 256,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 0,
+      "buildMs": 1.3469010000001163,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.00013049999995473627,
+        "p95": 0.00056100000006154
+      },
+      "queryMs": {
+        "p50": 0.420541500000013,
+        "p95": 0.7047769999999218
+      },
+      "totalMs": {
+        "p50": 0.42069149999997535,
+        "p95": 0.7048569999999472
+      },
+      "samples": "samples/256-scattered-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 256,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 0,
+      "buildMs": 1.0410789999998542,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.00015500000006340997,
+        "p95": 0.000730999999859705
+      },
+      "queryMs": {
+        "p50": 0.43986549999999625,
+        "p95": 0.7635889999999108
+      },
+      "totalMs": {
+        "p50": 0.4400055000000975,
+        "p95": 0.764940999999908
+      },
+      "samples": "samples/256-scattered-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 256,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.005767999999989115,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.0004460000000108266,
+        "p95": 0.0004910000000108994
+      },
+      "queryMs": {
+        "p50": 0.03279350000002523,
+        "p95": 0.045407000000068365
+      },
+      "totalMs": {
+        "p50": 0.033219500000086555,
+        "p95": 0.045827000000144835
+      },
+      "samples": "samples/256-scattered-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 256,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 8,
+      "buildMs": 1.3530399999999645,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 1.9594490000000633,
+        "p95": 11.100468999999975
+      },
+      "queryMs": {
+        "p50": 1.258583499999986,
+        "p95": 3.0656719999999495
+      },
+      "totalMs": {
+        "p50": 3.5110870000002024,
+        "p95": 13.602207000000135
+      },
+      "samples": "samples/256-scattered-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 256,
+      "side": 1,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 8,
+      "buildMs": 1.0799659999997857,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.004826999999977488,
+        "p95": 0.0077820000001338485
+      },
+      "queryMs": {
+        "p50": 0.407827999999995,
+        "p95": 0.6074980000000778
+      },
+      "totalMs": {
+        "p50": 0.4134715000000142,
+        "p95": 0.6124059999999645
+      },
+      "samples": "samples/256-scattered-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 16,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0035649999999805004,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 8.000000002539309e-5,
+        "p95": 0.0001700000000255386
+      },
+      "queryMs": {
+        "p50": 0.03453600000000279,
+        "p95": 0.1345890000000054
+      },
+      "totalMs": {
+        "p50": 0.03466599999990194,
+        "p95": 0.13471899999990455
+      },
+      "samples": "samples/256-scattered-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 16,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 0,
+      "buildMs": 3.51979399999982,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 9.000000000014552e-5,
+        "p95": 0.0008210000000872242
+      },
+      "queryMs": {
+        "p50": 0.15792849999991176,
+        "p95": 0.6111740000001191
+      },
+      "totalMs": {
+        "p50": 0.1580234999998993,
+        "p95": 0.6112440000001698
+      },
+      "samples": "samples/256-scattered-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 16,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.9349019999999655,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 7.999999979801942e-5,
+        "p95": 0.0004409999996823899
+      },
+      "queryMs": {
+        "p50": 0.128349500000013,
+        "p95": 0.24746600000025865
+      },
+      "totalMs": {
+        "p50": 0.12841950000006364,
+        "p95": 0.2475760000002083
+      },
+      "samples": "samples/256-scattered-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 16,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.0065990000002784654,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.00043000000005122274,
+        "p95": 0.0007209999998849526
+      },
+      "queryMs": {
+        "p50": 0.03324449999990975,
+        "p95": 0.04666899999983798
+      },
+      "totalMs": {
+        "p50": 0.03367949999983466,
+        "p95": 0.0470789999999397
+      },
+      "samples": "samples/256-scattered-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 16,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 8,
+      "buildMs": 1.2683250000000044,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 1.5830249999999069,
+        "p95": 2.7600640000000567
+      },
+      "queryMs": {
+        "p50": 0.2647065000001021,
+        "p95": 0.5954810000002908
+      },
+      "totalMs": {
+        "p50": 1.8849215000000186,
+        "p95": 3.329095999999936
+      },
+      "samples": "samples/256-scattered-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 16,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.8536320000002888,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.004382000000077824,
+        "p95": 0.0073699999998098065
+      },
+      "queryMs": {
+        "p50": 0.13264150000009067,
+        "p95": 0.3156360000002678
+      },
+      "totalMs": {
+        "p50": 0.15925049999987095,
+        "p95": 0.319821999999931
+      },
+      "samples": "samples/256-scattered-32-16.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 1,
+      "side": 8,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0035250000000814907,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 5.499999997482519e-5,
+        "p95": 7.000000005064066e-5
+      },
+      "queryMs": {
+        "p50": 0.00043099999993501115,
+        "p95": 0.000450999999884516
+      },
+      "totalMs": {
+        "p50": 0.00048100000003614696,
+        "p95": 0.0005009999999856518
+      },
+      "samples": "samples/32-scattered-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 1,
+      "side": 8,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.022783000000345055,
+      "retained": {
+        "rectangles": 128,
+        "bucketReferences": 128,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 6.000000030326191e-5,
+        "p95": 7.000000005064066e-5
+      },
+      "queryMs": {
+        "p50": 0.001972999999907188,
+        "p95": 0.0021539999997912673
+      },
+      "totalMs": {
+        "p50": 0.002032999999983076,
+        "p95": 0.0022140000000945292
+      },
+      "samples": "samples/32-scattered-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 1,
+      "side": 8,
+      "repeat": 0,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.016845000000103028,
+      "retained": {
+        "rectangles": 128,
+        "bucketReferences": 128,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 6.000000030326191e-5,
+        "p95": 8.000000025276677e-5
+      },
+      "queryMs": {
+        "p50": 0.0020130000000335713,
+        "p95": 0.0022140000000945292
+      },
+      "totalMs": {
+        "p50": 0.0020730000001094595,
+        "p95": 0.002273999999943044
+      },
+      "samples": "samples/32-scattered-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 1,
+      "side": 8,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.0003209999999853608,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.0003999999998995918,
+        "p95": 0.000450999999884516
+      },
+      "queryMs": {
+        "p50": 0.000450999999884516,
+        "p95": 0.00047099999983402085
+      },
+      "totalMs": {
+        "p50": 0.0008510000000114815,
+        "p95": 0.000901999999769032
+      },
+      "samples": "samples/32-scattered-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 1,
+      "side": 8,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.01775699999961944,
+      "retained": {
+        "rectangles": 128,
+        "bucketReferences": 128,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.01621900000009191,
+        "p95": 0.05928799999992407
+      },
+      "queryMs": {
+        "p50": 0.002668999999968946,
+        "p95": 0.0038359999998647254
+      },
+      "totalMs": {
+        "p50": 0.01881800000023759,
+        "p95": 0.06193200000006982
+      },
+      "samples": "samples/32-scattered-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 1,
+      "side": 8,
+      "repeat": 0,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.01418100000000777,
+      "retained": {
+        "rectangles": 128,
+        "bucketReferences": 128,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.003324999999904321,
+        "p95": 0.00360499999987951
+      },
+      "queryMs": {
+        "p50": 0.003280000000131622,
+        "p95": 0.003885999999965861
+      },
+      "totalMs": {
+        "p50": 0.00667499999985921,
+        "p95": 0.007250999999996566
+      },
+      "samples": "samples/32-scattered-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.005137000000104308,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 4,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 9.999999974752427e-5,
+        "p95": 0.00012999999989915523
+      },
+      "queryMs": {
+        "p50": 0.01100149999979294,
+        "p95": 0.012477999999646272
+      },
+      "totalMs": {
+        "p50": 0.01112650000004578,
+        "p95": 0.012567999999646418
+      },
+      "samples": "samples/32-uniform-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.00705999999991036,
+      "retained": {
+        "rectangles": 4,
+        "bucketReferences": 4,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.00010000000020227162,
+        "p95": 0.00014000000010128133
+      },
+      "queryMs": {
+        "p50": 0.011261000000104104,
+        "p95": 0.08196100000031947
+      },
+      "totalMs": {
+        "p50": 0.011361499999793523,
+        "p95": 0.08205100000031962
+      },
+      "samples": "samples/32-uniform-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0007810000001882145,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 9.550000004310277e-5,
+        "p95": 0.00011999999969702912
+      },
+      "queryMs": {
+        "p50": 0.009133499999961714,
+        "p95": 0.009553999999752705
+      },
+      "totalMs": {
+        "p50": 0.00923400000010588,
+        "p95": 0.009653999999954976
+      },
+      "samples": "samples/32-uniform-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.008212000000185071,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 4,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.005182500000046275,
+        "p95": 0.00665000000026339
+      },
+      "queryMs": {
+        "p50": 0.012717999999949825,
+        "p95": 0.018117000000074768
+      },
+      "totalMs": {
+        "p50": 0.017871000000013737,
+        "p95": 0.09981699999980265
+      },
+      "samples": "samples/32-uniform-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.007901999999830878,
+      "retained": {
+        "rectangles": 4,
+        "bucketReferences": 4,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.00253349999979946,
+        "p95": 0.0026739999998426356
+      },
+      "queryMs": {
+        "p50": 0.012447999999722015,
+        "p95": 0.014771999999993568
+      },
+      "totalMs": {
+        "p50": 0.014976999999817053,
+        "p95": 0.01732499999980064
+      },
+      "samples": "samples/32-uniform-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.0005309999996825354,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.000811500000054366,
+        "p95": 0.001010999999834894
+      },
+      "queryMs": {
+        "p50": 0.009213499999759733,
+        "p95": 0.012889000000086526
+      },
+      "totalMs": {
+        "p50": 0.01003949999994802,
+        "p95": 0.01371000000017375
+      },
+      "samples": "samples/32-uniform-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.028522999999950116,
+      "retained": {
+        "rectangles": 128,
+        "bucketReferences": 128,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.00020549999999275315,
+        "p95": 0.00046999999995023245
+      },
+      "queryMs": {
+        "p50": 0.06909200000018245,
+        "p95": 0.12035800000012387
+      },
+      "totalMs": {
+        "p50": 0.06928250000009939,
+        "p95": 0.1208280000000741
+      },
+      "samples": "samples/32-scattered-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0285119999998642,
+      "retained": {
+        "rectangles": 128,
+        "bucketReferences": 128,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.00018099999988407944,
+        "p95": 0.0003209999999853608
+      },
+      "queryMs": {
+        "p50": 0.06972749999999905,
+        "p95": 0.14167899999984002
+      },
+      "totalMs": {
+        "p50": 0.06993299999999181,
+        "p95": 0.14184900000009293
+      },
+      "samples": "samples/32-scattered-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0019029999998565472,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 8.000000025276677e-5,
+        "p95": 9.099999988393392e-5
+      },
+      "queryMs": {
+        "p50": 0.005557999999837193,
+        "p95": 0.00731099999984508
+      },
+      "totalMs": {
+        "p50": 0.005637999999862586,
+        "p95": 0.007391000000097847
+      },
+      "samples": "samples/32-scattered-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.023083999999926164,
+      "retained": {
+        "rectangles": 128,
+        "bucketReferences": 128,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.017531000000190033,
+        "p95": 0.04528699999991659
+      },
+      "queryMs": {
+        "p50": 0.0412464999999429,
+        "p95": 0.09918700000025638
+      },
+      "totalMs": {
+        "p50": 0.05828150000002097,
+        "p95": 0.12068799999997282
+      },
+      "samples": "samples/32-scattered-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.01593300000013187,
+      "retained": {
+        "rectangles": 128,
+        "bucketReferences": 128,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.0034655000001748704,
+        "p95": 0.004116000000067288
+      },
+      "queryMs": {
+        "p50": 0.03868700000020908,
+        "p95": 0.04208199999993667
+      },
+      "totalMs": {
+        "p50": 0.04225300000007337,
+        "p95": 0.045737999999801104
+      },
+      "samples": "samples/32-scattered-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.0014420000002246525,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.0005110000001877779,
+        "p95": 0.0005409999998846615
+      },
+      "queryMs": {
+        "p50": 0.005738500000006752,
+        "p95": 0.006921000000147615
+      },
+      "totalMs": {
+        "p50": 0.006254000000126325,
+        "p95": 0.007411000000047352
+      },
+      "samples": "samples/32-scattered-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 10000,
+      "initialSolidCells": 10000,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.08080999999992855,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 49,
+        "buckets": 49
+      },
+      "editMs": {
+        "p50": 0.00018049999994218524,
+        "p95": 0.00027099999988422496
+      },
+      "queryMs": {
+        "p50": 0.022418000000016036,
+        "p95": 0.03663400000004913
+      },
+      "totalMs": {
+        "p50": 0.022633999999925436,
+        "p95": 0.03685399999994843
+      },
+      "samples": "samples/100-uniform-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 10000,
+      "initialSolidCells": 10000,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.14193999999997686,
+      "retained": {
+        "rectangles": 49,
+        "bucketReferences": 49,
+        "buckets": 49
+      },
+      "editMs": {
+        "p50": 0.00014000000010128133,
+        "p95": 0.00016000000005078618
+      },
+      "queryMs": {
+        "p50": 0.014371499999924708,
+        "p95": 0.0168349999999009
+      },
+      "totalMs": {
+        "p50": 0.01451150000002599,
+        "p95": 0.01697599999988597
+      },
+      "samples": "samples/100-uniform-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 10000,
+      "initialSolidCells": 10000,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0005809999997836712,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.00015050000001792796,
+        "p95": 0.00018000000000029104
+      },
+      "queryMs": {
+        "p50": 0.010790999999926498,
+        "p95": 0.01386000000002241
+      },
+      "totalMs": {
+        "p50": 0.010950999999977284,
+        "p95": 0.01400100000000748
+      },
+      "samples": "samples/100-uniform-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 10000,
+      "initialSolidCells": 10000,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.04979299999968134,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 49,
+        "buckets": 49
+      },
+      "editMs": {
+        "p50": 0.050649499999963155,
+        "p95": 0.06613700000025347
+      },
+      "queryMs": {
+        "p50": 0.025266999999985273,
+        "p95": 0.029193999999733933
+      },
+      "totalMs": {
+        "p50": 0.07562200000006669,
+        "p95": 0.09508999999980006
+      },
+      "samples": "samples/100-uniform-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 10000,
+      "initialSolidCells": 10000,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.12724800000023606,
+      "retained": {
+        "rectangles": 49,
+        "bucketReferences": 49,
+        "buckets": 49
+      },
+      "editMs": {
+        "p50": 0.003991000000269196,
+        "p95": 0.005258000000139873
+      },
+      "queryMs": {
+        "p50": 0.01609849999999824,
+        "p95": 0.017014999999901192
+      },
+      "totalMs": {
+        "p50": 0.020245000000159052,
+        "p95": 0.021040999999968335
+      },
+      "samples": "samples/100-uniform-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 10000,
+      "initialSolidCells": 10000,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.0008310000002893503,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.0010115000000041618,
+        "p95": 0.0012420000002748566
+      },
+      "queryMs": {
+        "p50": 0.011537500000031287,
+        "p95": 0.012769000000389497
+      },
+      "totalMs": {
+        "p50": 0.012578999999959706,
+        "p95": 0.014921999999842228
+      },
+      "samples": "samples/100-uniform-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 10000,
+      "initialSolidCells": 1251,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 2.7961129999998775,
+      "retained": {
+        "rectangles": 1251,
+        "bucketReferences": 1251,
+        "buckets": 49
+      },
+      "editMs": {
+        "p50": 0.000190499999689564,
+        "p95": 0.00029000000040468876
+      },
+      "queryMs": {
+        "p50": 0.0714900000000398,
+        "p95": 0.09332800000038333
+      },
+      "totalMs": {
+        "p50": 0.07175600000005034,
+        "p95": 0.093518000000131
+      },
+      "samples": "samples/100-scattered-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 10000,
+      "initialSolidCells": 1251,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.22638499999993655,
+      "retained": {
+        "rectangles": 1251,
+        "bucketReferences": 1251,
+        "buckets": 49
+      },
+      "editMs": {
+        "p50": 0.00014999999984866008,
+        "p95": 0.0001899999997476698
+      },
+      "queryMs": {
+        "p50": 0.05529150000006666,
+        "p95": 0.08136999999987893
+      },
+      "totalMs": {
+        "p50": 0.055422000000135085,
+        "p95": 0.08149999999977808
+      },
+      "samples": "samples/100-scattered-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 10000,
+      "initialSolidCells": 1251,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0016129999999066058,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.00016999999979816494,
+        "p95": 0.00028100000008635106
+      },
+      "queryMs": {
+        "p50": 0.011497000000190383,
+        "p95": 0.014392000000043481
+      },
+      "totalMs": {
+        "p50": 0.01167200000008961,
+        "p95": 0.014532000000144762
+      },
+      "samples": "samples/100-scattered-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 10000,
+      "initialSolidCells": 1251,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.2642000000000735,
+      "retained": {
+        "rectangles": 1251,
+        "bucketReferences": 1251,
+        "buckets": 49
+      },
+      "editMs": {
+        "p50": 0.2938445000002048,
+        "p95": 0.34484999999995125
+      },
+      "queryMs": {
+        "p50": 0.07567650000009962,
+        "p95": 0.09711400000014692
+      },
+      "totalMs": {
+        "p50": 0.3708079999998972,
+        "p95": 0.41939000000002125
+      },
+      "samples": "samples/100-scattered-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 10000,
+      "initialSolidCells": 1251,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.23577899999963847,
+      "retained": {
+        "rectangles": 1251,
+        "bucketReferences": 1251,
+        "buckets": 49
+      },
+      "editMs": {
+        "p50": 0.007350999999971464,
+        "p95": 0.018778000000111206
+      },
+      "queryMs": {
+        "p50": 0.06329350000009981,
+        "p95": 0.08593699999983073
+      },
+      "totalMs": {
+        "p50": 0.07228199999985918,
+        "p95": 0.09827499999983047
+      },
+      "samples": "samples/100-scattered-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 10000,
+      "initialSolidCells": 1251,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.0013819999999213906,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.0007510000000365835,
+        "p95": 0.0011319999998704589
+      },
+      "queryMs": {
+        "p50": 0.010049000000208252,
+        "p95": 0.011867000000165717
+      },
+      "totalMs": {
+        "p50": 0.010741000000052736,
+        "p95": 0.014130999999906635
+      },
+      "samples": "samples/100-scattered-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.2642710000000079,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.00018049999994218524,
+        "p95": 0.0003509999996822444
+      },
+      "queryMs": {
+        "p50": 0.023875500000031025,
+        "p95": 0.02585799999997107
+      },
+      "totalMs": {
+        "p50": 0.0240609999998469,
+        "p95": 0.026037999999971362
+      },
+      "samples": "samples/256-uniform-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.7653110000001107,
+      "retained": {
+        "rectangles": 256,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.00015549999989161734,
+        "p95": 0.00020999999969717464
+      },
+      "queryMs": {
+        "p50": 0.015953500000250642,
+        "p95": 0.018286999999872933
+      },
+      "totalMs": {
+        "p50": 0.016143499999998312,
+        "p95": 0.018426999999974214
+      },
+      "samples": "samples/256-uniform-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.001051000000188651,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.0001454999999168649,
+        "p95": 0.0002500000000509317
+      },
+      "queryMs": {
+        "p50": 0.011842500000057044,
+        "p95": 0.013380000000324799
+      },
+      "totalMs": {
+        "p50": 0.01199750000023414,
+        "p95": 0.013519999999971333
+      },
+      "samples": "samples/256-uniform-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.2559289999999237,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.26101600000015424,
+        "p95": 0.31123999999999796
+      },
+      "queryMs": {
+        "p50": 0.025578000000223255,
+        "p95": 0.030194999999821448
+      },
+      "totalMs": {
+        "p50": 0.2867544999999154,
+        "p95": 0.33656699999983175
+      },
+      "samples": "samples/256-uniform-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.7466739999999845,
+      "retained": {
+        "rectangles": 256,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.0035450000000309956,
+        "p95": 0.004046000000016647
+      },
+      "queryMs": {
+        "p50": 0.014692000000195549,
+        "p95": 0.016744999999900756
+      },
+      "totalMs": {
+        "p50": 0.018156500000031883,
+        "p95": 0.021762000000308035
+      },
+      "samples": "samples/256-uniform-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.002274000000397791,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.000811500000054366,
+        "p95": 0.001040999999986525
+      },
+      "queryMs": {
+        "p50": 0.011522000000013577,
+        "p95": 0.01389999999992142
+      },
+      "totalMs": {
+        "p50": 0.012353000000075554,
+        "p95": 0.014631999999892287
+      },
+      "samples": "samples/256-uniform-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 2.1747150000001056,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.00023050000004332105,
+        "p95": 0.0003700000002027082
+      },
+      "queryMs": {
+        "p50": 0.07836599999995997,
+        "p95": 0.10200099999974555
+      },
+      "totalMs": {
+        "p50": 0.07857149999995272,
+        "p95": 0.10218099999974584
+      },
+      "samples": "samples/256-scattered-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 1.3960229999997864,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.0001449999999749707,
+        "p95": 0.0002610000001368462
+      },
+      "queryMs": {
+        "p50": 0.0604689999997845,
+        "p95": 0.06469500000002881
+      },
+      "totalMs": {
+        "p50": 0.06060399999978472,
+        "p95": 0.06487600000036764
+      },
+      "samples": "samples/256-scattered-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0036560000003191817,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.00014099999998506973,
+        "p95": 0.00017099999968195334
+      },
+      "queryMs": {
+        "p50": 0.010650500000110696,
+        "p95": 0.012758999999732623
+      },
+      "totalMs": {
+        "p50": 0.010796000000027561,
+        "p95": 0.012898999999833904
+      },
+      "samples": "samples/256-scattered-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 2.0386639999996987,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 2.049884999999904,
+        "p95": 2.8458669999999984
+      },
+      "queryMs": {
+        "p50": 0.10755900000003749,
+        "p95": 0.11493000000018583
+      },
+      "totalMs": {
+        "p50": 2.1567179999999553,
+        "p95": 2.9557990000002974
+      },
+      "samples": "samples/256-scattered-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 1.4570340000000215,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.006570000000237997,
+        "p95": 0.007180000000062137
+      },
+      "queryMs": {
+        "p50": 0.06653800000003685,
+        "p95": 0.08736899999985326
+      },
+      "totalMs": {
+        "p50": 0.07313799999974435,
+        "p95": 0.09349799999972674
+      },
+      "samples": "samples/256-scattered-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.0028339999998934218,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.0007809999999608408,
+        "p95": 0.000871999999617401
+      },
+      "queryMs": {
+        "p50": 0.01054599999997663,
+        "p95": 0.01375000000007276
+      },
+      "totalMs": {
+        "p50": 0.01131149999991976,
+        "p95": 0.014570999999705236
+      },
+      "samples": "samples/256-scattered-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 256,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.25881200000003446,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.00020050000011906377,
+        "p95": 0.0002909999998337298
+      },
+      "queryMs": {
+        "p50": 0.18202900000005684,
+        "p95": 0.21368500000016866
+      },
+      "totalMs": {
+        "p50": 0.1822540000000572,
+        "p95": 0.21390599999995175
+      },
+      "samples": "samples/256-uniform-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 256,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.6946169999996528,
+      "retained": {
+        "rectangles": 256,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.00016999999979816494,
+        "p95": 0.00018099999988407944
+      },
+      "queryMs": {
+        "p50": 0.11424400000009882,
+        "p95": 0.13678200000003926
+      },
+      "totalMs": {
+        "p50": 0.1144045000000915,
+        "p95": 0.13700299999982235
+      },
+      "samples": "samples/256-uniform-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 256,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0035060000000157743,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.00017049999974005914,
+        "p95": 0.000210000000151922
+      },
+      "queryMs": {
+        "p50": 0.08478549999995266,
+        "p95": 0.11318700000038007
+      },
+      "totalMs": {
+        "p50": 0.08497550000015508,
+        "p95": 0.11337800000001153
+      },
+      "samples": "samples/256-uniform-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 256,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.2785119999998642,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.23958399999992253,
+        "p95": 0.3093570000000909
+      },
+      "queryMs": {
+        "p50": 0.1668414999999186,
+        "p95": 0.20160799999985102
+      },
+      "totalMs": {
+        "p50": 0.40744199999994635,
+        "p95": 0.7582509999997455
+      },
+      "samples": "samples/256-uniform-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 256,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.44021099999963553,
+      "retained": {
+        "rectangles": 256,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.0021929999998064886,
+        "p95": 0.003084999999828142
+      },
+      "queryMs": {
+        "p50": 0.05232299999988754,
+        "p95": 0.12642700000014884
+      },
+      "totalMs": {
+        "p50": 0.0545755000000554,
+        "p95": 0.12867000000005646
+      },
+      "samples": "samples/256-uniform-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 256,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.0018220000001747394,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.00036599999998543353,
+        "p95": 0.0005909999999857973
+      },
+      "queryMs": {
+        "p50": 0.0319120000001476,
+        "p95": 0.03934799999979077
+      },
+      "totalMs": {
+        "p50": 0.032548500000075364,
+        "p95": 0.07843600000023798
+      },
+      "samples": "samples/256-uniform-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 16,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.4134710000002997,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 8.09999999091815e-5,
+        "p95": 0.00014999999984866008
+      },
+      "queryMs": {
+        "p50": 0.046593499999971755,
+        "p95": 0.06993300000021918
+      },
+      "totalMs": {
+        "p50": 0.04673400000001493,
+        "p95": 0.07005299999991621
+      },
+      "samples": "samples/256-uniform-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 16,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.5784850000000006,
+      "retained": {
+        "rectangles": 256,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 8.000000025276677e-5,
+        "p95": 0.0001710000001367007
+      },
+      "queryMs": {
+        "p50": 0.051676499999985026,
+        "p95": 0.15122400000018388
+      },
+      "totalMs": {
+        "p50": 0.05175699999995231,
+        "p95": 0.15135400000008303
+      },
+      "samples": "samples/256-uniform-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 16,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.002243000000362372,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.00010000000020227162,
+        "p95": 0.00018000000000029104
+      },
+      "queryMs": {
+        "p50": 0.044981499999721564,
+        "p95": 0.22809700000016164
+      },
+      "totalMs": {
+        "p50": 0.04513199999973949,
+        "p95": 0.22834800000009636
+      },
+      "samples": "samples/256-uniform-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 16,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.16610599999967235,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.20504249999999047,
+        "p95": 0.4468010000000504
+      },
+      "queryMs": {
+        "p50": 0.047876000000087515,
+        "p95": 0.13577100000020437
+      },
+      "totalMs": {
+        "p50": 0.25298350000002756,
+        "p95": 0.4960040000000845
+      },
+      "samples": "samples/256-uniform-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 16,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.5324369999998453,
+      "retained": {
+        "rectangles": 256,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.0023535000002539164,
+        "p95": 0.005368000000089523
+      },
+      "queryMs": {
+        "p50": 0.052387000000180706,
+        "p95": 0.18307999999979074
+      },
+      "totalMs": {
+        "p50": 0.05515600000012455,
+        "p95": 0.18685599999980695
+      },
+      "samples": "samples/256-uniform-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 16,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.0020429999999578285,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.00037599999996018596,
+        "p95": 0.0005209999999351567
+      },
+      "queryMs": {
+        "p50": 0.04318850000004204,
+        "p95": 0.04624799999965035
+      },
+      "totalMs": {
+        "p50": 0.04359950000002755,
+        "p95": 0.046608999999989464
+      },
+      "samples": "samples/256-uniform-32-16.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 1,
+      "side": 8,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.006961000000046624,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 4,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 7.000000005064066e-5,
+        "p95": 9.000000000014552e-5
+      },
+      "queryMs": {
+        "p50": 0.0005909999999857973,
+        "p95": 0.000630999999884807
+      },
+      "totalMs": {
+        "p50": 0.000661000000036438,
+        "p95": 0.0007009999999354477
+      },
+      "samples": "samples/32-uniform-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 1,
+      "side": 8,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.00800200000003315,
+      "retained": {
+        "rectangles": 4,
+        "bucketReferences": 4,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 7.000000005064066e-5,
+        "p95": 9.000000000014552e-5
+      },
+      "queryMs": {
+        "p50": 0.0006560000001627486,
+        "p95": 0.0007009999999354477
+      },
+      "totalMs": {
+        "p50": 0.0007310000000870787,
+        "p95": 0.0007709999999860884
+      },
+      "samples": "samples/32-uniform-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 1,
+      "side": 8,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0003310000001874869,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 7.000000005064066e-5,
+        "p95": 9.000000000014552e-5
+      },
+      "queryMs": {
+        "p50": 0.0005410000003394089,
+        "p95": 0.0005700000001525041
+      },
+      "totalMs": {
+        "p50": 0.0006210000001374283,
+        "p95": 0.0006410000000869331
+      },
+      "samples": "samples/32-uniform-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 1,
+      "side": 8,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.004556999999749678,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 4,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.004707000000053085,
+        "p95": 0.00680000000011205
+      },
+      "queryMs": {
+        "p50": 0.0007510000000365835,
+        "p95": 0.0008809999999357387
+      },
+      "totalMs": {
+        "p50": 0.005463000000190732,
+        "p95": 0.007722000000285334
+      },
+      "samples": "samples/32-uniform-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 1,
+      "side": 8,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.007321000000047206,
+      "retained": {
+        "rectangles": 4,
+        "bucketReferences": 4,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.0020584999999755382,
+        "p95": 0.00233299999990777
+      },
+      "queryMs": {
+        "p50": 0.0007810000001882145,
+        "p95": 0.0009509999999863794
+      },
+      "totalMs": {
+        "p50": 0.0028595000001132576,
+        "p95": 0.003173999999944499
+      },
+      "samples": "samples/32-uniform-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 1,
+      "side": 8,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.000450999999884516,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.0003455000000940345,
+        "p95": 0.00037999999995008693
+      },
+      "queryMs": {
+        "p50": 0.0005555000000185828,
+        "p95": 0.0005710000000362925
+      },
+      "totalMs": {
+        "p50": 0.0008920000000216532,
+        "p95": 0.0009310000000368746
+      },
+      "samples": "samples/32-uniform-1-8.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 256,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 0,
+      "buildMs": 1.7743930000001455,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.00010000000020227162,
+        "p95": 0.0006200000002536399
+      },
+      "queryMs": {
+        "p50": 0.38319650000016736,
+        "p95": 2.5344060000002173
+      },
+      "totalMs": {
+        "p50": 0.3833115000002181,
+        "p95": 2.534505999999965
+      },
+      "samples": "samples/256-scattered-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 256,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 0,
+      "buildMs": 2.924923999999919,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.0001855000000432483,
+        "p95": 0.0003999999998995918
+      },
+      "queryMs": {
+        "p50": 0.44632450000017343,
+        "p95": 0.6756789999999455
+      },
+      "totalMs": {
+        "p50": 0.44669500000009066,
+        "p95": 0.6758899999999812
+      },
+      "samples": "samples/256-scattered-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 256,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0050670000000536675,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 8.000000002539309e-5,
+        "p95": 0.00010999999994965037
+      },
+      "queryMs": {
+        "p50": 0.033760000000256696,
+        "p95": 0.10886100000016086
+      },
+      "totalMs": {
+        "p50": 0.033830000000307336,
+        "p95": 0.108951000000161
+      },
+      "samples": "samples/256-scattered-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 256,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 8,
+      "buildMs": 2.0200370000002295,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 1.7892649999998866,
+        "p95": 3.023309000000154
+      },
+      "queryMs": {
+        "p50": 0.6427249999999276,
+        "p95": 0.8959640000002764
+      },
+      "totalMs": {
+        "p50": 2.480238499999814,
+        "p95": 3.9316020000001117
+      },
+      "samples": "samples/256-scattered-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 256,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.9937989999998535,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.004817000000002736,
+        "p95": 0.007762000000184344
+      },
+      "queryMs": {
+        "p50": 0.42099199999984194,
+        "p95": 0.6133359999998902
+      },
+      "totalMs": {
+        "p50": 0.42564950000019053,
+        "p95": 0.6178130000002966
+      },
+      "samples": "samples/256-scattered-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 256,
+      "side": 1,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.002934999999979482,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.00039050000009410724,
+        "p95": 0.0005510000000867876
+      },
+      "queryMs": {
+        "p50": 0.032953000000134125,
+        "p95": 0.09297699999979159
+      },
+      "totalMs": {
+        "p50": 0.03349400000024616,
+        "p95": 0.09339799999997922
+      },
+      "samples": "samples/256-scattered-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 16,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 0,
+      "buildMs": 1.9091819999998734,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.0001199999999244028,
+        "p95": 0.0011020000001735752
+      },
+      "queryMs": {
+        "p50": 0.209479999999985,
+        "p95": 0.3583490000000893
+      },
+      "totalMs": {
+        "p50": 0.21008099999994556,
+        "p95": 0.35843000000022585
+      },
+      "samples": "samples/256-scattered-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 16,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 0,
+      "buildMs": 1.273772999999892,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 9.999999997489795e-5,
+        "p95": 0.00020999999969717464
+      },
+      "queryMs": {
+        "p50": 0.16773800000009942,
+        "p95": 0.27871200000026874
+      },
+      "totalMs": {
+        "p50": 0.16781299999979638,
+        "p95": 0.27885200000037
+      },
+      "samples": "samples/256-scattered-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 16,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0030740000001969747,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 7.000000005064066e-5,
+        "p95": 0.00017099999968195334
+      },
+      "queryMs": {
+        "p50": 0.036058499999853666,
+        "p95": 0.08215199999995093
+      },
+      "totalMs": {
+        "p50": 0.036133999999947264,
+        "p95": 0.08222200000000157
+      },
+      "samples": "samples/256-scattered-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 16,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 8,
+      "buildMs": 1.5055860000002212,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 1.7245700000000852,
+        "p95": 2.290375999999924
+      },
+      "queryMs": {
+        "p50": 0.22524300000009134,
+        "p95": 0.4011230000000978
+      },
+      "totalMs": {
+        "p50": 1.9342644999999266,
+        "p95": 2.5224990000001526
+      },
+      "samples": "samples/256-scattered-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 16,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.8744430000001557,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.004787000000305852,
+        "p95": 0.008082000000285916
+      },
+      "queryMs": {
+        "p50": 0.21641999999997097,
+        "p95": 0.5421420000002399
+      },
+      "totalMs": {
+        "p50": 0.22161749999986569,
+        "p95": 0.5474090000002434
+      },
+      "samples": "samples/256-scattered-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 16,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.002624000000196247,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.00045599999998557905,
+        "p95": 0.0006909999997333216
+      },
+      "queryMs": {
+        "p50": 0.035913499999878695,
+        "p95": 0.11424900000019989
+      },
+      "totalMs": {
+        "p50": 0.03642899999999827,
+        "p95": 0.11521100000027218
+      },
+      "samples": "samples/256-scattered-32-16.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 1,
+      "side": 8,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.06013900000016292,
+      "retained": {
+        "rectangles": 128,
+        "bucketReferences": 128,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 6.0500000245156116e-5,
+        "p95": 0.00010000000020227162
+      },
+      "queryMs": {
+        "p50": 0.0019129999998312996,
+        "p95": 0.0020429999999578285
+      },
+      "totalMs": {
+        "p50": 0.0019929999998566927,
+        "p95": 0.0021430000001601
+      },
+      "samples": "samples/32-scattered-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 1,
+      "side": 8,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.01539199999979246,
+      "retained": {
+        "rectangles": 128,
+        "bucketReferences": 128,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 7.000000005064066e-5,
+        "p95": 9.000000000014552e-5
+      },
+      "queryMs": {
+        "p50": 0.0020629999996799597,
+        "p95": 0.002423999999791704
+      },
+      "totalMs": {
+        "p50": 0.0021434999998746207,
+        "p95": 0.0024939999998423446
+      },
+      "samples": "samples/32-scattered-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 1,
+      "side": 8,
+      "repeat": 1,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0003400000000510772,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 7.000000005064066e-5,
+        "p95": 7.999999979801942e-5
+      },
+      "queryMs": {
+        "p50": 0.0004754999999931897,
+        "p95": 0.0005110000001877779
+      },
+      "totalMs": {
+        "p50": 0.0005409999998846615,
+        "p95": 0.0005909999999857973
+      },
+      "samples": "samples/32-scattered-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 1,
+      "side": 8,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.018216999999822292,
+      "retained": {
+        "rectangles": 128,
+        "bucketReferences": 128,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.01594850000014958,
+        "p95": 0.018517000000429107
+      },
+      "queryMs": {
+        "p50": 0.0024235000000771834,
+        "p95": 0.0031349999999292777
+      },
+      "totalMs": {
+        "p50": 0.018807499999866195,
+        "p95": 0.022793999999976222
+      },
+      "samples": "samples/32-scattered-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 1,
+      "side": 8,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.014732000000094558,
+      "retained": {
+        "rectangles": 128,
+        "bucketReferences": 128,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.0032344999997349078,
+        "p95": 0.003715000000283908
+      },
+      "queryMs": {
+        "p50": 0.0032799999999042484,
+        "p95": 0.0039249999999810825
+      },
+      "totalMs": {
+        "p50": 0.006549999999833744,
+        "p95": 0.007360000000062428
+      },
+      "samples": "samples/32-scattered-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 1,
+      "side": 8,
+      "repeat": 1,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.0006109999999353022,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.00035100000013699173,
+        "p95": 0.000800999999682972
+      },
+      "queryMs": {
+        "p50": 0.0004999999998744897,
+        "p95": 0.0009410000002390007
+      },
+      "totalMs": {
+        "p50": 0.0008510000000114815,
+        "p95": 0.0017530000000078871
+      },
+      "samples": "samples/32-scattered-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.008052000000134285,
+      "retained": {
+        "rectangles": 4,
+        "bucketReferences": 4,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 7.000000005064066e-5,
+        "p95": 7.999999979801942e-5
+      },
+      "queryMs": {
+        "p50": 0.0061295000000427535,
+        "p95": 0.007531000000199128
+      },
+      "totalMs": {
+        "p50": 0.006198999999924126,
+        "p95": 0.007591000000047643
+      },
+      "samples": "samples/32-uniform-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.00027000000000043656,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 7.000000005064066e-5,
+        "p95": 9.100000033868128e-5
+      },
+      "queryMs": {
+        "p50": 0.004392000000052576,
+        "p95": 0.00447600000006787
+      },
+      "totalMs": {
+        "p50": 0.004477000000179032,
+        "p95": 0.004605999999967025
+      },
+      "samples": "samples/32-uniform-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.005017000000407279,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 4,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 7.000000005064066e-5,
+        "p95": 0.00011100000028818613
+      },
+      "queryMs": {
+        "p50": 0.006239499999992404,
+        "p95": 0.012788999999884254
+      },
+      "totalMs": {
+        "p50": 0.0063095000000430446,
+        "p95": 0.012849000000187516
+      },
+      "samples": "samples/32-uniform-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.008612999999968451,
+      "retained": {
+        "rectangles": 4,
+        "bucketReferences": 4,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.0020680000000083965,
+        "p95": 0.002844000000095548
+      },
+      "queryMs": {
+        "p50": 0.007540999999946507,
+        "p95": 0.06559699999979784
+      },
+      "totalMs": {
+        "p50": 0.009694500000023254,
+        "p95": 0.06844099999989339
+      },
+      "samples": "samples/32-uniform-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.0008309999998346029,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.00040100000001075387,
+        "p95": 0.0009009999998852436
+      },
+      "queryMs": {
+        "p50": 0.004412000000002081,
+        "p95": 0.028522000000066328
+      },
+      "totalMs": {
+        "p50": 0.004811999999901673,
+        "p95": 0.02898300000015297
+      },
+      "samples": "samples/32-uniform-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.006648999999924854,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 4,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.004736999999977343,
+        "p95": 0.007180999999945925
+      },
+      "queryMs": {
+        "p50": 0.007692000000133703,
+        "p95": 0.013139000000137457
+      },
+      "totalMs": {
+        "p50": 0.012503499999866108,
+        "p95": 0.03153600000041479
+      },
+      "samples": "samples/32-uniform-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.01538299999992887,
+      "retained": {
+        "rectangles": 128,
+        "bucketReferences": 128,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 9.000000000014552e-5,
+        "p95": 0.00024100000018734136
+      },
+      "queryMs": {
+        "p50": 0.031391499999926964,
+        "p95": 0.13456899999982852
+      },
+      "totalMs": {
+        "p50": 0.03151150000007874,
+        "p95": 0.13463899999987916
+      },
+      "samples": "samples/32-scattered-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0012120000001232256,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 8.000000002539309e-5,
+        "p95": 0.0006609999995816906
+      },
+      "queryMs": {
+        "p50": 0.00444149999975707,
+        "p95": 0.03236799999967843
+      },
+      "totalMs": {
+        "p50": 0.004511499999807711,
+        "p95": 0.03316899999981615
+      },
+      "samples": "samples/32-scattered-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.029583000000002357,
+      "retained": {
+        "rectangles": 128,
+        "bucketReferences": 128,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 8.499999989908247e-5,
+        "p95": 0.00047099999983402085
+      },
+      "queryMs": {
+        "p50": 0.035167499999943175,
+        "p95": 0.3169990000001235
+      },
+      "totalMs": {
+        "p50": 0.03524749999996857,
+        "p95": 0.31710900000007314
+      },
+      "samples": "samples/32-scattered-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.018056999999771506,
+      "retained": {
+        "rectangles": 128,
+        "bucketReferences": 128,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.0035405000000992004,
+        "p95": 0.006268999999974767
+      },
+      "queryMs": {
+        "p50": 0.03913249999982327,
+        "p95": 0.18891000000030544
+      },
+      "totalMs": {
+        "p50": 0.04309349999994083,
+        "p95": 0.19291599999996834
+      },
+      "samples": "samples/32-scattered-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.0012409999999363208,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.0003699999999753345,
+        "p95": 0.00039100000003600144
+      },
+      "queryMs": {
+        "p50": 0.004196000000092681,
+        "p95": 0.004415999999764608
+      },
+      "totalMs": {
+        "p50": 0.004556500000262531,
+        "p95": 0.0047669999999016
+      },
+      "samples": "samples/32-scattered-32-1.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.04204299999992145,
+      "retained": {
+        "rectangles": 128,
+        "bucketReferences": 128,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.016414499999882537,
+        "p95": 0.058756999999786785
+      },
+      "queryMs": {
+        "p50": 0.03447649999998248,
+        "p95": 0.05375999999978376
+      },
+      "totalMs": {
+        "p50": 0.051225499999873136,
+        "p95": 0.12281100000018341
+      },
+      "samples": "samples/32-scattered-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 10000,
+      "initialSolidCells": 10000,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.13579100000015387,
+      "retained": {
+        "rectangles": 49,
+        "bucketReferences": 49,
+        "buckets": 49
+      },
+      "editMs": {
+        "p50": 5.000000010113581e-5,
+        "p95": 7.999999979801942e-5
+      },
+      "queryMs": {
+        "p50": 0.006319000000075903,
+        "p95": 0.007692000000133703
+      },
+      "totalMs": {
+        "p50": 0.006364000000303349,
+        "p95": 0.007732000000032713
+      },
+      "samples": "samples/100-uniform-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 10000,
+      "initialSolidCells": 10000,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0007410000002892048,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 5.000000010113581e-5,
+        "p95": 7.000000005064066e-5
+      },
+      "queryMs": {
+        "p50": 0.004121000000168351,
+        "p95": 0.004457000000002154
+      },
+      "totalMs": {
+        "p50": 0.004171000000269487,
+        "p95": 0.0045070000001032895
+      },
+      "samples": "samples/100-uniform-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 10000,
+      "initialSolidCells": 10000,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.06966300000021874,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 49,
+        "buckets": 49
+      },
+      "editMs": {
+        "p50": 5.000000010113581e-5,
+        "p95": 7.999999979801942e-5
+      },
+      "queryMs": {
+        "p50": 0.006210000000010041,
+        "p95": 0.012349000000085653
+      },
+      "totalMs": {
+        "p50": 0.00625499999978274,
+        "p95": 0.012399000000186788
+      },
+      "samples": "samples/100-uniform-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 10000,
+      "initialSolidCells": 10000,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.06685800000013842,
+      "retained": {
+        "rectangles": 49,
+        "bucketReferences": 49,
+        "buckets": 49
+      },
+      "editMs": {
+        "p50": 0.0020629999999073334,
+        "p95": 0.003224999999929423
+      },
+      "queryMs": {
+        "p50": 0.00652500000001055,
+        "p95": 0.009754000000157248
+      },
+      "totalMs": {
+        "p50": 0.008543000000145184,
+        "p95": 0.011827000000266708
+      },
+      "samples": "samples/100-uniform-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 10000,
+      "initialSolidCells": 10000,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.000661000000036438,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.00036100000011174416,
+        "p95": 0.00041999999984909664
+      },
+      "queryMs": {
+        "p50": 0.004161500000009255,
+        "p95": 0.004447000000254775
+      },
+      "totalMs": {
+        "p50": 0.004562000000078115,
+        "p95": 0.006069000000024971
+      },
+      "samples": "samples/100-uniform-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 10000,
+      "initialSolidCells": 10000,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.030435000000125,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 49,
+        "buckets": 49
+      },
+      "editMs": {
+        "p50": 0.02945399999998699,
+        "p95": 0.17304599999988568
+      },
+      "queryMs": {
+        "p50": 0.0067594999998163985,
+        "p95": 0.013900000000376167
+      },
+      "totalMs": {
+        "p50": 0.03674900000009984,
+        "p95": 0.1806269999997312
+      },
+      "samples": "samples/100-uniform-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 10000,
+      "initialSolidCells": 1251,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.12096800000017538,
+      "retained": {
+        "rectangles": 1251,
+        "bucketReferences": 1251,
+        "buckets": 49
+      },
+      "editMs": {
+        "p50": 6.050000001778244e-5,
+        "p95": 0.00016000000005078618
+      },
+      "queryMs": {
+        "p50": 0.03191749999973581,
+        "p95": 0.08737999999993917
+      },
+      "totalMs": {
+        "p50": 0.03223800000000665,
+        "p95": 0.09989800000039395
+      },
+      "samples": "samples/100-scattered-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 10000,
+      "initialSolidCells": 1251,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0007909999999355932,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 4.9999999873762135e-5,
+        "p95": 7.000000005064066e-5
+      },
+      "queryMs": {
+        "p50": 0.0041714999999840074,
+        "p95": 0.008162000000083935
+      },
+      "totalMs": {
+        "p50": 0.004211500000110391,
+        "p95": 0.008211999999730324
+      },
+      "samples": "samples/100-scattered-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 10000,
+      "initialSolidCells": 1251,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.18305099999997765,
+      "retained": {
+        "rectangles": 1251,
+        "bucketReferences": 1251,
+        "buckets": 49
+      },
+      "editMs": {
+        "p50": 5.000000010113581e-5,
+        "p95": 7.999999979801942e-5
+      },
+      "queryMs": {
+        "p50": 0.032172499999887805,
+        "p95": 0.04546699999991688
+      },
+      "totalMs": {
+        "p50": 0.03222249999998894,
+        "p95": 0.045507000000270637
+      },
+      "samples": "samples/100-scattered-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 10000,
+      "initialSolidCells": 1251,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.12997200000017983,
+      "retained": {
+        "rectangles": 1251,
+        "bucketReferences": 1251,
+        "buckets": 49
+      },
+      "editMs": {
+        "p50": 0.0032945000000381697,
+        "p95": 0.004405999999562482
+      },
+      "queryMs": {
+        "p50": 0.031256000000212225,
+        "p95": 0.03956800000014482
+      },
+      "totalMs": {
+        "p50": 0.03482650000000831,
+        "p95": 0.043404000000009546
+      },
+      "samples": "samples/100-scattered-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 10000,
+      "initialSolidCells": 1251,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.0008010000001377193,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.00036050000016984995,
+        "p95": 0.0006509999998343119
+      },
+      "queryMs": {
+        "p50": 0.004301500000110536,
+        "p95": 0.007180000000062137
+      },
+      "totalMs": {
+        "p50": 0.0046820000000025175,
+        "p95": 0.007830999999896449
+      },
+      "samples": "samples/100-scattered-32-1.json"
+    },
+    {
+      "size": 100,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 10000,
+      "initialSolidCells": 1251,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.18010599999979604,
+      "retained": {
+        "rectangles": 1251,
+        "bucketReferences": 1251,
+        "buckets": 49
+      },
+      "editMs": {
+        "p50": 0.21870349999994687,
+        "p95": 0.3170789999999215
+      },
+      "queryMs": {
+        "p50": 0.03708449999999175,
+        "p95": 0.10852000000022599
+      },
+      "totalMs": {
+        "p50": 0.26690450000000965,
+        "p95": 0.4034969999997884
+      },
+      "samples": "samples/100-scattered-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.5155620000000454,
+      "retained": {
+        "rectangles": 256,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 5.000000010113581e-5,
+        "p95": 9.999999974752427e-5
+      },
+      "queryMs": {
+        "p50": 0.00647449999996752,
+        "p95": 0.009864999999990687
+      },
+      "totalMs": {
+        "p50": 0.006524500000068656,
+        "p95": 0.009914999999637075
+      },
+      "samples": "samples/256-uniform-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0015530000000580912,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 5.000000010113581e-5,
+        "p95": 5.0999999984924216e-5
+      },
+      "queryMs": {
+        "p50": 0.004145999999764172,
+        "p95": 0.0044669999997495324
+      },
+      "totalMs": {
+        "p50": 0.0041959999998653075,
+        "p95": 0.004516999999850668
+      },
+      "samples": "samples/256-uniform-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.17389700000012454,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 5.000000010113581e-5,
+        "p95": 5.999999984851456e-5
+      },
+      "queryMs": {
+        "p50": 0.006439499999714826,
+        "p95": 0.008102000000235421
+      },
+      "totalMs": {
+        "p50": 0.006489499999815962,
+        "p95": 0.008152000000336557
+      },
+      "samples": "samples/256-uniform-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.6660249999999905,
+      "retained": {
+        "rectangles": 256,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.0020180000001346343,
+        "p95": 0.0021430000001601
+      },
+      "queryMs": {
+        "p50": 0.00654949999989185,
+        "p95": 0.007690999999795167
+      },
+      "totalMs": {
+        "p50": 0.008597499999950742,
+        "p95": 0.00978499999973792
+      },
+      "samples": "samples/256-uniform-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.0012709999996332044,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.00036550000004353933,
+        "p95": 0.00040100000023812754
+      },
+      "queryMs": {
+        "p50": 0.004215999999814812,
+        "p95": 0.004576999999699183
+      },
+      "totalMs": {
+        "p50": 0.004581499999858352,
+        "p95": 0.00495699999964927
+      },
+      "samples": "samples/256-uniform-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.16348100000004706,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.16613550000010946,
+        "p95": 0.2578610000000481
+      },
+      "queryMs": {
+        "p50": 0.006935000000112268,
+        "p95": 0.009373999999752414
+      },
+      "totalMs": {
+        "p50": 0.17321099999981016,
+        "p95": 0.26487200000019584
+      },
+      "samples": "samples/256-uniform-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 1.0852139999997235,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 5.999999984851456e-5,
+        "p95": 0.00014099999998506973
+      },
+      "queryMs": {
+        "p50": 0.034716000000116765,
+        "p95": 0.11083400000006804
+      },
+      "totalMs": {
+        "p50": 0.034791000000041095,
+        "p95": 0.11088400000016918
+      },
+      "samples": "samples/256-scattered-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0033349999998790736,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 5.000000010113581e-5,
+        "p95": 7.000000005064066e-5
+      },
+      "queryMs": {
+        "p50": 0.004255999999941196,
+        "p95": 0.009795000000394793
+      },
+      "totalMs": {
+        "p50": 0.0043009999999412685,
+        "p95": 0.009864999999990687
+      },
+      "samples": "samples/256-scattered-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 0,
+      "buildMs": 1.4413810000000922,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 8.000000002539309e-5,
+        "p95": 0.00016000000005078618
+      },
+      "queryMs": {
+        "p50": 0.037861000000020795,
+        "p95": 0.25466599999981554
+      },
+      "totalMs": {
+        "p50": 0.03799099999991995,
+        "p95": 0.2547759999997652
+      },
+      "samples": "samples/256-scattered-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 1.0326569999997446,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.0034599999999045394,
+        "p95": 0.005948999999873195
+      },
+      "queryMs": {
+        "p50": 0.03466100000014194,
+        "p95": 0.10655799999994997
+      },
+      "totalMs": {
+        "p50": 0.03808100000014747,
+        "p95": 0.1146800000001349
+      },
+      "samples": "samples/256-scattered-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.0036960000002181914,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.00036549999981616565,
+        "p95": 0.0009210000002894958
+      },
+      "queryMs": {
+        "p50": 0.004245999999966443,
+        "p95": 0.060979999999744905
+      },
+      "totalMs": {
+        "p50": 0.004611999999951877,
+        "p95": 0.0619010000000344
+      },
+      "samples": "samples/256-scattered-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 32,
+      "changedCellsPerPass": 8,
+      "buildMs": 1.686823000000004,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 1.802889999999934,
+        "p95": 2.917507999999998
+      },
+      "queryMs": {
+        "p50": 0.06367900000009286,
+        "p95": 0.3679139999999279
+      },
+      "totalMs": {
+        "p50": 1.9234384999999747,
+        "p95": 3.222733999999946
+      },
+      "samples": "samples/256-scattered-32-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 256,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.42710100000022067,
+      "retained": {
+        "rectangles": 256,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 6.500000017695129e-5,
+        "p95": 0.00016999999979816494
+      },
+      "queryMs": {
+        "p50": 0.053613999999925,
+        "p95": 0.16291099999989456
+      },
+      "totalMs": {
+        "p50": 0.05369449999989229,
+        "p95": 0.16305099999999584
+      },
+      "samples": "samples/256-uniform-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 256,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.003255000000081054,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 5.000000010113581e-5,
+        "p95": 9.000000000014552e-5
+      },
+      "queryMs": {
+        "p50": 0.033204000000068845,
+        "p95": 0.04570800000010422
+      },
+      "totalMs": {
+        "p50": 0.03325950000021294,
+        "p95": 0.04575800000020536
+      },
+      "samples": "samples/256-uniform-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 256,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.18411199999991368,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 5.999999984851456e-5,
+        "p95": 0.00010000000020227162
+      },
+      "queryMs": {
+        "p50": 0.051366000000143686,
+        "p95": 0.15170500000022002
+      },
+      "totalMs": {
+        "p50": 0.05142100000011851,
+        "p95": 0.15177499999981592
+      },
+      "samples": "samples/256-uniform-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 256,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.6319140000000516,
+      "retained": {
+        "rectangles": 256,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.0021635000000514992,
+        "p95": 0.0033249999996769475
+      },
+      "queryMs": {
+        "p50": 0.05298349999975471,
+        "p95": 0.12045800000032614
+      },
+      "totalMs": {
+        "p50": 0.055732499999976426,
+        "p95": 0.12259100000028411
+      },
+      "samples": "samples/256-uniform-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 256,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.0012119999996684783,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.0003960000001370645,
+        "p95": 0.0006709999997838167
+      },
+      "queryMs": {
+        "p50": 0.03370449999988523,
+        "p95": 0.08597699999972974
+      },
+      "totalMs": {
+        "p50": 0.03408999999987827,
+        "p95": 0.08633699999973032
+      },
+      "samples": "samples/256-uniform-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 256,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.2698289999998451,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.16832400000021153,
+        "p95": 0.27308399999992616
+      },
+      "queryMs": {
+        "p50": 0.052587500000072396,
+        "p95": 0.21482700000024124
+      },
+      "totalMs": {
+        "p50": 0.22889850000001388,
+        "p95": 0.3767670000001999
+      },
+      "samples": "samples/256-uniform-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 16,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.43541400000003705,
+      "retained": {
+        "rectangles": 256,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 7.000000005064066e-5,
+        "p95": 0.000450999999884516
+      },
+      "queryMs": {
+        "p50": 0.05381900000020323,
+        "p95": 0.15058300000009694
+      },
+      "totalMs": {
+        "p50": 0.054185000000188666,
+        "p95": 0.15125399999988076
+      },
+      "samples": "samples/256-uniform-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 16,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0016430000000582368,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.00010550000024522888,
+        "p95": 0.0008620000003247696
+      },
+      "queryMs": {
+        "p50": 0.07079399999997804,
+        "p95": 0.27512700000033874
+      },
+      "totalMs": {
+        "p50": 0.071094500000072,
+        "p95": 0.2859330000001137
+      },
+      "samples": "samples/256-uniform-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 16,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.6893890000001193,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 5.000000010113581e-5,
+        "p95": 0.00018099999988407944
+      },
+      "queryMs": {
+        "p50": 0.04681450000020959,
+        "p95": 0.29297300000007453
+      },
+      "totalMs": {
+        "p50": 0.046929999999974825,
+        "p95": 0.2930530000003273
+      },
+      "samples": "samples/256-uniform-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 16,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.5326219999997193,
+      "retained": {
+        "rectangles": 256,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.0021780000001854205,
+        "p95": 0.0032150000001820445
+      },
+      "queryMs": {
+        "p50": 0.0513260000000173,
+        "p95": 0.1369830000003276
+      },
+      "totalMs": {
+        "p50": 0.053629000000000815,
+        "p95": 0.13915600000018458
+      },
+      "samples": "samples/256-uniform-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 16,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.0017829999997047707,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.000381000000061249,
+        "p95": 0.0006909999997333216
+      },
+      "queryMs": {
+        "p50": 0.04087100000015198,
+        "p95": 0.1536869999999908
+      },
+      "totalMs": {
+        "p50": 0.04128600000012739,
+        "p95": 0.15403799999967305
+      },
+      "samples": "samples/256-uniform-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "uniform",
+      "actors": 32,
+      "side": 16,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 65536,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.40616999999974723,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 256,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.1829605000000356,
+        "p95": 0.37486900000021706
+      },
+      "queryMs": {
+        "p50": 0.052202500000021246,
+        "p95": 0.15673199999991994
+      },
+      "totalMs": {
+        "p50": 0.25906850000001214,
+        "p95": 0.44759700000031444
+      },
+      "samples": "samples/256-uniform-32-16.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 1,
+      "side": 8,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.00982499999963693,
+      "retained": {
+        "rectangles": 4,
+        "bucketReferences": 4,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 4.9999999873762135e-5,
+        "p95": 5.000000010113581e-5
+      },
+      "queryMs": {
+        "p50": 0.0006009999997331761,
+        "p95": 0.0006210000001374283
+      },
+      "totalMs": {
+        "p50": 0.0006459999999606225,
+        "p95": 0.0006710000002385641
+      },
+      "samples": "samples/32-uniform-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 1,
+      "side": 8,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.00043000000005122274,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 4.9999999873762135e-5,
+        "p95": 7.000000005064066e-5
+      },
+      "queryMs": {
+        "p50": 0.0004910000002382731,
+        "p95": 0.0005110000001877779
+      },
+      "totalMs": {
+        "p50": 0.0005409999998846615,
+        "p95": 0.0005610000002889137
+      },
+      "samples": "samples/32-uniform-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 1,
+      "side": 8,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.004986999999800901,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 4,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 5.000000010113581e-5,
+        "p95": 5.0999999984924216e-5
+      },
+      "queryMs": {
+        "p50": 0.0005809999997836712,
+        "p95": 0.0006709999997838167
+      },
+      "totalMs": {
+        "p50": 0.0006210000001374283,
+        "p95": 0.0007110000001375738
+      },
+      "samples": "samples/32-uniform-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 1,
+      "side": 8,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.006869999999707943,
+      "retained": {
+        "rectangles": 4,
+        "bucketReferences": 4,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.0020879999999579013,
+        "p95": 0.0022629999998571293
+      },
+      "queryMs": {
+        "p50": 0.0007909999999355932,
+        "p95": 0.00087100000018836
+      },
+      "totalMs": {
+        "p50": 0.0028744999999616994,
+        "p95": 0.003123999999843363
+      },
+      "samples": "samples/32-uniform-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 1,
+      "side": 8,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.00021999999989930075,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.00035100000013699173,
+        "p95": 0.00037999999995008693
+      },
+      "queryMs": {
+        "p50": 0.0005005000000437576,
+        "p95": 0.0005110000001877779
+      },
+      "totalMs": {
+        "p50": 0.0008514999999533757,
+        "p95": 0.0009209999998347485
+      },
+      "samples": "samples/32-uniform-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "uniform",
+      "actors": 1,
+      "side": 8,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 1024,
+      "initialSolidCells": 1024,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.004527000000052794,
+      "retained": {
+        "rectangles": 1,
+        "bucketReferences": 4,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.004632000000128755,
+        "p95": 0.004997999999886815
+      },
+      "queryMs": {
+        "p50": 0.0007060000000365108,
+        "p95": 0.0008809999999357387
+      },
+      "totalMs": {
+        "p50": 0.00532799999996314,
+        "p95": 0.005808000000342872
+      },
+      "samples": "samples/32-uniform-1-8.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 256,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.9881709999999657,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.0002250000000003638,
+        "p95": 0.0005710000000362925
+      },
+      "queryMs": {
+        "p50": 0.5465230000002066,
+        "p95": 0.8565659999999298
+      },
+      "totalMs": {
+        "p50": 0.5468740000001162,
+        "p95": 0.8567469999998139
+      },
+      "samples": "samples/256-scattered-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 256,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.005027000000154658,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 5.000000010113581e-5,
+        "p95": 0.00012000000015177648
+      },
+      "queryMs": {
+        "p50": 0.032933999999841035,
+        "p95": 0.09361799999987852
+      },
+      "totalMs": {
+        "p50": 0.0330140000000938,
+        "p95": 0.09366799999997966
+      },
+      "samples": "samples/256-scattered-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 256,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 0,
+      "buildMs": 6.690384999999878,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.00018499999987398041,
+        "p95": 0.00047099999983402085
+      },
+      "queryMs": {
+        "p50": 0.48833200000012766,
+        "p95": 0.7025790000002416
+      },
+      "totalMs": {
+        "p50": 0.4885225000000446,
+        "p95": 0.7026989999999387
+      },
+      "samples": "samples/256-scattered-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 256,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 8,
+      "buildMs": 1.1369310000000041,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.0049369999999271386,
+        "p95": 0.006620000000111759
+      },
+      "queryMs": {
+        "p50": 0.4307214999998905,
+        "p95": 0.6363600000004226
+      },
+      "totalMs": {
+        "p50": 0.43599449999965145,
+        "p95": 0.6419190000001436
+      },
+      "samples": "samples/256-scattered-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 256,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.0031549999998787825,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.0004105000000436121,
+        "p95": 0.0006109999999353022
+      },
+      "queryMs": {
+        "p50": 0.03386999999997897,
+        "p95": 0.09199600000010832
+      },
+      "totalMs": {
+        "p50": 0.03428049999979521,
+        "p95": 0.09244600000010905
+      },
+      "samples": "samples/256-scattered-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 256,
+      "side": 1,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 256,
+      "changedCellsPerPass": 8,
+      "buildMs": 1.88565699999981,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 1.6220124999999825,
+        "p95": 2.3987760000004528
+      },
+      "queryMs": {
+        "p50": 0.5860114999998132,
+        "p95": 1.0809880000001613
+      },
+      "totalMs": {
+        "p50": 2.223121500000161,
+        "p95": 3.3745389999999134
+      },
+      "samples": "samples/256-scattered-256-1.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 16,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 0,
+      "buildMs": 1.9460469999999077,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 7.500000015170372e-5,
+        "p95": 0.0001999999999497959
+      },
+      "queryMs": {
+        "p50": 0.12944149999998444,
+        "p95": 0.2621980000003532
+      },
+      "totalMs": {
+        "p50": 0.1295514999999341,
+        "p95": 0.26231800000005023
+      },
+      "samples": "samples/256-scattered-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 16,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0035349999998288695,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 5.000000010113581e-5,
+        "p95": 0.00011000000040439772
+      },
+      "queryMs": {
+        "p50": 0.03373450000003686,
+        "p95": 0.135899999999765
+      },
+      "totalMs": {
+        "p50": 0.033824500000037006,
+        "p95": 0.13594999999986612
+      },
+      "samples": "samples/256-scattered-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 16,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 0,
+      "buildMs": 1.6634289999997236,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 9.49999998738349e-5,
+        "p95": 0.0002899999999499414
+      },
+      "queryMs": {
+        "p50": 0.16377250000005006,
+        "p95": 0.26931899999999587
+      },
+      "totalMs": {
+        "p50": 0.16395249999982298,
+        "p95": 0.269369000000097
+      },
+      "samples": "samples/256-scattered-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 16,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 8,
+      "buildMs": 1.3101260000003094,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 0.003836000000092099,
+        "p95": 0.01055499999984022
+      },
+      "queryMs": {
+        "p50": 0.1283050000001822,
+        "p95": 0.22289899999987028
+      },
+      "totalMs": {
+        "p50": 0.13231100000029983,
+        "p95": 0.24556299999994735
+      },
+      "samples": "samples/256-scattered-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 16,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.004206000000067434,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.0004210000001876324,
+        "p95": 0.0007009999999354477
+      },
+      "queryMs": {
+        "p50": 0.03394050000019888,
+        "p95": 0.14192000000002736
+      },
+      "totalMs": {
+        "p50": 0.03457150000008369,
+        "p95": 0.142341000000215
+      },
+      "samples": "samples/256-scattered-32-16.json"
+    },
+    {
+      "size": 256,
+      "pattern": "scattered",
+      "actors": 32,
+      "side": 16,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 65536,
+      "initialSolidCells": 8192,
+      "footprintCellsPerPass": 8192,
+      "changedCellsPerPass": 8,
+      "buildMs": 1.6865730000004078,
+      "retained": {
+        "rectangles": 8192,
+        "bucketReferences": 8192,
+        "buckets": 256
+      },
+      "editMs": {
+        "p50": 1.9310244999999213,
+        "p95": 2.643749000000298
+      },
+      "queryMs": {
+        "p50": 0.33953199999996286,
+        "p95": 0.5337890000000698
+      },
+      "totalMs": {
+        "p50": 2.234117499999911,
+        "p95": 3.13828999999987
+      },
+      "samples": "samples/256-scattered-32-16.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 1,
+      "side": 8,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "chunked",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0439249999999447,
+      "retained": {
+        "rectangles": 128,
+        "bucketReferences": 128,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 5.000000010113581e-5,
+        "p95": 5.0999999984924216e-5
+      },
+      "queryMs": {
+        "p50": 0.001902499999914653,
+        "p95": 0.002122999999755848
+      },
+      "totalMs": {
+        "p50": 0.0019525000000157888,
+        "p95": 0.0021729999998569838
+      },
+      "samples": "samples/32-scattered-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 1,
+      "side": 8,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "direct",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.0005409999998846615,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 5.000000010113581e-5,
+        "p95": 7.000000005064066e-5
+      },
+      "queryMs": {
+        "p50": 0.00043049999999311694,
+        "p95": 0.00043099999993501115
+      },
+      "totalMs": {
+        "p50": 0.0004754999999931897,
+        "p95": 0.0005009999999856518
+      },
+      "samples": "samples/32-scattered-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 1,
+      "side": 8,
+      "repeat": 2,
+      "dynamic": false,
+      "strategy": "merged",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 0,
+      "buildMs": 0.01799699999992299,
+      "retained": {
+        "rectangles": 128,
+        "bucketReferences": 128,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 5.000000010113581e-5,
+        "p95": 7.000000005064066e-5
+      },
+      "queryMs": {
+        "p50": 0.0019580000002861198,
+        "p95": 0.0022030000000086147
+      },
+      "totalMs": {
+        "p50": 0.002008000000159882,
+        "p95": 0.002273999999943044
+      },
+      "samples": "samples/32-scattered-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 1,
+      "side": 8,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "chunked",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.01371000000017375,
+      "retained": {
+        "rectangles": 128,
+        "bucketReferences": 128,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.003264999999828433,
+        "p95": 0.0038059999997130944
+      },
+      "queryMs": {
+        "p50": 0.0031549999998787825,
+        "p95": 0.0035549999997783743
+      },
+      "totalMs": {
+        "p50": 0.006523999999899388,
+        "p95": 0.0072909999998955755
+      },
+      "samples": "samples/32-scattered-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 1,
+      "side": 8,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "direct",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.00034099999993486563,
+      "retained": {
+        "rectangles": 0,
+        "bucketReferences": 0,
+        "buckets": 0
+      },
+      "editMs": {
+        "p50": 0.00036100000011174416,
+        "p95": 0.00038099999983387534
+      },
+      "queryMs": {
+        "p50": 0.00044100000013713725,
+        "p95": 0.000450999999884516
+      },
+      "totalMs": {
+        "p50": 0.0008109999998850981,
+        "p95": 0.0008210000000872242
+      },
+      "samples": "samples/32-scattered-1-8.json"
+    },
+    {
+      "size": 32,
+      "pattern": "scattered",
+      "actors": 1,
+      "side": 8,
+      "repeat": 2,
+      "dynamic": true,
+      "strategy": "merged",
+      "mapCells": 1024,
+      "initialSolidCells": 128,
+      "footprintCellsPerPass": 64,
+      "changedCellsPerPass": 8,
+      "buildMs": 0.01872800000001007,
+      "retained": {
+        "rectangles": 128,
+        "bucketReferences": 128,
+        "buckets": 4
+      },
+      "editMs": {
+        "p50": 0.017245499999944514,
+        "p95": 0.0826430000001892
+      },
+      "queryMs": {
+        "p50": 0.0026989999998932035,
+        "p95": 0.004065999999966152
+      },
+      "totalMs": {
+        "p50": 0.021085999999968408,
+        "p95": 0.08529600000019855
+      },
+      "samples": "samples/32-scattered-1-8.json"
+    }
+  ],
+  "actorSweep": [
+    {
+      "distribution": "horizontal",
+      "actors": 1000,
+      "times": [
+        0.615179999999782, 0.38940599999978076, 0.38618099999985134,
+        0.3390309999999772, 0.3638980000000629, 0.29480599999988044,
+        0.3320010000002185, 0.4619230000002972, 0.41492299999981697,
+        0.7253820000000815
+      ],
+      "milliseconds": {
+        "p50": 0.38779349999981605,
+        "p95": 0.7253820000000815
+      },
+      "colliders": 1000,
+      "contacts": 0,
+      "candidates": 0,
+      "narrowTests": 0
+    },
+    {
+      "distribution": "vertical",
+      "actors": 1000,
+      "times": [
+        11.692916000000423, 13.557392000000164, 14.334832000000006,
+        13.722166000000016, 11.978056999999808, 12.55271700000003,
+        11.177393999999822, 10.952567000000272, 9.67620399999987,
+        9.035507000000052
+      ],
+      "milliseconds": {
+        "p50": 11.835486500000115,
+        "p95": 14.334832000000006
+      },
+      "colliders": 1000,
+      "contacts": 0,
+      "candidates": 499500,
+      "narrowTests": 0
+    },
+    {
+      "distribution": "coincident",
+      "actors": 1000,
+      "times": [
+        272.1551749999999, 302.6359000000002, 305.5944929999996,
+        265.4837270000007, 369.51760099999956, 269.0574749999996,
+        273.3294910000004, 270.2058080000006, 274.4031180000002,
+        284.9370250000002
+      ],
+      "milliseconds": {
+        "p50": 273.8663045000003,
+        "p95": 369.51760099999956
+      },
+      "colliders": 1000,
+      "contacts": 499500,
+      "candidates": 499500,
+      "narrowTests": 499500
+    }
+  ],
+  "responseProbe": {
+    "single": {
+      "position": {
+        "x": -10,
+        "y": 16
+      },
+      "corrections": 1,
+      "unresolved": 0,
+      "visits": 3,
+      "touched": [0]
+    },
+    "circleSlide": {
+      "final": {
+        "x": 54,
+        "y": 139.43444369830038
+      },
+      "expectedTangentY": 136,
+      "tangentError": 3.4344436983003845,
+      "corrections": 70,
+      "unresolved": 0
+    },
+    "boxSlide": {
+      "final": {
+        "x": 54,
+        "y": 136
+      },
+      "expectedTangentY": 136,
+      "tangentError": 0,
+      "corrections": 60,
+      "unresolved": 0
+    },
+    "embedded": {
+      "position": {
+        "x": 86,
+        "y": 106
+      },
+      "corrections": 13,
+      "unresolved": 1,
+      "visits": 28,
+      "touched": [14, 15, 20, 21]
+    }
+  },
+  "limitations": [
+    "Shared Linux host / Node JIT, not real-time FPS or browser/hardware claim",
+    "One map, static axis-aligned boolean cells, footprint axis-aligned boxes, no mixed policies",
+    "Merged is greedy row-run + spatial buckets, not globally optimal rectangle cover; chunked merges inside 16x16 chunks",
+    "Per-cell identity enumeration prevents claiming rectangle count alone as whole-system cost",
+    "No native memory/GC bytes, long soak, full terrain physics or GPU work measured"
+  ]
+}

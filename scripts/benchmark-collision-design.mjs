@@ -219,6 +219,26 @@ try {
     ],
   };
   mkdirSync(dirname(resolve(out)), { recursive: true });
+  const groups = new Map();
+  for (const row of report.results) {
+    const name = `${row.size}-${row.pattern}-${row.actors}-${row.side}.json`;
+    const group = groups.get(name) ?? [];
+    group.push({
+      strategy: row.strategy,
+      repeat: row.repeat,
+      dynamic: row.dynamic,
+      records: row.records,
+    });
+    groups.set(name, group);
+    delete row.records;
+    row.samples = `samples/${name}`;
+  }
+  mkdirSync(resolve(dirname(out), "samples"), { recursive: true });
+  for (const [name, group] of groups)
+    writeFileSync(
+      resolve(dirname(out), "samples", name),
+      `${JSON.stringify(group)}\n`,
+    );
   writeFileSync(out, `${JSON.stringify(report, null, 2)}\n`);
   console.log(
     JSON.stringify(
