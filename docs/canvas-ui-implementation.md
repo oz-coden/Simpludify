@@ -59,3 +59,7 @@ The post-text-cleanup report (`browser-text-fix.json`, `fe5603b`) confirms zero 
 ## Final measurement checkpoint
 
 All final measurement reports now use clean runtime `94065a6f5ccaa66d488df08c2e61e6d4f60b9307`. Model, browser, Scene-transition, live-resource/metadata and matched bundle/Yoga reports are saved in `benchmarks/canvas-ui/`; investigation runs remain separately named. The supported performance page replaces preliminary findings with explicit scope/limits. Actual TypeScript IDE completions are checked by `scripts/check-ui-completions.mjs` (Action names, style properties, align literals and pointer fields). No runtime change is introduced in this checkpoint. Final all-engine tests, production builds/site and main history/ref gates follow.
+
+## All-engine validation checkpoint
+
+539 unit tests in 40 files pass. Strict TypeScript/DOM-free Core, architecture/required-file boundaries and license checks pass (116 locked dependencies). Biome reports only the existing 12 warnings/11 infos after formatting the new Markdown/JSON; parsed benchmark values were checked unchanged before/after formatting. UI, Collision/SpriteSheet and SpriteAnimation completion probes pass against the actual pinned TypeScript API. The full zero-retry Chromium regression is in progress; production/site and integration gates remain pending.

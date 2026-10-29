@@ -4,32 +4,57 @@ Canvas UIはPixi上に描画するHUDやゲーム操作ボタンです。既存�
 
 ```ts verify
 import {
-  Action, CanvasButton, CanvasColumn, CanvasHoldButton, CanvasLabel, CanvasPanel,
-  CanvasRow, Character, defineActions, Game, KeyboardBindings, PointerClick,
+  Action,
+  CanvasButton,
+  CanvasColumn,
+  CanvasHoldButton,
+  CanvasLabel,
+  CanvasPanel,
+  CanvasRow,
+  Character,
+  defineActions,
+  Game,
+  KeyboardBindings,
+  PointerClick,
 } from "@simpludify/web";
 const game = new Game<"title" | "play">();
 const Actions = defineActions({ Move: Action.axis2D() });
 game.scene("title", ({ canvasUI }) => {
-  canvasUI(CanvasColumn([
-    CanvasLabel("Ready?", { fontSize: 30 }),
-    CanvasButton("Start", () => game.goTo("play")),
-  ], { gap: 20, align: "center", justify: "center" }));
+  canvasUI(
+    CanvasColumn(
+      [
+        CanvasLabel("Ready?", { fontSize: 30 }),
+        CanvasButton("Start", () => game.goTo("play")),
+      ],
+      { gap: 20, align: "center", justify: "center" },
+    ),
+  );
 });
 game.scene("play", ({ actions, canvasUI, pointer, add }) => {
   const controls = actions(Actions, { Move: KeyboardBindings.WASD });
   add(Character({ movement: controls.reader(Actions.Move) }));
-  const right = CanvasHoldButton("Right", held => {
+  const right = CanvasHoldButton("Right", (held) => {
     source.set(Actions.Move, held ? { x: 1, y: 0 } : { x: 0, y: 0 });
   });
   const source = controls.createSource(right);
   const selected = CanvasLabel("Select the field");
-  canvasUI(CanvasColumn([
-    CanvasRow([selected, CanvasButton("Menu", () => game.goTo("title"))], { gap: 12, wrap: true }),
-    CanvasPanel([], { grow: 1 }),
-    right,
-  ], { padding: 12, gap: 10 }));
-  pointer.events.on(PointerClick, event => {
-    selected.setText(`World ${Math.round(event.world.x)}, ${Math.round(event.world.y)}`);
+  canvasUI(
+    CanvasColumn(
+      [
+        CanvasRow([selected, CanvasButton("Menu", () => game.goTo("title"))], {
+          gap: 12,
+          wrap: true,
+        }),
+        CanvasPanel([], { grow: 1 }),
+        right,
+      ],
+      { padding: 12, gap: 10 },
+    ),
+  );
+  pointer.events.on(PointerClick, (event) => {
+    selected.setText(
+      `World ${Math.round(event.world.x)}, ${Math.round(event.world.y)}`,
+    );
   });
 });
 await game.run("title");

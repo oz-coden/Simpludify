@@ -9,19 +9,19 @@ Raw reports: [model](../benchmarks/canvas-ui/model.json), [browser](../benchmark
 Synthetic fixed text metrics, a wrapped row, 10 warmups and 100 recorded dirty-layout/gesture samples. A gesture is down + five moves + up, with one additional Click delivery. Idle values divide batches of 1000 calls and include assertion overhead. Disposal is one observation per size.
 
 | Buttons (+1 root) | Dirty layout p50 | One text edit + layout p50 | Idle call p50 | Gesture p50 | Hit visits / gesture | Dispose |
-| --- | --- | --- | --- | --- | --- | --- |
-| 10 | 0.0206 | 0.0060 | 0.0000108 | 0.0154 | 88 | 0.984 |
-| 100 | 0.0535 | 0.0301 | 0.0000297 | 0.0514 | 808 | 0.964 |
-| 1000 | 0.2748 | 0.2246 | 0.0000033 | 0.4777 | 8008 | 8.722 |
-| 5000 | 1.4484 | 1.4077 | 0.0000277 | 2.5616 | 40008 | 45.761 |
+| ----------------- | ---------------- | -------------------------- | ------------- | ----------- | -------------------- | ------- |
+| 10                | 0.0206           | 0.0060                     | 0.0000108     | 0.0154      | 88                   | 0.984   |
+| 100               | 0.0535           | 0.0301                     | 0.0000297     | 0.0514      | 808                  | 0.964   |
+| 1000              | 0.2748           | 0.2246                     | 0.0000033     | 0.4777      | 8008                 | 8.722   |
+| 5000              | 1.4484           | 1.4077                     | 0.0000277     | 2.5616      | 40008                | 45.761  |
 
 Unchanged calls produced zero extra layouts. Paint-only style changes also skip Flex (unit regression). Eight hit queries visit 8×(N+1) nodes: there is no spatial-index or sublinear-hit-test claim. Every disposal asserts zero model nodes/subscriptions, captured/suppressed pointers and event listeners. Dirty layout can reposition siblings/percentage children, so the root is recomputed; visual signatures avoid recreating unchanged text styles/geometry.
 
 | Nesting depth | Layout p50 | Arrange visits / layout | Intrinsic helper visits / layout | Constrained helper visits / layout |
-| --- | --- | --- | --- | --- |
-| 16 | 0.0383 | 16 | 256 | 240 |
-| 32 | 0.0712 | 32 | 1024 | 992 |
-| 64 | 0.2544 | 64 | 4096 | 4032 |
+| ------------- | ---------- | ----------------------- | -------------------------------- | ---------------------------------- |
+| 16            | 0.0383     | 16                      | 256                              | 240                                |
+| 32            | 0.0712     | 32                      | 1024                             | 992                                |
+| 64            | 0.2544     | 64                      | 4096                             | 4032                               |
 
 Arranged-node count is not all computation. Deep nesting adds constrained measurement work; 64 levels is the supported limit. The 100×100-button model Scene-cycle forced-GC heap record includes Vite/SSR and measurement allocations, and does not establish leak freedom.
 
@@ -30,24 +30,24 @@ Arranged-node count is not all computation. Deep nesting adds constrained measur
 Viewport 1000×700, DPR1. Twenty recorded samples; five initial draw warmups and ten pointer warmups. Synchronization includes model layout, real font measurement, Pixi object/Graphics commands and native mirror updates, but excludes app.render. Draw submission is synchronous CPU/driver time, not GPU completion. All 30 synthetic gestures assert 240 deliveries and 240 UI hit tests. Functional mouse/CDP-touch/keyboard tests are separate.
 
 | Renderer | Buttons (+3 model nodes) | Edit/layout/sync p50 | Resize/sync p50 | Idle update p50 | Gesture p50 | Draw submission p50 |
-| --- | --- | --- | --- | --- | --- | --- |
-| WebGL | 10 | 0.200 | 0.150 | 0.000000 | 0.200 | 0.500 |
-| WebGL | 100 | 0.300 | 0.600 | 0.000000 | 0.300 | 0.950 |
-| WebGL | 1000 | 2.800 | 10.825 | 0.000000 | 2.900 | 13.950 |
-| Canvas2D | 10 | 0.200 | 0.150 | 0.000000 | 0.200 | 0.400 |
-| Canvas2D | 100 | 0.200 | 0.500 | 0.000000 | 0.300 | 0.700 |
-| Canvas2D | 1000 | 1.400 | 6.250 | 0.000000 | 1.700 | 8.450 |
+| -------- | ------------------------ | -------------------- | --------------- | --------------- | ----------- | ------------------- |
+| WebGL    | 10                       | 0.200                | 0.150           | 0.000000        | 0.200       | 0.500               |
+| WebGL    | 100                      | 0.300                | 0.600           | 0.000000        | 0.300       | 0.950               |
+| WebGL    | 1000                     | 2.800                | 10.825          | 0.000000        | 2.900       | 13.950              |
+| Canvas2D | 10                       | 0.200                | 0.150           | 0.000000        | 0.200       | 0.400               |
+| Canvas2D | 100                      | 0.200                | 0.500           | 0.000000        | 0.300       | 0.700               |
+| Canvas2D | 1000                     | 1.400                | 6.250           | 0.000000        | 1.700       | 8.450               |
 
 Idle updates produce zero extra layouts and zero extra visual synchronizations. Offscreen but model-visible nodes still participate in layout/traversal and retain display objects; this version does not virtualize large UI trees.
 
 | Renderer | Buttons | Initial run (one observation) | Full Game.dispose (one observation) |
-| --- | --- | --- | --- |
-| WebGL | 10 | 62.300 | 689.200 |
-| WebGL | 100 | 58.300 | 1347.900 |
-| WebGL | 1000 | 289.500 | 2537.000 |
-| Canvas2D | 10 | 18.600 | 2.100 |
-| Canvas2D | 100 | 39.400 | 5.000 |
-| Canvas2D | 1000 | 249.000 | 38.600 |
+| -------- | ------- | ----------------------------- | ----------------------------------- |
+| WebGL    | 10      | 62.300                        | 689.200                             |
+| WebGL    | 100     | 58.300                        | 1347.900                            |
+| WebGL    | 1000    | 289.500                       | 2537.000                            |
+| Canvas2D | 10      | 18.600                        | 2.100                               |
+| Canvas2D | 100     | 39.400                        | 5.000                               |
+| Canvas2D | 1000    | 249.000                       | 38.600                              |
 
 Full Game disposal includes Pixi renderer/context/global-resource cleanup. The large WebGL teardown times are a measured limitation in this software-rendering environment; their internal cause was not separately profiled. They must not be presented as per-Scene UI removal time.
 
@@ -56,9 +56,9 @@ Full Game disposal includes Pixi renderer/context/global-resource cleanup. The l
 Thirty complete 100-button UI→empty round trips per renderer; CDP GC after each five cycles. Creation/removal include Scene transaction completion and its first render. All samples return to the empty Scene’s live Pixi baseline: WebGL keeps one current world clip; Canvas2D keeps none. UI Text/Texture objects and their null slots are zero. Terminal disposal asserts zero UI presentations/nodes/buttons/text metrics/mirrors and input sources.
 
 | Renderer | UI Scene creation p50 | UI Scene removal p50 | Initial V8 heap MiB | After 30 MiB | Change MiB |
-| --- | --- | --- | --- | --- | --- |
-| WebGL | 16.850 | 4.750 | 13.450 | 13.614 | +0.164 |
-| Canvas2D | 11.050 | 4.400 | 15.013 | 15.226 | +0.213 |
+| -------- | --------------------- | -------------------- | ------------------- | ------------ | ---------- |
+| WebGL    | 16.850                | 4.750                | 13.450              | 13.614       | +0.164     |
+| Canvas2D | 11.050                | 4.400                | 15.013              | 15.226       | +0.213     |
 
 This is a short forced-GC observation, not proof of no leaks. Pixi’s current world-clip null hash slots and bounded text-metric/global pools are distinct from live UI resources. Native canvas backing storage, GPU allocations, hardware rendering, physical mobile devices and multi-hour soaks were not measured.
 
@@ -66,19 +66,19 @@ This is a short forced-GC observation, not proof of no leaks. Pixi’s current w
 
 Vite8.3.5 production/esnext minification, gzip level9 per emitted file, summed across **all** JS chunks (including optional renderer/fallback chunks). These totals are not initial network transfer, decoded WASM memory or installed package size. Same DOM UI/scenes entry is used before/after; Canvas trail additionally uses Sprite/Tilemap/Collision game code.
 
-| Build | JS bytes | JS gzip bytes | CSS bytes | CSS gzip bytes |
-| --- | --- | --- | --- | --- |
-| baseline DOM UI/scenes | 605047 | 178404 | 2002 | 879 |
-| current same DOM UI/scenes | 664047 | 196733 | 2232 | 925 |
-| current integrated Canvas trail | 702963 | 207412 | 2232 | 925 |
+| Build                           | JS bytes | JS gzip bytes | CSS bytes | CSS gzip bytes |
+| ------------------------------- | -------- | ------------- | --------- | -------------- |
+| baseline DOM UI/scenes          | 605047   | 178404        | 2002      | 879            |
+| current same DOM UI/scenes      | 664047   | 196733        | 2232      | 925            |
+| current integrated Canvas trail | 702963   | 207412        | 2232      | 925            |
 
 Same-entry JS increase: 59000 raw bytes, 18329 gzip bytes (17.90KiB); CSS gzip +46 bytes. No runtime layout dependency or lockfile change.
 
-| Micro entry | Raw JS | Gzip JS |
-| --- | --- | --- |
-| empty micro entry | 23 | 43 |
-| custom layout micro entry | 22281 | 7516 |
-| Yoga 3.2.1 module micro entry | 126723 | 51226 |
+| Micro entry                   | Raw JS | Gzip JS |
+| ----------------------------- | ------ | ------- |
+| empty micro entry             | 23     | 43      |
+| custom layout micro entry     | 22281  | 7516    |
+| Yoga 3.2.1 module micro entry | 126723 | 51226   |
 
 The custom layout micro entry includes reachable Core error/module initialization code; it is not an isolated algorithm-only byte count. Yoga3.2.1 is MIT and was fetched/extracted only in /tmp, not bundled in the engine. Its ESM entry includes an asynchronous base64 WebAssembly loader. Both engines produce the same canonical padded row coordinates tested in the harness; this does not establish complete CSS equivalence or comparative speed. Yoga offers a broader, mature layout surface. The selected custom subset meets the current Row/Column/gap/padding/percentage/grow/shrink/align/justify/wrap needs with no extra runtime/ownership boundary. Reconsider it if actual games require min/max, richer intrinsic layout or CSS conformance.
 

@@ -6,35 +6,58 @@ Canvas UI belongs to `@simpludify/web`. It draws Panels, text, Buttons and HoldB
 
 ```ts verify
 import {
-  Action, CanvasButton, CanvasColumn, CanvasHoldButton, CanvasLabel, CanvasPanel,
-  CanvasRow, Character, defineActions, Game, KeyboardBindings, PointerClick,
+  Action,
+  CanvasButton,
+  CanvasColumn,
+  CanvasHoldButton,
+  CanvasLabel,
+  CanvasPanel,
+  CanvasRow,
+  Character,
+  defineActions,
+  Game,
+  KeyboardBindings,
+  PointerClick,
 } from "@simpludify/web";
 
 const game = new Game<"title" | "play">();
 const Actions = defineActions({ Move: Action.axis2D() });
 game.scene("title", ({ canvasUI }) => {
-  canvasUI(CanvasColumn([
-    CanvasLabel("Ready?", { fontSize: 30 }),
-    CanvasButton("Start", () => game.goTo("play")),
-  ], { align: "center", justify: "center", gap: 20 }));
+  canvasUI(
+    CanvasColumn(
+      [
+        CanvasLabel("Ready?", { fontSize: 30 }),
+        CanvasButton("Start", () => game.goTo("play")),
+      ],
+      { align: "center", justify: "center", gap: 20 },
+    ),
+  );
 });
 game.scene("play", ({ actions, canvasUI, add, pointer }) => {
   const controls = actions(Actions, { Move: KeyboardBindings.WASD });
   add(Character({ movement: controls.reader(Actions.Move) }));
-  const right = CanvasHoldButton("Right", held => {
+  const right = CanvasHoldButton("Right", (held) => {
     source.set(Actions.Move, held ? { x: 1, y: 0 } : { x: 0, y: 0 });
   });
   const source = controls.createSource(right);
   const selected = CanvasLabel("Select the field");
-  canvasUI(CanvasColumn([
-    CanvasRow([selected, CanvasButton("Menu", () => game.goTo("title"))], {
-      gap: 12, wrap: true,
-    }),
-    CanvasPanel([], { grow: 1 }),
-    right,
-  ], { padding: 12, gap: 10 }));
-  pointer.events.on(PointerClick, event => {
-    selected.setText(`World ${Math.round(event.world.x)}, ${Math.round(event.world.y)}`);
+  canvasUI(
+    CanvasColumn(
+      [
+        CanvasRow([selected, CanvasButton("Menu", () => game.goTo("title"))], {
+          gap: 12,
+          wrap: true,
+        }),
+        CanvasPanel([], { grow: 1 }),
+        right,
+      ],
+      { padding: 12, gap: 10 },
+    ),
+  );
+  pointer.events.on(PointerClick, (event) => {
+    selected.setText(
+      `World ${Math.round(event.world.x)}, ${Math.round(event.world.y)}`,
+    );
   });
 });
 await game.run("title");
@@ -54,20 +77,20 @@ Canvas UI requires the default `PixiRenderer` (including its Canvas2D fallback).
 
 UI coordinates are host CSS dimensions divided by `ui.scale` (default 1). The root fills that extent unless it has explicit dimensions. Camera, world logical resolution, world Fit bars, zoom and physical DPR do not change those units. Root `scale` and resize cause relayout. All dimensions include padding; no border width is deducted. `bounds` is a frozen, root-relative logical rectangle after the last layout. Query after `await run/goTo` or a rendered update; setters invalidate synchronously but layout is deferred until rendering or the next pointer hit-test flush.
 
-| Style | Meaning / default |
-| --- | --- |
-| direction | `column`; Row/Column factories set the corresponding direction |
-| width, height | nonnegative finite units, or percentage strings relative to the parent's content extent; omitted means intrinsic main size / stretched cross size |
-| padding, gap | uniform nonnegative units; default 0 |
-| grow, shrink | 0 and 1; free space proportional to grow, deficit proportional to shrink × basis; zero-sized items freeze during shrink redistribution |
-| align, alignSelf | cross-axis `start`, `center`, `end`, `stretch`; parent default stretch; optional child override |
-| justify | main-axis `start`, `center`, `end`, `space-between`, `space-around`; default start |
-| wrap | explicit boolean, default false; greedy lines before flex distribution; line cross size is its largest item, line gap uses gap |
-| clip | rectangular clip for self and descendants; default false |
-| pointerEvents | `children` (empty space passes through), `auto` (self blocks/receives), `none` (exclude subtree); buttons default auto |
-| background, color | optional background and text RGB integers 0..0xffffff; text default 0xeff7f6 |
-| fontSize, fontFamily | positive units / CSS font family; default 18 / system-ui, sans-serif |
-| radius | nonnegative background corner radius, default 6; hit regions stay rectangular |
+| Style                | Meaning / default                                                                                                                                 |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| direction            | `column`; Row/Column factories set the corresponding direction                                                                                    |
+| width, height        | nonnegative finite units, or percentage strings relative to the parent's content extent; omitted means intrinsic main size / stretched cross size |
+| padding, gap         | uniform nonnegative units; default 0                                                                                                              |
+| grow, shrink         | 0 and 1; free space proportional to grow, deficit proportional to shrink × basis; zero-sized items freeze during shrink redistribution            |
+| align, alignSelf     | cross-axis `start`, `center`, `end`, `stretch`; parent default stretch; optional child override                                                   |
+| justify              | main-axis `start`, `center`, `end`, `space-between`, `space-around`; default start                                                                |
+| wrap                 | explicit boolean, default false; greedy lines before flex distribution; line cross size is its largest item, line gap uses gap                    |
+| clip                 | rectangular clip for self and descendants; default false                                                                                          |
+| pointerEvents        | `children` (empty space passes through), `auto` (self blocks/receives), `none` (exclude subtree); buttons default auto                            |
+| background, color    | optional background and text RGB integers 0..0xffffff; text default 0xeff7f6                                                                      |
+| fontSize, fontFamily | positive units / CSS font family; default 18 / system-ui, sans-serif                                                                              |
+| radius               | nonnegative background corner radius, default 6; hit regions stay rectangular                                                                     |
 
 Numeric/percentage sizes resolve before flexible distribution. Percentage values are ignored during intrinsic measurement (the child's content still contributes), then resolve against the allocated parent content box. Avoid cyclic intrinsic/percentage dependencies; use an explicit parent size for percentage children. The subset has no CSS min/max/basis, margins, order/reverse, align-content, absolute positioning, Grid or automatic text wrapping. Use explicit newlines; flex wraps **nodes**, not text. Wrapped rows can derive auto height from constrained width. Oversized children can overflow if shrink is zero or their content cannot fit; use `clip` deliberately. A maximum nesting depth of 64 is enforced during layout; all computed boxes must be finite.
 
