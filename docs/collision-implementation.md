@@ -17,3 +17,9 @@ Next: copied ID policies and sparse overrides, cell query, dedicated payloads, c
 ## Actor baseline and data checkpoint
 
 The refactor checkpoint passed all 391 existing unit tests and strict TypeScript before terrain response was introduced. Tilemap now has optional copied/frozen ID defaults, sparse overrides, explicit none/reset, collisionEnabled and independent collisionRevision/notifications. Ordinary edits do not build any spatial geometry or change Renderable/Texture state. No collision scheduling is attached yet at this checkpoint.
+
+## Exposed-feature isolation
+
+The boundary probe compares 60-step trajectories against one continuous rectangular wall, for circles and boxes rotated by +0.37/-0.64 radians, horizontal/vertical walls, both sides, both tangent directions, and 32×32/48×20 cells. All 27 test cases pass; trajectory differences stay below 1e-6 world units. This is an isolated geometry checkpoint, not yet the integrated Solver acceptance result.
+
+Four neighbor lookups identify faces internal to **equal full normalized policies**. The exact existing manifold is retained for exposed faces and convex vertices. A manifold using an internal feature is accepted for response only if a real exposed finite face intersects the body (circle projection or OBB segment/slab test); then that geometric face supplies its separation direction. Arbitrary normal rounding is not used. Different response/layer/mask neighbors retain their own boundaries. Fully embedded interior cells can have no exposed response feature, so deep terrain embedding still requires unresolved diagnostics rather than an escape guarantee.
