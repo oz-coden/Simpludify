@@ -1,0 +1,354 @@
+{
+  "revision": "a61d36a75bf83041974b83ab33f22a5e21179e80",
+  "baseline": "5ac970982505b8a5abd3780e95e47fb9e7b126c2",
+  "time": "2026-10-29T13:56:03.766Z",
+  "node": "v24.22.1",
+  "scope": "Same current CLI Vite8 production minifier/default target, no sourcemaps. JS/CSS gzip level9 sums each emitted asset independently; not package tarball or runtime heap. Extra module micro entries include only publicly referenced code. Full game comparison holds the DOM UI/scenes entry constant; Canvas trail includes different game/features.",
+  "versions": {
+    "vite": "8.3.5",
+    "yoga": "3.2.1"
+  },
+  "games": [
+    {
+      "name": "baseline DOM UI/scenes",
+      "assets": [
+        {
+          "file": "assets/index-CjzEfix5.js",
+          "bytes": 155353,
+          "gzip": 47936
+        },
+        {
+          "file": "assets/CanvasPool-Dv3Xjg3W.js",
+          "bytes": 112880,
+          "gzip": 34065
+        },
+        {
+          "file": "assets/CanvasRenderer-BBb4E0xq.js",
+          "bytes": 62,
+          "gzip": 70
+        },
+        {
+          "file": "assets/CanvasRenderer-CSlPqjfU.js",
+          "bytes": 88485,
+          "gzip": 27594
+        },
+        {
+          "file": "assets/RenderTargetSystem-CFxxbwSx.js",
+          "bytes": 78088,
+          "gzip": 21876
+        },
+        {
+          "file": "assets/WebGLRenderer-Cg5naXWZ.js",
+          "bytes": 60,
+          "gzip": 69
+        },
+        {
+          "file": "assets/WebGLRenderer-DB40bL_t.js",
+          "bytes": 72757,
+          "gzip": 19718
+        },
+        {
+          "file": "assets/WebGPURenderer-BKt8Bs80.js",
+          "bytes": 55117,
+          "gzip": 15606
+        },
+        {
+          "file": "assets/WebGPURenderer-hCKSxabG.js",
+          "bytes": 62,
+          "gzip": 70
+        },
+        {
+          "file": "assets/browserAll-CLRrzqSC.js",
+          "bytes": 43500,
+          "gzip": 11176
+        },
+        {
+          "file": "assets/canvasUtils-DP0K8O68.js",
+          "bytes": 6013,
+          "gzip": 2041
+        },
+        {
+          "file": "assets/getPo2TextureFromSource-Bi0qOnbj.js",
+          "bytes": 25105,
+          "gzip": 8585
+        },
+        {
+          "file": "assets/getTexelRangeRects-fIsrEmgW.js",
+          "bytes": 11314,
+          "gzip": 2969
+        },
+        {
+          "file": "assets/getTextureBatchBindGroup-B3JYFu8h.js",
+          "bytes": 344,
+          "gzip": 270
+        },
+        {
+          "file": "assets/init-a-BKvL6W.js",
+          "bytes": 14834,
+          "gzip": 4604
+        },
+        {
+          "file": "assets/webworkerAll-C6PWg6c7.js",
+          "bytes": 73,
+          "gzip": 84
+        },
+        {
+          "file": "assets/index-DHBUHurJ.css",
+          "bytes": 2257,
+          "gzip": 932
+        }
+      ],
+      "jsBytes": 664047,
+      "jsGzip": 196733,
+      "cssBytes": 2257,
+      "cssGzip": 932
+    },
+    {
+      "name": "current same DOM UI/scenes",
+      "assets": [
+        {
+          "file": "assets/index-DHbgEBbr.js",
+          "bytes": 157960,
+          "gzip": 49187
+        },
+        {
+          "file": "assets/CanvasPool-Dv3Xjg3W.js",
+          "bytes": 112880,
+          "gzip": 34065
+        },
+        {
+          "file": "assets/CanvasRenderer-BBb4E0xq.js",
+          "bytes": 62,
+          "gzip": 70
+        },
+        {
+          "file": "assets/CanvasRenderer-CSlPqjfU.js",
+          "bytes": 88485,
+          "gzip": 27594
+        },
+        {
+          "file": "assets/RenderTargetSystem-CFxxbwSx.js",
+          "bytes": 78088,
+          "gzip": 21876
+        },
+        {
+          "file": "assets/WebGLRenderer-Cg5naXWZ.js",
+          "bytes": 60,
+          "gzip": 69
+        },
+        {
+          "file": "assets/WebGLRenderer-DB40bL_t.js",
+          "bytes": 72757,
+          "gzip": 19718
+        },
+        {
+          "file": "assets/WebGPURenderer-BKt8Bs80.js",
+          "bytes": 55117,
+          "gzip": 15606
+        },
+        {
+          "file": "assets/WebGPURenderer-hCKSxabG.js",
+          "bytes": 62,
+          "gzip": 70
+        },
+        {
+          "file": "assets/browserAll-CLRrzqSC.js",
+          "bytes": 43500,
+          "gzip": 11176
+        },
+        {
+          "file": "assets/canvasUtils-DP0K8O68.js",
+          "bytes": 6013,
+          "gzip": 2041
+        },
+        {
+          "file": "assets/getPo2TextureFromSource-Bi0qOnbj.js",
+          "bytes": 25105,
+          "gzip": 8585
+        },
+        {
+          "file": "assets/getTexelRangeRects-fIsrEmgW.js",
+          "bytes": 11314,
+          "gzip": 2969
+        },
+        {
+          "file": "assets/getTextureBatchBindGroup-B3JYFu8h.js",
+          "bytes": 344,
+          "gzip": 270
+        },
+        {
+          "file": "assets/init-a-BKvL6W.js",
+          "bytes": 14834,
+          "gzip": 4604
+        },
+        {
+          "file": "assets/webworkerAll-C6PWg6c7.js",
+          "bytes": 73,
+          "gzip": 84
+        },
+        {
+          "file": "assets/index-DHBUHurJ.css",
+          "bytes": 2257,
+          "gzip": 932
+        }
+      ],
+      "jsBytes": 666654,
+      "jsGzip": 197984,
+      "cssBytes": 2257,
+      "cssGzip": 932
+    },
+    {
+      "name": "current integrated Canvas trail",
+      "assets": [
+        {
+          "file": "assets/index-nVafA0cv.js",
+          "bytes": 197287,
+          "gzip": 60073
+        },
+        {
+          "file": "assets/CanvasPool-Dv3Xjg3W.js",
+          "bytes": 112880,
+          "gzip": 34065
+        },
+        {
+          "file": "assets/CanvasRenderer-BBb4E0xq.js",
+          "bytes": 62,
+          "gzip": 70
+        },
+        {
+          "file": "assets/CanvasRenderer-CSlPqjfU.js",
+          "bytes": 88485,
+          "gzip": 27594
+        },
+        {
+          "file": "assets/RenderTargetSystem-CFxxbwSx.js",
+          "bytes": 78088,
+          "gzip": 21876
+        },
+        {
+          "file": "assets/WebGLRenderer-Cg5naXWZ.js",
+          "bytes": 60,
+          "gzip": 69
+        },
+        {
+          "file": "assets/WebGLRenderer-DB40bL_t.js",
+          "bytes": 72757,
+          "gzip": 19718
+        },
+        {
+          "file": "assets/WebGPURenderer-BKt8Bs80.js",
+          "bytes": 55117,
+          "gzip": 15606
+        },
+        {
+          "file": "assets/WebGPURenderer-hCKSxabG.js",
+          "bytes": 62,
+          "gzip": 70
+        },
+        {
+          "file": "assets/browserAll-CLRrzqSC.js",
+          "bytes": 43500,
+          "gzip": 11176
+        },
+        {
+          "file": "assets/canvasUtils-DP0K8O68.js",
+          "bytes": 6013,
+          "gzip": 2041
+        },
+        {
+          "file": "assets/getPo2TextureFromSource-Bi0qOnbj.js",
+          "bytes": 25105,
+          "gzip": 8585
+        },
+        {
+          "file": "assets/getTexelRangeRects-fIsrEmgW.js",
+          "bytes": 11314,
+          "gzip": 2969
+        },
+        {
+          "file": "assets/getTextureBatchBindGroup-B3JYFu8h.js",
+          "bytes": 344,
+          "gzip": 270
+        },
+        {
+          "file": "assets/init-a-BKvL6W.js",
+          "bytes": 14834,
+          "gzip": 4604
+        },
+        {
+          "file": "assets/webworkerAll-C6PWg6c7.js",
+          "bytes": 73,
+          "gzip": 84
+        },
+        {
+          "file": "assets/index-DHBUHurJ.css",
+          "bytes": 2257,
+          "gzip": 932
+        }
+      ],
+      "jsBytes": 705981,
+      "jsGzip": 208870,
+      "cssBytes": 2257,
+      "cssGzip": 932
+    }
+  ],
+  "micro": [
+    {
+      "name": "empty micro entry",
+      "assets": [
+        {
+          "file": "assets/empty-B7YlDQkM.js",
+          "bytes": 23,
+          "gzip": 43
+        }
+      ],
+      "jsBytes": 23,
+      "jsGzip": 43,
+      "cssBytes": 0,
+      "cssGzip": 0
+    },
+    {
+      "name": "custom layout micro entry",
+      "assets": [
+        {
+          "file": "assets/custom-CYnUHD4t.js",
+          "bytes": 23266,
+          "gzip": 7933
+        }
+      ],
+      "jsBytes": 23266,
+      "jsGzip": 7933,
+      "cssBytes": 0,
+      "cssGzip": 0
+    },
+    {
+      "name": "Yoga 3.2.1 module micro entry",
+      "assets": [
+        {
+          "file": "assets/yoga-Bqf39i7c.js",
+          "bytes": 126723,
+          "gzip": 51226
+        }
+      ],
+      "jsBytes": 126723,
+      "jsGzip": 51226,
+      "cssBytes": 0,
+      "cssGzip": 0
+    }
+  ],
+  "yogaCanonicalRow": [
+    {
+      "x": 10,
+      "y": 10,
+      "width": 50,
+      "height": 20
+    },
+    {
+      "x": 68,
+      "y": 10,
+      "width": 140,
+      "height": 20
+    }
+  ],
+  "decision": "Retain the bounded custom Flex after min/max, intrinsic text and lifecycle tests. Yoga 3.2.1 offers broader CSS-like behavior and is faster in some measured sizes; consult yoga-comparison.json and docs/canvas-ui-finalization.md for Node startup, memory, speed and ownership tradeoffs. Aggregate bundles are not initial transfer."
+}

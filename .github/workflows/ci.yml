@@ -22,6 +22,7 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm test
+      - run: mkdir -p test-results
       - run: npm run bench
       - run: npm run bench:practical -- --out test-results/practical-core.json
       - run: npm run bench:response -- --out test-results/response-core.json

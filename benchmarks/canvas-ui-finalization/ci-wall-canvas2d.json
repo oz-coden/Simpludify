@@ -1,0 +1,1562 @@
+{
+  "samples": [
+    {
+      "now": 464.70000000001164,
+      "delta": 0.01669999999999999,
+      "step": 5,
+      "x": 250,
+      "y": 240,
+      "input": [],
+      "hidden": false,
+      "focus": "",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 481.30000000001746,
+      "delta": 0.016600000000000024,
+      "step": 6,
+      "x": 250,
+      "y": 240,
+      "input": [],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 498,
+      "delta": 0.016799999999999954,
+      "step": 7,
+      "x": 253.024,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 514.8999999999942,
+      "delta": 0.016600000000000024,
+      "step": 8,
+      "x": 256.012,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 531.8999999999942,
+      "delta": 0.016700000000000045,
+      "step": 9,
+      "x": 259.01800000000003,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 548.3000000000175,
+      "delta": 0.01659999999999991,
+      "step": 10,
+      "x": 262.00600000000003,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 564.5,
+      "delta": 0.016600000000000024,
+      "step": 11,
+      "x": 264.994,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 581.3999999999942,
+      "delta": 0.01680000000000007,
+      "step": 12,
+      "x": 268.01800000000003,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 598.3000000000175,
+      "delta": 0.01659999999999991,
+      "step": 13,
+      "x": 271.00600000000003,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 614.8999999999942,
+      "delta": 0.016700000000000045,
+      "step": 14,
+      "x": 274.01200000000006,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 631.3000000000175,
+      "delta": 0.016700000000000045,
+      "step": 15,
+      "x": 277.0180000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 649.3999999999942,
+      "delta": 0.01659999999999991,
+      "step": 16,
+      "x": 280.0060000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 664.6000000000058,
+      "delta": 0.016700000000000045,
+      "step": 17,
+      "x": 283.0120000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 681.5,
+      "delta": 0.016600000000000024,
+      "step": 18,
+      "x": 286.0000000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 697.8999999999942,
+      "delta": 0.01669999999999993,
+      "step": 19,
+      "x": 289.0060000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 714.6000000000058,
+      "delta": 0.016700000000000045,
+      "step": 20,
+      "x": 292.0120000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 731.2000000000116,
+      "delta": 0.016600000000000024,
+      "step": 21,
+      "x": 295.0000000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 748,
+      "delta": 0.01669999999999993,
+      "step": 22,
+      "x": 298.0060000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 764.6000000000058,
+      "delta": 0.016700000000000045,
+      "step": 23,
+      "x": 301.0120000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 781.2000000000116,
+      "delta": 0.016600000000000024,
+      "step": 24,
+      "x": 304.0000000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 798.8000000000175,
+      "delta": 0.01669999999999993,
+      "step": 25,
+      "x": 307.0060000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 815.7000000000116,
+      "delta": 0.016700000000000045,
+      "step": 26,
+      "x": 310.0120000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 831.3000000000175,
+      "delta": 0.016600000000000024,
+      "step": 27,
+      "x": 313.0000000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 848.2000000000116,
+      "delta": 0.01669999999999993,
+      "step": 28,
+      "x": 316.0060000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 864.7000000000116,
+      "delta": 0.016700000000000045,
+      "step": 29,
+      "x": 319.0120000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 884.6000000000058,
+      "delta": 0.016600000000000024,
+      "step": 30,
+      "x": 322.0000000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 899,
+      "delta": 0.01669999999999993,
+      "step": 31,
+      "x": 325.0060000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 914.3999999999942,
+      "delta": 0.016600000000000024,
+      "step": 32,
+      "x": 327.9940000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 931.6000000000058,
+      "delta": 0.016700000000000045,
+      "step": 33,
+      "x": 331.0000000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 948,
+      "delta": 0.01669999999999993,
+      "step": 34,
+      "x": 334.0060000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 965,
+      "delta": 0.016600000000000024,
+      "step": 35,
+      "x": 336.9940000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 981.2000000000116,
+      "delta": 0.01680000000000007,
+      "step": 36,
+      "x": 340.0180000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 997.8000000000175,
+      "delta": 0.01659999999999991,
+      "step": 37,
+      "x": 343.0060000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3276.100000000006,
+      "delta": 0.016700000000000045,
+      "step": 38,
+      "x": 346.0120000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3279.8000000000175,
+      "delta": 0.05,
+      "step": 39,
+      "x": 355.0120000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3291.2000000000116,
+      "delta": 0.01659999999999991,
+      "step": 40,
+      "x": 358.0000000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3298.100000000006,
+      "delta": 0.01669999999999982,
+      "step": 41,
+      "x": 361.0060000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3318.899999999994,
+      "delta": 0.016600000000000364,
+      "step": 42,
+      "x": 363.99400000000014,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3331.399999999994,
+      "delta": 0.01679999999999973,
+      "step": 43,
+      "x": 367.0180000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3347.8000000000175,
+      "delta": 0.01659999999999991,
+      "step": 44,
+      "x": 370.0060000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3365.3000000000175,
+      "delta": 0.016700000000000274,
+      "step": 45,
+      "x": 373.0120000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3381.600000000006,
+      "delta": 0.01669999999999982,
+      "step": 46,
+      "x": 376.0180000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3398.2000000000116,
+      "delta": 0.01659999999999991,
+      "step": 47,
+      "x": 379.0060000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3414.8000000000175,
+      "delta": 0.016700000000000274,
+      "step": 48,
+      "x": 382.0120000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3431.100000000006,
+      "delta": 0.01659999999999991,
+      "step": 49,
+      "x": 385.0000000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3448.2000000000116,
+      "delta": 0.01669999999999982,
+      "step": 50,
+      "x": 388.0060000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3464.5,
+      "delta": 0.016700000000000274,
+      "step": 51,
+      "x": 391.0120000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3481.100000000006,
+      "delta": 0.01659999999999991,
+      "step": 52,
+      "x": 394.0000000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3497.8000000000175,
+      "delta": 0.01659999999999991,
+      "step": 53,
+      "x": 396.9880000000001,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3514.5,
+      "delta": 0.016800000000000183,
+      "step": 54,
+      "x": 400.01200000000017,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3531.7000000000116,
+      "delta": 0.01669999999999982,
+      "step": 55,
+      "x": 403.01800000000014,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3548.100000000006,
+      "delta": 0.01659999999999991,
+      "step": 56,
+      "x": 406.00600000000014,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3564.7000000000116,
+      "delta": 0.016600000000000364,
+      "step": 57,
+      "x": 408.9940000000002,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3581.2000000000116,
+      "delta": 0.01669999999999982,
+      "step": 58,
+      "x": 412.00000000000017,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3599,
+      "delta": 0.01669999999999982,
+      "step": 59,
+      "x": 415.00600000000014,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3614.8000000000175,
+      "delta": 0.016700000000000274,
+      "step": 60,
+      "x": 418.01200000000017,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3631.399999999994,
+      "delta": 0.01659999999999991,
+      "step": 61,
+      "x": 421.00000000000017,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3648.100000000006,
+      "delta": 0.01669999999999982,
+      "step": 62,
+      "x": 424.00600000000014,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3667.2000000000116,
+      "delta": 0.016600000000000364,
+      "step": 63,
+      "x": 426.9940000000002,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3683.399999999994,
+      "delta": 0.01679999999999973,
+      "step": 64,
+      "x": 430.01800000000014,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3697.7000000000116,
+      "delta": 0.01659999999999991,
+      "step": 65,
+      "x": 433.00600000000014,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 0,
+      "response": {
+        "passes": 1,
+        "corrections": 0,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3715.600000000006,
+      "delta": 0.016600000000000364,
+      "step": 66,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3731.600000000006,
+      "delta": 0.01669999999999982,
+      "step": 67,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3748,
+      "delta": 0.01669999999999982,
+      "step": 68,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3764.7000000000116,
+      "delta": 0.016700000000000274,
+      "step": 69,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3781.100000000006,
+      "delta": 0.01669999999999982,
+      "step": 70,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3797.8000000000175,
+      "delta": 0.01659999999999991,
+      "step": 71,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3814.899999999994,
+      "delta": 0.016600000000000364,
+      "step": 72,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3831.3000000000175,
+      "delta": 0.01679999999999973,
+      "step": 73,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3849.399999999994,
+      "delta": 0.01659999999999991,
+      "step": 74,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3865,
+      "delta": 0.016600000000000364,
+      "step": 75,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3881.2000000000116,
+      "delta": 0.01669999999999982,
+      "step": 76,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3898.5,
+      "delta": 0.01669999999999982,
+      "step": 77,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3915,
+      "delta": 0.016600000000000364,
+      "step": 78,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3932,
+      "delta": 0.01669999999999982,
+      "step": 79,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3948.899999999994,
+      "delta": 0.01669999999999982,
+      "step": 80,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3964.5,
+      "delta": 0.016700000000000274,
+      "step": 81,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3981.3000000000175,
+      "delta": 0.01659999999999991,
+      "step": 82,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 3997.8000000000175,
+      "delta": 0.01669999999999982,
+      "step": 83,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 4015.899999999994,
+      "delta": 0.016700000000000274,
+      "step": 84,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 4033,
+      "delta": 0.01659999999999991,
+      "step": 85,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 4049.100000000006,
+      "delta": 0.01669999999999982,
+      "step": 86,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 4064.600000000006,
+      "delta": 0.016600000000000364,
+      "step": 87,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 4081.8000000000175,
+      "delta": 0.01669999999999982,
+      "step": 88,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 4098.3000000000175,
+      "delta": 0.01669999999999982,
+      "step": 89,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 4114.8000000000175,
+      "delta": 0.016600000000000364,
+      "step": 90,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 4132.200000000012,
+      "delta": 0.01669999999999982,
+      "step": 91,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 4149,
+      "delta": 0.01669999999999982,
+      "step": 92,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 4164.600000000006,
+      "delta": 0.01669999999999982,
+      "step": 93,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 4181.700000000012,
+      "delta": 0.016600000000000364,
+      "step": 94,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 4198,
+      "delta": 0.01669999999999982,
+      "step": 95,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 4215.200000000012,
+      "delta": 0.01669999999999982,
+      "step": 96,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 4231,
+      "delta": 0.016600000000000364,
+      "step": 97,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 4247.700000000012,
+      "delta": 0.016600000000000364,
+      "step": 98,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 4264.8000000000175,
+      "delta": 0.01669999999999982,
+      "step": 99,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 4281.200000000012,
+      "delta": 0.01669999999999982,
+      "step": 100,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    },
+    {
+      "now": 4299,
+      "delta": 0.016600000000000364,
+      "step": 101,
+      "x": 434,
+      "y": 240,
+      "input": ["KeyD"],
+      "hidden": false,
+      "focus": "simpludify tile-trail",
+      "contacts": 1,
+      "response": {
+        "passes": 2,
+        "corrections": 1,
+        "unresolved": 0
+      }
+    }
+  ],
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.8078.4 Safari/537.36",
+  "fixedStep": false,
+  "maxDelta": 0.05,
+  "speed": 180,
+  "wallLeft": 448,
+  "radius": 14
+}
