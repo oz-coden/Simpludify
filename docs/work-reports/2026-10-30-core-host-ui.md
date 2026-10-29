@@ -2,7 +2,7 @@
 
 ## Final implementation result
 
-**Implementation and review complete; source CI passed; PR #1 merged into main.** The exact tested source is `61dbb7b6d3a94fd773b5d73c9347fb20738d1d12`. Integration SHA: `ba1345e7ba71f8ab6b8a4717a8980b98414d2cc5`. Post-integration CI/deployment are running; their final results will be added only after completion.
+**Completed: PR #1 merged, source and main CI passed, GitHub Pages deployed successfully.** The exact tested source is `61dbb7b6d3a94fd773b5d73c9347fb20738d1d12`. Integration SHA: `ba1345e7ba71f8ab6b8a4717a8980b98414d2cc5`. Post-integration main CI and Pages deployment passed. Final receipt verified on 2026-10-30 at 04:12 JST.
 
 The two existing private packages remain. Core now owns Canvas UI state, layout, clipping, scroll/focus and abstract pointer/key routing. Web owns actual Pixi painting, exact font metrics, native semantic mirrors, browser capture/input, resource loading and asynchronous scene transactions. No Electron/Tauri/Android build or new npm package was added. Run To Exit was inspected as reference and remains unchanged.
 
@@ -82,9 +82,19 @@ Baseline: latest main at task start, `152ec2e35789ec512f53ea988d7f0d54d7ff1ead`.
 | [c04df92](https://github.com/oz-coden/Simpludify/commit/c04df927c7527c18537bbdacbd1b477e71fdf524) | Static clip focus regression                         |
 | [61dbb7b](https://github.com/oz-coden/Simpludify/commit/61dbb7b6d3a94fd773b5d73c9347fb20738d1d12) | Narrow/desktop portable fixture; final tested source |
 
-Main integration: **completed** via [PR #1](https://github.com/oz-coden/Simpludify/pull/1). Integration SHA: [ba1345e](https://github.com/oz-coden/Simpludify/commit/ba1345e7ba71f8ab6b8a4717a8980b98414d2cc5). The pre-merge complete report is [ef34877](https://github.com/oz-coden/Simpludify/commit/ef348779bd4e8e819b1ed23164726e657f616db0). Post-integration main CI: [40936947127](https://github.com/oz-coden/Simpludify/actions/runs/40936947127), currently running. Source tests are successful; deployment must not be inferred from that alone. The branch was fast-forwarded to the merge before recording this handoff. Documentation-only receipt commits use [skip ci]; runtime source changes still require full CI.
+Main integration: **completed** via [PR #1](https://github.com/oz-coden/Simpludify/pull/1). Integration SHA: [ba1345e](https://github.com/oz-coden/Simpludify/commit/ba1345e7ba71f8ab6b8a4717a8980b98414d2cc5). The pre-merge complete report is [ef34877](https://github.com/oz-coden/Simpludify/commit/ef348779bd4e8e819b1ed23164726e657f616db0). Post-integration main CI: [40936947127 — success](https://github.com/oz-coden/Simpludify/actions/runs/40936947127), exact tested/deployed SHA `ba1345e7ba71f8ab6b8a4717a8980b98414d2cc5`. All 8 validation jobs and the deployment job passed. The branch was fast-forwarded to the merge before recording its receipt in [90cd9a4](https://github.com/oz-coden/Simpludify/commit/90cd9a4db99ac7d2cfac6f39c9d76031b8d9d7e9). Documentation-only receipt commits use [skip ci]; the runtime source tree remains the tested merge source. No runtime change follows this successful CI.
 
-Next step if interrupted: inspect main CI 40936947127, record its actual job/test/deploy results, then fast-forward main to the final report receipt once verification succeeds. No implementation work remains unless CI exposes a failure.
+Final report-only revision: see [the report history](https://github.com/oz-coden/Simpludify/commits/main/docs/work-reports/2026-10-30-core-host-ui.md). The source integration SHA is recorded separately from the later documentation receipt; no self-referential commit hash is required to recover the report. No implementation or integration task remains. Future work should start with the priorities above.
+
+## Post-integration verification and publication
+
+- Main quality job passed: Core/repository checks, **570 unit tests** and existing benchmark gates.
+- Main browser jobs passed: desktop 61 + 58, narrow 61 + 58 = **238 tests / 15 files**, zero failures. The shared portable list screen passed both WebGL and Canvas2D at both screen widths after integration.
+- Main production job passed UI/scenes, Signal Run and Canvas trail subpath build/smoke paths.
+- Both main site-base jobs passed site build, link/snippet checks and real site smoke. Deploy completed successfully; the workflow reported success.
+- Published site: https://oz-coden.github.io/Simpludify/ . New guide: https://oz-coden.github.io/Simpludify/en/host-boundary.html . The new guide was fetched directly after deployment with **HTTP 200**, and its Core/Host and CanvasUI content was present.
+- Source/overview/API documentation and the report were integrated together. Final result/deployment metadata is a report-only follow-up; full source tests were not redundantly rerun for that receipt. The merge SHA above is the tested/deployed source, not a claim that a later Markdown-only commit itself ran the browser suite.
+- GitHub report, index, source checkpoints, CI URLs and all commit links are retained for recovery without the original task stream. The final report is the basis for the completion message.
 
 ## Historical checkpoints
 
