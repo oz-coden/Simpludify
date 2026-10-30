@@ -7,6 +7,7 @@ import {
   CanvasUI,
   PointerCancel,
   PointerClick,
+  PointerDown,
   PointerRouting,
   Scene,
   ScenePointer,
@@ -461,5 +462,46 @@ it("routes two touches through the full portable screen including a held seconda
   expect(r.diagnostics.scrollDrags).toBe(2);
   r.release();
   expect(screen.holdChanges).toBe(2);
+  scene.dispose();
+});
+
+it("external wheel/program commands cancel pending Hold contributions before a drag is claimed", () => {
+  for (const method of ["wheel", "program"]) {
+    const f = setup(true);
+    f.routing.down(point());
+    expect(f.holds).toEqual([true]);
+    if (method === "wheel") f.routing.scroll(20, 50, 0, 20);
+    else f.root.scrollTo(0, 0);
+    expect(f.holds).toEqual([true, false]);
+    expect(f.cancels).toBe(1);
+    expect(f.routing.diagnostics.captures).toBe(0);
+    f.routing.up(point());
+    expect(f.holds).toEqual([true, false]);
+    f.scene.dispose();
+  }
+});
+it("does not deliver a late PointerDown after a held-state callback cancels its own pending input", () => {
+  const scene = new Scene("reentrant-hold"),
+    events: string[] = [];
+  const button = CanvasHoldButton(
+    "hold",
+    (held) => {
+      if (held) root.scrollBy(0, 10);
+    },
+    { height: 80, padding: 0 },
+  );
+  const root = CanvasScroll([button, CanvasLabel("tail", { height: 400 })], {
+      height: 100,
+    }),
+    ui = new CanvasUI(scene, root),
+    routing = new PointerRouting();
+  ui.layout(200, 100, metrics);
+  routing.setScene(new ScenePointer(scene), ui);
+  button.events.on(PointerDown, () => events.push("down"));
+  button.events.on(PointerCancel, () => events.push("cancel"));
+  routing.down(point());
+  expect(events).toEqual(["cancel"]);
+  expect(button.held).toBe(false);
+  expect(routing.diagnostics.captures).toBe(0);
   scene.dispose();
 });

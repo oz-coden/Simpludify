@@ -52,7 +52,7 @@ console.log(ui.diagnostics.activeMomentum);
 
 Give a scroll panel a bounded size or Flex grow allocation. Positions/ranges are UI units; pointer positions and thresholds are Host screen units. The adapter converts screen coordinates through UI scale. World Camera and physical DPR never enter scroll calculations. Styles belong to each node, not global defaults shared across containers. `setStyle` validates a complete patch before applying it.
 
-`scrollTo(x,y)` / `scrollBy(dx,dy)` clamp against the last resolved `maxScrollX/Y`. They stop momentum and cancel active pointer control of that scroller, including a no-op command. `stopScroll()` stops momentum only. `coasting` exposes whether velocity remains. Structure/size changes recompute ranges at the next layout and clamp offsets. Axis/policy changes cancel invalid gesture ownership immediately; new geometry and bar visibility are resolved at the next layout/presentation flush. Changing UI scale cancels UI gestures and momentum so old gesture samples cannot apply a different unit scale.
+`scrollTo(x,y)` / `scrollBy(dx,dy)` clamp against the last resolved `maxScrollX/Y`. They stop momentum and cancel active pointer control of that scroller and pending descendant presses, including a no-op command. `stopScroll()` stops momentum only. `coasting` exposes whether velocity remains. Structure/size changes recompute ranges at the next layout and clamp offsets. Axis/policy changes cancel invalid gesture ownership immediately; new geometry and bar visibility are resolved at the next layout/presentation flush. Changing UI scale cancels UI gestures and momentum so old gesture samples cannot apply a different unit scale.
 
 ## Gesture arbitration
 

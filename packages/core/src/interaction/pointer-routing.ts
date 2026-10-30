@@ -70,6 +70,7 @@ interface Gesture {
   start: PointerInfo;
   scale: number;
   candidates: readonly CanvasNode[];
+  candidateRevisions: readonly number[];
   scroll?: CanvasNode;
   axis?: "vertical" | "horizontal" | "both";
   revision?: number;
@@ -184,10 +185,12 @@ export class PointerRouting {
           data.screen.x / this.ui.scale,
           data.screen.y / this.ui.scale,
         ) ?? [],
+      candidateRevisions: [],
       vx: 0,
       vy: 0,
       ...(node ? { node, ui: this.ui as CanvasUI } : {}),
     };
+    g.candidateRevisions = g.candidates.map((n) => n.scrollRevision);
     for (const candidate of g.candidates) candidate.stopScroll();
     if (bar && this.ui && g.primary) {
       const pos =
@@ -223,7 +226,10 @@ export class PointerRouting {
             this.hold(node, data.pointerId, true);
         },
         () => {
-          if (!node || node.available)
+          if (
+            this.gestures.get(data.pointerId) === g &&
+            (!node || node.available)
+          )
             this.emit(g, PointerDown, this.inside(g, data));
         },
         () => {
@@ -577,6 +583,10 @@ export class PointerRouting {
           .filter(
             ([, g]) =>
               (g.node && !g.node.available) ||
+              (!g.scroll &&
+                g.candidates.some(
+                  (n, i) => n.scrollRevision !== g.candidateRevisions[i],
+                )) ||
               (g.ui && g.scale !== g.ui.scale) ||
               (g.scroll &&
                 ((!g.bar && !g.scroll.style.dragScroll) ||

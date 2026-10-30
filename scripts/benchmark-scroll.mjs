@@ -79,7 +79,7 @@ try {
   };
   writeFileSync(
     process.argv[2] ?? "benchmarks/canvas-scroll/after.json",
-    JSON.stringify(result, null, 2) + "\n",
+    `${JSON.stringify(result, null, 2)}\n`,
   );
   console.log(
     JSON.stringify({

@@ -77,3 +77,10 @@ Each implementation checkpoint must update this ledger and be pushed before long
 - Local project-base build/check passed: 60 HTML documents, 3711 references, 55 standalone typed examples. Latest focused input suite: 33/33. Local Chromium remains unavailable.
 - Initial investigation-only CI 41017127390 had an existing Tile trail WebGL test timeout before any engine edits. Subsequent momentum and scrollbar checkpoint CIs 41018406305 and 41019334591 passed completely. No unrelated test was removed or its timeout increased.
 - Repeated final-source Core workload at 7672415: p50 0.0103/0.0828/0.5127 ms; p95 0.0341/0.2684/0.9916 ms for 100/1000/5000 rows; still zero Flex layouts/measurement calls. This is about 6.9x median at 5000 rows relative to baseline, rather than cherry-picking the earlier 7.8x run. Raw final-source data will be retained alongside both earlier runs.
+
+## Pending-input and native-touch review
+
+- Native CDP state polling resolved the initial delivery-timing failure: narrow shard 2 at 1c10cf4 passed all 58 tests, including both renderer variants of mouse/thumb pixels, two-finger Hold transfer/cancel/blur and Host-frame momentum. Other quality/production/site and narrow shard 1 checks also passed. Desktop results are still being collected; no premature merge.
+- Review added cancellation for pending descendant presses when their ancestor receives wheel/program commands, including a no-op scrollTo. Reentrant held-state callbacks cannot deliver a late PointerDown after cancelling the gesture. New regressions pass; focused input suite is 35/35.
+- Final-source performance guide now uses the later 7672415 measurement (5000-row median 0.513ms, p95 0.992ms, about 6.9x median improvement). Both earlier raw runs remain available. Later input-arbitration changes do not touch the measured projection path.
+- Current local production/site project/root checks passed; final source browser suite enumeration and full unit counts are updated in the final receipt. Initial native timing failure is retained above instead of being rewritten as success.
