@@ -18,9 +18,7 @@ export default defineConfig({
         "--use-gl=angle",
         "--use-angle=swiftshader",
         // Isolate WebGL from the browser compositor on GPU-less CI runners.
-        ...(process.env.SWIFTSHADER_DRIVER === "1"
-          ? []
-          : ["--disable-gpu-compositing"]),
+        "--disable-gpu-compositing",
         "--enable-unsafe-swiftshader",
       ],
     },

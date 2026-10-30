@@ -1,50 +1,31 @@
-name: Scroll teardown diagnostics
+name: Scroll repeated verification
 on:
   push:
     branches: [feat/canvas-scroll-input-2026-10-30]
-    paths:
-      [
-        .github/workflows/scroll-diagnostics.yml,
-        tests/browser/teardown-probe.ts,
-      ]
+    paths: [.github/workflows/scroll-diagnostics.yml]
 permissions:
   contents: read
 jobs:
-  teardown:
+  repeat:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
-        revision: [main, work]
-        driver: ["0", "1"]
+        project: [desktop, narrow]
     steps:
       - uses: actions/checkout@v7.0.1
-      - name: Preserve diagnostic overlay and select baseline
-        if: matrix.revision == 'main'
-        run: |
-          cp tests/browser/replay.spec.ts /tmp/replay.spec.ts
-          cp tests/browser/teardown-probe.ts /tmp/teardown-probe.ts
-          cp playwright.config.ts /tmp/scroll-playwright.config.ts
-          git fetch origin main
-          git checkout --detach origin/main
-          cp /tmp/replay.spec.ts tests/browser/replay.spec.ts
-          cp /tmp/teardown-probe.ts tests/browser/teardown-probe.ts
-          cp /tmp/scroll-playwright.config.ts playwright.config.ts
       - uses: actions/setup-node@v7.1.0
         with:
           node-version: 24
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium --only-shell
-      - name: Repeat exact affected tests
-        run: npm run test:browser -- --project=desktop --grep '${{ matrix.revision == 'main' && 'Web plays a JSON Prism' || 'Web plays a JSON Prism|Host frames advance momentum' }}' --repeat-each=3
+      - run: npm run test:browser -- --project=${{ matrix.project }} --grep 'Web plays a JSON Prism|Host frames advance momentum|portable UI' --repeat-each=3
         env:
-          TRACE_TEARDOWN: "1"
-          SWIFTSHADER_DRIVER: ${{ matrix.driver }}
-          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/teardown.json
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/repeated-scroll.json
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
-          name: teardown-${{ matrix.revision }}-${{ matrix.driver }}
+          name: repeated-scroll-${{ matrix.project }}
           path: test-results/

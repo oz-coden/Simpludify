@@ -1,7 +1,6 @@
 import { expect, test } from "@playwright/test";
 import type { Game, ReplayPlayer } from "@simpludify/web";
 import type { Raid } from "../../examples/prism-raid/logic";
-import { installNativeTeardownProbe } from "./teardown-probe";
 
 declare global {
   interface Window {
@@ -20,16 +19,6 @@ declare global {
     };
   }
 }
-
-if (process.env.TRACE_TEARDOWN)
-  test.beforeEach(async ({ page }) => {
-    page.on("console", (message) => {
-      if (message.text().startsWith("TEARDOWN_NATIVE"))
-        console.log(message.text());
-    });
-    await page.addInitScript(installNativeTeardownProbe);
-  });
-
 const root = `/@fs${process.cwd()}`;
 test("fixed Web stepping retains short keys, bounds catch-up and resumes without stale input", async ({
   page,
@@ -229,14 +218,6 @@ test("Web plays a JSON Prism Raid victory, excludes live keys and releases Repla
   expect(await page.evaluate(() => window.replayGame.player.disposed)).toBe(
     true,
   );
-  if (process.env.TRACE_TEARDOWN) {
-    page.on("console", (message) => {
-      if (message.text().startsWith("TEARDOWN")) console.log(message.text());
-    });
-    await page.evaluate(async (url) => {
-      (await import(url)).traceGameDisposal(window.replayGame.game);
-    }, `${root}/tests/browser/teardown-probe.ts`);
-  }
   await page.evaluate(() => window.replayGame.game.dispose());
   expect(
     await page.evaluate(() => window.replayGame.game.engine.input.sourceCount),

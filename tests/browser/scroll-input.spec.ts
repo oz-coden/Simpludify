@@ -1,14 +1,4 @@
 import { expect, test } from "@playwright/test";
-import { installNativeTeardownProbe } from "./teardown-probe";
-
-if (process.env.TRACE_TEARDOWN)
-  test.beforeEach(async ({ page }) => {
-    page.on("console", (message) => {
-      if (message.text().startsWith("TEARDOWN_NATIVE"))
-        console.log(message.text());
-    });
-    await page.addInitScript(installNativeTeardownProbe);
-  });
 
 const fixture = `/@fs/${process.cwd()}/tests/browser/scroll-fixture.ts`;
 for (const fallback of [false, true])
@@ -252,15 +242,6 @@ for (const fallback of [false, true])
           () => window.scrollProbe.ui.diagnostics.activeMomentum,
         ),
       ).toBe(0);
-      if (process.env.TRACE_TEARDOWN) {
-        page.on("console", (message) => {
-          if (message.text().startsWith("TEARDOWN"))
-            console.log(message.text());
-        });
-        await page.evaluate(async (url) => {
-          (await import(url)).traceGameDisposal(window.scrollProbe.game);
-        }, `/@fs/${process.cwd()}/tests/browser/teardown-probe.ts`);
-      }
       const result = await page.evaluate(() => {
         const f = window.scrollProbe;
         f.game.dispose();
