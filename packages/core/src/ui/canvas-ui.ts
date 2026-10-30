@@ -11,6 +11,11 @@ import {
   type MeasureText,
 } from "./canvas-layout";
 import type { CanvasNode, UIBounds } from "./canvas-node";
+import {
+  type CanvasScrollbar,
+  canvasScrollbars,
+  scrollbarContains,
+} from "./scrollbar";
 export interface CanvasUIOptions {
   /** Host CSS pixels per UI unit, independent of Camera and DPR. Default 1. */ scale?: number;
 }
@@ -214,17 +219,8 @@ export class CanvasUI implements LifetimeOwner {
   }
   /** UI units. Nested scrollers consume only when their offset can change. */
   scrollAt(x: number, y: number, dx: number, dy: number): boolean {
-    const targets: CanvasNode[] = [];
-    this.walk((node, clip) => {
-      if (
-        node.available &&
-        node.style.scroll &&
-        containsUI(intersectUI(clip, node.bounds), x, y)
-      )
-        targets.push(node);
-    });
-    for (const node of targets.reverse())
-      if (node.scrollBy(dx, dy)) return true;
+    const targets = this.scrollTargets(x, y);
+    for (const node of targets) if (node.scrollBy(dx, dy)) return true;
     return false;
   }
   /** @internal Offset-only invalidation; Flex/text measurements remain cached. */
@@ -303,6 +299,7 @@ export class CanvasUI implements LifetimeOwner {
     this.projectScroll(this.root, 0, 0);
     this.projectionDirty = false;
     this.projections++;
+    if (geometry) this.invalidate();
     return true;
   }
   private captureLayout(node: CanvasNode): void {
@@ -386,7 +383,10 @@ export class CanvasUI implements LifetimeOwner {
     );
   }
   /** @internal Same clipped paint order as Pixi and keyboard mirror. */
-  walk(visit: (node: CanvasNode, clip: UIBounds) => void): void {
+  walk(
+    visit: (node: CanvasNode, clip: UIBounds) => void,
+    after?: (node: CanvasNode, clip: UIBounds) => void,
+  ): void {
     if (this.disposed) return;
     const walk = (node: CanvasNode, clip: UIBounds) => {
       if (node.disposed || !node.visible) return;
@@ -396,6 +396,7 @@ export class CanvasUI implements LifetimeOwner {
           : clip;
       visit(node, c);
       for (const child of node.children) walk(child, c);
+      after?.(node, c);
     };
     walk(this.root, {
       x: 0,
@@ -404,9 +405,41 @@ export class CanvasUI implements LifetimeOwner {
       height: Math.max(0, this.height / this.factor),
     });
   }
+  /** Scroll keyboard commands remain scoped to the focused native/portable control. */
+  scrollKey(node: CanvasNode, code: string): boolean {
+    for (let p: CanvasNode | undefined = node; p; p = p.parent) {
+      if (!p.style.scroll || !p.available) continue;
+      const vertical = p.style.scroll !== "horizontal";
+      let dx = 0,
+        dy = 0;
+      if (code === "ArrowDown") dy = 40;
+      else if (code === "ArrowUp") dy = -40;
+      else if (code === "ArrowRight") dx = 40;
+      else if (code === "ArrowLeft") dx = -40;
+      else if (code === "PageDown") {
+        if (vertical) dy = p.bounds.height * 0.9;
+        else dx = p.bounds.width * 0.9;
+      } else if (code === "PageUp") {
+        if (vertical) dy = -p.bounds.height * 0.9;
+        else dx = -p.bounds.width * 0.9;
+      } else if (code === "Home") {
+        if (vertical) dy = -p.scrollY;
+        else dx = -p.scrollX;
+      } else if (code === "End") {
+        if (vertical) dy = p.maxScrollY - p.scrollY;
+        else dx = p.maxScrollX - p.scrollX;
+      } else return false;
+      if (p.scrollBy(dx, dy)) return true;
+    }
+    return false;
+  }
   hitTest(x: number, y: number): CanvasNode | undefined {
+    return this.pick(x, y).node;
+  }
+  /** One ordered hit pass covers content and post-subtree overlay bars. */
+  pick(x: number, y: number): { node?: CanvasNode; bar?: CanvasScrollbar } {
     this.hits++;
-    let result: CanvasNode | undefined;
+    let result: { node?: CanvasNode; bar?: CanvasScrollbar } = {};
     const walk = (node: CanvasNode, clip: UIBounds) => {
       this.hitVisits++;
       if (
@@ -424,8 +457,11 @@ export class CanvasUI implements LifetimeOwner {
           : clip;
       if (!containsUI(c, x, y)) return;
       if (node.style.pointerEvents === "auto" && containsUI(node.bounds, x, y))
-        result = node;
+        result = { node };
       for (const child of node.children) walk(child, c);
+      for (const bar of canvasScrollbars(node))
+        if (scrollbarContains(bar, x, y, this.factor, c))
+          result = { node, bar };
     };
     if (!this.disposed)
       walk(this.root, {

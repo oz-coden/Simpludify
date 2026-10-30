@@ -5,6 +5,7 @@ import type {
   UIBounds,
 } from "@simpludify/core";
 import {
+  canvasScrollbars,
   cleanupAll,
   EngineError,
   intersectUI,
@@ -31,6 +32,10 @@ interface Entry {
   button?: HTMLButtonElement;
   abort: AbortController;
   signature?: string;
+  paintSignature?: string;
+  maskSignature?: string;
+  scrollbar?: Graphics;
+  scrollbarSignature?: string;
   textStyleKey?: string;
 }
 /** Pixi rendering and a small native focus mirror share the same resolved boxes. */
@@ -152,6 +157,10 @@ export class CanvasVisual implements CanvasPresentation {
     button.addEventListener(
       "keydown",
       (event) => {
+        if (this.ui.scrollKey(node, event.code)) {
+          event.preventDefault();
+          return;
+        }
         if (event.code === "Tab") {
           run(() => {
             const next = this.ui.focusNext(event.shiftKey);
@@ -226,141 +235,210 @@ export class CanvasVisual implements CanvasPresentation {
     const visited = new Set<CanvasNode>(),
       buttons: HTMLButtonElement[] = [];
     let order = 0;
-    this.ui.walk((node, parentClip) => {
-      const measuredText =
-        node.kind === "panel"
-          ? undefined
-          : this.measure(
-              node,
-              Math.max(0, node.bounds.width - node.style.padding * 2),
-            );
-      const clip =
-        measuredText &&
-        (measuredText.width > node.bounds.width - node.style.padding * 2 ||
-          measuredText.height > node.bounds.height - node.style.padding * 2)
-          ? intersectUI(parentClip, node.bounds)
-          : parentClip;
-      visited.add(node);
-      let entry = this.entries.get(node);
-      if (!entry) {
-        const display = new Container(),
-          background = new Graphics(),
-          mask = new Graphics();
-        display.addChild(background);
-        this.display.addChild(display, mask);
-        mask.renderable = false;
-        entry = { display, background, mask, abort: new AbortController() };
-        this.entries.set(node, entry);
-        if (node.interactive) {
-          entry.button = this.button(node);
-          this.element.append(entry.button);
+    this.ui.walk(
+      (node, parentClip) => {
+        const measuredText =
+          node.kind === "panel"
+            ? undefined
+            : this.measure(
+                node,
+                Math.max(0, node.bounds.width - node.style.padding * 2),
+              );
+        const clip =
+          measuredText &&
+          (measuredText.width > node.bounds.width - node.style.padding * 2 ||
+            measuredText.height > node.bounds.height - node.style.padding * 2)
+            ? intersectUI(parentClip, node.bounds)
+            : parentClip;
+        visited.add(node);
+        let entry = this.entries.get(node);
+        if (!entry) {
+          const display = new Container(),
+            background = new Graphics(),
+            mask = new Graphics();
+          display.addChild(background);
+          this.display.addChild(display, mask);
+          mask.renderable = false;
+          entry = { display, background, mask, abort: new AbortController() };
+          this.entries.set(node, entry);
+          if (node.interactive) {
+            entry.button = this.button(node);
+            this.element.append(entry.button);
+          }
+          if (node.kind !== "panel") {
+            entry.text = new Text({ text: node.text });
+            display.addChild(entry.text);
+          }
         }
-        if (node.kind !== "panel") {
-          entry.text = new Text({ text: node.text });
-          display.addChild(entry.text);
-        }
-      }
-      this.display.setChildIndex(entry.display, order++);
-      this.display.setChildIndex(entry.mask, order++);
-      if (entry.button) buttons.push(entry.button);
-      const b = node.bounds,
-        s = node.style;
-      let enabled = !node.busy;
-      for (let p: CanvasNode | undefined = node; p; p = p.parent)
-        enabled &&= p.enabled;
-      const signature = JSON.stringify([
-        node.paintRevision,
-        b.x,
-        b.y,
-        b.width,
-        b.height,
-        clip.x,
-        clip.y,
-        clip.width,
-        clip.height,
-        node.available,
-        enabled,
-        this.ui.scale,
-      ]);
-      if (entry.signature === signature) return;
-      entry.signature = signature;
-      entry.display.position.set(b.x, b.y);
-      const clipped =
-        clip.x !== 0 ||
-        clip.y !== 0 ||
-        clip.width !== width / this.ui.scale ||
-        clip.height !== height / this.ui.scale;
-      entry.display.mask = clipped ? entry.mask : null;
-      // StencilMaskPipe collects renderables; includeInBuild is managed by Pixi.
-      entry.mask.renderable = clipped;
-      if (clipped)
-        entry.mask
-          .clear()
-          .rect(clip.x, clip.y, clip.width, clip.height)
-          .fill(0xffffff);
-      entry.background.visible = s.background !== undefined || node.interactive;
-      entry.background.clear();
-      if (s.background !== undefined || node.interactive) {
-        entry.background
-          .roundRect(
-            0,
-            0,
-            b.width,
-            b.height,
-            Math.min(s.radius, b.width / 2, b.height / 2),
-          )
-          .fill(s.background ?? 0x23594e);
-        if (node.held)
-          entry.background
-            .roundRect(0, 0, b.width, b.height, s.radius)
-            .fill({ color: 0xffffff, alpha: 0.18 });
-        else if (node.hovered)
-          entry.background
-            .roundRect(0, 0, b.width, b.height, s.radius)
-            .fill({ color: 0xffffff, alpha: 0.08 });
-        if (node.focused)
-          entry.background
-            .roundRect(
-              2,
-              2,
-              Math.max(0, b.width - 4),
-              Math.max(0, b.height - 4),
-              s.radius,
-            )
-            .stroke({ color: 0xffd36b, width: 3 });
-      }
-      entry.display.alpha = enabled ? 1 : 0.45;
-      if (entry.text) {
-        const m = measuredText ?? this.measure(node);
-        if (entry.text.text !== m.text) {
-          this.resources.changedText(entry.text.styleKey);
-          entry.text.text = m.text;
-        }
-        const textStyleKey = JSON.stringify([
-          s.fontFamily,
-          s.fontSize,
-          s.color,
+        this.display.setChildIndex(entry.display, order++);
+        this.display.setChildIndex(entry.mask, order++);
+        if (entry.button) buttons.push(entry.button);
+        const b = node.bounds,
+          s = node.style;
+        let enabled = !node.busy;
+        for (let p: CanvasNode | undefined = node; p; p = p.parent)
+          enabled &&= p.enabled;
+        const signature = JSON.stringify([
+          node.paintRevision,
+          b.x,
+          b.y,
+          b.width,
+          b.height,
+          clip.x,
+          clip.y,
+          clip.width,
+          clip.height,
+          node.available,
+          enabled,
+          this.ui.scale,
         ]);
-        if (entry.textStyleKey !== textStyleKey) {
-          this.resources.changedText(entry.text.styleKey);
-          entry.textStyleKey = textStyleKey;
-          entry.text.style = {
-            fontFamily: s.fontFamily,
-            fontSize: s.fontSize,
-            fill: s.color,
-          };
+        if (entry.signature === signature) return;
+        entry.signature = signature;
+        entry.display.position.set(b.x, b.y);
+        const clipped =
+          clip.x !== 0 ||
+          clip.y !== 0 ||
+          clip.width !== width / this.ui.scale ||
+          clip.height !== height / this.ui.scale;
+        entry.display.mask = clipped ? entry.mask : null;
+        // StencilMaskPipe collects renderables; includeInBuild is managed by Pixi.
+        entry.mask.renderable = clipped;
+        const maskSignature = JSON.stringify([
+          clipped,
+          clip.x,
+          clip.y,
+          clip.width,
+          clip.height,
+        ]);
+        if (clipped && entry.maskSignature !== maskSignature)
+          entry.mask
+            .clear()
+            .rect(clip.x, clip.y, clip.width, clip.height)
+            .fill(0xffffff);
+        entry.maskSignature = maskSignature;
+        const paintSignature = JSON.stringify([
+          node.paintRevision,
+          b.width,
+          b.height,
+          enabled,
+        ]);
+        if (entry.paintSignature !== paintSignature) {
+          entry.paintSignature = paintSignature;
+          entry.background.visible =
+            s.background !== undefined || node.interactive;
+          entry.background.clear();
+          if (s.background !== undefined || node.interactive) {
+            entry.background
+              .roundRect(
+                0,
+                0,
+                b.width,
+                b.height,
+                Math.min(s.radius, b.width / 2, b.height / 2),
+              )
+              .fill(s.background ?? 0x23594e);
+            if (node.held)
+              entry.background
+                .roundRect(0, 0, b.width, b.height, s.radius)
+                .fill({ color: 0xffffff, alpha: 0.18 });
+            else if (node.hovered)
+              entry.background
+                .roundRect(0, 0, b.width, b.height, s.radius)
+                .fill({ color: 0xffffff, alpha: 0.08 });
+            if (node.focused)
+              entry.background
+                .roundRect(
+                  2,
+                  2,
+                  Math.max(0, b.width - 4),
+                  Math.max(0, b.height - 4),
+                  s.radius,
+                )
+                .stroke({ color: 0xffd36b, width: 3 });
+          }
+          entry.display.alpha = enabled ? 1 : 0.45;
+          if (entry.text) {
+            const m = measuredText ?? this.measure(node);
+            if (entry.text.text !== m.text) {
+              this.resources.changedText(entry.text.styleKey);
+              entry.text.text = m.text;
+            }
+            const textStyleKey = JSON.stringify([
+              s.fontFamily,
+              s.fontSize,
+              s.color,
+            ]);
+            if (entry.textStyleKey !== textStyleKey) {
+              this.resources.changedText(entry.text.styleKey);
+              entry.textStyleKey = textStyleKey;
+              entry.text.style = {
+                fontFamily: s.fontFamily,
+                fontSize: s.fontSize,
+                fill: s.color,
+              };
+            }
+            entry.text.position.set(
+              node.interactive
+                ? Math.max(s.padding, (b.width - m.width) / 2)
+                : s.padding,
+              node.interactive
+                ? Math.max(s.padding, (b.height - m.height) / 2)
+                : s.padding,
+            );
+          }
         }
-        entry.text.position.set(
-          node.interactive
-            ? Math.max(s.padding, (b.width - m.width) / 2)
-            : s.padding,
-          node.interactive
-            ? Math.max(s.padding, (b.height - m.height) / 2)
-            : s.padding,
-        );
-      }
-      this.updateButton(entry, node, clip);
-    });
+        this.updateButton(entry, node, clip);
+      },
+      (node, clip) => {
+        const entry = this.entries.get(node);
+        if (!entry) return;
+        const bars = canvasScrollbars(node);
+        if (!entry.scrollbar && bars.length) {
+          entry.scrollbar = new Graphics();
+          entry.scrollbar.eventMode = "none";
+          this.display.addChild(entry.scrollbar);
+        }
+        const display = entry.scrollbar;
+        if (!display) return;
+        this.display.setChildIndex(display, order++);
+        display.visible = bars.length > 0;
+        display.mask = entry.display.mask;
+        const signature = JSON.stringify([
+          node.style.color,
+          clip.x,
+          clip.y,
+          clip.width,
+          clip.height,
+          ...bars.map((b) => [b.axis, b.track, b.thumb, b.enabled]),
+        ]);
+        if (entry.scrollbarSignature === signature) return;
+        entry.scrollbarSignature = signature;
+        display.clear();
+        for (const bar of bars) {
+          const t = bar.track,
+            b = bar.thumb;
+          if (t.width <= 0 || t.height <= 0) continue;
+          display
+            .roundRect(
+              t.x,
+              t.y,
+              t.width,
+              t.height,
+              Math.min(4, t.width / 2, t.height / 2),
+            )
+            .fill({ color: node.style.color, alpha: 0.13 });
+          display
+            .roundRect(
+              b.x,
+              b.y,
+              b.width,
+              b.height,
+              Math.min(4, b.width / 2, b.height / 2),
+            )
+            .fill({ color: node.style.color, alpha: bar.enabled ? 0.7 : 0.25 });
+        }
+      },
+    );
     for (const [node, entry] of this.entries)
       if (!visited.has(node)) {
         this.entries.delete(node);
@@ -381,6 +459,7 @@ export class CanvasVisual implements CanvasPresentation {
   private releaseEntry(entry: Entry): void {
     const backgroundContext = entry.background.context?.uid,
       maskContext = entry.mask.context?.uid;
+    const scrollbarContext = entry.scrollbar?.context?.uid;
     const textKey =
       entry.text && !entry.text.destroyed ? entry.text.styleKey : undefined;
     cleanupAll(
@@ -390,11 +469,16 @@ export class CanvasVisual implements CanvasPresentation {
         // These Graphics contexts and Text styles are private to this presentation.
         // An options object with only children:true does not destroy owned GraphicsContext in Pixi8.
         () => entry.background.destroy({ context: true }),
+        () => entry.scrollbar?.destroy({ context: true }),
         () => entry.text?.destroy({ style: true }),
         () => entry.display.destroy({ children: true }),
         () => entry.mask.destroy({ context: true }),
         () => this.resources.graphics(entry.background, backgroundContext),
         () => this.resources.graphics(entry.mask, maskContext),
+        () => {
+          if (entry.scrollbar)
+            this.resources.graphics(entry.scrollbar, scrollbarContext);
+        },
         () => {
           if (entry.text) this.resources.text(entry.text, textKey);
         },

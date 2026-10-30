@@ -50,3 +50,12 @@ Each implementation checkpoint must update this ledger and be pushed before long
 - New down/wheel/programmatic scroll commands interrupt motion. Runtime inertia/axis/drag policy changes, hide/disable/removal and owner disposal stop affected state; unrelated scrollers retain their settings.
 - npm run check passed. New scroll/input suite: 30/30. The preceding checkpoint's full unit suite passed 587/587 in 46 files. Scrollbars and new real browser/touch regressions remain pending.
 - Drag/projection checkpoint: https://github.com/oz-coden/Simpludify/commit/73a551d02cfd75709a236c6d1d8dc8462f195409 .
+
+## Scrollbar checkpoint
+
+- Added Core overlay geometry and ordered hit selection for vertical/horizontal/both scrollbars. auto shows overflow only, always shows a disabled full-track thumb without overflow, hidden hides only the bars. Bars do not reserve Flex space. Thumb minimum is 24 UI units; cross-axis hit width is at least 24 Host units, clipped by the same ancestor bounds.
+- Primary mouse/touch thumbs map directly to clamped positions using the current track and original fractional grab point. Track presses page 90% of the viewport. Thumb/track gestures own their scroller, suppress content clicks and never launch momentum. Content drag disable does not disable bar control. Competing claims cannot steal capture; bar disappearance, direction/visibility/enable changes and disposal cancel safely.
+- Core paint/hit traversal includes post-subtree overlays, so parent bars cover their content but later sibling UI covers earlier bars. Web draws only the Core geometry. Keyboard Arrow/Page/Home/End commands work through focused controls even when bars are hidden.
+- Web retains private bar Graphics and releases their contexts with the presentation. Pure scroll translation no longer rebuilds background/text styling; mask geometry and scrollbar paint are cached separately from positions. No per-frame text measurement is added by the Core projection path.
+- New scrollbar suite 16/16 and scroll/input/momentum 30/30 passed; check passed. Full suite result follows in final verification. Sample, browser/touch tests, performance comparison and docs remain pending.
+- Momentum checkpoint: https://github.com/oz-coden/Simpludify/commit/2d2db05ec1a234d90238d5bfb9aab1610b73315d .

@@ -270,7 +270,6 @@ export class CanvasNode implements LifetimeOwner {
     if (nx === this.offsetX && ny === this.offsetY) return false;
     this.offsetX = nx;
     this.offsetY = ny;
-    this.paintRevision++;
     this.ui?.scrollChanged(this);
     return true;
   }
