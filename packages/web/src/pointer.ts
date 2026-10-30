@@ -43,8 +43,11 @@ export class BrowserPointer {
             // Keep game keyboard input while a touch/mouse UI source is held.
             // Tab still focuses native semantic controls explicitly.
             host.focus({ preventScroll: true });
-          } else if (host.hasPointerCapture(e.pointerId))
-            host.releasePointerCapture(e.pointerId);
+          } else {
+            if (this.routing.owns(e.pointerId)) e.preventDefault();
+            if (host.hasPointerCapture(e.pointerId))
+              host.releasePointerCapture(e.pointerId);
+          }
         }),
       options,
     );
@@ -139,6 +142,7 @@ export class BrowserPointer {
       pointerType: e.pointerType,
       button: e.button,
       buttons: e.buttons,
+      time: e.timeStamp / 1000,
       screen: Object.freeze(screenPoint(screen.x, screen.y)),
       world: Object.freeze(world),
       inside: containsScreenPoint(view, screen),

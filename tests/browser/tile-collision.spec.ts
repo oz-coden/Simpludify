@@ -86,6 +86,8 @@ for (const fallback of [false, true])
       test("actual Tile trail uses WASD for walls/sliding, editing, Trigger and Scene recreation", async ({
         page,
       }) => {
+        // Budget the complete real-input scenario; individual movement predicates remain bounded.
+        test.setTimeout(60_000);
         await page.evaluate(async (url) => {
           window.demo.dispose();
           await import(url);

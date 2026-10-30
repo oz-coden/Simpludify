@@ -126,6 +126,14 @@ Tab／Shift-Tabは不可視のネイティブ補助ボタンへフォーカス�
 
 Canvas UIのツリー・Flex計算・ヒットテスト・スクロール・フォーカス・入力配送はCoreにあり、WebはPixi描画・文字計測・ブラウザ入力・ネイティブのフォーカス補助を担当します。`CanvasScroll`で範囲を区切り、`add`・`remove`・`move(child, index)`・`clear`でリストを更新できます。`move`はノードを破棄しません。スクロール量は`scrollTo` / `scrollBy`で変更し、レイアウト後の`maxScrollX/Y`へ収まります。
 
-Canvas trailの **UI list lab** は、Core APIだけで構築した同じ画面定義をWebとヘッドレステストで使います。項目の選択・追加・削除・並べ替え、ホイール／ボタンでのスクロール、Tab移動による表示範囲外の項目へのフォーカスを試せます。タッチドラッグ・IME・専用の数値／選択フォームは未実装です。
+Canvas trailの **UI list lab** は、Core APIだけで構築した同じ画面定義をWebとヘッドレステストで使います。項目の選択・追加・削除・並べ替え、ホイール／ボタンでのスクロール、Tab移動による表示範囲外の項目へのフォーカスを試せます。タッチ／マウスドラッグ、慣性、ドラッグできるスクロールバーに対応しています。IME・専用の数値／選択フォームは未実装です。
 
 `canvasUI`の戻り値で`focus(node)`・`focusNext(reverse?)`を使えます。Coreのボタンコールバックと`node.signal`は環境非依存の`CancellationSignal`です。Webの`CanvasButton`コールバックは従来の`AbortSignal`を維持します。DOM/fetchへ`node.signal`を接続する場合はWebの`browserAbortSignal`を使ってください。[Core / Host境界と移行](../../docs/host-boundary.md)に詳細をまとめています。Electron・Tauri・Androidのビルドや実機動作は今回追加していません。
+
+## ドラッグ・慣性・スクロールバー
+
+`CanvasScroll`は領域ごとに`dragScroll`・`inertia`（既定値true）と`scrollbar`（auto / always / hidden、既定値auto）を持ち、`setStyle`で実行中にも変更できます。バーをhiddenにしても、許可されたドラッグ・ホイール・キーボード・プログラム操作は使えます。alwaysで内容が収まる場合は、全長の薄いつまみを表示して操作不可とします。
+
+ボタン上から8画面単位以上の有効軸ドラッグになると、元の入力をキャンセルしてスクロール領域が引き継ぎます。HoldButtonは従来どおり押下時に開始し、ドラッグ移行時にその指の寄与を解除します。親子では操作開始時に最も内側の移動可能な領域を選び、指を離すまで固定します。端から親へ移るときは、一度離して次の操作を始めます。複数の領域は別々の指で操作できます。
+
+位置だけの変更ではFlexと文字計測を繰り返しません。Webは既存のフレームから経過秒をCoreへ渡し、慣性を更新します。一時停止・フォーカス喪失・非表示・破棄では解除します。[詳細な仕様・キャンセル規則](../../docs/scrolling.md)と[性能計測の範囲](../../docs/scroll-performance.md)を参照してください。CDPタッチ模擬と実機確認は別で、Android/iOS実機は未検証です。

@@ -1,3 +1,4 @@
+import { EngineError } from "../foundation/diagnostics";
 import { defineEvent, EventBus } from "../foundation/events";
 import {
   cleanupAll,
@@ -8,6 +9,11 @@ import type { ScreenPoint, WorldPoint } from "../graphics/coordinates";
 import type { Scene } from "../scene/scene";
 import type { CanvasNode } from "../ui/canvas-node";
 import type { CanvasUI } from "../ui/canvas-ui";
+import {
+  type CanvasScrollbar,
+  canvasScrollbars,
+  scrollbarContains,
+} from "../ui/scrollbar";
 /** Snapshot coordinates at DOM delivery. Screen is host CSS units; world includes the current Camera. */
 export interface PointerInfo {
   readonly pointerId: number;
@@ -18,6 +24,8 @@ export interface PointerInfo {
   readonly world: WorldPoint;
   /** Inside the original UI target's current clipped hit area, or the world viewport clip. */
   readonly inside: boolean;
+  /** Monotonic Host seconds; omit when unavailable (momentum then stays off). */
+  readonly time?: number;
 }
 export const PointerDown = defineEvent<PointerInfo>("PointerDown");
 export const PointerMove = defineEvent<PointerInfo>("PointerMove");
@@ -59,9 +67,20 @@ interface Gesture {
   last: PointerInfo;
   primary: boolean;
   off?: () => void;
+  start: PointerInfo;
+  scale: number;
+  candidates: readonly CanvasNode[];
+  candidateRevisions: readonly number[];
+  scroll?: CanvasNode;
+  axis?: "vertical" | "horizontal" | "both";
+  revision?: number;
+  bar?: { axis: CanvasScrollbar["axis"]; grab: number; thumb: boolean };
+  vx: number;
+  vy: number;
 }
 /** @internal Device-independent routing state; DOM is only an adapter. */
 export class PointerRouting {
+  private readonly scrollOwners = new Map<CanvasNode, number>();
   private readonly suppressed = new Set<number>();
   private readonly gestures = new Map<number, Gesture>();
   private readonly hovering = new Map<
@@ -83,6 +102,7 @@ export class PointerRouting {
       heldNodes: this.holds.size,
       keyboardNodes: this.keys.size,
       deliveries: this.deliveries,
+      scrollDrags: this.scrollOwners.size,
     };
   }
   setScene(channel: ScenePointer, ui?: CanvasUI): void {
@@ -119,29 +139,84 @@ export class PointerRouting {
   private inside(g: Gesture, data: PointerInfo): PointerInfo {
     return Object.freeze({
       ...data,
-      inside: g.node
-        ? g.ui?.hitTest(
-            data.screen.x / g.ui.scale,
-            data.screen.y / g.ui.scale,
-          ) === g.node
-        : data.inside,
+      inside:
+        g.scroll && g.ui
+          ? g.ui.containsNode(
+              g.scroll,
+              data.screen.x / g.ui.scale,
+              data.screen.y / g.ui.scale,
+            )
+          : g.node
+            ? g.ui?.hitTest(
+                data.screen.x / g.ui.scale,
+                data.screen.y / g.ui.scale,
+              ) === g.node
+            : data.inside,
     });
   }
   down(data: PointerInfo): CanvasNode | undefined {
+    this.validate(data);
     if (!this.channel || this.channel.disposed) return;
     if (this.gestures.has(data.pointerId)) this.cancel(data.pointerId);
     this.suppressed.delete(data.pointerId);
-    const node = this.ui?.hitTest(
+    const pick = this.ui?.pick(
       data.screen.x / this.ui.scale,
       data.screen.y / this.ui.scale,
     );
+    const node = pick?.node,
+      bar = pick?.bar;
+    if (
+      bar &&
+      data.button === 0 &&
+      (!bar.enabled || this.scrollOwners.has(bar.node))
+    ) {
+      this.suppressed.add(data.pointerId);
+      return node;
+    }
     if (!node && !data.inside) return;
     const g: Gesture = {
       channel: this.channel,
       last: data,
       primary: data.button === 0,
+      start: data,
+      scale: this.ui?.scale ?? 1,
+      candidates:
+        this.ui?.scrollTargets(
+          data.screen.x / this.ui.scale,
+          data.screen.y / this.ui.scale,
+        ) ?? [],
+      candidateRevisions: [],
+      vx: 0,
+      vy: 0,
       ...(node ? { node, ui: this.ui as CanvasUI } : {}),
     };
+    g.candidateRevisions = g.candidates.map((n) => n.scrollRevision);
+    for (const candidate of g.candidates) candidate.stopScroll();
+    if (bar && this.ui && g.primary) {
+      const pos =
+        (bar.axis === "vertical" ? data.screen.y : data.screen.x) /
+        this.ui.scale;
+      const thumb = scrollbarContains(
+        bar,
+        data.screen.x / this.ui.scale,
+        data.screen.y / this.ui.scale,
+        this.ui.scale,
+        bar.node.bounds,
+        true,
+      );
+      const length =
+          bar.axis === "vertical" ? bar.thumb.height : bar.thumb.width,
+        start = bar.axis === "vertical" ? bar.thumb.y : bar.thumb.x;
+      g.scroll = bar.node;
+      g.axis = bar.node.style.scroll ?? bar.axis;
+      g.revision = bar.node.scrollRevision;
+      g.bar = {
+        axis: bar.axis,
+        grab: length > 0 ? (pos - start) / length : 0,
+        thumb,
+      };
+      this.scrollOwners.set(bar.node, data.pointerId);
+    }
     this.gestures.set(data.pointerId, g);
     if (node) g.off = node.onDispose(() => this.cancel(data.pointerId));
     cleanupAll(
@@ -151,13 +226,49 @@ export class PointerRouting {
             this.hold(node, data.pointerId, true);
         },
         () => {
-          if (!node || node.available)
+          if (
+            this.gestures.get(data.pointerId) === g &&
+            (!node || node.available)
+          )
             this.emit(g, PointerDown, this.inside(g, data));
+        },
+        () => {
+          if (
+            bar &&
+            g.bar &&
+            !g.bar.thumb &&
+            this.gestures.get(data.pointerId) === g
+          ) {
+            const vertical = bar.axis === "vertical",
+              pos =
+                (vertical ? data.screen.y : data.screen.x) / (g.ui?.scale ?? 1),
+              start = vertical ? bar.thumb.y : bar.thumb.x;
+            const direction = pos < start ? -1 : 1;
+            bar.node.setScrollPosition(
+              bar.node.scrollX +
+                (!vertical ? direction * bar.node.bounds.width * 0.9 : 0),
+              bar.node.scrollY +
+                (vertical ? direction * bar.node.bounds.height * 0.9 : 0),
+            );
+          }
         },
       ],
       "Pointer down handlers failed",
     );
     return node;
+  }
+  private validate(data: PointerInfo): void {
+    if (
+      !Number.isInteger(data.pointerId) ||
+      !Number.isFinite(data.screen.x) ||
+      !Number.isFinite(data.screen.y)
+    ) {
+      this.cancel(data.pointerId, false);
+      throw new EngineError(
+        "INVALID_UI",
+        "Pointer identity and coordinates must be finite",
+      );
+    }
   }
   /** Host-local screen units, normalized by the UI scale. */
   scroll(x: number, y: number, dx: number, dy: number): boolean {
@@ -177,11 +288,47 @@ export class PointerRouting {
     return this.gestures.has(id) || this.suppressed.has(id);
   }
   move(data: PointerInfo): void {
+    this.validate(data);
     if (this.suppressed.has(data.pointerId)) return;
     const g = this.gestures.get(data.pointerId);
     if (g) {
-      g.last = data;
-      this.emit(g, PointerMove, this.inside(g, data));
+      if (!g.scroll && g.primary) this.claimScroll(g, data);
+      if (this.gestures.get(data.pointerId) !== g) return;
+      if (g.bar && g.scroll && g.ui) {
+        const bar = canvasScrollbars(g.scroll).find(
+          (b) => b.axis === g.bar?.axis,
+        );
+        if (!bar) {
+          this.cancel(data.pointerId);
+          return;
+        }
+        if (g.bar.thumb && bar.enabled) {
+          const vertical = bar.axis === "vertical",
+            position = (vertical ? data.screen.y : data.screen.x) / g.ui.scale;
+          const start = vertical ? bar.track.y : bar.track.x,
+            thumb = vertical ? bar.thumb.height : bar.thumb.width,
+            travel = (vertical ? bar.track.height : bar.track.width) - thumb;
+          const offset =
+            ((position - start - g.bar.grab * thumb) / travel) *
+            (vertical ? g.scroll.maxScrollY : g.scroll.maxScrollX);
+          g.scroll.setScrollPosition(
+            vertical ? g.scroll.scrollX : offset,
+            vertical ? offset : g.scroll.scrollY,
+          );
+        }
+        g.last = data;
+      } else if (g.scroll && g.ui) {
+        const dx = (g.last.screen.x - data.screen.x) / g.ui.scale,
+          dy = (g.last.screen.y - data.screen.y) / g.ui.scale;
+        this.sampleVelocity(g, data, dx, dy);
+        g.last = data;
+        g.scroll.setScrollPosition(
+          g.scroll.scrollX + dx,
+          g.scroll.scrollY + dy,
+        );
+      } else g.last = data;
+      if (this.gestures.get(data.pointerId) === g)
+        this.emit(g, PointerMove, this.inside(g, data));
       return;
     }
     if (!this.channel || this.channel.disposed) return;
@@ -197,6 +344,83 @@ export class PointerRouting {
       this.deliveries++;
       this.channel.events.emit(PointerMove, data);
     }
+  }
+  private sampleVelocity(
+    g: Gesture,
+    data: PointerInfo,
+    dx: number,
+    dy: number,
+  ): void {
+    const dt =
+      data.time !== undefined && g.last.time !== undefined
+        ? data.time - g.last.time
+        : 0;
+    if (!Number.isFinite(dt) || dt <= 0 || dt > 0.15) {
+      g.vx = 0;
+      g.vy = 0;
+      return;
+    }
+    const a = 1 - Math.exp(-dt / 0.045);
+    g.vx += (Math.max(-3000, Math.min(3000, dx / dt)) - g.vx) * a;
+    g.vy += (Math.max(-3000, Math.min(3000, dy / dt)) - g.vy) * a;
+  }
+  private claimScroll(g: Gesture, data: PointerInfo): void {
+    const ui = this.ui;
+    if (!ui) return;
+    const dx = (g.start.screen.x - data.screen.x) / ui.scale,
+      dy = (g.start.screen.y - data.screen.y) / ui.scale;
+    const candidate = g.candidates.find((n) => {
+      if (n.ui !== ui || !n.available || !n.style.dragScroll) return false;
+      const x =
+        n.style.scroll !== "vertical" &&
+        n.maxScrollX > 0 &&
+        Math.abs(dx) * ui.scale >= n.style.dragThreshold;
+      const y =
+        n.style.scroll !== "horizontal" &&
+        n.maxScrollY > 0 &&
+        Math.abs(dy) * ui.scale >= n.style.dragThreshold;
+      return (
+        (x &&
+          ((dx < 0 && n.scrollX > 0) ||
+            (dx > 0 && n.scrollX < n.maxScrollX))) ||
+        (y &&
+          ((dy < 0 && n.scrollY > 0) || (dy > 0 && n.scrollY < n.maxScrollY)))
+      );
+    });
+    const axis = candidate?.style.scroll;
+    if (!candidate || !axis) return;
+    if (this.scrollOwners.has(candidate)) {
+      this.cancel(data.pointerId);
+      return;
+    }
+    const previous = { ...g };
+    g.off?.();
+    g.scroll = candidate;
+    g.node = candidate;
+    g.ui = ui;
+    g.axis = axis;
+    g.revision = candidate.scrollRevision;
+    this.scrollOwners.set(candidate, data.pointerId);
+    g.off = candidate.onDispose(() => this.cancel(data.pointerId));
+    cleanupAll(
+      [
+        () => {
+          if (previous.node?.interactive)
+            this.hold(previous.node, data.pointerId, false);
+        },
+        () =>
+          this.emit(
+            previous,
+            PointerCancel,
+            Object.freeze({ ...data, inside: false }),
+          ),
+        () => {
+          if (this.gestures.get(data.pointerId) === g)
+            this.emit(g, PointerDown, this.inside(g, data));
+        },
+      ],
+      "Scroll ownership transfer failed",
+    );
   }
   leave(data: PointerInfo): void {
     if (!this.gestures.has(data.pointerId))
@@ -244,10 +468,25 @@ export class PointerRouting {
     );
   }
   up(data: PointerInfo): void {
+    this.validate(data);
     if (this.suppressed.delete(data.pointerId)) return;
-    const g = this.gestures.get(data.pointerId);
+    let g = this.gestures.get(data.pointerId);
+    if (!g) return;
+    if (data.screen.x !== g.last.screen.x || data.screen.y !== g.last.screen.y)
+      this.move(data);
+    g = this.gestures.get(data.pointerId);
     if (!g) return;
     this.gestures.delete(data.pointerId);
+    if (g.scroll) {
+      this.scrollOwners.delete(g.scroll);
+      const fresh =
+        data.time !== undefined &&
+        g.last.time !== undefined &&
+        Number.isFinite(data.time) &&
+        data.time >= g.last.time &&
+        data.time - g.last.time <= 0.08;
+      if (fresh && !g.bar) g.scroll.startScroll(g.vx, g.vy);
+    }
     const info = this.inside(g, data);
     cleanupAll(
       [
@@ -260,11 +499,17 @@ export class PointerRouting {
           if (!g.node || g.node.available) this.emit(g, PointerUp, info);
         },
         () => {
-          if (g.primary && info.inside && (!g.node || g.node.available))
+          if (
+            !g.scroll &&
+            g.primary &&
+            info.inside &&
+            (!g.node || g.node.available)
+          )
             this.emit(g, PointerClick, info);
         },
         () => {
-          if (g.primary && info.inside && g.node?.available) g.node.activate();
+          if (!g.scroll && g.primary && info.inside && g.node?.available)
+            g.node.activate();
         },
       ],
       "Pointer up handlers failed",
@@ -275,6 +520,10 @@ export class PointerRouting {
     const g = this.gestures.get(id);
     if (!g) return;
     this.gestures.delete(id);
+    if (g.scroll) {
+      this.scrollOwners.delete(g.scroll);
+      g.scroll.stopScroll();
+    }
     if (retainOwnership) this.suppressed.add(id);
     cleanupAll(
       [
@@ -331,7 +580,23 @@ export class PointerRouting {
     cleanupAll(
       [
         ...[...this.gestures]
-          .filter(([, g]) => g.node && !g.node.available)
+          .filter(
+            ([, g]) =>
+              (g.node && !g.node.available) ||
+              (!g.scroll &&
+                g.candidates.some(
+                  (n, i) => n.scrollRevision !== g.candidateRevisions[i],
+                )) ||
+              (g.ui && g.scale !== g.ui.scale) ||
+              (g.scroll &&
+                ((!g.bar && !g.scroll.style.dragScroll) ||
+                  (g.bar &&
+                    !canvasScrollbars(g.scroll).some(
+                      (b) => b.axis === g.bar?.axis && b.enabled,
+                    )) ||
+                  g.axis !== g.scroll.style.scroll ||
+                  g.revision !== g.scroll.scrollRevision)),
+          )
           .map(
             ([id]) =>
               () =>
@@ -352,6 +617,7 @@ export class PointerRouting {
     );
   }
   release(): void {
+    this.ui?.stopMotion();
     cleanupAll(
       [
         ...[...this.gestures.keys()].map((id) => () => this.cancel(id)),
@@ -374,6 +640,7 @@ export class PointerRouting {
   }
   reset(): void {
     const off = this.subscriptions.splice(0);
+    this.ui?.stopMotion();
     this.channel = undefined;
     this.ui = undefined;
     cleanupAll(

@@ -4,6 +4,8 @@ Simpludify has an experimental Web runtime and a generic composition-based Core.
 
 ## Included
 
+- [Portable scroll input](scrolling.md): touch/mouse content arbitration, per-node momentum, overlay scrollbar controls, nested/multipointer ownership, keyboard commands and cached projection; [measurements](scroll-performance.md).
+
 - Host-independent Core Canvas UI tree/Flex/text policy/pointer routing, dynamic ordering, clipped scrolling and logical focus; Web supplies Pixi/metrics/native focus adapters. [Module and Host boundaries](host-boundary.md), [Canvas API](canvas-ui.md) and [portable screen](../examples/canvas-ui/portable-screen.ts).
 
 - Finite Tilemap placements from copied Grid/rows, typed SpriteSheet IDs, camera culling and incremental edits; [API](tilemap.md), [measurements](tilemap-performance.md), and [optional terrain collision](tilemap-collision.md).

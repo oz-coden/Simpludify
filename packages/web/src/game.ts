@@ -701,6 +701,7 @@ export class Game<SceneId extends string = string> {
     if (this.dead) return;
     try {
       if (document.hidden) {
+        this.canvas?.stopMotion();
         this.previousTime = undefined;
         this.fixed?.reset();
         this.engine.input.clear();
@@ -714,6 +715,8 @@ export class Game<SceneId extends string = string> {
           this.playback.advance(elapsed, this.options.fixedStep?.maxSteps ?? 8);
         else if (this.fixed) this.fixed.advance(elapsed);
         else this.engine.step(Math.min(this.maxDelta, elapsed));
+        if (this.engine.paused) this.canvas?.stopMotion();
+        else this.canvas?.advance(elapsed);
         if (
           this.ratio !==
           (this.options.pixelRatio ?? Math.min(window.devicePixelRatio || 1, 2))
