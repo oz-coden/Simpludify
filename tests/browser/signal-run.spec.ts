@@ -528,12 +528,6 @@ test("slides against Solid walls and exposes post-response contacts through publ
   page,
 }) => {
   await page.getByRole("button", { name: "Start run", exact: true }).click();
-  await page.evaluate(() => {
-    const round = window.signalRun.round;
-    if (!round) throw Error("No round");
-    round.player.x = 270;
-    round.player.y = 255;
-  });
   await page.locator(".simpludify").focus();
   expect(
     await page.evaluate(async (url) => {
@@ -592,6 +586,10 @@ test("slides against Solid walls and exposes post-response contacts through publ
       },
       round.scene,
     );
+    // Keep placement and deterministic stepping in one task; live frames must not
+    // move hazards into the test position while DOM/projection checks are awaited.
+    round.player.x = 270;
+    round.player.y = 255;
     game.engine.input.createKeyboardSource(game.engine.scene).set("KeyS", true);
     for (let frame = 0; frame < 60; frame++) game.engine.step(1 / 60);
     const y = round.player.y,

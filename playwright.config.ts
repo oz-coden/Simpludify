@@ -8,7 +8,9 @@ export default defineConfig({
   reporter: process.env.CI ? [["list"], ["json"]] : "list",
   use: {
     baseURL: "http://127.0.0.1:4173",
-    trace: "retain-on-failure",
+    // Keep DOM/network/action traces without continuously reading back the GPU canvas.
+    trace: { mode: "retain-on-failure", screenshots: false },
+    screenshot: "only-on-failure",
     launchOptions: {
       ...(process.env.CHROMIUM_PATH
         ? { executablePath: process.env.CHROMIUM_PATH }

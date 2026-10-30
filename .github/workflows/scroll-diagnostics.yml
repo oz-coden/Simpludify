@@ -25,7 +25,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium --only-shell
-      - run: npm run test:browser -- --project=${{ matrix.project }} --grep 'Web plays a JSON Prism|Host frames advance momentum|portable UI' --repeat-each=3
+      - run: npm run test:browser -- --project=${{ matrix.project }} --grep 'Web plays a JSON Prism|Host frames advance momentum|portable UI|slides against Solid walls' --repeat-each=3
         env:
           PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/repeated-scroll.json
       - uses: actions/upload-artifact@v7.0.2
