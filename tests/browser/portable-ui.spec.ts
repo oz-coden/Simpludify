@@ -1,10 +1,19 @@
 import { expect, type Page, test } from "@playwright/test";
 
 const sample = `/@fs/${process.cwd()}/examples/canvas-ui/main.ts`;
+async function flushFrame(page: Page): Promise<void> {
+  await page.evaluate(() => window.flushPortableFrames());
+}
+async function pressControl(page: Page, name: string): Promise<void> {
+  await page.getByRole("button", { name, exact: true }).press("Enter");
+  await flushFrame(page);
+}
 async function backAndCheck(page: Page): Promise<void> {
-  await page.getByRole("button", { name: "Back", exact: true }).press("Enter");
+  await pressControl(page, "Back");
   await page.waitForFunction(
     () => window.canvasDemo.game.engine.scene.id === "title",
+    undefined,
+    { polling: 50 },
   );
   expect(
     await page.evaluate(async (sample) => {
@@ -22,6 +31,26 @@ for (const fallback of [false, true]) {
     let errors: string[];
     test.beforeEach(async ({ page }) => {
       errors = [];
+      // Present once per input instead of saturating SwiftShader with idle frames.
+      // Native input, actual sample construction and Pixi drawing remain exercised.
+      await page.addInitScript(() => {
+        let id = 0,
+          time = 0;
+        const callbacks = new Map<number, FrameRequestCallback>();
+        window.requestAnimationFrame = (callback) => {
+          callbacks.set(++id, callback);
+          return id;
+        };
+        window.cancelAnimationFrame = (handle) => {
+          callbacks.delete(handle);
+        };
+        window.flushPortableFrames = () => {
+          const roster = [...callbacks.values()];
+          callbacks.clear();
+          time += 16;
+          for (const callback of roster) callback(time);
+        };
+      });
       page.on("pageerror", (e) => errors.push(e.message));
       if (fallback)
         await page.addInitScript(() => {
@@ -46,25 +75,25 @@ for (const fallback of [false, true]) {
           }
         });
       await page.goto("/");
-      await page.waitForFunction(() => !!window.demo);
+      await page.waitForFunction(() => !!window.demo, undefined, {
+        polling: 50,
+      });
       await page.evaluate(async (sample) => {
         window.demo.dispose();
         await import(sample);
       }, sample);
-      await page
-        .getByRole("button", { name: "UI list lab", exact: true })
-        .press("Enter");
+      await pressControl(page, "UI list lab");
       await page.waitForFunction(
         () => window.canvasDemo.game.engine.scene.id === "list",
+        undefined,
+        { polling: 50 },
       );
     });
     test.afterEach(() => expect(errors).toEqual([]));
     test("selection, clipped keyboard focus and removal release their Scene", async ({
       page,
     }) => {
-      await page
-        .getByRole("button", { name: "Entry 1", exact: true })
-        .press("Enter");
+      await pressControl(page, "Entry 1");
       await expect
         .poll(() =>
           page.evaluate(
@@ -75,7 +104,10 @@ for (const fallback of [false, true]) {
         )
         .toBe("Selected 1");
       // Tab crosses the clipped viewport boundary and reveals later entries.
-      for (let i = 0; i < 11; i++) await page.keyboard.press("Tab");
+      for (let i = 0; i < 11; i++) {
+        await page.keyboard.press("Tab");
+        await flushFrame(page);
+      }
       await expect(
         page.getByRole("button", { name: "Entry 12", exact: true }),
       ).toBeFocused();
@@ -89,9 +121,8 @@ for (const fallback of [false, true]) {
         )
         .toBeGreaterThan(0);
       await page.keyboard.press("Space");
-      await page
-        .getByRole("button", { name: "Remove selected", exact: true })
-        .press("Enter");
+      await flushFrame(page);
+      await pressControl(page, "Remove selected");
       await expect(
         page.getByRole("button", { name: "Entry 12", exact: true }),
       ).toHaveCount(0);
@@ -100,18 +131,12 @@ for (const fallback of [false, true]) {
     test("live ordering, wheel input and resize release their Scene", async ({
       page,
     }) => {
-      await page
-        .getByRole("button", { name: "Add entry", exact: true })
-        .press("Enter");
+      await pressControl(page, "Add entry");
       await expect(
         page.getByRole("button", { name: "Entry 13", exact: true }),
       ).toHaveCount(1);
-      await page
-        .getByRole("button", { name: "Reverse", exact: true })
-        .press("Enter");
-      await page
-        .getByRole("button", { name: "Scroll up", exact: true })
-        .press("Enter");
+      await pressControl(page, "Reverse");
+      await pressControl(page, "Scroll up");
       await page.evaluate(async (sample) => {
         const d = (await import(sample)).portableDemo;
         d.screen.list.scrollTo(0, 0);
@@ -124,6 +149,7 @@ for (const fallback of [false, true]) {
       }, sample);
       await page.mouse.move(point.x, point.y);
       await page.mouse.wheel(0, 120);
+      await flushFrame(page);
       await expect
         .poll(() =>
           page.evaluate(
@@ -146,4 +172,10 @@ for (const fallback of [false, true]) {
       await backAndCheck(page);
     });
   });
+}
+
+declare global {
+  interface Window {
+    flushPortableFrames(): void;
+  }
 }

@@ -2,7 +2,11 @@ name: Scroll repeated verification
 on:
   push:
     branches: [feat/canvas-scroll-input-2026-10-30]
-    paths: [.github/workflows/scroll-diagnostics.yml]
+    paths:
+      [
+        .github/workflows/scroll-diagnostics.yml,
+        tests/browser/portable-ui.spec.ts,
+      ]
 permissions:
   contents: read
 jobs:
