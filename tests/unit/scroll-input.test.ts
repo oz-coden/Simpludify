@@ -395,3 +395,39 @@ it("coasts only on enabled axes, stops at boundaries and keeps another scroller'
   other.dispose();
   f.scene.dispose();
 });
+
+it("cancels drags/momentum on scale changes and malformed coordinates without corrupting position", () => {
+  const f = setup();
+  f.routing.down(point());
+  f.routing.move(point(1, 20, 20));
+  f.ui.scale = 2;
+  expect(f.routing.diagnostics.scrollDrags).toBe(0);
+  f.routing.up(point(1, 20, 20));
+  f.root.startScroll(0, 900);
+  f.ui.scale = 1;
+  expect(f.root.coasting).toBe(false);
+  f.flush();
+  f.routing.down(point());
+  f.routing.move(point(1, 20, 20));
+  const y = f.root.scrollY;
+  expect(() =>
+    f.routing.move({ ...point(), screen: { space: "screen", x: NaN, y: 10 } }),
+  ).toThrow("finite");
+  expect(f.routing.diagnostics.captures).toBe(0);
+  expect(f.root.scrollY).toBe(y);
+  f.scene.dispose();
+});
+it("continues safe cleanup when the old target's cancellation handler throws during ownership transfer", () => {
+  const f = setup(true);
+  f.button.events.on(PointerCancel, () => {
+    throw Error("cancel handler");
+  });
+  f.routing.down(point());
+  expect(() => f.routing.move(point(1, 20, 10))).toThrow();
+  expect(f.holds).toEqual([true, false]);
+  expect(f.routing.diagnostics.scrollDrags).toBe(1);
+  f.routing.cancel(1, false);
+  expect(f.routing.diagnostics.scrollDrags).toBe(0);
+  expect(f.cancels).toBe(1);
+  f.scene.dispose();
+});

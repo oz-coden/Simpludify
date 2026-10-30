@@ -1,3 +1,4 @@
+import { EngineError } from "../foundation/diagnostics";
 import { defineEvent, EventBus } from "../foundation/events";
 import {
   cleanupAll,
@@ -67,6 +68,7 @@ interface Gesture {
   primary: boolean;
   off?: () => void;
   start: PointerInfo;
+  scale: number;
   candidates: readonly CanvasNode[];
   scroll?: CanvasNode;
   axis?: "vertical" | "horizontal" | "both";
@@ -152,6 +154,7 @@ export class PointerRouting {
     });
   }
   down(data: PointerInfo): CanvasNode | undefined {
+    this.validate(data);
     if (!this.channel || this.channel.disposed) return;
     if (this.gestures.has(data.pointerId)) this.cancel(data.pointerId);
     this.suppressed.delete(data.pointerId);
@@ -175,6 +178,7 @@ export class PointerRouting {
       last: data,
       primary: data.button === 0,
       start: data,
+      scale: this.ui?.scale ?? 1,
       candidates:
         this.ui?.scrollTargets(
           data.screen.x / this.ui.scale,
@@ -247,6 +251,19 @@ export class PointerRouting {
     );
     return node;
   }
+  private validate(data: PointerInfo): void {
+    if (
+      !Number.isInteger(data.pointerId) ||
+      !Number.isFinite(data.screen.x) ||
+      !Number.isFinite(data.screen.y)
+    ) {
+      this.cancel(data.pointerId, false);
+      throw new EngineError(
+        "INVALID_UI",
+        "Pointer identity and coordinates must be finite",
+      );
+    }
+  }
   /** Host-local screen units, normalized by the UI scale. */
   scroll(x: number, y: number, dx: number, dy: number): boolean {
     const ui = this.ui;
@@ -265,6 +282,7 @@ export class PointerRouting {
     return this.gestures.has(id) || this.suppressed.has(id);
   }
   move(data: PointerInfo): void {
+    this.validate(data);
     if (this.suppressed.has(data.pointerId)) return;
     const g = this.gestures.get(data.pointerId);
     if (g) {
@@ -444,6 +462,7 @@ export class PointerRouting {
     );
   }
   up(data: PointerInfo): void {
+    this.validate(data);
     if (this.suppressed.delete(data.pointerId)) return;
     let g = this.gestures.get(data.pointerId);
     if (!g) return;
@@ -558,6 +577,7 @@ export class PointerRouting {
           .filter(
             ([, g]) =>
               (g.node && !g.node.available) ||
+              (g.ui && g.scale !== g.ui.scale) ||
               (g.scroll &&
                 ((!g.bar && !g.scroll.style.dragScroll) ||
                   (g.bar &&

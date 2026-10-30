@@ -265,6 +265,9 @@ export class CanvasNode implements LifetimeOwner {
   }
   /** @internal Gesture/animation write; does not cancel its own ownership. */
   setScrollPosition(x: number, y: number): boolean {
+    if (this.disposed) return false;
+    if (!Number.isFinite(x) || !Number.isFinite(y))
+      throw new EngineError("INVALID_UI", "Scroll coordinates must be finite");
     const nx = Math.max(0, Math.min(this.maximumX, x)),
       ny = Math.max(0, Math.min(this.maximumY, y));
     if (nx === this.offsetX && ny === this.offsetY) return false;

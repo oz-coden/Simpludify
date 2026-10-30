@@ -75,6 +75,18 @@ export const examples = [
 ];
 export const pages = [
   [
+    "en/scrolling.html",
+    "docs/scrolling.md",
+    "Canvas scrolling and input",
+    "English",
+  ],
+  [
+    "en/scroll-performance.html",
+    "docs/scroll-performance.md",
+    "Scroll projection measurements",
+    "English",
+  ],
+  [
     "en/host-boundary.html",
     "docs/host-boundary.md",
     "Core modules and Host contracts",

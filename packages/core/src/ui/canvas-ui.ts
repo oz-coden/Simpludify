@@ -71,6 +71,7 @@ export class CanvasUI implements LifetimeOwner {
       throw new EngineError("OWNER_DISPOSED", "UI has been disposed");
     const next = positive(value, "ui.scale");
     if (next !== this.factor) {
+      this.stopMotion();
       this.factor = next;
       this.invalidate(true);
     }
