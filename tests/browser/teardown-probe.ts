@@ -35,6 +35,10 @@ export function traceGameDisposal(game: Game): void {
     wrap(system, "destroy", `${i}:${system.constructor.name}.destroy`);
   const context = renderer.context;
   if (context) {
+    console.log(
+      "TEARDOWN_GL_VERSION",
+      context.gl.getParameter(context.gl.VERSION),
+    );
     for (const key of [
       "useProgram",
       "deleteProgram",

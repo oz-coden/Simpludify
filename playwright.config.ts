@@ -16,7 +16,10 @@ export default defineConfig({
       args: [
         "--enable-webgl",
         "--use-gl=angle",
-        "--use-angle=swiftshader",
+        // WebGL remains SwiftShader-backed; keep browser compositing in software.
+        process.env.SWIFTSHADER_DRIVER === "1"
+          ? "--use-angle=swiftshader"
+          : "--use-angle=swiftshader-webgl",
         "--enable-unsafe-swiftshader",
       ],
     },

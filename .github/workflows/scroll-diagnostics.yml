@@ -2,7 +2,11 @@ name: Scroll teardown diagnostics
 on:
   push:
     branches: [feat/canvas-scroll-input-2026-10-30]
-    paths: [.github/workflows/scroll-diagnostics.yml, tests/browser/teardown-probe.ts]
+    paths:
+      [
+        .github/workflows/scroll-diagnostics.yml,
+        tests/browser/teardown-probe.ts,
+      ]
 permissions:
   contents: read
 jobs:
@@ -13,6 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         revision: [main, work]
+        driver: ["0", "1"]
     steps:
       - uses: actions/checkout@v7.0.1
       - name: Preserve diagnostic overlay and select baseline
@@ -20,10 +25,12 @@ jobs:
         run: |
           cp tests/browser/replay.spec.ts /tmp/replay.spec.ts
           cp tests/browser/teardown-probe.ts /tmp/teardown-probe.ts
+          cp playwright.config.ts /tmp/scroll-playwright.config.ts
           git fetch origin main
           git checkout --detach origin/main
           cp /tmp/replay.spec.ts tests/browser/replay.spec.ts
           cp /tmp/teardown-probe.ts tests/browser/teardown-probe.ts
+          cp /tmp/scroll-playwright.config.ts playwright.config.ts
       - uses: actions/setup-node@v7.1.0
         with:
           node-version: 24
@@ -33,10 +40,10 @@ jobs:
       - name: Repeat exact affected tests
         run: npm run test:browser -- --project=desktop --grep '${{ matrix.revision == 'main' && 'Web plays a JSON Prism' || 'Web plays a JSON Prism|Host frames advance momentum' }}' --repeat-each=3
         env:
-          TRACE_TEARDOWN: '1'
+          TRACE_TEARDOWN: "1"
           PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/teardown.json
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
-          name: teardown-${{ matrix.revision }}
+          name: teardown-${{ matrix.revision }}-${{ matrix.driver }}
           path: test-results/
