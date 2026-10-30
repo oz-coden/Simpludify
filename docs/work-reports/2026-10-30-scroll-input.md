@@ -11,7 +11,7 @@
 - Mouse/thumb/pixel and CDP multi-touch ownership tests passed in all four renderer/viewport combinations. CDP touch is emulation; physical Android/iOS devices are **not verified**. Local browser installation was unavailable, so real browser execution above is Actions-only.
 - Latest retained Core benchmark: 5000-row median **3.523ms → 0.513ms**, approximately **6.9x** faster; offset updates perform zero Flex layouts/text measurements. Same-machine conditions and all raw runs are retained below and in `benchmarks/canvas-scroll/`. This excludes Pixi/GPU and end-to-end input latency; no virtualization claim.
 - Next priority: inspect the two timeout traces, distinguish product defects from timing/environment issues, fix concrete causes, rerun relevant and full verification, then complete review and merge/deploy only if required checks pass. Failure artifacts: [desktop shard 2](https://github.com/oz-coden/Simpludify/actions/runs/41022256709/artifacts/12962531992).
-- This is an interim status report requested by the user, not a completion report. The chronological checkpoints below retain earlier plans/results; their “pending” statements describe those earlier points in time.
+- This is an interim verification record, not a completion report. The chronological checkpoints below retain earlier plans/results; their “pending” statements describe those earlier points in time.
 
 ## Initial status and baseline (historical)
 
@@ -103,3 +103,10 @@ Each implementation checkpoint must update this ledger and be pushed before long
 - Local final unit suite: **622 passed / 0 failed, 47 files**. Check passed with the unchanged baseline 12 warnings / 11 informational diagnostics. Browser enumeration: **250 tests / 16 files** across desktop/narrow.
 - Disabled scroll containers now retain dim bar geometry while refusing bar input; hidden/disposed trees do not paint bars. This completes the separation of display policy and input availability. Added the corresponding regression. No further features are planned; collect this exact source's full CI before integration.
 - Pending-input cancellation fix: https://github.com/oz-coden/Simpludify/commit/40e210492e0c1a6225b35ef68cd3c2a6a03775c5 . Native touch fixture correction: https://github.com/oz-coden/Simpludify/commit/1c10cf45cac669efb4960fad46f3a3c77e3803ad .
+
+## Resumed investigation — 2026-10-30 18:23 JST
+
+- Reconfirmed remote branch at `2535a31d3512886b0971b21f4521a9ce94727ace`, main at `c9f525264caf0db5c0bea165def08eafed6e03ac`, and no open PR. Continue the existing branch without reconstructing completed scrolling features. `npm ci` passed (68 packages).
+- Downloaded and decoded the [failed desktop artifact](https://github.com/oz-coden/Simpludify/actions/runs/41022256709/artifacts/12962531992), including Playwright browser JSON, nested traces and screencast images. Both failures reached the final synchronous `Game.dispose()` evaluate call. Replay's disposal call has no completion event before timeout; scroll disposal eventually returned all expected zero/disposed counters after **35007ms**. All preceding momentum, pause and runtime inertia assertions completed. This narrows the issue to teardown, rather than an unmet scrolling-state wait.
+- Replay trace includes ANGLE outsideRenderPass queueSerial warnings. Pinned Pixi's GL context teardown calls `gl.useProgram(null)` and `WEBGL_lose_context.loseContext()`. These are inspection findings, not proof that either native call caused the delay. Next: instrument/reproduce teardown before selecting a fix, compare the main baseline where feasible, then run targeted repeated and full browser checks.
+- No source fix or successful revalidation has yet been claimed. Main remains unmerged; Pages unchanged.
