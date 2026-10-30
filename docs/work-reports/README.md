@@ -4,7 +4,7 @@ Implementation checkpoints and final verification records live here so repositor
 
 | Date (JST) | Task                                                                      | Status                                                                                     |
 | ---------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| 2026-10-30 | [Canvas scroll input](2026-10-30-scroll-input.md)                         | In progress: native teardown/capture and timing fixes under full/repeated CI; not merged   |
+| 2026-10-30 | [Canvas scroll input](2026-10-30-scroll-input.md)                         | Final integration: source CI/repetition passed; cleanup CI pending; live origin access blocked   |
 | 2026-10-30 | [Core modules and host-independent Canvas UI](2026-10-30-core-host-ui.md) | Complete: merged ba1345e; main CI 570 unit / 238 browser tests and Pages deployment passed |
 
 Before long-running verification or integration, commit implementation and update the corresponding report, then push the branch. Final reports must include check counts, CI links, commits and integration SHA; never mark an unexecuted check successful.
