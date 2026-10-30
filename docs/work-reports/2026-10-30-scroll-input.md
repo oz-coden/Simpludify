@@ -1,6 +1,19 @@
 # Canvas scrolling and input arbitration
 
-## Status and baseline
+## Current status — 2026-10-30 18:10 JST
+
+**Implementation is saved, but final verification is not complete. Main has not been merged and these changes have not been deployed to GitHub Pages.**
+
+- Development branch: `feat/canvas-scroll-input-2026-10-30`; tested source: [b79e6f093acafe5288bebd558a994e4a3d5b018a](https://github.com/oz-coden/Simpludify/commit/b79e6f093acafe5288bebd558a994e4a3d5b018a). Main remains the starting revision `c9f525264caf0db5c0bea165def08eafed6e03ac`.
+- Implemented: touch/mouse content dragging, axis-aware threshold and pointer ownership transfer, Button/HoldButton cancellation, independent pointers and locked nested-scroll ownership, per-node inertia and runtime settings, overlay scrollbar modes/thumb/track interaction, Core geometry and Web rendering, offset-only layout projection, and expanded portable sample/API documentation. Core has no new DOM/Pixi dependency.
+- Exact-source [CI 41022256709](https://github.com/oz-coden/Simpludify/actions/runs/41022256709) finished with **failure**. Quality passed: **622 unit tests / 47 files**, including boundary checks. Production build/smoke and both root/project site-base jobs passed.
+- Browser total: **248 passed / 2 failed out of 250**. Desktop shard 1: 67 passed; desktop shard 2: 56 passed, 2 failed; narrow shard 1: 67 passed; narrow shard 2: 58 passed. Both failures are desktop timeouts: existing Prism Raid Replay test (`replay.spec.ts:123`) and new WebGL Host-frame momentum/pause/disposal test (`scroll-input.spec.ts:209`). No root cause has yet been established. The new momentum test passed for Canvas2D desktop and both narrow renderer variants; that does not resolve the failing desktop WebGL result.
+- Mouse/thumb/pixel and CDP multi-touch ownership tests passed in all four renderer/viewport combinations. CDP touch is emulation; physical Android/iOS devices are **not verified**. Local browser installation was unavailable, so real browser execution above is Actions-only.
+- Latest retained Core benchmark: 5000-row median **3.523ms → 0.513ms**, approximately **6.9x** faster; offset updates perform zero Flex layouts/text measurements. Same-machine conditions and all raw runs are retained below and in `benchmarks/canvas-scroll/`. This excludes Pixi/GPU and end-to-end input latency; no virtualization claim.
+- Next priority: inspect the two timeout traces, distinguish product defects from timing/environment issues, fix concrete causes, rerun relevant and full verification, then complete review and merge/deploy only if required checks pass. Failure artifacts: [desktop shard 2](https://github.com/oz-coden/Simpludify/actions/runs/41022256709/artifacts/12962531992).
+- This is an interim status report requested by the user, not a completion report. The chronological checkpoints below retain earlier plans/results; their “pending” statements describe those earlier points in time.
+
+## Initial status and baseline (historical)
 
 Investigation complete; implementation and verification are pending. Source is latest main at task start: `c9f525264caf0db5c0bea165def08eafed6e03ac`. Branch: `feat/canvas-scroll-input-2026-10-30`. Previous report: [Core/Host UI](2026-10-30-core-host-ui.md). Run To Exit and packaging targets are outside scope.
 
