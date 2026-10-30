@@ -26,6 +26,39 @@ export async function scrollFixture() {
     },
     onError: (error) => errors.push(String(error)),
   });
+  const pointerEvents: Array<{
+    type: string;
+    id: number;
+    button: number;
+    x: number;
+    y: number;
+    holding: boolean;
+  }> = [];
+  const monitor = new AbortController();
+  game.engine.scene.onDispose(() => monitor.abort());
+  for (const type of [
+    "pointerdown",
+    "pointermove",
+    "pointerup",
+    "pointercancel",
+  ]) {
+    window.addEventListener(
+      type,
+      (event) => {
+        const p = event as PointerEvent;
+        pointerEvents.push({
+          type,
+          id: p.pointerId,
+          button: p.button,
+          x: p.clientX,
+          y: p.clientY,
+          holding: screen.holding,
+        });
+        if (pointerEvents.length > 60) pointerEvents.shift();
+      },
+      { capture: true, signal: monitor.signal },
+    );
+  }
   const screen = createPortableScreen(),
     ui = game.canvasUI(screen.root);
   await game.run();
@@ -107,7 +140,18 @@ export async function scrollFixture() {
     routing.up(data(p.y - 48, 0.096));
     return screen.list.scrollY;
   };
-  return { game, screen, ui, errors, tick, center, bar, pixel, fling };
+  return {
+    game,
+    screen,
+    ui,
+    errors,
+    tick,
+    center,
+    bar,
+    pixel,
+    fling,
+    pointerEvents,
+  };
 }
 declare global {
   interface Window {

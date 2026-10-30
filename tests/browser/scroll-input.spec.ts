@@ -32,6 +32,29 @@ for (const fallback of [false, true])
         window.scrollProbe = await (await import(url)).scrollFixture();
       }, fixture);
     });
+    test.afterEach(async ({ page }, info) => {
+      if (info.status !== info.expectedStatus) {
+        const state = await page.evaluate(() => {
+          const f = window.scrollProbe;
+          return f
+            ? {
+                events: f.pointerEvents,
+                holding: f.screen.holding,
+                range: f.screen.secondary.maxScrollY,
+                offset: f.screen.secondary.scrollY,
+                style: f.screen.secondary.style,
+                pointers: f.game.pointerDiagnostics,
+                errors: f.errors,
+              }
+            : {};
+        });
+        await info.attach("scroll-input-state", {
+          body: JSON.stringify(state, null, 2),
+          contentType: "application/json",
+        });
+        console.log("SCROLL_STATE", JSON.stringify(state));
+      }
+    });
     test("mouse drag, thumb pixels, hidden modes and cached layout stay aligned", async ({
       page,
     }, info) => {
@@ -140,9 +163,9 @@ for (const fallback of [false, true])
           { x: b.x, y: b.y - 30, id: 2 },
         ],
       });
-      expect(await page.evaluate(() => window.scrollProbe.screen.holding)).toBe(
-        false,
-      );
+      await expect
+        .poll(() => page.evaluate(() => window.scrollProbe.screen.holding))
+        .toBe(false);
       expect(
         await page.evaluate(
           () => window.scrollProbe.game.pointerDiagnostics.scrollDrags,

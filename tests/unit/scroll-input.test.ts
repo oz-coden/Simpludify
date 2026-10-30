@@ -14,6 +14,7 @@ import {
   worldPoint,
 } from "@simpludify/core";
 import { expect, it } from "vitest";
+import { createPortableScreen } from "../../examples/canvas-ui/portable-screen";
 
 const metrics = () => ({ width: 30, height: 20 });
 const point = (id = 1, x = 20, y = 50, time?: number) => ({
@@ -430,4 +431,35 @@ it("continues safe cleanup when the old target's cancellation handler throws dur
   expect(f.routing.diagnostics.scrollDrags).toBe(0);
   expect(f.cancels).toBe(1);
   f.scene.dispose();
+});
+
+it("routes two touches through the full portable screen including a held secondary button", () => {
+  const scene = new Scene("portable-touch"),
+    screen = createPortableScreen(),
+    ui = new CanvasUI(scene, screen.root),
+    r = new PointerRouting();
+  r.setScene(new ScenePointer(scene), ui);
+  const flush = () =>
+    ui.layout(390, 844, (n) => ({ width: n.text.length * 8, height: 20 }));
+  flush();
+  const a = {
+    x: screen.list.bounds.x + screen.list.bounds.width * 0.3,
+    y: screen.list.bounds.y + screen.list.bounds.height * 0.5,
+  };
+  const b = {
+    x: screen.hold.bounds.x + screen.hold.bounds.width * 0.3,
+    y: screen.hold.bounds.y + screen.hold.bounds.height * 0.5,
+  };
+  r.down(point(1, a.x, a.y));
+  r.down(point(2, b.x, b.y));
+  expect(screen.holding).toBe(true);
+  r.move(point(1, a.x, a.y - 35));
+  flush();
+  expect(screen.holding).toBe(true);
+  r.move(point(2, b.x, b.y - 30));
+  expect(screen.holding).toBe(false);
+  expect(r.diagnostics.scrollDrags).toBe(2);
+  r.release();
+  expect(screen.holdChanges).toBe(2);
+  scene.dispose();
 });
