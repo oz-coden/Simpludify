@@ -2,7 +2,17 @@ import { expect, test } from "@playwright/test";
 
 const sdk = "/@fs/" + process.cwd() + "/packages/web/src/index.ts";
 const gameURL = "/@fs/" + process.cwd() + "/examples/signal-run/index.html";
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page }, info) => {
+  if (
+    info.title ===
+    "slides against Solid walls and exposes post-response contacts through public APIs"
+  )
+    await page.addInitScript(() => {
+      // This scenario advances Engine explicitly; keep hazard phase independent of browser/trace speed.
+      let id = 0;
+      window.requestAnimationFrame = () => ++id;
+      window.cancelAnimationFrame = () => {};
+    });
   await page.goto(gameURL);
   await expect(
     page.getByRole("heading", { name: "Signal Run", exact: true }),

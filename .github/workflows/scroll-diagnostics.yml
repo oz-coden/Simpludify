@@ -1,4 +1,4 @@
-name: Scroll repeated verification
+name: Scroll and deterministic input verification
 on:
   push:
     branches: [feat/canvas-scroll-input-2026-10-30]
