@@ -239,6 +239,10 @@ for (const fallback of [false, true])
           () => window.scrollProbe.ui.diagnostics.activeMomentum,
         ),
       ).toBe(0);
+      if (process.env.TRACE_TEARDOWN)
+        await page.evaluate(async (url) => {
+          (await import(url)).traceGameDisposal(window.scrollProbe.game);
+        }, `/@fs/${process.cwd()}/tests/browser/teardown-probe.ts`);
       const result = await page.evaluate(() => {
         const f = window.scrollProbe;
         f.game.dispose();

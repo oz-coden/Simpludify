@@ -218,6 +218,10 @@ test("Web plays a JSON Prism Raid victory, excludes live keys and releases Repla
   expect(await page.evaluate(() => window.replayGame.player.disposed)).toBe(
     true,
   );
+  if (process.env.TRACE_TEARDOWN)
+    await page.evaluate(async (url) => {
+      (await import(url)).traceGameDisposal(window.replayGame.game);
+    }, `${root}/tests/browser/teardown-probe.ts`);
   await page.evaluate(() => window.replayGame.game.dispose());
   expect(
     await page.evaluate(() => window.replayGame.game.engine.input.sourceCount),
