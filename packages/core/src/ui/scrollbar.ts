@@ -13,7 +13,9 @@ const empty: readonly CanvasScrollbar[] = Object.freeze([]);
 export function canvasScrollbars(node: CanvasNode): readonly CanvasScrollbar[] {
   const s = node.style,
     b = node.bounds;
-  if (!s.scroll || s.scrollbar === "hidden" || !node.available) return empty;
+  if (!s.scroll || s.scrollbar === "hidden") return empty;
+  for (let p: CanvasNode | undefined = node; p; p = p.parent)
+    if (p.disposed || !p.visible) return empty;
   const axes: ScrollbarAxis[] =
     s.scroll === "both" ? ["vertical", "horizontal"] : [s.scroll];
   const result: CanvasScrollbar[] = [];
@@ -55,7 +57,7 @@ export function canvasScrollbars(node: CanvasNode): readonly CanvasScrollbar[] {
       axis,
       track,
       thumb,
-      enabled: maximum > 0 && length > thumbLength,
+      enabled: node.available && maximum > 0 && length > thumbLength,
     });
   }
   return result;

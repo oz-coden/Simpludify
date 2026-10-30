@@ -223,3 +223,15 @@ it("keyboard scrolling works with hidden bars and runtime policy changes are val
   expect(f.node.style).toBe(style);
   f.scene.dispose();
 });
+
+it("keeps disabled bars visible and dim without allowing their input", () => {
+  const f = fixture("vertical", "always");
+  f.node.enabled = false;
+  const bars = canvasScrollbars(f.node);
+  expect(bars).toHaveLength(1);
+  expect(bars[0]?.enabled).toBe(false);
+  expect(f.ui.pick(115, 20).bar).toBeUndefined();
+  f.node.visible = false;
+  expect(canvasScrollbars(f.node)).toHaveLength(0);
+  f.scene.dispose();
+});

@@ -77,7 +77,7 @@ Web Game passes presentation elapsed seconds through the existing frame chain. G
 
 Bars overlay their viewport, reserve no layout space and use the existing text color. Visible tracks are 8 UI units wide with a 2-unit inset. Thumb length reflects viewport/(viewport+range), with a 24-unit minimum bounded by track length. The cross-axis hit region is at least 24 Host units and respects all ancestor clips. Both axes leave a shared corner clear.
 
-`always` without overflow shows a dim full-track thumb that consumes pointer hits but cannot move; it does not activate the content underneath. Primary thumb drags map directly to the current range/track and preserve the fractional grab point through resize. Track presses page by 90% of viewport extent. These gestures never launch inertia. Hiding bars or removing their range cancels an active bar gesture safely.
+Disabled containers retain dim bar geometry but do not accept bar input; hidden/disposed trees do not paint bars. `always` without overflow shows a dim full-track thumb that consumes pointer hits but cannot move; it does not activate the content underneath. Primary thumb drags map directly to the current range/track and preserve the fractional grab point through resize. Track presses page by 90% of viewport extent. These gestures never launch inertia. Hiding bars or removing their range cancels an active bar gesture safely.
 
 Core's paint walk can visit each node after its descendants. Bars use that same post-subtree order for rendering and hits: they cover their own content, while later sibling overlays remain above them. Web retains/releases private Graphics contexts with the existing presentation. The transparent native button mirrors still do not perform pointer hit testing.
 

@@ -84,3 +84,9 @@ Each implementation checkpoint must update this ledger and be pushed before long
 - Review added cancellation for pending descendant presses when their ancestor receives wheel/program commands, including a no-op scrollTo. Reentrant held-state callbacks cannot deliver a late PointerDown after cancelling the gesture. New regressions pass; focused input suite is 35/35.
 - Final-source performance guide now uses the later 7672415 measurement (5000-row median 0.513ms, p95 0.992ms, about 6.9x median improvement). Both earlier raw runs remain available. Later input-arbitration changes do not touch the measured projection path.
 - Current local production/site project/root checks passed; final source browser suite enumeration and full unit counts are updated in the final receipt. Initial native timing failure is retained above instead of being rewritten as success.
+
+## Final source checkpoint
+
+- Local final unit suite: **622 passed / 0 failed, 47 files**. Check passed with the unchanged baseline 12 warnings / 11 informational diagnostics. Browser enumeration: **250 tests / 16 files** across desktop/narrow.
+- Disabled scroll containers now retain dim bar geometry while refusing bar input; hidden/disposed trees do not paint bars. This completes the separation of display policy and input availability. Added the corresponding regression. No further features are planned; collect this exact source's full CI before integration.
+- Pending-input cancellation fix: https://github.com/oz-coden/Simpludify/commit/40e210492e0c1a6225b35ef68cd3c2a6a03775c5 . Native touch fixture correction: https://github.com/oz-coden/Simpludify/commit/1c10cf45cac669efb4960fad46f3a3c77e3803ad .
