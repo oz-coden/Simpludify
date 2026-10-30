@@ -1,9 +1,9 @@
 # Canvas scrolling and input arbitration
 
 <!-- final-receipt:start -->
-## Current verification state — 2026-10-31 00:12 JST
+## Current verification state — 2026-10-31 00:22 JST
 
-Implementation and minimal CI stabilization are saved on `feat/canvas-scroll-input-2026-10-30`. Current source: [9bdd9dd](https://github.com/oz-coden/Simpludify/commit/9bdd9dd37e7ec5612a2b316206a27886778d22ea). Main remains `c9f525264caf0db5c0bea165def08eafed6e03ac`; integration and Pages deployment are pending final cleanup and main verification.
+Scrolling was merged through [PR #2](https://github.com/oz-coden/Simpludify/pull/2) as [221b053](https://github.com/oz-coden/Simpludify/commit/221b053f3aed3490913b46e491eb08a9011aa26f). Full source/cleanup CI and independent repetition passed. Main [CI 41080088289](https://github.com/oz-coden/Simpludify/actions/runs/41080088289) is running; Pages deployment is not yet verified. Live public verification is blocked by automatic browser approval for the existing custom domain; see the latest receipt below. **Phase A is not complete and Phase B has not started.**
 
 - Scope: preserve and finish the existing scrolling implementation. No new package/dependency, native target, duplicated scroll implementation or unrelated engine refactor. Runtime packages have no changes relative to the pre-handoff source `b79e6f0` during resumed debugging.
 - Validation correction: retain original pinned Chromium/SwiftShader flags and complete traces, add failure PNGs, and use a **60s overall budget only for the measured heavy integration/fixture cases**. Native context release alone was observed around 35s and completed with correct disposed/zero state, so a 30s test deadline cannot observe completion. Every state/contact/pixel assertion, individual predicate deadline and retries=0 remain intact. GPU/compositor/capture experiments were insufficient and are reverted. **The native software-driver delay is not fixed**; the upstream mechanism below the measured call remains unknown. Full and independent repeated CI on the exact source both passed; native driver latency remains a limitation.
@@ -16,7 +16,7 @@ Implementation and minimal CI stabilization are saved on `feat/canvas-scroll-inp
 - Latest full [CI 41040157057](https://github.com/oz-coden/Simpludify/actions/runs/41040157057) and independent [repeated verification 41040157204](https://github.com/oz-coden/Simpludify/actions/runs/41040157204) both completed successfully on the exact source. Full browser enumeration: **254 tests / 16 files**. Repetition covers Replay, both momentum renderers, the split portable-screen cases and atomic wall-contact setup three times on desktop/narrow (**24 per project / 48 total**). Earlier source runs failed as documented below.
 - Performance is the retained prior same-machine Core measurement, not a new GPU benchmark: 5000-row p50 **3.523 → 0.513ms**, p95 **5.963 → 0.992ms**, around **6.9x** median, zero Flex/text measurement for offsets. Node 24.22.1/Linux/AMD EPYC 9V74/9 exposed CPUs; 10 warmups and 100 measured operations. All three raw runs remain in `benchmarks/canvas-scroll`; source and measurement limitations are in [scroll performance](../scroll-performance.md). Resumed changes do not touch that hot path.
 - Limits: CDP touch emulation is not physical Android/iOS verification; other browser engines/hardware GPU/device latency and assistive technology are unverified. Projection/presentation still traverses rows; no virtualization, bounce, editable/IME controls or native packaging. Next priorities: minimal upstream reproduction of slow native context release and comparison on physical GPUs; physical touch/other browsers; then measured renderer/large-list work and accessibility as separate tasks.
-- Integration receipt: PR/merge SHA/main CI/deploy/public URL verification pending. The temporary repeated workflow has been removed before integration. Reporting-only checkpoints use `[skip ci]` to preserve the exact source run; final main merge must run full CI/deployment.
+- Integration receipt: PR #2 merged at `221b053`; main CI 41080088289/deployment pending. The temporary repeated workflow is removed. Reports-only checkpoints use `[skip ci]`; the merge runs full CI/deployment. Live sample/docs verification remains blocked by custom-origin approval.
 <!-- final-receipt:end -->
 
 
@@ -204,3 +204,8 @@ The first mode-matrix workflow omitted the environment-variable assignment, so i
 
 - Both fresh full runs completed successfully: [push CI 41078878080](https://github.com/oz-coden/Simpludify/actions/runs/41078878080) and [PR CI 41078942677](https://github.com/oz-coden/Simpludify/actions/runs/41078942677), source `a54cb7813309dbd92df4ae2948498ee7f5ff5b79`. Quality, all four browser shards, production smoke and both site-base jobs passed. The later checkpoints change only reports/index.
 - Final review accepts the completed scrolling feature and cleanup for main integration. No new runtime/API changes were necessary. [PR #2](https://github.com/oz-coden/Simpludify/pull/2) is conflict-free. Merge and exact main CI/deployment receipts follow; live verification remains blocked as described above.
+
+### Main merge checkpoint — 2026-10-31 00:22 JST
+
+- [PR #2](https://github.com/oz-coden/Simpludify/pull/2) merged using a normal merge commit, [221b053f3aed3490913b46e491eb08a9011aa26f](https://github.com/oz-coden/Simpludify/commit/221b053f3aed3490913b46e491eb08a9011aa26f). No forced ref update or remote history rewrite was used.
+- Main [CI 41080088289](https://github.com/oz-coden/Simpludify/actions/runs/41080088289) has started for that exact merge. Main CI and Pages must be confirmed before recording deployment success. No Phase B branch or implementation exists yet.
