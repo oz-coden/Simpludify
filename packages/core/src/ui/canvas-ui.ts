@@ -20,6 +20,10 @@ export class CanvasUI implements LifetimeOwner {
   private focusNode: CanvasNode | undefined;
   private factor: number;
   private dirty = true;
+  private projectionDirty = true;
+  private readonly baseBounds = new WeakMap<CanvasNode, UIBounds>();
+  private readonly moving = new Set<CanvasNode>();
+  private projections = 0;
   private width = -1;
   private height = -1;
   private readonly listeners = new Set<() => void>();
@@ -69,6 +73,8 @@ export class CanvasUI implements LifetimeOwner {
   get diagnostics() {
     return {
       layouts: this.layouts,
+      scrollProjections: this.projections,
+      activeMomentum: this.moving.size,
       layoutVisits: this.visits,
       intrinsicVisits: this.intrinsicVisits,
       constrainVisits: this.constrainVisits,
@@ -221,54 +227,102 @@ export class CanvasUI implements LifetimeOwner {
       if (node.scrollBy(dx, dy)) return true;
     return false;
   }
+  /** @internal Offset-only invalidation; Flex/text measurements remain cached. */
+  scrollChanged(_node: CanvasNode): void {
+    this.projectionDirty = true;
+    this.invalidate();
+  }
+  /** @internal Maintain only live animated nodes, never a per-frame scan of the tree. */
+  motionChanged(node: CanvasNode, active: boolean): void {
+    if (active) this.moving.add(node);
+    else this.moving.delete(node);
+  }
+  stopMotion(): void {
+    for (const node of this.moving) node.stopScroll();
+    this.moving.clear();
+  }
+  /** Presentation seconds, independent of simulation timers. Gaps >250ms stop stale motion. */
+  advance(seconds: number): void {
+    if (!Number.isFinite(seconds) || seconds < 0)
+      throw new EngineError(
+        "INVALID_UI",
+        "UI elapsed time must be finite and nonnegative",
+      );
+    if (this.disposed) return;
+    if (seconds > 0.25) {
+      this.stopMotion();
+      return;
+    }
+    if (seconds === 0) return;
+    for (const node of this.moving) {
+      if (node.ui !== this || !node.available) {
+        this.moving.delete(node);
+        node.stopScroll();
+        continue;
+      }
+      node.advanceScroll(seconds);
+    }
+  }
   /** @internal */ invalidate(layout = false): void {
     if (
       this.focusNode &&
       (this.focusNode.ui !== this || !this.focusNode.available)
     )
       this.focus();
+    for (const node of this.moving)
+      if (node.ui !== this || !node.available || !node.style.inertia) {
+        this.moving.delete(node);
+        node.stopScroll();
+      }
     if (layout) this.dirty = true;
     cleanupAll([...this.listeners], "UI invalidation failed");
   }
   /** @internal Rendering supplies exact text metrics; unchanged frames do no layout. */
   layout(width: number, height: number, measure: MeasureText): boolean {
     if (this.disposed) return false;
-    if (!this.dirty && this.width === width && this.height === height)
-      return false;
-    const visits = layoutCanvas(
-      this.root,
-      width / this.factor,
-      height / this.factor,
-      measure,
-    );
-    this.applyScroll(this.root, 0, 0);
-    this.width = width;
-    this.height = height;
-    this.dirty = false;
-    this.layouts++;
-    this.visits += visits.nodes;
-    this.intrinsicVisits += visits.intrinsicVisits;
-    this.constrainVisits += visits.constrainVisits;
-    this.nodes = visits.nodes;
+    const geometry =
+      this.dirty || this.width !== width || this.height !== height;
+    if (!geometry && !this.projectionDirty) return false;
+    if (geometry) {
+      const visits = layoutCanvas(
+        this.root,
+        width / this.factor,
+        height / this.factor,
+        measure,
+      );
+      this.captureLayout(this.root);
+      this.width = width;
+      this.height = height;
+      this.dirty = false;
+      this.layouts++;
+      this.visits += visits.nodes;
+      this.intrinsicVisits += visits.intrinsicVisits;
+      this.constrainVisits += visits.constrainVisits;
+      this.nodes = visits.nodes;
+    }
+    this.projectScroll(this.root, 0, 0);
+    this.projectionDirty = false;
+    this.projections++;
     return true;
   }
-  private applyScroll(node: CanvasNode, dx: number, dy: number): void {
+  private captureLayout(node: CanvasNode): void {
     const b = node.bounds;
-    const children = node.children.filter((n) => n.visible && !n.disposed);
-    let maxX = 0,
-      maxY = 0;
-    if (node.style.scroll)
-      for (const child of children) {
-        maxX = Math.max(
-          maxX,
+    this.baseBounds.set(node, b);
+    let x = 0,
+      y = 0;
+    for (const child of node.children) {
+      if (!child.visible || child.disposed) continue;
+      if (node.style.scroll) {
+        x = Math.max(
+          x,
           child.bounds.x +
             child.bounds.width -
             b.x -
             b.width +
             node.style.padding,
         );
-        maxY = Math.max(
-          maxY,
+        y = Math.max(
+          y,
           child.bounds.y +
             child.bounds.height -
             b.y -
@@ -276,14 +330,60 @@ export class CanvasUI implements LifetimeOwner {
             node.style.padding,
         );
       }
+      this.captureLayout(child);
+    }
     node.setScrollRange(
-      node.style.scroll && node.style.scroll !== "vertical" ? maxX : 0,
-      node.style.scroll && node.style.scroll !== "horizontal" ? maxY : 0,
+      node.style.scroll && node.style.scroll !== "vertical" ? x : 0,
+      node.style.scroll && node.style.scroll !== "horizontal" ? y : 0,
     );
-    if (dx || dy)
-      node.boundsValue = Object.freeze({ ...b, x: b.x - dx, y: b.y - dy });
-    for (const child of children)
-      this.applyScroll(child, dx + node.scrollX, dy + node.scrollY);
+  }
+  private projectScroll(node: CanvasNode, dx: number, dy: number): void {
+    if (node.disposed || !node.visible) return;
+    const b = this.baseBounds.get(node);
+    if (!b) return;
+    const x = b.x - dx,
+      y = b.y - dy;
+    if (
+      node.bounds.x !== x ||
+      node.bounds.y !== y ||
+      node.bounds.width !== b.width ||
+      node.bounds.height !== b.height
+    )
+      node.boundsValue = Object.freeze({
+        x,
+        y,
+        width: b.width,
+        height: b.height,
+      });
+    for (const child of node.children)
+      this.projectScroll(child, dx + node.scrollX, dy + node.scrollY);
+  }
+  /** Deepest ancestor path for the original hit; overlays cannot scroll content behind them. */
+  scrollTargets(x: number, y: number): CanvasNode[] {
+    let hit = this.hitTest(x, y);
+    if (!hit) return [];
+    const targets: CanvasNode[] = [];
+    for (; hit; hit = hit.parent)
+      if (hit.style.scroll && hit.available) targets.push(hit);
+    return targets;
+  }
+  containsNode(node: CanvasNode, x: number, y: number): boolean {
+    let b = node.bounds;
+    for (let p: CanvasNode | undefined = node; p; p = p.parent)
+      if (p.style.clip || p.style.scroll) b = intersectUI(b, p.bounds);
+    return (
+      node.available &&
+      containsUI(
+        intersectUI(b, {
+          x: 0,
+          y: 0,
+          width: this.width / this.factor,
+          height: this.height / this.factor,
+        }),
+        x,
+        y,
+      )
+    );
   }
   /** @internal Same clipped paint order as Pixi and keyboard mirror. */
   walk(visit: (node: CanvasNode, clip: UIBounds) => void): void {
@@ -345,6 +445,7 @@ export class CanvasUI implements LifetimeOwner {
           if (this.focusNode) this.focusNode.focused = false;
           this.focusNode = undefined;
         },
+        () => this.stopMotion(),
         () => this.root.dispose(),
         () => this.removeScene?.(),
         () => {

@@ -29,3 +29,15 @@ Investigation complete; implementation and verification are pending. Source is l
 - No main integration, PR or final CI exists yet. Do not treat the planned contracts as implemented results.
 
 Each implementation checkpoint must update this ledger and be pushed before long verification. If interrupted, resume from this branch/report and inspect the actual commit/CI state. Final results must include all API/cancellation rules, tested and untested environments, performance data, commit/CI links and integration/deploy receipts.
+
+## Drag/input checkpoint
+
+- Added per-node validated dragScroll/inertia/scrollbar/dragThreshold settings. Scroll containers block their own empty space by default; explicit pointerEvents overrides remain available. Screen threshold defaults to 8 Host units and is converted through UI scale; DPR is presentation only.
+- Drag arbitration uses the original hit's ancestor path. Once scrolling wins, original HoldButton contribution releases and PointerCancel fires once while native capture remains held. The scroller becomes the owner until physical release/cancel; it does not jump to a parent at its edge. At the next gesture the deepest movable ancestor can win. Occupied scrollers reject competing pointer claims; different scrollers work independently.
+- External scroll commands (including no-ops), drag disable, direction change, ancestor disable/hide/removal and Scene/UI disposal cancel active ownership. World gestures are never stolen after down. Existing HoldButton remains an immediate held-state control; there is no delayed long-press recognizer.
+- Separated offset projection from Flex/text invalidation. Frozen base layout boxes are retained in a WeakMap; scrolling updates projected bounds without remeasurement, preserving public frozen snapshots and shared paint/hit/focus geometry.
+- Core momentum math/state foundation is present but Host advance and momentum regressions are not yet complete; do not treat inertia as fully validated at this checkpoint. Scrollbar painting/interaction remains pending.
+- npm run check: passed. Existing pointer suite: 14/14; existing layout/portable suites: 35/35; new drag/input suite: 17/17.
+- Baseline performance: Node v24.22.1, Linux, AMD EPYC 9V74, 9 logical CPUs; single local workload, 10 warmup +100 measured offset+flush operations. 100/1000/5000 rows p50: 0.150/0.727/3.523 ms; p95: 0.296/1.391/5.963 ms. Every size ran 100 full layouts and count*100 text measurements. Raw data: benchmarks/canvas-scroll/before.json. Core-only; excludes Pixi/GPU. Heap deltas after GC are noisy, not allocation/peak-memory measurements.
+- Baseline measured via node --expose-gc /tmp/scroll-benchmark.mjs /tmp/scroll-before.json before engine edits; scripts/benchmark-scroll.mjs preserves that workload with normal Vite import and clean-checkpoint validation.
+- Initial source checkpoint: https://github.com/oz-coden/Simpludify/commit/e2f37ebfae2c09b0ec20ca87907fddf1895e0f8d . Browser download again failed in this environment; real browser verification will use Actions unless a local browser becomes available.

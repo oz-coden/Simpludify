@@ -6,6 +6,8 @@ export interface CanvasNodeOwner {
   readonly disposed: boolean;
   invalidate(layout?: boolean): void;
   report(error: unknown): void;
+  scrollChanged(node: CanvasNode): void;
+  motionChanged(node: CanvasNode, active: boolean): void;
 }
 
 import { EngineError } from "../foundation/diagnostics";
@@ -45,6 +47,14 @@ export interface CanvasStyle {
   clip?: boolean;
   /** Preserve overflowing content on the selected axes; always clips descendants. */
   scroll?: "vertical" | "horizontal" | "both";
+  /** Content dragging. Default true; only scroll containers use it. */
+  dragScroll?: boolean;
+  /** Coast after a content drag. Default true. */
+  inertia?: boolean;
+  /** Overlay bars; hiding bars does not disable scrolling. Default auto. */
+  scrollbar?: "auto" | "always" | "hidden";
+  /** Gesture threshold in Host screen units, independent of UI scale and DPR. Default 8. */
+  dragThreshold?: number;
   /** auto blocks world input, children permits empty-space pass-through, none excludes subtree. */
   pointerEvents?: "auto" | "children" | "none";
   background?: number;
@@ -70,6 +80,10 @@ export const defaultCanvasStyle = Object.freeze({
   wrap: false,
   textWrap: true,
   clip: false,
+  dragScroll: true,
+  inertia: true,
+  scrollbar: "auto",
+  dragThreshold: 8,
   pointerEvents: "children",
   color: 0xeff7f6,
   fontSize: 18,
@@ -138,6 +152,7 @@ function checkedStyle(value: CanvasStyle): ResolvedCanvasStyle {
         "shrink",
         "radius",
         "fontSize",
+        "dragThreshold",
         "background",
         "color",
       ].includes(key)
@@ -151,12 +166,15 @@ function checkedStyle(value: CanvasStyle): ResolvedCanvasStyle {
           (!Number.isInteger(v) || v > 0xffffff))
       )
         throw new EngineError("INVALID_UI", `Invalid UI ${key}`);
-    } else if (["wrap", "clip", "textWrap"].includes(key)) {
+    } else if (
+      ["wrap", "clip", "textWrap", "dragScroll", "inertia"].includes(key)
+    ) {
       if (typeof v !== "boolean")
         throw new EngineError("INVALID_UI", `Invalid UI ${key}`);
     } else {
       const choices: Record<string, readonly string[]> = {
         scroll: ["vertical", "horizontal", "both"],
+        scrollbar: ["auto", "always", "hidden"],
         direction: ["row", "column"],
         align: ["start", "center", "end", "stretch"],
         alignSelf: ["start", "center", "end", "stretch"],
@@ -215,28 +233,90 @@ export class CanvasNode implements LifetimeOwner {
   get maxScrollY(): number {
     return this.maximumY;
   }
-  /** UI units; ranges become available after layout. Returns whether the offset changed. */
+  private velocityX = 0;
+  private velocityY = 0;
+  private command = 0;
+  /** @internal External commands invalidate an in-flight drag's ownership. */
+  get scrollRevision(): number {
+    return this.command;
+  }
+  get coasting(): boolean {
+    return this.velocityX !== 0 || this.velocityY !== 0;
+  }
+  /** UI units; commands stop momentum and invalidate active drag ownership, including no-ops. */
   scrollTo(x: number, y: number): boolean {
     this.assertAlive();
     if (!Number.isFinite(x) || !Number.isFinite(y))
       throw new EngineError("INVALID_UI", "Scroll coordinates must be finite");
+    this.command++;
+    this.stopScroll();
+    const changed = this.setScrollPosition(x, y);
+    if (!changed) this.ui?.invalidate();
+    return changed;
+  }
+  scrollBy(x: number, y: number): boolean {
+    return this.scrollTo(this.offsetX + x, this.offsetY + y);
+  }
+  /** Stop momentum; explicit position commands also cancel pointer ownership. */
+  stopScroll(): void {
+    this.velocityX = 0;
+    this.velocityY = 0;
+    this.ui?.motionChanged(this, false);
+  }
+  /** @internal Gesture/animation write; does not cancel its own ownership. */
+  setScrollPosition(x: number, y: number): boolean {
     const nx = Math.max(0, Math.min(this.maximumX, x)),
       ny = Math.max(0, Math.min(this.maximumY, y));
     if (nx === this.offsetX && ny === this.offsetY) return false;
     this.offsetX = nx;
     this.offsetY = ny;
-    this.changed(true);
+    this.paintRevision++;
+    this.ui?.scrollChanged(this);
     return true;
   }
-  scrollBy(x: number, y: number): boolean {
-    return this.scrollTo(this.offsetX + x, this.offsetY + y);
+  /** @internal UI units/second. Exponential decay rate 8/s, cutoff 10, cap 3000. */
+  startScroll(vx: number, vy: number): void {
+    this.stopScroll();
+    if (!this.available || !this.config.scroll || !this.config.inertia) return;
+    const speed = (v: number) =>
+      Number.isFinite(v) && Math.abs(v) >= 10
+        ? Math.max(-3000, Math.min(3000, v))
+        : 0;
+    this.velocityX =
+      this.maximumX > 0 && this.config.scroll !== "vertical" ? speed(vx) : 0;
+    this.velocityY =
+      this.maximumY > 0 && this.config.scroll !== "horizontal" ? speed(vy) : 0;
+    this.ui?.motionChanged(this, this.coasting);
   }
-  /** @internal Layout updates ranges and clamps after resize/list mutation. */
+  /** @internal Exact integration for a bounded elapsed interval supplied by the Host. */
+  advanceScroll(seconds: number): void {
+    if (!this.available || !this.config.inertia) {
+      this.stopScroll();
+      return;
+    }
+    const decay = Math.exp(-8 * seconds),
+      dx = (this.velocityX * (1 - decay)) / 8,
+      dy = (this.velocityY * (1 - decay)) / 8;
+    this.velocityX *= decay;
+    this.velocityY *= decay;
+    const x = this.offsetX + dx,
+      y = this.offsetY + dy;
+    if (x <= 0 || x >= this.maximumX || Math.abs(this.velocityX) < 10)
+      this.velocityX = 0;
+    if (y <= 0 || y >= this.maximumY || Math.abs(this.velocityY) < 10)
+      this.velocityY = 0;
+    this.setScrollPosition(x, y);
+    if (!this.coasting) this.ui?.motionChanged(this, false);
+  }
+  /** @internal Layout updates ranges/clamps after resize or mutation. */
   setScrollRange(x: number, y: number): void {
     this.maximumX = x;
     this.maximumY = y;
     this.offsetX = Math.min(this.offsetX, x);
     this.offsetY = Math.min(this.offsetY, y);
+    if (x === 0) this.velocityX = 0;
+    if (y === 0) this.velocityY = 0;
+    if (!this.coasting) this.ui?.motionChanged(this, false);
   }
   private click:
     | ((signal: CancellationSignal) => void | Promise<void>)
@@ -329,6 +409,7 @@ export class CanvasNode implements LifetimeOwner {
     if (typeof value !== "boolean")
       throw new EngineError("INVALID_UI", `${key} must be boolean`);
     if (this[key] === value) return;
+    if (!value) this.stopScroll();
     if (key === "visible") this.shown = value;
     else this.active = value;
     this.changed(key === "visible");
@@ -365,6 +446,8 @@ export class CanvasNode implements LifetimeOwner {
       "scroll",
     ];
     const layout = geometry.some((key) => next[key] !== this.config[key]);
+    if (next.scroll !== this.config.scroll || !next.inertia || !next.dragScroll)
+      this.stopScroll();
     this.config = next;
     this.changed(layout);
   }
@@ -474,6 +557,7 @@ export class CanvasNode implements LifetimeOwner {
   dispose(): void {
     if (this.disposed) return;
     const ui = this.ui;
+    this.stopScroll();
     const children = this.list;
     this.list = Object.freeze([]);
     if (this.parentNode) {
@@ -559,5 +643,10 @@ export function CanvasScroll(
   children: readonly CanvasNode[] = [],
   style: CanvasStyle = {},
 ): CanvasNode {
-  return CanvasPanel(children, { scroll: "vertical", ...style, clip: true });
+  return CanvasPanel(children, {
+    scroll: "vertical",
+    pointerEvents: "auto",
+    ...style,
+    clip: true,
+  });
 }

@@ -139,6 +139,7 @@ export class BrowserPointer {
       pointerType: e.pointerType,
       button: e.button,
       buttons: e.buttons,
+      time: e.timeStamp / 1000,
       screen: Object.freeze(screenPoint(screen.x, screen.y)),
       world: Object.freeze(world),
       inside: containsScreenPoint(view, screen),
