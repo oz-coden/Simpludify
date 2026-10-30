@@ -123,6 +123,9 @@ test("fixed Web stepping retains short keys, bounds catch-up and resumes without
 test("Web plays a JSON Prism Raid victory, excludes live keys and releases Replay at navigation", async ({
   page,
 }) => {
+  // SwiftShader's native loseContext can take ~35s on CI, beyond the 30s default.
+  // State assertions remain strict; this budget includes playback plus native teardown.
+  test.setTimeout(60_000);
   await page.goto("/");
   await page.waitForFunction(() => !!window.demo);
   await page.evaluate(async (root) => {

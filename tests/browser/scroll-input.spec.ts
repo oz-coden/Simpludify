@@ -3,7 +3,9 @@ import { expect, test } from "@playwright/test";
 const fixture = `/@fs/${process.cwd()}/tests/browser/scroll-fixture.ts`;
 for (const fallback of [false, true])
   test.describe(`scroll input ${fallback ? "Canvas2D" : "WebGL"}`, () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page }, info) => {
+      // Include measured ~35s native WebGL startup/teardown; predicate deadlines stay unchanged.
+      if (!fallback) info.setTimeout(60_000);
       if (fallback)
         await page.addInitScript(() => {
           Object.defineProperty(navigator, "gpu", { get: () => undefined });

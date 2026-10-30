@@ -8,8 +8,7 @@ export default defineConfig({
   reporter: process.env.CI ? [["list"], ["json"]] : "list",
   use: {
     baseURL: "http://127.0.0.1:4173",
-    // Keep DOM/network/action traces without continuously reading back the GPU canvas.
-    trace: { mode: "retain-on-failure", screenshots: false },
+    trace: "retain-on-failure",
     screenshot: "only-on-failure",
     launchOptions: {
       ...(process.env.CHROMIUM_PATH
@@ -18,10 +17,7 @@ export default defineConfig({
       args: [
         "--enable-webgl",
         "--use-gl=angle",
-        "--use-angle=swiftshader-webgl",
-        "--disable-gpu",
-        // Isolate WebGL from the browser compositor on GPU-less CI runners.
-        "--disable-gpu-compositing",
+        "--use-angle=swiftshader",
         "--enable-unsafe-swiftshader",
       ],
     },

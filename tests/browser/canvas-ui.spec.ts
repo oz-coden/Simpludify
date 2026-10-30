@@ -601,6 +601,9 @@ for (const fallback of [false, true])
     test("actual integrated Canvas trail starts, moves into collision, pauses and recreates Scenes", async ({
       page,
     }) => {
+      // Multiple native scene/input operations plus SwiftShader cleanup exceed 30s on CI.
+      // The movement predicate retains its independent 20s deadline.
+      test.setTimeout(60_000);
       await page.evaluate(async (sample) => {
         window.demo.dispose();
         document.body.replaceChildren();

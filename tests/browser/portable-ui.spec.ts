@@ -29,7 +29,9 @@ async function backAndCheck(page: Page): Promise<void> {
 for (const fallback of [false, true]) {
   test.describe(`portable UI ${fallback ? "Canvas2D" : "WebGL"}`, () => {
     let errors: string[];
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page }, info) => {
+      // Include measured ~35s native WebGL startup/teardown; predicate deadlines stay unchanged.
+      if (!fallback) info.setTimeout(60_000);
       errors = [];
       // Present once per input instead of saturating SwiftShader with idle frames.
       // Native input, actual sample construction and Pixi drawing remain exercised.
