@@ -100,7 +100,7 @@ UI coordinates are host CSS dimensions divided by `ui.scale` (default 1). The ro
 | wrap                                     | explicit boolean, default false; greedy lines before flex distribution; line cross size is its largest item, line gap uses gap                             |
 | scroll                                   | optional vertical/horizontal/both overflow; retains main-axis content and clips descendants                                                                |
 | clip                                     | rectangular clip for self and descendants; default false                                                                                                   |
-| pointerEvents                            | `children` (empty space passes through), `auto` (self blocks/receives), `none` (exclude subtree); buttons default auto                                     |
+| pointerEvents                            | `children` (empty space passes through), `auto` (self blocks/receives), `none` (exclude subtree); buttons and CanvasScroll default auto                    |
 | background, color                        | optional background and text RGB integers 0..0xffffff; text default 0xeff7f6                                                                               |
 | fontSize, fontFamily                     | positive units / CSS font family; default 18 / system-ui, sans-serif                                                                                       |
 | radius                                   | nonnegative background corner radius, default 6; hit regions stay rectangular                                                                              |

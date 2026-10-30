@@ -54,3 +54,39 @@ export function traceGameDisposal(game: Game): void {
   wrap(host.engine, "dispose", "Engine.dispose");
   wrap(game, "dispose", "Game.dispose");
 }
+
+/** Installed before page startup to include the original demo's teardown. */
+export function installNativeTeardownProbe(): void {
+  const wrapped = new WeakSet<object>();
+  for (const prototype of [
+    WebGLRenderingContext.prototype,
+    WebGL2RenderingContext.prototype,
+  ]) {
+    const original = prototype.getExtension;
+    Object.defineProperty(prototype, "getExtension", {
+      configurable: true,
+      writable: true,
+      value: function (this: WebGLRenderingContext, name: string) {
+        const extension = Reflect.apply(original, this, [name]);
+        if (
+          name === "WEBGL_lose_context" &&
+          extension &&
+          !wrapped.has(extension)
+        ) {
+          wrapped.add(extension);
+          const lose = extension.loseContext;
+          extension.loseContext = () => {
+            const start = performance.now();
+            console.log("TEARDOWN_NATIVE_BEGIN", start);
+            try {
+              return Reflect.apply(lose, extension, []);
+            } finally {
+              console.log("TEARDOWN_NATIVE_END", performance.now() - start);
+            }
+          };
+        }
+        return extension;
+      },
+    });
+  }
+}

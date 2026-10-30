@@ -41,6 +41,7 @@ jobs:
         run: npm run test:browser -- --project=desktop --grep '${{ matrix.revision == 'main' && 'Web plays a JSON Prism' || 'Web plays a JSON Prism|Host frames advance momentum' }}' --repeat-each=3
         env:
           TRACE_TEARDOWN: "1"
+          SWIFTSHADER_DRIVER: ${{ matrix.driver }}
           PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/teardown.json
       - uses: actions/upload-artifact@v7.0.2
         if: always()

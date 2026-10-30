@@ -1,4 +1,14 @@
 import { expect, test } from "@playwright/test";
+import { installNativeTeardownProbe } from "./teardown-probe";
+
+if (process.env.TRACE_TEARDOWN)
+  test.beforeEach(async ({ page }) => {
+    page.on("console", (message) => {
+      if (message.text().startsWith("TEARDOWN_NATIVE"))
+        console.log(message.text());
+    });
+    await page.addInitScript(installNativeTeardownProbe);
+  });
 
 const fixture = `/@fs/${process.cwd()}/tests/browser/scroll-fixture.ts`;
 for (const fallback of [false, true])
@@ -31,6 +41,9 @@ for (const fallback of [false, true])
       await page.evaluate(async (url) => {
         window.scrollProbe = await (await import(url)).scrollFixture();
       }, fixture);
+      expect(await page.evaluate(() => window.scrollProbe.rendererType)).toBe(
+        fallback ? "CANVAS" : "WEBGL",
+      );
     });
     test.afterEach(async ({ page }, info) => {
       if (info.status !== info.expectedStatus) {
@@ -257,6 +270,7 @@ for (const fallback of [false, true])
           motion: f.ui.diagnostics.activeMomentum,
           subscriptions: f.ui.diagnostics.subscriptions,
           pointers: f.game.pointerDiagnostics.captures,
+          errors: [...f.errors],
         };
       });
       expect(result).toEqual({
@@ -265,6 +279,7 @@ for (const fallback of [false, true])
         motion: 0,
         subscriptions: 0,
         pointers: 0,
+        errors: [],
       });
     });
   });

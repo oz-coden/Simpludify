@@ -6,6 +6,7 @@ import {
   screenPoint,
   worldPoint,
 } from "@simpludify/web";
+import { RendererType } from "pixi.js";
 import { createPortableScreen } from "../../examples/canvas-ui/portable-screen";
 export async function scrollFixture() {
   window.demo.dispose();
@@ -62,6 +63,10 @@ export async function scrollFixture() {
   const screen = createPortableScreen(),
     ui = game.canvasUI(screen.root);
   await game.run();
+  const nativeRenderer = (
+    game as unknown as { renderer: { app: { renderer: { type: number } } } }
+  ).renderer.app.renderer;
+  const rendererType = RendererType[nativeRenderer.type];
   const tick = (milliseconds = 16) => {
     time += milliseconds;
     frame?.(time);
@@ -151,6 +156,7 @@ export async function scrollFixture() {
     pixel,
     fling,
     pointerEvents,
+    rendererType,
   };
 }
 declare global {

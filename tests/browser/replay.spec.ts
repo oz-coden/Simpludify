@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import type { Game, ReplayPlayer } from "@simpludify/web";
 import type { Raid } from "../../examples/prism-raid/logic";
+import { installNativeTeardownProbe } from "./teardown-probe";
 
 declare global {
   interface Window {
@@ -19,6 +20,16 @@ declare global {
     };
   }
 }
+
+if (process.env.TRACE_TEARDOWN)
+  test.beforeEach(async ({ page }) => {
+    page.on("console", (message) => {
+      if (message.text().startsWith("TEARDOWN_NATIVE"))
+        console.log(message.text());
+    });
+    await page.addInitScript(installNativeTeardownProbe);
+  });
+
 const root = `/@fs${process.cwd()}`;
 test("fixed Web stepping retains short keys, bounds catch-up and resumes without stale input", async ({
   page,
