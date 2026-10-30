@@ -41,3 +41,12 @@ Each implementation checkpoint must update this ledger and be pushed before long
 - Baseline performance: Node v24.22.1, Linux, AMD EPYC 9V74, 9 logical CPUs; single local workload, 10 warmup +100 measured offset+flush operations. 100/1000/5000 rows p50: 0.150/0.727/3.523 ms; p95: 0.296/1.391/5.963 ms. Every size ran 100 full layouts and count*100 text measurements. Raw data: benchmarks/canvas-scroll/before.json. Core-only; excludes Pixi/GPU. Heap deltas after GC are noisy, not allocation/peak-memory measurements.
 - Baseline measured via node --expose-gc /tmp/scroll-benchmark.mjs /tmp/scroll-before.json before engine edits; scripts/benchmark-scroll.mjs preserves that workload with normal Vite import and clean-checkpoint validation.
 - Initial source checkpoint: https://github.com/oz-coden/Simpludify/commit/e2f37ebfae2c09b0ec20ca87907fddf1895e0f8d . Browser download again failed in this environment; real browser verification will use Actions unless a local browser becomes available.
+
+## Momentum checkpoint
+
+- Core estimates velocity from monotonic Host seconds using a 45ms exponential filter, clamps samples to 3000 UI units/s, ignores missing/backwards/nonfinite/over-150ms histories and refuses stale release velocity after 80ms.
+- Per-node inertia defaults on; exponential decay is 8/s, cutoff 10 units/s, cap 3000. Integration clips at the exact cutoff time so 30/60/120Hz produce the same terminal distance. Each axis clamps independently at its scroll bounds.
+- CanvasUI.advance(seconds) updates only its active Set. It rejects invalid/negative elapsed values without moving state and stops momentum for discontinuities over 250ms. No timers/RAF/browser clocks were added to Core. Web Game supplies presentation elapsed time and stops motion on pause/hidden; existing blur/release/reset/disposal paths also stop it.
+- New down/wheel/programmatic scroll commands interrupt motion. Runtime inertia/axis/drag policy changes, hide/disable/removal and owner disposal stop affected state; unrelated scrollers retain their settings.
+- npm run check passed. New scroll/input suite: 30/30. The preceding checkpoint's full unit suite passed 587/587 in 46 files. Scrollbars and new real browser/touch regressions remain pending.
+- Drag/projection checkpoint: https://github.com/oz-coden/Simpludify/commit/73a551d02cfd75709a236c6d1d8dc8462f195409 .

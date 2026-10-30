@@ -260,3 +260,138 @@ it("scrolls cached layout without repeating Flex or measurement and reflows afte
   expect(f.ui.diagnostics.layouts).toBe(before.layouts + 1);
   f.scene.dispose();
 });
+it("estimates momentum from recent Host timestamps and stops after its active set empties", () => {
+  const f = setup();
+  f.root.add(CanvasLabel("tail", { height: 4000 }));
+  f.flush();
+  f.routing.down(point(1, 20, 70, 0));
+  for (let i = 1; i <= 10; i++)
+    f.routing.move(point(1, 20, 70 - i * 10, i * 0.01));
+  f.routing.up(point(1, 20, -30, 0.1));
+  expect(f.ui.diagnostics.activeMomentum).toBe(1);
+  const old = f.root.scrollY;
+  f.ui.advance(0.05);
+  f.flush();
+  expect(f.root.scrollY).toBeGreaterThan(old);
+  for (let i = 0; i < 200; i++) f.ui.advance(0.016);
+  f.flush();
+  expect(f.ui.diagnostics.activeMomentum).toBe(0);
+  const end = f.root.scrollY;
+  f.ui.advance(0.1);
+  expect(f.root.scrollY).toBe(end);
+  f.scene.dispose();
+});
+it("integrates the same inertial distance at 30, 60 and 120 Hz", () => {
+  const run = (hz: number) => {
+    const f = setup();
+    f.root.add(CanvasLabel("tail", { height: 4000 }));
+    f.flush();
+    f.root.scrollTo(0, 500);
+    f.root.startScroll(0, 1200);
+    for (let i = 0; i < hz * 2; i++) f.ui.advance(1 / hz);
+    const y = f.root.scrollY;
+    expect(f.ui.diagnostics.activeMomentum).toBe(0);
+    f.scene.dispose();
+    return y;
+  };
+  expect(run(30)).toBeCloseTo(run(60), 7);
+  expect(run(60)).toBeCloseTo(run(120), 7);
+});
+it.each([
+  "off",
+  "wheel",
+  "program",
+  "down",
+  "pause",
+  "hidden",
+  "removed",
+  "direction",
+] as const)("interrupts momentum on %s without reviving it", (reason) => {
+  const f = setup();
+  f.root.startScroll(0, 900);
+  expect(f.root.coasting).toBe(true);
+  if (reason === "off") f.root.setStyle({ inertia: false });
+  else if (reason === "wheel") f.routing.scroll(20, 50, 0, 10);
+  else if (reason === "program") f.root.scrollTo(0, f.root.scrollY);
+  else if (reason === "down") f.routing.down(point());
+  else if (reason === "pause") f.routing.release();
+  else if (reason === "hidden") f.root.visible = false;
+  else if (reason === "direction") f.root.setStyle({ scroll: "horizontal" });
+  else f.root.dispose();
+  expect(f.ui.diagnostics.activeMomentum).toBe(0);
+  f.ui.advance(0.1);
+  expect(f.root.coasting).toBe(false);
+  f.scene.dispose();
+});
+it("disables inertia independently and rejects invalid elapsed time without moving state", () => {
+  const f = setup();
+  f.root.setStyle({ inertia: false });
+  f.root.startScroll(0, 1000);
+  expect(f.root.coasting).toBe(false);
+  f.root.setStyle({ inertia: true });
+  f.root.startScroll(0, 1000);
+  const y = f.root.scrollY;
+  for (const time of [NaN, Infinity, -1])
+    expect(() => f.ui.advance(time)).toThrow("finite");
+  expect(f.root.scrollY).toBe(y);
+  f.ui.advance(10);
+  expect(f.root.coasting).toBe(false);
+  expect(f.root.scrollY).toBe(y);
+  f.scene.dispose();
+  f.ui.advance(0.1);
+});
+it("does not fling on stale, missing, nonmonotonic or extreme timestamp histories", () => {
+  for (const mode of ["missing", "stale", "backwards", "huge"]) {
+    const f = setup();
+    f.routing.down(point(1, 20, 70, mode === "missing" ? undefined : 1));
+    f.routing.move(
+      point(
+        1,
+        20,
+        30,
+        mode === "missing"
+          ? undefined
+          : mode === "backwards"
+            ? 0.5
+            : mode === "huge"
+              ? 100
+              : 1.02,
+      ),
+    );
+    f.routing.up(
+      point(
+        1,
+        20,
+        30,
+        mode === "missing"
+          ? undefined
+          : mode === "stale"
+            ? 2
+            : mode === "backwards"
+              ? 0.5
+              : 100,
+      ),
+    );
+    expect(f.root.coasting).toBe(false);
+    f.scene.dispose();
+  }
+});
+it("coasts only on enabled axes, stops at boundaries and keeps another scroller's settings independent", () => {
+  const f = setup();
+  f.root.startScroll(999, 3000);
+  for (let i = 0; i < 50; i++) f.ui.advance(0.02);
+  expect(f.root.scrollY).toBe(f.root.maxScrollY);
+  expect(f.root.scrollX).toBe(0);
+  expect(f.root.coasting).toBe(false);
+  const other = CanvasScroll([], {
+    inertia: false,
+    dragScroll: false,
+    scrollbar: "hidden",
+  });
+  f.root.setStyle({ inertia: true, scrollbar: "always" });
+  expect(other.style.inertia).toBe(false);
+  expect(other.style.scrollbar).toBe("hidden");
+  expect(f.root.style.scrollbar).toBe("always");
+  other.dispose();
+  f.scene.dispose();
+});

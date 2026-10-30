@@ -294,11 +294,18 @@ export class CanvasNode implements LifetimeOwner {
       this.stopScroll();
       return;
     }
-    const decay = Math.exp(-8 * seconds),
-      dx = (this.velocityX * (1 - decay)) / 8,
-      dy = (this.velocityY * (1 - decay)) / 8;
-    this.velocityX *= decay;
-    this.velocityY *= decay;
+    const tx =
+      Math.abs(this.velocityX) > 10
+        ? Math.min(seconds, Math.log(Math.abs(this.velocityX) / 10) / 8)
+        : 0;
+    const ty =
+      Math.abs(this.velocityY) > 10
+        ? Math.min(seconds, Math.log(Math.abs(this.velocityY) / 10) / 8)
+        : 0;
+    const dx = (this.velocityX * (1 - Math.exp(-8 * tx))) / 8,
+      dy = (this.velocityY * (1 - Math.exp(-8 * ty))) / 8;
+    this.velocityX = tx < seconds ? 0 : this.velocityX * Math.exp(-8 * seconds);
+    this.velocityY = ty < seconds ? 0 : this.velocityY * Math.exp(-8 * seconds);
     const x = this.offsetX + dx,
       y = this.offsetY + dy;
     if (x <= 0 || x >= this.maximumX || Math.abs(this.velocityX) < 10)
