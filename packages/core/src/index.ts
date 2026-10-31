@@ -37,6 +37,7 @@ export * from "./ui/canvas-number-input";
 export * from "./ui/canvas-select";
 export * from "./ui/canvas-text";
 export * from "./ui/canvas-text-input";
+export * from "./ui/canvas-tween";
 export * from "./ui/canvas-ui";
 export * from "./ui/native-edit";
 export * from "./ui/scrollbar";

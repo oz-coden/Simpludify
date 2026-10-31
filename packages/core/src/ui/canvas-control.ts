@@ -94,3 +94,15 @@ export function canvasHoverHighlight(node: CanvasNode): boolean {
       (node.style.hoverEffect === "auto" && node.interactive))
   );
 }
+
+/** Inherited paint opacity; input availability excludes fully transparent ancestors. */
+export function canvasOpacity(node: CanvasNode): number {
+  let opacity = 1;
+  for (
+    let current: CanvasNode | undefined = node;
+    current;
+    current = current.parent
+  )
+    opacity *= current.presentation.opacity;
+  return opacity;
+}

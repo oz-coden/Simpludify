@@ -7,6 +7,7 @@ import type {
 import {
   canvasControlText,
   canvasHoverHighlight,
+  canvasOpacity,
   canvasScrollbars,
   canvasSliderGeometry,
   cleanupAll,
@@ -471,6 +472,7 @@ export class CanvasVisual implements CanvasPresentation {
           node.available,
           enabled,
           this.ui.scale,
+          canvasOpacity(node),
         ]);
         if (entry.signature === signature) return;
         entry.signature = signature;
@@ -575,7 +577,7 @@ export class CanvasVisual implements CanvasPresentation {
                 .fill(s.color);
             }
           }
-          entry.display.alpha = enabled ? (model?.readOnly ? 0.7 : 1) : 0.45;
+
           if (entry.text) {
             entry.text.visible =
               !entry.native ||
@@ -615,7 +617,12 @@ export class CanvasVisual implements CanvasPresentation {
             );
           }
         }
+        const opacity =
+          canvasOpacity(node) *
+          (enabled ? (node.control?.model.readOnly ? 0.7 : 1) : 0.45);
+        entry.display.alpha = opacity;
         this.updateButton(entry, node, clip);
+        if (entry.native) entry.native.element.style.opacity = String(opacity);
       },
       (node, clip) => {
         const entry = this.entries.get(node);

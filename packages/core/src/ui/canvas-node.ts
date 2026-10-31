@@ -5,6 +5,7 @@ import {
 import type { CanvasActivation, CanvasControlPort } from "./canvas-control";
 export interface CanvasNodeOwner {
   readonly disposed: boolean;
+  readonly scene?: LifetimeOwner;
   invalidate(layout?: boolean): void;
   report(error: unknown): void;
   scrollChanged(node: CanvasNode): void;
@@ -65,6 +66,12 @@ export interface CanvasStyle {
   fontSize?: number;
   fontFamily?: string;
   radius?: number;
+}
+/** Paint-space translation, independent of Flex allocation. Rotation/scaling are not supported here. */
+export interface CanvasPresentationStyle {
+  readonly offsetX: number;
+  readonly offsetY: number;
+  readonly opacity: number;
 }
 export interface UIBounds {
   readonly x: number;
@@ -363,6 +370,45 @@ export class CanvasNode implements LifetimeOwner {
     this.hold = options.hold;
     this.signal = this.abort.signal;
   }
+  private presentationValue: CanvasPresentationStyle = Object.freeze({
+    offsetX: 0,
+    offsetY: 0,
+    opacity: 1,
+  });
+  private mutationObservers: Set<() => void> | undefined;
+  get presentation(): CanvasPresentationStyle {
+    return this.presentationValue;
+  }
+  setPresentation(patch: Partial<CanvasPresentationStyle>): void {
+    this.assertAlive();
+    const next = { ...this.presentationValue, ...patch };
+    if (
+      !Number.isFinite(next.offsetX) ||
+      !Number.isFinite(next.offsetY) ||
+      !Number.isFinite(next.opacity) ||
+      next.opacity < 0 ||
+      next.opacity > 1
+    )
+      throw new EngineError(
+        "INVALID_UI",
+        "Presentation offsets must be finite and opacity 0..1",
+      );
+    const moved =
+      next.offsetX !== this.presentationValue.offsetX ||
+      next.offsetY !== this.presentationValue.offsetY;
+    if (!moved && next.opacity === this.presentationValue.opacity) return;
+    this.presentationValue = Object.freeze(next);
+    this.changed(false, moved);
+  }
+  /** @internal Scoped adapter observations; not a second input/event system. */
+  observeMutation(callback: () => void): () => void {
+    this.assertAlive();
+    this.mutationObservers ??= new Set();
+    this.mutationObservers.add(callback);
+    return () => {
+      this.mutationObservers?.delete(callback);
+    };
+  }
   get disposed(): boolean {
     return this.lifetime.disposed;
   }
@@ -421,6 +467,7 @@ export class CanvasNode implements LifetimeOwner {
         !node.shown ||
         !node.active ||
         node.working ||
+        node.presentationValue.opacity === 0 ||
         node.config.pointerEvents === "none" ||
         node.owner?.disposed
       )
@@ -546,9 +593,18 @@ export class CanvasNode implements LifetimeOwner {
     node.dispose();
     return true;
   }
-  /** @internal */ changed(layout = false): void {
+  /** @internal */ changed(layout = false, projection = false): void {
     this.paintRevision++;
-    this.ui?.invalidate(layout);
+    const invalidate = () => {
+      if (projection) this.ui?.scrollChanged(this);
+      else this.ui?.invalidate(layout);
+    };
+    if (this.mutationObservers?.size)
+      cleanupAll(
+        [invalidate, ...this.mutationObservers],
+        "UI mutation observers failed",
+      );
+    else invalidate();
   }
   /** @internal */ setHeld(value: boolean): void {
     if (value === this.held) return;
@@ -605,6 +661,7 @@ export class CanvasNode implements LifetimeOwner {
         () => this.setHeld(false),
         ...children.map((n) => () => n.dispose()),
         () => this.events.dispose(),
+        () => this.mutationObservers?.clear(),
         () => {
           this.owner = undefined;
           this.click = undefined;

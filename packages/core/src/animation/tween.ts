@@ -392,14 +392,14 @@ export class TweenPlayback {
     return this.status === "completed" || this.status === "cancelled";
   }
   /** @internal */ valid(scope: object | undefined): boolean {
-    return this.channels.every(
-      ({ binding: b }) =>
-        !b.options.owner?.disposed &&
-        (b.options.valid?.() ?? true) &&
-        (scope === undefined ||
-          !b.options.scope ||
-          b.options.scope() === scope),
-    );
+    for (const { binding: b } of this.channels)
+      if (
+        b.options.owner?.disposed ||
+        !(b.options.valid?.() ?? true) ||
+        (scope !== undefined && b.options.scope && b.options.scope() !== scope)
+      )
+        return false;
+    return true;
   }
   /** @internal */ own(owners: Iterable<LifetimeOwner>): void {
     for (const owner of owners) {
@@ -592,7 +592,9 @@ export class TweenPlayback {
         this.interrupt("external-write");
         return;
       }
-      const written: unknown = b.options.write(value);
+      const written: unknown = Object.is(value, b.options.read())
+        ? undefined
+        : b.options.write(value);
       synchronous(written);
       if (this.terminal) return;
       if (written === false) {

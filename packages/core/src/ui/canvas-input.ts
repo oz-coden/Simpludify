@@ -92,6 +92,38 @@ export abstract class CanvasInputNode<T> extends CanvasNode {
   override get control(): CanvasControlPort {
     return this.port;
   }
+  private intentVersion = 0;
+  private intentObservers: Set<() => void> | undefined;
+  /** @internal Changes on authoritative commands, including equal writes and edit start. */
+  get animationRevision(): number {
+    return this.intentVersion;
+  }
+  /** @internal */ observeValueIntent(callback: () => void): () => void {
+    this.assertInputAlive();
+    this.intentObservers ??= new Set();
+    this.intentObservers.add(callback);
+    return () => {
+      this.intentObservers?.delete(callback);
+    };
+  }
+  protected valueIntent(): void {
+    this.intentVersion++;
+    this.animationInterrupted();
+    if (this.intentObservers?.size)
+      cleanupAll(
+        [...this.intentObservers],
+        "Value animation interruption failed",
+      );
+  }
+  protected animationInterrupted(): void {}
+  /** @internal Program semantics without interrupting its own animation capability. */
+  writeAnimatedValue(value: T): boolean {
+    this.assertInputAlive();
+    const next = this.normalize(value),
+      version = this.intentVersion;
+    if (!Object.is(next, this.current)) this.writeValue(next);
+    return this.intentVersion === version;
+  }
   protected abstract model(): CanvasControlModel;
   protected get nativeControl(): CanvasNativeControl | undefined {
     return undefined;
@@ -119,6 +151,8 @@ export abstract class CanvasInputNode<T> extends CanvasNode {
     this.assertInputAlive();
     const next = boolean(value);
     if (next === this.locked) return;
+    this.valueIntent();
+    this.assertInputAlive();
     this.nativeControl?.end("interrupt");
     this.locked = next;
     this.inputRevision++;
@@ -152,8 +186,13 @@ export abstract class CanvasInputNode<T> extends CanvasNode {
   /** Validated program command, even for disabled/read-only controls; cancels pending pointer editing, including equal writes. */
   setValue(value: T): void {
     this.assertInputAlive();
-    const next = this.normalize(value),
-      previous = this.current;
+    const next = this.normalize(value);
+    this.valueIntent();
+    this.assertInputAlive();
+    this.writeValue(next);
+  }
+  private writeValue(next: T): void {
+    const previous = this.current;
     this.nativeControl?.end("interrupt");
     const edit = this.takeEdit();
     this.current = next;
@@ -169,6 +208,8 @@ export abstract class CanvasInputNode<T> extends CanvasNode {
     );
   }
   protected userValue(value: T, source: CanvasActivation, commit = true): void {
+    if (!this.available || this.readOnly) return;
+    this.valueIntent();
     if (!this.available || this.readOnly) return;
     const next = this.normalize(value),
       previous = this.current;
@@ -196,6 +237,8 @@ export abstract class CanvasInputNode<T> extends CanvasNode {
     );
   }
   protected beginEdit(source: CanvasActivation = "pointer"): boolean {
+    if (!this.available || this.readOnly || this.edit) return false;
+    this.valueIntent();
     if (!this.available || this.readOnly || this.edit) return false;
     this.edit = { previous: this.current, source };
     this.changed();
@@ -381,6 +424,40 @@ export class CanvasSliderNode extends CanvasInputNode<number> {
     );
     this.range = range;
   }
+  private displayed: number | undefined;
+  /** Smooth visual value; logical value and ARIA remain authoritative. */
+  get displayValue(): number {
+    return this.displayed ?? this.value;
+  }
+  set displayValue(value: number) {
+    const next = this.displayNumber(value);
+    this.valueIntent();
+    this.assertInputAlive();
+    this.writeAnimatedDisplayValue(next);
+  }
+  private displayNumber(value: number): number {
+    if (!Number.isFinite(value))
+      throw new EngineError("INVALID_UI", "Display value must be finite");
+    return Math.max(this.min, Math.min(this.max, value));
+  }
+  /** @internal */ writeAnimatedDisplayValue(value: number): boolean {
+    this.assertInputAlive();
+    const next = this.displayNumber(value);
+    if (next !== this.displayValue) {
+      this.displayed = next;
+      this.changed();
+    }
+    return true;
+  }
+  protected override valueReplaced(): void {
+    this.displayed = undefined;
+  }
+  protected override animationInterrupted(): void {
+    if (this.displayed !== undefined) {
+      this.displayed = undefined;
+      this.changed();
+    }
+  }
   get min(): number {
     return this.range.min;
   }
@@ -402,7 +479,7 @@ export class CanvasSliderNode extends CanvasInputNode<number> {
       kind: "slider",
       value: this.value,
       ...this.range,
-      ratio: (this.value - this.min) / (this.max - this.min),
+      ratio: (this.displayValue - this.min) / (this.max - this.min),
       readOnly: this.readOnly,
     });
   }

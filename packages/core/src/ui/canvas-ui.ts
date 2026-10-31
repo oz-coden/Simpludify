@@ -340,8 +340,10 @@ export class CanvasUI implements LifetimeOwner {
     if (node.disposed || !node.visible) return;
     const b = this.baseBounds.get(node);
     if (!b) return;
-    const x = b.x - dx,
-      y = b.y - dy;
+    const x = b.x - dx + node.presentation.offsetX,
+      y = b.y - dy + node.presentation.offsetY;
+    if (!Number.isFinite(x) || !Number.isFinite(y))
+      throw new EngineError("INVALID_UI", "Composed UI offset must be finite");
     if (
       node.bounds.x !== x ||
       node.bounds.y !== y ||
@@ -355,7 +357,11 @@ export class CanvasUI implements LifetimeOwner {
         height: b.height,
       });
     for (const child of node.children)
-      this.projectScroll(child, dx + node.scrollX, dy + node.scrollY);
+      this.projectScroll(
+        child,
+        dx + node.scrollX - node.presentation.offsetX,
+        dy + node.scrollY - node.presentation.offsetY,
+      );
   }
   /** Deepest ancestor path for the original hit; overlays cannot scroll content behind them. */
   scrollTargets(x: number, y: number): CanvasNode[] {
@@ -449,6 +455,7 @@ export class CanvasUI implements LifetimeOwner {
         !node.visible ||
         !node.enabled ||
         node.busy ||
+        node.presentation.opacity === 0 ||
         node.style.pointerEvents === "none" ||
         !containsUI(clip, x, y)
       )
