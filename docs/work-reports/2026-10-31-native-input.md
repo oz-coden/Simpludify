@@ -90,3 +90,9 @@ Initial investigation/design complete. Select, text session, TextInput, NumberIn
 - Kept the native port optional (including explicit undefined) so existing custom Checkbox/Slider control-port implementations remain source-compatible. New controls still require the documented native Host support. This is a type-contract correction; it adds no runtime dependency or behavior.
 - CI 41181889588 narrow shard 1 passed **75 tests**, including the added composition-blur/window/scale cases in both renderers. Quality, production and both site bases passed; later source checkpoints superseded the remaining shards. The intermediate run is not a full acceptance result.
 - The last exact-source candidate must finish all checks before PR/main integration. Actual OS IME and physical-device limits remain unchanged.
+
+## Typed option edge case and final candidate
+
+- A nullable-value review found that nullish fallback could choose a disabled first option instead of a later enabled `null` value. Fallback now selects the option object before reading its value. The regression covers initialization and dynamic replacement with typed nullable values.
+- Full local check passed again with unchanged baseline diagnostics; **696 unit tests / 49 files passed**, 3.48s. Added visible CanvasLabel captions to the Settings lab fields; Select/text/number `label` remains an accessible name rather than a duplicate value caption. Only standard Canvas APIs are used.
+- Earlier candidates were superseded by these correctness changes and are not completion evidence. Wait for the final candidate's full CI without changing its runtime/test/site sources.

@@ -50,7 +50,7 @@ export class CanvasSelectNode<T> extends CanvasInputNode<T | undefined> {
   ) {
     const state = { options: copyOptions(options) };
     const first = () =>
-      state.options.find((o) => !o.disabled)?.value ?? state.options[0]?.value;
+      (state.options.find((o) => !o.disabled) ?? state.options[0])?.value;
     super(
       "select",
       config.label ?? "Select",
@@ -82,7 +82,7 @@ export class CanvasSelectNode<T> extends CanvasInputNode<T | undefined> {
     this.setValue(
       next.some((o) => Object.is(o.value, this.value))
         ? this.value
-        : (next.find((o) => !o.disabled)?.value ?? next[0]?.value),
+        : (next.find((o) => !o.disabled) ?? next[0])?.value,
     );
   }
   private get selectedIndex(): number {

@@ -98,8 +98,11 @@ export function createSettingsScreen(
       volume,
       speed,
       grid,
+      CanvasLabel("難易度 / Difficulty", { fontSize: 16 }),
       difficulty,
+      CanvasLabel("プレイヤー名 / Player name", { fontSize: 16 }),
       playerName,
+      CanvasLabel("音量（数値） / Volume number", { fontSize: 16 }),
       volumeNumber,
       readOnly,
     ],
@@ -148,8 +151,11 @@ export function createSettingsScreen(
       volume,
       speed,
       grid,
+      CanvasLabel("難易度 / Difficulty", { fontSize: 16 }),
       difficulty,
+      CanvasLabel("プレイヤー名 / Player name", { fontSize: 16 }),
       playerName,
+      CanvasLabel("音量（数値） / Volume number", { fontSize: 16 }),
       volumeNumber,
     ])
       c.readOnly = readOnly.value;

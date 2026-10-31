@@ -392,3 +392,21 @@ it("errors in cancellation handlers cannot leave native sessions editing", () =>
   expect(node.value).toBe("old");
   node.dispose();
 });
+
+it("typed nullable Select values retain the first enabled option through replacement", () => {
+  const node = CanvasSelect<string | null>([
+    { label: "Disabled", value: "blocked", disabled: true },
+    { label: "None", value: null },
+  ]);
+  expect(node.value).toBeNull();
+  node.setOptions([
+    { label: "Disabled", value: "blocked", disabled: true },
+    { label: "New", value: "new" },
+  ]);
+  expect(node.value).toBe("new");
+  node.setOptions([
+    { label: "Disabled", value: "blocked", disabled: true },
+    { label: "None", value: null },
+  ]);
+  expect(node.value).toBeNull();
+});

@@ -44,7 +44,7 @@ game.canvasUI(
 await game.run();
 ```
 
-All factories accept a final CanvasStyle argument and return CanvasInputNode subclasses. `value`, `setValue`, `onChange`, `onCommit`, `onCancel`, `readOnly`, `enabled`, `visible`, `setStyle` and Scene ownership reuse [the value foundation](canvas-controls.md). Values can be changed while disabled/read-only. Invalid program commands throw before invalidating an existing edit. Valid program writes, including equal writes, supersede it. Text controls additionally expose `draft`, `onDraftChange`, `commit()` and `cancel()`.
+`label` names Select/text/number controls for accessibility; use CanvasLabel beside them for visible form captions, as Settings lab does. All factories accept a final CanvasStyle argument and return CanvasInputNode subclasses. `value`, `setValue`, `onChange`, `onCommit`, `onCancel`, `readOnly`, `enabled`, `visible`, `setStyle` and Scene ownership reuse [the value foundation](canvas-controls.md). Values can be changed while disabled/read-only. Invalid program commands throw before invalidating an existing edit. Valid program writes, including equal writes, supersede it. Text controls additionally expose `draft`, `onDraftChange`, `commit()` and `cancel()`.
 
 ## Select
 
