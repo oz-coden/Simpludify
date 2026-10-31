@@ -5,20 +5,42 @@ Core/Web export `CanvasSelect`, `CanvasTextInput` and `CanvasNumberInput`. Game 
 ## Create controls
 
 ```ts verify
-import { CanvasColumn, CanvasNumberInput, CanvasSelect, CanvasTextInput, Game } from "@simpludify/web";
-const difficulty = CanvasSelect([
-  {label: "やさしい", value: "easy"},
-  {label: "普通", value: "normal"},
-  {label: "難しい", value: "hard", disabled: true},
-], {label: "Difficulty", value: "normal"});
-const name = CanvasTextInput({label: "Player name", value: "Player", placeholder: "名前を入力", maxLength: 40});
-const count = CanvasNumberInput({label: "Count", value: 3, min: -10, max: 10, step: 0.5});
-name.onDraftChange(({draft}) => console.log(draft.text, draft.composing));
-name.onChange(({value, source}) => console.log("Accepted", value, source));
-name.onCommit(({value}) => console.log("Committed", value));
-name.onCancel(({value}) => console.log("Retained", value));
+import {
+  CanvasColumn,
+  CanvasNumberInput,
+  CanvasSelect,
+  CanvasTextInput,
+  Game,
+} from "@simpludify/web";
+const difficulty = CanvasSelect(
+  [
+    { label: "やさしい", value: "easy" },
+    { label: "普通", value: "normal" },
+    { label: "難しい", value: "hard", disabled: true },
+  ],
+  { label: "Difficulty", value: "normal" },
+);
+const name = CanvasTextInput({
+  label: "Player name",
+  value: "Player",
+  placeholder: "名前を入力",
+  maxLength: 40,
+});
+const count = CanvasNumberInput({
+  label: "Count",
+  value: 3,
+  min: -10,
+  max: 10,
+  step: 0.5,
+});
+name.onDraftChange(({ draft }) => console.log(draft.text, draft.composing));
+name.onChange(({ value, source }) => console.log("Accepted", value, source));
+name.onCommit(({ value }) => console.log("Committed", value));
+name.onCancel(({ value }) => console.log("Retained", value));
 const game = new Game();
-game.canvasUI(CanvasColumn([difficulty, name, count], {gap: 12, padding: 16}));
+game.canvasUI(
+  CanvasColumn([difficulty, name, count], { gap: 12, padding: 16 }),
+);
 await game.run();
 ```
 
@@ -56,10 +78,14 @@ ArrowUp/Down change one step; PageUp/Down change ten, with finite endpoint satur
 
 ```ts verify
 import { CanvasNumberInput, CanvasSlider } from "@simpludify/core";
-const slider = CanvasSlider({value: 50});
-const number = CanvasNumberInput({value: 50});
-slider.onChange(({value}) => { if (number.value !== value) number.value = value; });
-number.onChange(({value}) => { if (slider.value !== value) slider.value = value; });
+const slider = CanvasSlider({ value: 50 });
+const number = CanvasNumberInput({ value: 50 });
+slider.onChange(({ value }) => {
+  if (number.value !== value) number.value = value;
+});
+number.onChange(({ value }) => {
+  if (slider.value !== value) slider.value = value;
+});
 ```
 
 Scope subscriptions to the owning Scene/root in an application. Equality guards preserve commits: reflecting even an equal program write deliberately cancels pending editing. Keep ranges/steps equal when sharing a single numeric setting.

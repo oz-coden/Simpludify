@@ -146,7 +146,14 @@ export abstract class CanvasTextEditorNode<T> extends CanvasInputNode<T> {
           this.session === session,
         (draft) => {
           const next = checkedSnapshot(draft);
-          if (JSON.stringify(next) === JSON.stringify(this.buffer)) return;
+          if (
+            next.text === this.buffer.text &&
+            next.selectionStart === this.buffer.selectionStart &&
+            next.selectionEnd === this.buffer.selectionEnd &&
+            next.direction === this.buffer.direction &&
+            next.composing === this.buffer.composing
+          )
+            return;
           this.buffer = next;
           this.changed();
           this.events.emit(

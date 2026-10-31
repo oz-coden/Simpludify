@@ -4,7 +4,7 @@ Implementation checkpoints and final verification records live here so repositor
 
 | Date (JST) | Task                                                                      | Status                                                                                                   |
 | ---------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| 2026-10-31 | [Select and native text editing](2026-10-31-native-input.md) | In progress: design checkpoint; native browser/OS verification pending |
+| 2026-10-31 | [Select and native text editing](2026-10-31-native-input.md)              | In progress: Select/TextInput/NumberInput, 695 unit tests; exact-source browser CI pending               |
 | 2026-10-31 | [Standard Canvas input controls](2026-10-31-canvas-controls.md)           | Complete: PR #3 merged ff39721; main 658 unit / 266 browser tests, Pages and live settings/docs verified |
 | 2026-10-30 | [Canvas scroll input](2026-10-30-scroll-input.md)                         | Complete: merged 221b053; main CI/Pages passed; live sample and docs matched main dd2eb0e                |
 | 2026-10-30 | [Core modules and host-independent Canvas UI](2026-10-30-core-host-ui.md) | Complete: merged ba1345e; main CI 570 unit / 238 browser tests and Pages deployment passed               |

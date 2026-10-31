@@ -60,3 +60,18 @@ Initial investigation/design complete. Select, text session, TextInput, NumberIn
 - Complete local unit suite: **693 passed / 49 files / 0 failed**, 3.73s. Earlier sample snapshot expectation failed solely because it omitted the new fields; the expectation now checks those fields too. No existing regression assertion was removed. TypeScript compilation passes with new fixtures.
 - Updated English editing guide, API, Host/architecture/roadmap, Japanese Canvas entry, sample README and site page title. The guide specifies accepted/draft semantics, typed options, native presentation, UTF-16/maxLength, locale-independent numbers, shared Slider values, Host migration and physical IME/mobile/AT limits.
 - Save before full static/build/site/CI review. Local Chromium remains unavailable; exact-source Actions must pass before integration.
+
+## Final review checkpoint before candidate CI
+
+- Sample/docs/browser checkpoint: [8f89c3a](https://github.com/oz-coden/Simpludify/commit/8f89c3a2372aac46551a6752c84b57add78381a2), [CI 41181647839](https://github.com/oz-coden/Simpludify/actions/runs/41181647839). Quality identified three formatting/export-order errors in the new guide/index/exports; these are corrected. Production job succeeded; browser/site jobs are still running at this receipt. This intermediate run is not accepted as full success.
+- `npm run check`: passed after those formatting corrections; baseline **12 warnings / 11 infos** unchanged. DOM-free Core, module/required-file/license checks passed with no new dependency.
+- `npm test`: **695 passed / 49 files / 0 failed**, 3.47s. Added reentrant blur/focus redirection and observer-error cancellation tests. Text snapshot deduplication now compares fields directly rather than allocating JSON strings.
+- `npm run build -- --target web`: passed. Project and root site build/check passed independently, each **62 HTML / 3972 references / 58 typed snippets**. Browser enumeration at the first sample checkpoint was 286 cases; an additional lifecycle/scale/dynamic-options case for both renderers/viewport projects is now included (execution pending).
+- Final review examined Core/Host imports, accepted/draft semantics, finite range policy, revision-based program supersession, reentrant focus redirection, native element removal, listener ownership, pointer/editor versus parent scroll routing, composition boundaries and plain-language public documentation. No existing assertion/timeout/retry/GPU configuration was weakened. Remaining acceptance gate is exact-source full browser/site CI.
+- Main is unchanged. No actual OS IME, physical mobile keyboard, other browser engine or AT compatibility is claimed. All three implemented factories remain conditional on successful final browser verification before merge.
+
+## Initial browser execution evidence
+
+- CI 41181647839 narrow shard 1 completed **73 passed / 0 failed**, including all ten new native input cases (Select, Unicode/native clipboard, composition/stale callbacks, numeric editing and editor drag/lifecycle) in both WebGL and Canvas2D. Production and both site-base jobs also passed. Other browser shards are still running; the run's quality formatting failure remains recorded.
+- Added one more browser case per renderer/viewport for dynamic options, scaled native geometry, composing blur, window interruption and ancestor disable. Final candidate enumeration: **290 tests / 18 files**. This additional case is pending execution.
+- Updated the Action typing recipe to use standard CanvasTextInput rather than requiring game code to create DOM fields. Custom text streams remain a Host responsibility.

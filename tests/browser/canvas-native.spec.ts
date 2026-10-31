@@ -324,4 +324,83 @@ for (const fallback of [false, true])
         ),
       ).toBe(0);
     });
+    test("dynamic options, clipping/scale, composition blur and window interruption revoke ownership", async ({
+      page,
+    }) => {
+      await page.evaluate(() => {
+        const f = window.nativeProbe;
+        f.screen.difficulty.setOptions([
+          { label: "Normal updated", value: "normal" },
+          { label: "Easy updated", value: "easy" },
+        ]);
+        f.ui.scale = 1.1;
+        f.focus(f.screen.difficulty);
+      });
+      const select = page.getByRole("combobox", {
+        name: "難易度 / Difficulty",
+        exact: true,
+      });
+      await expect(select).toHaveValue("0");
+      expect(await select.locator("option").allTextContents()).toEqual([
+        "Normal updated",
+        "Easy updated",
+      ]);
+      await page.evaluate(() => {
+        const f = window.nativeProbe;
+        f.focus(f.screen.playerName);
+      });
+      const input = page.getByRole("textbox", {
+        name: "プレイヤー名 / Player name",
+        exact: true,
+      });
+      const box = await input.boundingBox();
+      const width = await page.evaluate(
+        () =>
+          window.nativeProbe.screen.playerName.bounds.width *
+          window.nativeProbe.ui.scale,
+      );
+      expect(box?.width).toBeCloseTo(width, 0);
+      await input.evaluate((el) => {
+        const input = el as HTMLInputElement;
+        input.dispatchEvent(
+          new CompositionEvent("compositionstart", { bubbles: true }),
+        );
+        input.value = "未確定";
+        input.dispatchEvent(
+          new InputEvent("input", { bubbles: true, isComposing: true }),
+        );
+      });
+      await page.evaluate(() => {
+        const f = window.nativeProbe;
+        f.focus(f.screen.volumeNumber);
+      });
+      expect(
+        await page.evaluate(() => window.nativeProbe.screen.playerName.value),
+      ).toBe("Player");
+      await page.evaluate(() => {
+        const f = window.nativeProbe;
+        f.focus(f.screen.playerName);
+      });
+      await input.fill("window draft");
+      await page.evaluate(() => {
+        window.dispatchEvent(new Event("blur"));
+        window.nativeProbe.tick();
+      });
+      expect(
+        await page.evaluate(() => [
+          window.nativeProbe.screen.playerName.value,
+          window.nativeProbe.screen.playerName.editing,
+        ]),
+      ).toEqual(["Player", false]);
+      await page.evaluate(() => {
+        const f = window.nativeProbe;
+        f.focus(f.screen.playerName);
+        f.screen.scroll.enabled = false;
+        f.tick();
+      });
+      await expect(input).toBeDisabled();
+      expect(
+        await page.evaluate(() => window.nativeProbe.screen.playerName.editing),
+      ).toBe(false);
+    });
   });

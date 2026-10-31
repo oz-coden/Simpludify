@@ -362,3 +362,33 @@ describe("CanvasNumberInput", () => {
     expect(next.active).toBe(false);
   });
 });
+
+it("native blur callbacks can redirect focus without leaving multiple focused nodes", () => {
+  const scene = new Scene("redirect"),
+    a = CanvasTextInput(),
+    b = CanvasTextInput(),
+    c = CanvasTextInput(),
+    ui = new CanvasUI(scene, CanvasColumn([a, b, c]));
+  ui.layout(400, 400, () => ({ width: 40, height: 20 }));
+  ui.focus(a);
+  a.onCommit(() => ui.focus(c));
+  const session = required(a.beginTextEdit());
+  session.update(draft("accepted"));
+  ui.focus(b);
+  expect(ui.focusedNode).toBe(c);
+  expect([a.focused, b.focused, c.focused]).toEqual([false, false, true]);
+  scene.dispose();
+});
+it("errors in cancellation handlers cannot leave native sessions editing", () => {
+  const node = CanvasTextInput({ value: "old" }),
+    session = required(node.beginTextEdit());
+  node.onCancel(() => {
+    throw Error("observer");
+  });
+  session.update(draft("pending"));
+  expect(() => session.cancel()).toThrow();
+  expect(session.active).toBe(false);
+  expect(node.editing).toBe(false);
+  expect(node.value).toBe("old");
+  node.dispose();
+});
