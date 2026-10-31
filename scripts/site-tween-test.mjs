@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 export async function testTween(frame, page) {
   // Numeric/lifecycle checks must not require an extra WebGL-rendered RAF just
   // to observe an already applied value on software-driver runners.
+  await page.bringToFront();
   const wait = (predicate, arg) =>
     frame.waitForFunction(predicate, arg, { polling: 50 });
   await wait(() => window.tweenDemo?.game.engine.scene.state === "active");
@@ -31,18 +32,29 @@ export async function testTween(frame, page) {
       }
       throw Error(`Missing lab button: ${name}`);
     }, name);
+    if (typeof frame.frameElement === "function")
+      await (await frame.frameElement()).focus();
     const button = frame.getByRole("button", { name, exact: true });
     await button.focus();
     assert.equal(
-      await button.evaluate((el) => el === document.activeElement),
+      await button.evaluate(
+        (el) => el === document.activeElement && document.hasFocus(),
+      ),
       true,
     );
     await page.keyboard.press("Enter");
   };
+  const advanceDisplay = () =>
+    frame.evaluate(() => {
+      const d = window.tweenDemo;
+      d.lab.scene.advancePresentation(0.05);
+      d.game.setViewport();
+    });
   await press("Pause game");
   await wait(() => window.tweenDemo.game.paused);
   const x = await frame.evaluate(() => window.tweenDemo.lab.linearView.offsetX);
   await press("Fade / Slide UI");
+  await advanceDisplay();
   try {
     await wait(() => {
       const d = window.tweenDemo;
@@ -80,17 +92,31 @@ export async function testTween(frame, page) {
     await frame.evaluate(() => window.tweenDemo.lab.linearView.offsetX),
     x,
   );
+  assert.equal(
+    await frame.evaluate(() => window.tweenDemo.lab.status.text),
+    "UI sequence: completed",
+  );
   await press("Tween value to 80");
+  await advanceDisplay();
   await wait(
     () =>
       window.tweenDemo.lab.volume.value === 80 &&
       window.tweenDemo.lab.display.diagnostics.active === 0,
   );
+  assert.equal(
+    await frame.evaluate(() => window.tweenDemo.lab.status.text),
+    "Slider value: completed",
+  );
   await press("Damage HP");
+  await advanceDisplay();
   await wait(
     () =>
       window.tweenDemo.lab.hp.value === 75 &&
       window.tweenDemo.lab.hp.displayValue === 75,
+  );
+  assert.equal(
+    await frame.evaluate(() => window.tweenDemo.lab.status.text),
+    "HP display: completed",
   );
   await press("Cancel all");
   assert.equal(
@@ -104,42 +130,32 @@ export async function testTween(frame, page) {
   await frame.evaluate(() => window.tweenDemo.game.whenReady());
   if (typeof frame.frameElement === "function")
     await (await frame.frameElement()).scrollIntoViewIfNeeded();
-  const step = await frame.evaluate(
-    () => window.tweenDemo.game.engine.stepCount,
-  );
-  await wait((count) => window.tweenDemo.game.engine.stepCount > count, step);
+  if (typeof frame.frameElement === "function")
+    await (await frame.frameElement()).focus();
   await frame.locator(".simpludify").focus();
-  const before = await frame.evaluate(() => ({
-    x: window.tweenDemo.lab.sprite.x,
-    steps: window.tweenDemo.game.engine.stepCount,
-  }));
+  assert.equal(await frame.evaluate(() => document.hasFocus()), true);
+  const before = await frame.evaluate(() => {
+    const d = window.tweenDemo;
+    d.game.setViewport();
+    return {
+      x: d.lab.sprite.x,
+      pixels: d.game.element.querySelector("canvas").toDataURL(),
+    };
+  });
   await page.keyboard.down("d");
   try {
-    await wait((before) => {
+    const after = await frame.evaluate(() => {
       const d = window.tweenDemo;
-      if (d.game.engine.disposed)
-        throw Error(`Disposed during movement: ${document.body.textContent}`);
-      return d.lab.sprite.x > before.x + 5;
-    }, before);
-  } catch (error) {
-    console.error(
-      "Tween movement diagnostic",
-      await frame.evaluate((before) => {
-        const d = window.tweenDemo;
-        return {
-          before,
-          scene: d.game.engine.scene.id,
-          paused: d.game.paused,
-          disposed: d.game.engine.disposed,
-          steps: d.game.engine.stepCount,
-          x: d.lab.sprite.x,
-          input: d.game.engine.input.snapshot(),
-          hidden: document.hidden,
-          active: document.activeElement?.outerHTML,
-        };
-      }, before),
-    );
-    throw error;
+      d.game.engine.step(0.05);
+      d.game.pause();
+      d.game.setViewport();
+      return {
+        x: d.lab.sprite.x,
+        pixels: d.game.element.querySelector("canvas").toDataURL(),
+      };
+    });
+    assert.ok(after.x > before.x + 5);
+    assert.notEqual(after.pixels, before.pixels);
   } finally {
     await page.keyboard.up("d");
   }
@@ -169,4 +185,5 @@ export async function testTween(frame, page) {
     ),
     4,
   );
+  await frame.evaluate(() => window.tweenDemo.game.pause());
 }
