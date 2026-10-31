@@ -1,3 +1,4 @@
+import { TweenScheduler } from "../animation/tween";
 import { EngineError } from "../foundation/diagnostics";
 import { EventBus } from "../foundation/events";
 import {
@@ -45,6 +46,8 @@ export class Scene {
   private readonly lifetime = new Lifetime();
   private bus: EventBus | undefined;
   private timers: SimulationTimers | undefined;
+  private simulationAnimation: TweenScheduler | undefined;
+  private displayAnimation: TweenScheduler | undefined;
   private readonly updates = new Set<(seconds: number) => void>();
   private updatePlan: readonly ((seconds: number) => void)[] = [];
   private readonly activations = new Set<() => void>();
@@ -73,6 +76,34 @@ export class Scene {
     this.assertAlive();
     this.bus ??= new EventBus();
     return this.bus;
+  }
+  /** Simulation clock, advanced after contacts and before timers. */
+  get tweens(): TweenScheduler {
+    this.assertAlive();
+    this.simulationAnimation ??= new TweenScheduler({
+      owner: this,
+      scope: this,
+    });
+    return this.simulationAnimation;
+  }
+  /** Display clock: the Host supplies visible frame time, including during Engine pause. */
+  get presentationTweens(): TweenScheduler {
+    this.assertAlive();
+    this.displayAnimation ??= new TweenScheduler({ owner: this, scope: this });
+    return this.displayAnimation;
+  }
+  advancePresentation(seconds: number): void {
+    if (!Number.isFinite(seconds) || seconds < 0)
+      throw new EngineError(
+        "INVALID_DELTA",
+        "Presentation delta must be finite and nonnegative",
+      );
+    if (this.phase !== SceneState.Active)
+      throw new EngineError(
+        "SCENE_STATE",
+        "Only active scenes advance presentation",
+      );
+    this.displayAnimation?.advance(seconds);
   }
   private assertAlive(): void {
     if (this.disposed || this.phase === SceneState.Inactive)
@@ -249,6 +280,7 @@ export class Scene {
         sceneId: this.id,
       });
     this.timers?.beginStep();
+    this.simulationAnimation?.beginStep();
     if (this.updateRevision !== this.revision) {
       this.updateActors = this.actors.filter((actor) => actor.hasUpdates);
       this.updateRevision = this.revision;
@@ -267,6 +299,8 @@ export class Scene {
       if (this.disposed) return;
       if (this.postUpdates.has(callback)) callback(context.delta);
     }
+    if (this.disposed) return;
+    this.simulationAnimation?.advanceCaptured(context.delta);
     if (this.disposed) return;
     this.timers?.step(context.delta);
     // Callback plans change only on subscription changes; iteration stays stable.
@@ -299,6 +333,8 @@ export class Scene {
                   ),
               ]
             : []),
+          () => this.simulationAnimation?.dispose(),
+          () => this.displayAnimation?.dispose(),
           () => this.timers?.dispose(),
           () => this.bus?.dispose(),
           ...[...actors].reverse().map((actor) => () => actor.destroyOwned()),
@@ -317,6 +353,8 @@ export class Scene {
       this.deactivations.clear();
       this.bus = undefined;
       this.timers = undefined;
+      this.simulationAnimation = undefined;
+      this.displayAnimation = undefined;
     }
   }
 }

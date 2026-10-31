@@ -28,6 +28,7 @@ import {
   type ScreenPoint,
   screenPoint,
   screenToWorld,
+  type TweenScheduler,
   type Viewport,
   type ViewTransform,
   type WorldPoint,
@@ -49,6 +50,8 @@ import {
 export interface SceneContext {
   readonly scene: Scene;
   readonly signal: AbortSignal;
+  readonly tweens: TweenScheduler;
+  readonly presentationTweens: TweenScheduler;
   add<T extends Actor>(actor: T): T;
   ui(...nodes: UINode[]): void;
   canvasUI(root: CanvasNode, options?: CanvasUIOptions): CanvasUI;
@@ -246,6 +249,12 @@ export class Game<SceneId extends string = string> {
     if (this.dead)
       throw new EngineError("GAME_DISPOSED", "Game has been disposed");
   }
+  get tweens(): TweenScheduler {
+    return this.engine.scene.tweens;
+  }
+  get presentationTweens(): TweenScheduler {
+    return this.engine.scene.presentationTweens;
+  }
   get paused(): boolean {
     return this.engine.paused;
   }
@@ -436,6 +445,12 @@ export class Game<SceneId extends string = string> {
             Promise.resolve(
               setup({
                 scene,
+                get tweens() {
+                  return scene.tweens;
+                },
+                get presentationTweens() {
+                  return scene.presentationTweens;
+                },
                 signal: controller.signal,
                 add: (actor) => scene.add(actor),
                 ui: (...items) => nodes.push(...items),
@@ -715,6 +730,10 @@ export class Game<SceneId extends string = string> {
           this.playback.advance(elapsed, this.options.fixedStep?.maxSteps ?? 8);
         else if (this.fixed) this.fixed.advance(elapsed);
         else this.engine.step(Math.min(this.maxDelta, elapsed));
+        if (!this.dead && !this.engine.scene.disposed)
+          this.engine.scene.advancePresentation(
+            Math.min(this.maxDelta, elapsed),
+          );
         if (this.engine.paused) this.canvas?.stopMotion();
         else this.canvas?.advance(elapsed);
         if (
