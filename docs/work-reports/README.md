@@ -4,7 +4,7 @@ Implementation checkpoints and final verification records live here so repositor
 
 | Date (JST) | Task                                                                      | Status                                                                                                           |
 | ---------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| 2026-11-01 | [Tween and animation foundation](2026-11-01-tween-animation.md)           | In progress: implemented; full CI and production validation                                                                            |
+| 2026-11-01 | [Tween and animation foundation](2026-11-01-tween-animation.md)           | In progress: implemented; full CI and production validation                                                      |
 | 2026-10-31 | [Hover, keyboard and focus](2026-10-31-ui-focus-input.md)                 | Complete: direct main 1d9901d; 701 unit / 314 browser, final main CI/Pages and live gameplay/forms/docs verified |
 | 2026-10-31 | [Select and native text editing](2026-10-31-native-input.md)              | Complete: PR #4 merged 884475b; main 696 unit / 294 browser, Pages and live sample/docs verified                 |
 | 2026-10-31 | [Standard Canvas input controls](2026-10-31-canvas-controls.md)           | Complete: PR #3 merged ff39721; main 658 unit / 266 browser tests, Pages and live settings/docs verified         |
