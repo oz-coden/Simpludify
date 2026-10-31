@@ -4,6 +4,8 @@ Simpludify has an experimental Web runtime and a generic composition-based Core.
 
 ## Included
 
+- Generic numeric Tween, Scene simulation/display clocks, lifetime/channel ownership, sequence/parallel, Actor draw and Canvas/Slider adapters; [contracts and limitations](tween.md).
+
 - [Portable scroll input](scrolling.md): touch/mouse content arbitration, per-node momentum, overlay scrollbar controls, nested/multipointer ownership, keyboard commands and cached projection; [measurements](scroll-performance.md).
 
 - Host-independent Core Canvas UI tree/Flex/text policy/pointer routing, dynamic ordering, clipped scrolling and logical focus; Web supplies Pixi/metrics/native focus adapters. [Module and Host boundaries](host-boundary.md), [Canvas API](canvas-ui.md) and [portable screen](../examples/canvas-ui/portable-screen.ts).
@@ -69,5 +71,3 @@ Consider a clearer `changeScene` name for factory-based navigation, directly con
 
 - Standard Canvas Checkbox and horizontal Slider provide typed values/events, read-only state and shared pointer/keyboard/focus/lifetime behavior; Canvas trail Settings lab uses Core-only definitions. [Control contracts](canvas-controls.md).
 - Canvas Select/TextInput/NumberInput provide typed selection, accepted values versus text drafts, generation-checked native Host editing, finite numeric validation and shared focus/lifetime. [Native editing contracts](text-input-design.md) distinguish automated browser/synthetic composition tests from unverified real OS Japanese IME and physical mobile keyboards.
-
-- Generic numeric Tween, Scene simulation/display clocks, lifetime/channel ownership, sequence/parallel, Actor draw and Canvas/Slider adapters; [contracts and limitations](tween.md).

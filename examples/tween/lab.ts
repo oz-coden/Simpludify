@@ -26,7 +26,10 @@ import {
 } from "@simpludify/web";
 
 export function buildTweenLab(
-  context: SceneContext,
+  context: Pick<
+    SceneContext,
+    "scene" | "tweens" | "presentationTweens" | "add" | "canvasUI"
+  >,
   host: {
     readonly spriteURL: string;
     readonly movement: ActionReader<"axis2d">;

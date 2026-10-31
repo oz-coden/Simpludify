@@ -175,3 +175,35 @@ it("asynchronous setters are diagnosed and claims are released before completion
   expect(completed).toBe(0);
   expect(clock.diagnostics.active).toBe(0);
 });
+it("consumes and rejects asynchronous capability hooks, easing and watch setup without leaked claims", async () => {
+  const rejected = () => Promise.reject(Error("unsupported async hook"));
+  for (const hook of ["read", "valid", "scope", "stamp", "watch"] as const) {
+    const clock = new TweenScheduler({ scope: {} }),
+      state = { x: 0 };
+    const binding = Tween.bind({
+      target: state,
+      key: "x",
+      read: () => state.x,
+      write: (v) => {
+        state.x = v;
+      },
+      ...({ [hook]: rejected } as object),
+    });
+    expect(() => clock.play(Tween.to(binding, 1, { duration: 1 }))).toThrow();
+    expect(clock.diagnostics.active).toBe(0);
+    clock.dispose();
+  }
+  const clock = new TweenScheduler(),
+    state = { x: 0 };
+  const p = clock.play(
+    Tween.to(Tween.property(state, "x"), 1, {
+      duration: 1,
+      easing: rejected as unknown as (x: number) => number,
+    }),
+  );
+  expect(() => clock.advance(0.5)).toThrow();
+  expect(p.reason).toBe("error");
+  expect(clock.diagnostics.active).toBe(0);
+  await Promise.resolve();
+  clock.dispose();
+});

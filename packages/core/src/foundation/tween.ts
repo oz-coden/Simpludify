@@ -293,7 +293,7 @@ export interface TweenPlayOptions {
 }
 export type TweenState = "playing" | "paused" | "completed" | "cancelled";
 const claims = new WeakMap<object, Map<string | symbol, TweenPlayback>>();
-function synchronous(result: unknown): void {
+function synchronous<T>(result: T): T {
   if (
     result &&
     (typeof result === "object" || typeof result === "function") &&
@@ -306,6 +306,7 @@ function synchronous(result: unknown): void {
       "Tween hooks and callbacks must be synchronous",
     );
   }
+  return result;
 }
 function notify(callback: (() => unknown) | undefined): void {
   synchronous(callback?.());
@@ -335,9 +336,16 @@ export class TweenPlayback {
     this.complete = options.onComplete;
     this.cancelled = options.onCancel;
     this.channels = plan.bindings.map((binding) => {
-      const expected = tweenFinite(binding.options.read(), "start value");
+      const expected = tweenFinite(
+        synchronous(binding.options.read()),
+        "start value",
+      );
       synchronous(binding.options.validate?.(expected));
-      return { binding, expected, stamp: binding.options.stamp?.() };
+      return {
+        binding,
+        expected,
+        stamp: synchronous(binding.options.stamp?.()),
+      };
     });
     for (const track of this.tracks)
       track.channel = this.channels.find((c) =>
@@ -395,8 +403,10 @@ export class TweenPlayback {
     for (const { binding: b } of this.channels)
       if (
         b.options.owner?.disposed ||
-        !(b.options.valid?.() ?? true) ||
-        (scope !== undefined && b.options.scope && b.options.scope() !== scope)
+        !(synchronous(b.options.valid?.()) ?? true) ||
+        (scope !== undefined &&
+          b.options.scope &&
+          synchronous(b.options.scope()) !== scope)
       )
         return false;
     return true;
@@ -432,8 +442,10 @@ export class TweenPlayback {
   /** @internal */ watch(): void {
     for (const { binding: b } of this.channels) {
       if (this.terminal) break;
-      const remove = b.options.watch?.((reason) =>
-        this.interrupt(reason ?? "external-write"),
+      const remove = synchronous(
+        b.options.watch?.((reason) =>
+          this.interrupt(reason ?? "external-write"),
+        ),
       );
       if (remove) {
         if (this.terminal) remove();
@@ -459,7 +471,7 @@ export class TweenPlayback {
     this.removers = [];
     for (const remove of removers)
       try {
-        remove();
+        synchronous(remove());
       } catch (error) {
         errors.push(error);
       }
@@ -530,8 +542,8 @@ export class TweenPlayback {
     }
     for (const c of this.channels)
       if (
-        !Object.is(c.binding.options.read(), c.expected) ||
-        !Object.is(c.binding.options.stamp?.(), c.stamp)
+        !Object.is(synchronous(c.binding.options.read()), c.expected) ||
+        !Object.is(synchronous(c.binding.options.stamp?.()), c.stamp)
       ) {
         this.interrupt("external-write");
         return;
@@ -543,7 +555,8 @@ export class TweenPlayback {
       const d = track.definition,
         b = d.binding;
       if (track.from === undefined)
-        track.from = d.from ?? tweenFinite(b.options.read(), "start value");
+        track.from =
+          d.from ?? tweenFinite(synchronous(b.options.read()), "start value");
       const finished = time >= track.end,
         relative = Math.max(0, time - track.start);
       let progress: number;
@@ -558,7 +571,11 @@ export class TweenPlayback {
             : 1 - (phase - d.duration) / d.duration;
       } else progress = (relative % d.duration) / d.duration;
       const eased =
-        progress === 0 ? 0 : progress === 1 ? 1 : d.easing(progress);
+        progress === 0
+          ? 0
+          : progress === 1
+            ? 1
+            : synchronous(d.easing(progress));
       if (!Number.isFinite(eased) || eased < 0 || eased > 1)
         throw new EngineError(
           "INVALID_TWEEN",
@@ -575,10 +592,10 @@ export class TweenPlayback {
       if (
         !this.scheduler?.available ||
         b.options.owner?.disposed ||
-        !(b.options.valid?.() ?? true) ||
+        !(synchronous(b.options.valid?.()) ?? true) ||
         (this.scheduler.scope !== undefined &&
           b.options.scope &&
-          b.options.scope() !== this.scheduler.scope)
+          synchronous(b.options.scope()) !== this.scheduler.scope)
       ) {
         this.interrupt("target-unavailable");
         return;
@@ -586,13 +603,13 @@ export class TweenPlayback {
       const current = track.channel;
       if (
         current &&
-        (!Object.is(b.options.read(), current.expected) ||
-          !Object.is(b.options.stamp?.(), current.stamp))
+        (!Object.is(synchronous(b.options.read()), current.expected) ||
+          !Object.is(synchronous(b.options.stamp?.()), current.stamp))
       ) {
         this.interrupt("external-write");
         return;
       }
-      const written: unknown = Object.is(value, b.options.read())
+      const written: unknown = Object.is(value, synchronous(b.options.read()))
         ? undefined
         : b.options.write(value);
       synchronous(written);
@@ -603,8 +620,11 @@ export class TweenPlayback {
       }
       const c = track.channel;
       if (c) {
-        c.expected = tweenFinite(b.options.read(), "written value");
-        c.stamp = b.options.stamp?.();
+        c.expected = tweenFinite(
+          synchronous(b.options.read()),
+          "written value",
+        );
+        c.stamp = synchronous(b.options.stamp?.());
       }
       track.done = finished;
     }

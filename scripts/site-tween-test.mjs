@@ -4,6 +4,13 @@ export async function testTween(frame, page) {
   await frame.waitForFunction(
     () => window.tweenDemo?.game.engine.scene.state === "active",
   );
+  // SwiftShader can spend seconds rendering one frame. The Host deliberately caps
+  // its delta, so a wall-clock wait cannot imply 1.6 simulation/display seconds.
+  // Exercise real RAF and public speed control here; deterministic browser tests
+  // separately assert intermediate pixels, normal speed and the Host delta cap.
+  await frame.evaluate(() => {
+    window.tweenDemo.lab.display.speed = 100;
+  });
   const press = (name) =>
     frame.getByRole("button", { name, exact: true }).press("Enter");
   await press("Pause game");
