@@ -1,3 +1,4 @@
+export * from "./animation/actor-tween";
 export * from "./animation/easing";
 export * from "./animation/sprite-animation";
 export * from "./animation/tween";

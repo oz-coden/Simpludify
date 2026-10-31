@@ -139,6 +139,13 @@ const defaultVisualSource: VisualSource = Object.freeze({
   shape: Shape.Box,
 });
 export interface RenderableOptions {
+  /** Draw-only world-axis offset; does not move Transform or colliders. */
+  offsetX?: number;
+  offsetY?: number;
+  /** Draw-only rotation in radians, added to Transform.rotation. */
+  rotation?: number;
+  scaleX?: number;
+  scaleY?: number;
   width?: number;
   height?: number;
   color?: number;
@@ -161,6 +168,61 @@ export class Renderable extends Component {
   private shown = true;
   private alpha = 1;
   private depth = 0;
+  private drawX = 0;
+  private drawY = 0;
+  private drawRotation = 0;
+  private drawScaleX = 1;
+  private drawScaleY = 1;
+  get offsetX(): number {
+    return this.drawX;
+  }
+  set offsetX(value: number) {
+    finite(value, "Renderable.offsetX");
+    if (value !== this.drawX) {
+      this.drawX = value;
+      this.version++;
+    }
+  }
+  get offsetY(): number {
+    return this.drawY;
+  }
+  set offsetY(value: number) {
+    finite(value, "Renderable.offsetY");
+    if (value !== this.drawY) {
+      this.drawY = value;
+      this.version++;
+    }
+  }
+  get rotation(): number {
+    return this.drawRotation;
+  }
+  set rotation(value: number) {
+    finite(value, "Renderable.rotation");
+    if (value !== this.drawRotation) {
+      this.drawRotation = value;
+      this.version++;
+    }
+  }
+  get scaleX(): number {
+    return this.drawScaleX;
+  }
+  set scaleX(value: number) {
+    finite(value, "Renderable.scaleX");
+    if (value !== this.drawScaleX) {
+      this.drawScaleX = value;
+      this.version++;
+    }
+  }
+  get scaleY(): number {
+    return this.drawScaleY;
+  }
+  set scaleY(value: number) {
+    finite(value, "Renderable.scaleY");
+    if (value !== this.drawScaleY) {
+      this.drawScaleY = value;
+      this.version++;
+    }
+  }
   /** Changes only when a validated display value changes; independent of Scene revision. */
   get revision(): number {
     return this.version;
@@ -244,6 +306,11 @@ export class Renderable extends Component {
   }
   constructor(options: RenderableOptions = {}) {
     super();
+    this.offsetX = options.offsetX ?? 0;
+    this.offsetY = options.offsetY ?? 0;
+    this.rotation = options.rotation ?? 0;
+    this.scaleX = options.scaleX ?? 1;
+    this.scaleY = options.scaleY ?? 1;
     if (options.source !== undefined) this.source = options.source;
     this.width = options.width === undefined ? 32 : options.width;
     this.height = options.height === undefined ? 32 : options.height;

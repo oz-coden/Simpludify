@@ -665,12 +665,25 @@ export class PixiRenderer implements RendererPort {
               entry.depth = entry.component.zIndex;
               depthDirty = true;
             }
-            entry.display.position.set(t.x, t.y);
-            entry.display.rotation = t.rotation;
-            entry.display.scale.set(
-              entry.scaleX * t.scaleX,
-              entry.scaleY * t.scaleY,
-            );
+            const x = t.x + entry.component.offsetX,
+              y = t.y + entry.component.offsetY,
+              rotation = t.rotation + entry.component.rotation,
+              scaleX = entry.scaleX * t.scaleX * entry.component.scaleX,
+              scaleY = entry.scaleY * t.scaleY * entry.component.scaleY;
+            if (
+              !Number.isFinite(x) ||
+              !Number.isFinite(y) ||
+              !Number.isFinite(rotation) ||
+              !Number.isFinite(scaleX) ||
+              !Number.isFinite(scaleY)
+            )
+              throw new EngineError(
+                "INVALID_VALUE",
+                "Composed visual transform must be finite",
+              );
+            entry.display.position.set(x, y);
+            entry.display.rotation = rotation;
+            entry.display.scale.set(scaleX, scaleY);
           }
         }
         for (const entry of tilemaps.values()) {
