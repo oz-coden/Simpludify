@@ -1,5 +1,7 @@
 # Canvas Select and native text editing
 
+Current status: all three controls implemented; final candidate 9cbb490 passed full CI (696 unit / 294 browser tests). Main integration and live deployment verification are pending. Real OS IME/physical mobile keyboards remain unverified.
+
 ## Baseline and recovery
 
 - Baseline main: `c7a3fbc18e340470e422acc43a662e3de900c0a8` (previous controls merge `ff39721`).
@@ -17,7 +19,7 @@
 - Native activation is synchronous from the actual native pointer target. Text-selection gestures belong to the editor, while wheel scrolling and existing Canvas/Slider gestures retain the shared route. Native bounds/clip/typography follow UI geometry and scale.
 - Tests will distinguish actual browser editing from synthetic composition and unverified OS IME/mobile behavior. Windows/macOS Japanese IME and physical mobile keyboards are unavailable here and will not be claimed verified.
 
-## Progress and remaining work
+## Initial progress and remaining work
 
 Initial investigation/design complete. Select, text session, TextInput, NumberInput, sample/docs, regression tests, review, PR/main integration and Pages verification remain pending. No unfinished factory has been added.
 
@@ -106,3 +108,12 @@ Initial investigation/design complete. Select, text session, TextInput, NumberIn
 - Remaining limitations/follow-ups: real Windows/macOS Japanese IME/candidate positioning, physical Android/iOS soft-keyboard/viewport behavior, other browser engines and assistive technology require device testing. Numeric editing is explicitly ASCII decimal/exponent, not locale-aware parsing. Native popup skin is platform-owned; arbitrary decorative Canvas painting is not a general native window-layer API. Multiline/rich text/password editing and giant virtualized lists remain out of scope. No GPU-latency/FPS or universal leak-freedom claim is made.
 
 - The d225053 narrow shard 1 browser step completed successfully, including the native overlap regression. This confirms browser/Canvas pointer priority at that intermediate source; the corrected sample still needs full candidate CI before merge.
+
+## Accepted full candidate CI — 2026-10-31 17:08 JST
+
+- Exact implementation/test/site source [9cbb4906093f885feb69c7457c80f26b10dba576](https://github.com/oz-coden/Simpludify/commit/9cbb4906093f885feb69c7457c80f26b10dba576) passed full [CI 41182727132](https://github.com/oz-coden/Simpludify/actions/runs/41182727132).
+- Quality: **696 unit / 49 files**, full static/type/DOM-free boundary/license checks and existing benchmarks succeeded. Baseline 12 warnings/11 infos remain unchanged.
+- Browser: desktop **77 + 70**, narrow **77 + 70**, total **294 passed / 0 failed**. All 28 new native-control cases passed across WebGL/Canvas2D and both viewports, including real clipboard shortcuts, composition event simulation, stale generations, numeric validation, clipping/scale/window/disable, native selection drag and later Canvas control priority. Existing Action/Pointer/Scroll/Button/HoldButton/Checkbox/Slider regressions remain intact. Desktop shard 1 took 7.1 minutes, with new WebGL cases around 7.6–13.3s versus Canvas2D 0.9–1.4s; no timeout/retry/driver flags were changed and no GPU performance improvement is claimed.
+- Production smoke and both site build/check/browser-smoke jobs passed. Local final source: full check and 696 unit cases; both site bases **62 HTML / 3973 references / 58 typed snippets**. Local Chromium download failed, so browser execution evidence is Actions, not a local OS IME claim.
+- Completed scope: Select, TextInput, NumberInput, shared generation-checked native sessions, accepted/draft semantics, standard-API Settings lab and documentation. No blocking defect remains in the tested Chromium scope. Real OS Japanese IME/mobile/other-browser/AT limits remain explicit.
+- This acceptance receipt/index changes documentation only and uses [skip ci] to retain the exact-source accepted run. Verify the runtime/test/site tree remains unchanged before merging. Record PR/merge SHA and exact main CI/Pages/live results next.
