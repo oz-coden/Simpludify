@@ -40,7 +40,7 @@ A fresh `play` starts a recipe; terminal handles cannot restart. Zero-duration w
 
 `Easing.Linear`, `InQuad`, `OutQuad`, `InOutQuad`, `InCubic`, `OutCubic`, `InOutCubic` are functions. Supply a custom synchronous `(progress: number) => number` for other curves. Endpoints remain exact. Custom easing must return a finite normalized value (0–1); overshoot curves are not supported in this numeric revision. Opacity adapters also require 0–1.
 
-Callbacks/hooks are synchronous. Returning a Promise is diagnosed; there is no asynchronous completion API. Callback/setter failures cancel and release affected work and are aggregated after other eligible work. Terminal cleanup precedes notification; callback-created work waits for a new update boundary. Recursive advance/finish is rejected.
+Callbacks/hooks are synchronous. Returning a Promise is diagnosed; there is no asynchronous completion API. Execution-hook/setter failures cancel and release affected work and are aggregated after other eligible work. Terminal callback failures retain the completed/canceled state, with cleanup already finished, and are aggregated without a second notification. Terminal cleanup precedes notification; callback-created work waits for a new update boundary. Recursive advance/finish is rejected.
 
 ## Ownership and competing writes
 

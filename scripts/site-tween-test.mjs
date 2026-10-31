@@ -149,7 +149,10 @@ export async function testTween(frame, page) {
   });
   await page.keyboard.down("d");
   try {
-    await wait((before) => window.tweenDemo.lab.sprite.x > before.x + 5, before);
+    await wait(
+      (before) => window.tweenDemo.lab.sprite.x > before.x + 5,
+      before,
+    );
     const after = await frame.evaluate(() => {
       const d = window.tweenDemo;
       d.game.pause();
