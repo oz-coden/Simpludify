@@ -116,9 +116,9 @@ GameがDOMキャプチャ段階で一度だけルーティングし、Canvas UI�
 
 SceneごとにCanvas UIルートは一つです。ノードは一つの親に属し、removeはその部分木の破棄です。Scene切り替えでUI・イベント・長押し・ActionSource・Pixi表示・DOM補助ボタンを解放します。非同期ボタンにはAbortSignalを渡し、待機中はbusyになります。準備失敗なら候補だけを破棄し、旧Sceneを維持します。
 
-Tab／Shift-Tabは不可視のネイティブ補助ボタンへフォーカスし、Canvasに金色の枠を描きます。Enter／Spaceで押下・解放し、無効・非表示・クリップ外の対象を除外します。Pointer操作ではゲームのキーボードフォーカスを保ち、WASDとタッチを合成できます。`game.pause/resume`は操作を解除し、Coreの入力リセットも維持します。Pause中もUIとPointerは動きます。
+Tab／Shift-TabはRow・Column・入れ子Panelを含むツリーの宣言順／逆順で操作部品へ移動し、Canvasに金色の枠を描きます。非操作コンテナ、無効・非表示の祖先を持つ要素は除外し、読み取り専用の部品は対象に残します。追加・削除・move後も順序を更新し、Scroll内の対象は表示範囲へ移動します。ゲーム領域でTabを押すと最初の対象へ入り、先頭・末尾では通常のブラウザ移動へ戻ります。循環や正のtabindexによる順序指定は行いません。Enter／Spaceで部品を押下・解放します。Pointer操作の所有権とUI論理フォーカス、DOMフォーカス、ゲーム入力は独立しています。Button・Checkboxのクリック、Slider・Scrollのドラッグ／ホイールはWASDを不必要に解除しません。標準DOM Buttonも同じ規則です。`game.pause/resume`は操作を解除し、Coreの入力リセットも維持します。Pause中もUIとPointerは動きます。
 
-補助DOMはボタンの名前・状態・キーボード操作を提供する範囲です。Canvas Label全体を文書として読み上げたり、IMEや完全なスクリーンリーダー対応を提供したりはしません。その用途にはDOM UIを使ってください。実機・Safari・Firefox・OS IMEの適合性は未検証です。
+補助DOMはボタンの名前・状態・キーボード操作を提供する範囲です。Canvas Label全体を文書として読み上げたり、Canvas文書全体の完全なスクリーンリーダー対応を提供したりはしません。文字入力のネイティブIME連携は標準TextInputが提供しますが、実OSでの適合性は別途検証が必要です。実機・Safari・Firefox・OS IMEの適合性は未検証です。
 
 [Canvas trail](../../examples/canvas-ui/README.md)はSpriteAnimation・Tilemap・Collision・HUD・タッチ・Pause・Scene往復を組み合わせた実行例です。[詳細仕様](../../docs/canvas-ui.md)・[測定結果](../../docs/canvas-ui-performance.md)・[検証記録](../../docs/canvas-ui-implementation.md)も参照してください。
 
@@ -126,7 +126,7 @@ Tab／Shift-Tabは不可視のネイティブ補助ボタンへフォーカス�
 
 Canvas UIのツリー・Flex計算・ヒットテスト・スクロール・フォーカス・入力配送はCoreにあり、WebはPixi描画・文字計測・ブラウザ入力・ネイティブのフォーカス補助を担当します。`CanvasScroll`で範囲を区切り、`add`・`remove`・`move(child, index)`・`clear`でリストを更新できます。`move`はノードを破棄しません。スクロール量は`scrollTo` / `scrollBy`で変更し、レイアウト後の`maxScrollX/Y`へ収まります。
 
-Canvas trailの **UI list lab** は、Core APIだけで構築した同じ画面定義をWebとヘッドレステストで使います。項目の選択・追加・削除・並べ替え、ホイール／ボタンでのスクロール、Tab移動による表示範囲外の項目へのフォーカスを試せます。タッチ／マウスドラッグ、慣性、ドラッグできるスクロールバーに対応しています。IME・専用の数値／選択フォームは未実装です。
+Canvas trailの **UI list lab** は、Core APIだけで構築した同じ画面定義をWebとヘッドレステストで使います。項目の選択・追加・削除・並べ替え、ホイール／ボタンでのスクロール、Tab移動による表示範囲外の項目へのフォーカスを試せます。タッチ／マウスドラッグ、慣性、ドラッグできるスクロールバーに対応しています。専用の文字・数値・選択フォームはSettings labで試せます。
 
 `canvasUI`の戻り値で`focus(node)`・`focusNext(reverse?)`を使えます。Coreのボタンコールバックと`node.signal`は環境非依存の`CancellationSignal`です。Webの`CanvasButton`コールバックは従来の`AbortSignal`を維持します。DOM/fetchへ`node.signal`を接続する場合はWebの`browserAbortSignal`を使ってください。[Core / Host境界と移行](../../docs/host-boundary.md)に詳細をまとめています。Electron・Tauri・Androidのビルドや実機動作は今回追加していません。
 
@@ -143,3 +143,20 @@ Canvas trailの **UI list lab** は、Core APIだけで構築した同じ画面�
 `CanvasCheckbox`は真偽値、`CanvasSlider`は数値範囲を扱います。どちらもCoreの値・イベント・フォーカスと既存PointerRoutingを使い、ゲーム側でDOM/Pixiを操作せず構築できます。Canvas trailの **Settings lab** で音声、音量、速度、読み取り専用、適用・リセットを試せます。[引数・値・イベント・入力・破棄の契約](../en/canvas-controls.html) を参照してください。
 
 Sliderは操作中の値を即時反映し、中断時も最後の値を保持します。設定全体を取り消したい場合は、アプリケーション側で保存した値をプログラムから戻します。`CanvasSelect`・`CanvasTextInput`・`CanvasNumberInput`も同じ値・フォーカス基盤を使います。文字・数値は編集中の`draft`と確定値`value`を分け、Enterまたは通常のフォーカス移動で確定、Escapeで取り消します。日本語IME変換中のEnter/Escapeはネイティブ入力に任せます。Settings labで難易度・プレイヤー名・数値音量を試せます。[生成・イベント・ネイティブ入力・Host移行・未検証事項](../en/text-input-design.html) を参照してください。実OSの日本語IMEと物理端末のソフトウェアキーボードは未検証です。
+
+
+## ホバーとキーボード入力の優先規則
+
+Panel・Row・Column・Scrollの背景は、既定ではホバーで明るくなりません。操作部品は従来どおり強調します。`hoverEffect: "auto"`が既定、`"none"`で抑止、`"highlight"`で操作可能な独自Panel等の強調を明示できます。PointerEnter/Leaveやヒットテストは変更しません。Panelでイベントを受けるには別途`pointerEvents: "auto"`を指定します。
+
+| フォーカス先                     | キーの優先規則                                                           |
+| -------------------------------- | ------------------------------------------------------------------------ |
+| ゲーム領域                       | 有効なActionの割り当て。TabはUI／ブラウザ移動                            |
+| 標準Button・HoldButton・Checkbox | Enter／SpaceはUI、それ以外のゲームキーは利用可能                         |
+| Slider・Scroll内の部品           | 部品の変更キーや実際にスクロールするキーをUIが消費。それ以外はゲーム入力 |
+| TextInput・NumberInput・Select   | ネイティブ編集／選択を優先し、ゲームのキーボード入力を解放               |
+| IME変換中・229の処理キー         | ネイティブ入力のみ                                                       |
+
+UIが消費したkeydownをActionへ重複配送しません。keyupはUIが伝播を止めてもゲーム状態を解除します。編集開始、外部へのフォーカス移動、ウィンドウのblur、非表示、Scene／Gameの変更で押下を解放し、押しっぱなしのrepeatでは復元しません。新たなkeydownが必要です。Enter／Escapeで文字を確定／取り消しても編集欄のフォーカスは保ちます。Tabで標準Button等へ移動すると、ゲーム画面を再クリックせずWASDを再開できます。独立したタッチ／プログラムのActionSourceはそれぞれの所有規則を保ちます。
+
+明示的な`ui.focus(node)`の変更をネイティブへ反映し、無関係なホバー再描画でフォーカスを奪い返しません。並べ替えでは編集中のネイティブ要素を取り外さず、選択範囲と変換セッションの同一性を保ちます。実OS日本語IME・物理モバイルキーボード・他ブラウザは未検証です。[共通入力・フォーカスの詳細](../en/canvas-ui.html#keyboard-and-accessibility-scope)を参照してください。

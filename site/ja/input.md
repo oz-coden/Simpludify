@@ -61,7 +61,7 @@ Buttonはboolean、Axis1Dはnumber、Axis2Dはx/y、Axis3Dはx/y/zです。Yaw�
 
 `KeyCode.W`の値は`"KeyW"`です。KeyboardEvent.codeによる物理位置を扱い、言語・配列・Shiftに応じた文字であるKeyboardEvent.keyとは区別します。設定ファイルの値は`isKeyCode(value)`で判定するか、`parseKeyCode(value)`で検証します。
 
-Gameは、ActiveなActionControllerの割り当てを標準BrowserInputへ自動登録します。ゲーム領域へクリックまたはTabでフォーカスすると入力でき、ネイティブのボタンや編集欄からキーを奪いません。PreparingのSceneの割り当てはブラウザ入力を捕捉しません。
+Gameは、ActiveなActionControllerの割り当てを標準BrowserInputへ自動登録します。ゲーム領域へクリックまたはTabでフォーカスすると入力でき、標準ButtonのEnter／Space等はUIへ渡し、未消費のゲームキーは継続します。ネイティブ編集欄・Select・IME中は編集を優先し、押下中のゲームキーを解放します。TabはUI／ブラウザ移動です。[入力優先規則](canvas-ui.md#ホバーとキーボード入力の優先規則)を参照してください。PreparingのSceneの割り当てはブラウザ入力を捕捉しません。
 
 ## 短押しと更新境界
 
@@ -163,7 +163,7 @@ KeyboardEvent.codeは操作キーの位置です。入力された文字、貼�
 
 BrowserInputはネイティブ編集欄・contenteditable・IME変換中を除外し、編集欄へのフォーカス移動でキーボード由来の操作を解放します。文字をActionや削除した旧入力へ押し込みません。DOM編集欄のリスナーはSceneのsignal、要素の削除はonDisposeへ結び付けます。compositionend.dataとinput.dataの両方を追加すると重複し得るため、確定後のvalueを比較して一度だけ更新します。入力途中の削除や選択範囲置換も通常の編集として扱います。
 
-実行可能なコード例は[英語ガイド](../en/actions.html#text-and-typing-games)を参照してください。専用TextInputウィジェットは未実装です。必要になった段階でWeb側に編集欄・選択・変換中／確定の状態を扱う独立した補助を追加できます。モバイルでは表示された入力欄をユーザーがタップしてフォーカスできるようにし、毎フレームの強制フォーカスやキーボードイベントへの依存を避けます。実機ソフトウェアキーボードとOSのIME候補UIは未検証です。
+実行可能なコード例は[英語ガイド](../en/actions.html#text-and-typing-games)を参照してください。標準`CanvasTextInput`・`CanvasNumberInput`がネイティブ編集・選択・変換中／確定の状態を扱います。[生成・編集契約](../en/text-input-design.html)を参照してください。モバイルでは表示された入力欄をユーザーがタップしてフォーカスできるようにし、毎フレームの強制フォーカスやキーボードイベントへの依存を避けます。実機ソフトウェアキーボードとOSのIME候補UIは未検証です。
 
 ## ポインター・時間・ヘッドレス
 

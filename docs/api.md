@@ -29,7 +29,7 @@ game.add(Character({ movement: controls.reader(Actions.Move) }));
 await game.run();
 ```
 
-Click or Tab into the game host to use movement keys. Game does not autofocus. Without parent, the host is appended to document.body; give the parent/page a height for full-screen layout. Default host CSS is 100% width/height with a 20rem minimum height. Native controls keep their keys. Call game.dispose when removing it.
+Click or Tab into the game host to use movement keys. Game does not autofocus. Without parent, the host is appended to document.body; give the parent/page a height for full-screen layout. Default host CSS is 100% width/height with a 20rem minimum height. Engine-owned buttons consume activation/navigation keys and permit unrelated gameplay bindings; native text/number/select editing owns its keys and clears browser movement. Tab navigates UI/page order. See [keyboard priority and focus](canvas-ui.md#keyboard-and-accessibility-scope). Call game.dispose when removing it.
 
 | Game option | Default                       | Meaning                                                              |
 | ----------- | ----------------------------- | -------------------------------------------------------------------- |

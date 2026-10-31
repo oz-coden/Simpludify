@@ -66,7 +66,7 @@ Signal Runの`Round`はHP・スコア・残り時間・勝敗をCoreだけで扱
 
 PanelはColumnが既定、`Layout.Row`は折り返し、Gridは自動配置します。`Placement.Top` / Center / Bottom、`Theme.Dark` / Light、部分的なtokensを選べます。DOM UIはCameraのzoomに影響されません。
 
-Buttonはネイティブ要素でTab・Enter/Spaceに対応します。非同期handler実行中はボタンを無効化し、失敗を診断へ渡します。handlerへ渡るAbortSignalはUI破棄で中断されます。固定CSS配置は独自にクリッピングを検証してください。
+Buttonはネイティブ要素でTab・Enter/Spaceに対応します。同期handlerではフォーカスを保ちます。非同期handler実行中はaria-disabled／aria-busyと重複実行ガードで再操作を抑止し、Tab対象から外します。現在のフォーカスを不必要に失わず、WASD等の未消費ゲームキーを継続できます。失敗は診断へ渡します。handlerへ渡るAbortSignalはUI破棄で中断されます。固定CSS配置は独自にクリッピングを検証してください。
 
 ## 所有権とエラー
 
