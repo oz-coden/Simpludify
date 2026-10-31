@@ -117,3 +117,8 @@ Initial investigation/design complete. Select, text session, TextInput, NumberIn
 - Production smoke and both site build/check/browser-smoke jobs passed. Local final source: full check and 696 unit cases; both site bases **62 HTML / 3973 references / 58 typed snippets**. Local Chromium download failed, so browser execution evidence is Actions, not a local OS IME claim.
 - Completed scope: Select, TextInput, NumberInput, shared generation-checked native sessions, accepted/draft semantics, standard-API Settings lab and documentation. No blocking defect remains in the tested Chromium scope. Real OS Japanese IME/mobile/other-browser/AT limits remain explicit.
 - This acceptance receipt/index changes documentation only and uses [skip ci] to retain the exact-source accepted run. Verify the runtime/test/site tree remains unchanged before merging. Record PR/merge SHA and exact main CI/Pages/live results next.
+
+## PR and integration gate
+
+- [PR #4](https://github.com/oz-coden/Simpludify/pull/4) targets main c7a3fbc. The accepted source is 9cbb490; f6c23a5 and this receipt alter only the report/index. Compare the accepted source with the final PR head before merging.
+- Core/Host, input ownership, IME/blur, program/dynamic changes, error cleanup, overlap priority, public API, idle layout behavior and source/documentation review are complete. Main integration is authorized for all three tested controls; physical IME/mobile/AT certification is explicitly excluded.
