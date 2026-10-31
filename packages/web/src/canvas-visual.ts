@@ -80,15 +80,27 @@ export class CanvasVisual implements CanvasPresentation {
     const nativeEvents = new AbortController();
     const interrupt = () => {
       try {
-        for (const entry of this.entries.values()) {
-          if (!entry.native) continue;
-          entry.native.dispose();
-          entry.button?.blur();
-        }
-        if (!this.ui.disposed) this.ui.focus();
-        this.dirty = true;
+        cleanupAll(
+          [
+            ...[...this.entries.values()]
+              .filter((e) => e.native)
+              .map((entry) => () => {
+                try {
+                  entry.native?.dispose();
+                } finally {
+                  entry.button?.blur();
+                }
+              }),
+            () => {
+              if (!this.ui.disposed) this.ui.focus();
+            },
+          ],
+          "Native controls interruption failed",
+        );
       } catch (error) {
         this.ui.report(error);
+      } finally {
+        this.dirty = true;
       }
     };
     window.addEventListener(

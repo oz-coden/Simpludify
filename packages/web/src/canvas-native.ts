@@ -24,7 +24,13 @@ abstract class NativeControl {
     protected readonly host: NativeControlHost,
   ) {
     this.revision = node.control?.revision ?? 0;
-    const stop = () => this.dispose();
+    const stop = () => {
+      try {
+        this.dispose();
+      } catch (error) {
+        ui.report(error);
+      }
+    };
     parentSignal.addEventListener("abort", stop, { once: true });
     this.unparent = () => parentSignal.removeEventListener("abort", stop);
   }
