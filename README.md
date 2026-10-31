@@ -2,7 +2,7 @@
 
 [公式ドキュメント・サンプル](https://oz-coden.github.io/Simpludify/) · [日本語ガイドのソース](site/ja/index.md) · [English API](docs/api.md)
 
-コード主導・軽量・AIネイティブな、TypeScript製の実験的2Dコンテンツエンジンです。ゲームやインタラクティブコンテンツを、理解しやすい標準APIで構築します。理解しやすく、一貫性があり、保守しやすいAPIを優先します。公開npm SDKではなく、ソースワークスペースを取得して利用します。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できる9つのサンプルを公式サイトにまとめています。
+コード主導・軽量・AIネイティブな、TypeScript製の実験的2Dコンテンツエンジンです。ゲームやインタラクティブコンテンツを、理解しやすい標準APIで構築します。理解しやすく、一貫性があり、保守しやすいAPIを優先します。公開npm SDKではなく、ソースワークスペースを取得して利用します。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できる10のサンプルを公式サイトにまとめています。
 
 A code-first TypeScript 2D game engine. Create a visible character, responsive UI, and scene navigation using ordinary code and browser tooling.
 
@@ -175,6 +175,7 @@ This integrates documentation and all ten browser examples into `site-dist/`, in
 - [Fixed-size Grid data and placement example](docs/grid.md)
 - [Live rendering, shared images and readiness](docs/rendering.md)
 - [Movement composition and sprint](docs/movement.md)
+- [Tween and animation: Scene clocks, Actor/UI adapters and Slider display values](docs/tween.md)
 - [Random, Replay and fixed steps](docs/replay.md)
 - [API and defaults](docs/api.md)
 - [Architecture and lifecycle decisions](docs/architecture.md)
@@ -190,5 +191,3 @@ This integrates documentation and all ten browser examples into `site-dist/`, in
 ## License
 
 Original engine code and included example assets are [MIT licensed](LICENSE). Games' original code and assets do not have to use MIT. Bundled dependencies retain their own licenses; see [licensing](docs/licensing.md).
-
-See [Tween and animation](docs/tween.md) for shared numeric animation, Scene clocks, Actor/UI adapters and Slider display values.

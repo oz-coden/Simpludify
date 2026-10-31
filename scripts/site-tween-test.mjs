@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
 /** Exercise the real production sample, both standalone and in the gallery. */
 export async function testTween(frame, page) {
-  await frame.waitForFunction(
-    () => window.tweenDemo?.game.engine.scene.state === "active",
-  );
+  // Numeric/lifecycle checks must not require an extra WebGL-rendered RAF just
+  // to observe an already applied value on software-driver runners.
+  const wait = (predicate, arg) =>
+    frame.waitForFunction(predicate, arg, { polling: 50 });
+  await wait(() => window.tweenDemo?.game.engine.scene.state === "active");
   // SwiftShader can spend seconds rendering one frame. The Host deliberately caps
   // its delta, so a wall-clock wait cannot imply 1.6 simulation/display seconds.
   // Exercise real RAF and public speed control here; deterministic browser tests
@@ -29,14 +31,20 @@ export async function testTween(frame, page) {
       }
       throw Error(`Missing lab button: ${name}`);
     }, name);
-    await frame.getByRole("button", { name, exact: true }).press("Enter");
+    const button = frame.getByRole("button", { name, exact: true });
+    await button.focus();
+    assert.equal(
+      await button.evaluate((el) => el === document.activeElement),
+      true,
+    );
+    await page.keyboard.press("Enter");
   };
   await press("Pause game");
-  await frame.waitForFunction(() => window.tweenDemo.game.paused);
+  await wait(() => window.tweenDemo.game.paused);
   const x = await frame.evaluate(() => window.tweenDemo.lab.linearView.offsetX);
   await press("Fade / Slide UI");
   try {
-    await frame.waitForFunction(() => {
+    await wait(() => {
       const d = window.tweenDemo;
       if (d.game.engine.disposed)
         throw Error(`Tween sample disposed: ${document.body.textContent}`);
@@ -73,13 +81,13 @@ export async function testTween(frame, page) {
     x,
   );
   await press("Tween value to 80");
-  await frame.waitForFunction(
+  await wait(
     () =>
       window.tweenDemo.lab.volume.value === 80 &&
       window.tweenDemo.lab.display.diagnostics.active === 0,
   );
   await press("Damage HP");
-  await frame.waitForFunction(
+  await wait(
     () =>
       window.tweenDemo.lab.hp.value === 75 &&
       window.tweenDemo.lab.hp.displayValue === 75,
@@ -92,13 +100,11 @@ export async function testTween(frame, page) {
     0,
   );
   await press("Pause game");
-  await frame.waitForFunction(() => !window.tweenDemo.game.paused);
+  await wait(() => !window.tweenDemo.game.paused);
   await press("Leave Scene");
-  await frame.waitForFunction(
-    () => window.tweenDemo.game.engine.scene.id === "empty",
-  );
+  await wait(() => window.tweenDemo.game.engine.scene.id === "empty");
   await press("Return to lab");
-  await frame.waitForFunction(
+  await wait(
     () =>
       window.tweenDemo.game.engine.scene.id === "lab" &&
       window.tweenDemo.game.engine.scene.state === "active",
@@ -106,14 +112,12 @@ export async function testTween(frame, page) {
   // Activation precedes the first simulation/frame-source update. Wait for a
   // rendered live frame and image readiness before testing a fresh held key.
   await frame.evaluate(() => window.tweenDemo.game.whenReady());
-  await frame.waitForFunction(
-    () => window.tweenDemo.lab.linearView.offsetX > 0,
-  );
+  await wait(() => window.tweenDemo.lab.linearView.offsetX > 0);
   await frame.locator(".simpludify").focus();
   const before = await frame.evaluate(() => window.tweenDemo.lab.sprite.x);
   await page.keyboard.down("d");
   try {
-    await frame.waitForFunction((x) => {
+    await wait((x) => {
       const d = window.tweenDemo;
       if (d.game.engine.disposed)
         throw Error(`Disposed during movement: ${document.body.textContent}`);
