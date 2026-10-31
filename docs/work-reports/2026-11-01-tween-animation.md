@@ -158,3 +158,8 @@ Latest branch run 228 (runtime/test source 2edfd14) has passed quality, producti
 - Generic CPU benchmark: 1,000/10,000 numeric handles p50 0.151/1.697 ms per explicit update under the previously recorded Node/Linux conditions. No GPU, native-memory or FPS guarantee.
 
 Final review found no remaining correctness failure in the accepted source. Scene/Actor/UI ownership and claims, synchronous errors, world physics/Flex separation, Slider intent, native input geometry, source-frame animation coexistence and completed-handle cleanup are covered. Safe direct main integration is next; main is still **8a10b7d91974f44479dc8d507687371836ae4be1**, with no concurrent main change observed. No PR is required for this fast-forward integration. Post-publication checks and actual main CI/Pages results remain pending and must be appended.
+
+
+## Main integration started
+
+The accepted runtime is being integrated directly from work branch b7093cbb5f7efe30b1f3eba884953f93b4c494bf, preserving all checkpoint history. A compare against the successful 2edfd14 source confirmed that only the main-only live-check script/workflow and work-report metadata changed afterward. Main still matched the recorded baseline immediately before the optimistic, non-force update. Main CI, Pages deployment and the post-publication browser step must now pass; no publication result is claimed yet.
