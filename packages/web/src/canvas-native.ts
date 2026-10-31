@@ -1,6 +1,6 @@
 import {
   type CanvasNode, type CanvasUI, type CanvasNativeSession, type CanvasTextSnapshot,
-  intersectUI, type UIBounds,
+  intersectUI, cleanupAll, type UIBounds,
 } from "@simpludify/core";
 export interface NativeControlHost {
   traverse(reverse: boolean): boolean;
@@ -19,6 +19,7 @@ abstract class NativeControl {
     parentSignal.addEventListener("abort",stop,{once:true});
     this.unparent = () => parentSignal.removeEventListener("abort",stop);
   }
+  get disposed(): boolean { return this.abort.signal.aborted; }
   protected get live(): boolean {
     return !this.abort.signal.aborted && !this.ui.disposed && this.node.available && this.node.control?.revision === this.revision;
   }
@@ -45,10 +46,7 @@ abstract class NativeControl {
   abstract update(clip?: UIBounds): void;
   dispose(): void {
     if (this.abort.signal.aborted) return;
-    this.abort.abort();
-    this.unparent();
-    this.node.control?.native?.end("interrupt");
-    this.element.remove();
+    cleanupAll([()=>this.abort.abort(),this.unparent,()=>this.node.control?.native?.end("interrupt"),()=>this.element.remove()],"Native editor cleanup failed");
   }
 }
 /** Native browser/OS popup supplies viewport placement, list scrolling and platform key conventions. */
@@ -167,6 +165,12 @@ export class CanvasNativeText extends NativeControl {
     el.inputMode=model.inputMode;
     if (model.maxLength === undefined || model.maxLength > 2147483647) el.removeAttribute("maxlength");
     else el.maxLength=model.maxLength;
+    if (model.numeric) {
+      el.setAttribute("role","spinbutton");
+      el.setAttribute("aria-valuemin",String(model.numeric.min));
+      el.setAttribute("aria-valuemax",String(model.numeric.max));
+      el.setAttribute("aria-valuenow",String(model.numeric.value));
+    }
     el.setAttribute("aria-label",this.node.text);
     el.setAttribute("aria-readonly",String(model.readOnly));
     if (clip) nativeGeometry(el,this.node,this.ui,clip);

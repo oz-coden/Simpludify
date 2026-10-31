@@ -29,6 +29,7 @@ export type CanvasControlModel =
       readonly placeholder: string;
       readonly maxLength: number | undefined;
       readonly inputMode: "text" | "decimal";
+      readonly numeric?: Readonly<{value:number;min:number;max:number;step:number}>;
       readonly readOnly: boolean;
     };
 /** Core control commands/data consumed by input routing and Host presentations. Coordinates are UI units. */

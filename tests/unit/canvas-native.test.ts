@@ -155,3 +155,38 @@ describe("CanvasTextInput native sessions", () => {
     expect(session.update(draft("late"))).toBe(false);expect(node.events.listenerCount()).toBe(0);expect(node.editing).toBe(false);
   });
 });
+
+import { CanvasNumberInput, CanvasSlider } from "@simpludify/core";
+describe("CanvasNumberInput",()=>{
+  it.each(["","-",".","1e","NaN","Infinity","0x12","1,2"])("preserves intermediate draft %j until invalid commit",text=>{
+    const node=CanvasNumberInput({value:5,min:-10,max:10}),session=node.beginTextEdit()!;let cancelled=0;node.onCancel(()=>cancelled++);
+    session.update(draft(text));expect(node.value).toBe(5);expect(node.draft.text).toBe(text);
+    expect(session.commit()).toBe(false);expect(node.value).toBe(5);expect(node.draft.text).toBe("5");expect(cancelled).toBe(1);
+  });
+  it("clamps and snaps decimal/exponent drafts using Slider normalization",()=>{
+    const node=CanvasNumberInput({min:-2,max:2,step:.1});
+    for(const [text,expected] of [[".31",.3],["-1.26",-1.3],["1e8",2],["-3",-2]] as const){
+      const session=node.beginTextEdit()!;session.update(draft(text));expect(session.commit()).toBe(true);expect(node.value).toBe(expected);
+    }
+  });
+  it("rejects nonfinite program values and invalid ranges without ending a draft",()=>{
+    const node=CanvasNumberInput({value:5}),session=node.beginTextEdit()!;session.update(draft("-"));
+    for(const value of [NaN,Infinity,-Infinity])expect(()=>{node.value=value;}).toThrow();
+    expect(()=>node.setRange({step:0})).toThrow();expect(session.active).toBe(true);expect(node.value).toBe(5);
+  });
+  it("applies dynamic ranges atomically and revokes pending sessions",()=>{
+    const node=CanvasNumberInput({value:50}),session=node.beginTextEdit()!;session.update(draft("80"));node.setRange({max:10,step:.5});
+    expect(node.value).toBe(10);expect(node.draft.text).toBe("10");expect(session.update(draft("99"))).toBe(false);
+  });
+  it("steps with keys, protects composition and saturates large endpoints",()=>{
+    const node=CanvasNumberInput({value:5});node.control.key("ArrowUp");expect(node.value).toBe(6);
+    const session=node.beginTextEdit()!;session.update(draft("7",true));node.control.key("ArrowUp");expect(node.value).toBe(6);expect(session.active).toBe(true);
+    session.cancel();node.setRange({max:1e308,step:1e308});node.control.key("PageUp");expect(node.value).toBe(1e308);
+  });
+  it("shares numeric state with Slider without duplicate loops and revokes stale text",()=>{
+    const node=CanvasNumberInput({value:50}),slider=CanvasSlider({value:50});
+    node.onChange(e=>{slider.value=e.value;});slider.onChange(e=>{node.value=e.value;});
+    const session=node.beginTextEdit()!;session.update(draft("25"));session.commit();expect(slider.value).toBe(25);
+    const next=node.beginTextEdit()!;next.update(draft("-"));slider.value=75;expect(node.value).toBe(75);expect(next.active).toBe(false);
+  });
+});

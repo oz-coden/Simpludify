@@ -43,3 +43,11 @@ Initial investigation/design complete. Select, text session, TextInput, NumberIn
 - Host surfaces are bound to the Core control revision and replaced on program/options/read-only changes. Detached editor callbacks cannot begin sessions on another generation. Native pointer focus is synchronous; editor gestures are distinct from Canvas drags. Shared CanvasUI handles Tab/reveal; wheel input reaches existing Core scroll routing.
 - Focused Core suites: **58 passed / 0 failed**. TypeScript passed. The new reentrant-change test was corrected to expect the existing EventBus recursive-delivery diagnostic while verifying program replacement wins and stale commit is suppressed; existing behavior/assertions were retained.
 - Local Chromium installation failed after all download attempts (invalid/truncated ZIP). Browser caret/clipboard/IME adapter cases are not yet executed. NumberInput, browser regressions, sample/docs and full CI remain pending.
+
+## NumberInput checkpoint
+
+- TextInput implementation saved as [78a0998](https://github.com/oz-coden/Simpludify/commit/78a09987b1575356f153e4cad3714adf0cb78d7d).
+- Added CanvasNumberInput using shared text editing and Slider's finite range/step normalization. Decimal/exponent parsing is locale-independent; empty/sign/dot/partial-exponent/nonfinite drafts remain editable but cancel on invalid commit. Arrow/Page keys step finite accepted values and do not interfere with composition.
+- Dynamic range changes validate first and supersede drafts; native text presentation exposes spinbutton semantics. Slider/NumberInput can share state using onChange with equality guards before reflected program writes.
+- TypeScript passed; focused suites **71 passed / 0 failed**. Added disposal cleanup aggregation and a single presentation-owned window/visibility interruption listener. These last lifecycle changes still need browser regression execution.
+- Next: Settings lab, browser WebGL/Canvas2D desktop/narrow cases, docs, full checks/CI and review. Actual OS IME/physical soft keyboards remain unverified.

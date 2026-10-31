@@ -73,6 +73,21 @@ export class CanvasVisual implements CanvasPresentation {
     this.display.zIndex = 1;
     this.element.className = "s-canvas-accessibility";
     this.element.setAttribute("aria-label", "Game controls");
+    const nativeEvents = new AbortController();
+    const interrupt = () => {
+      try {
+        for (const entry of this.entries.values()) {
+          if (!entry.native) continue;
+          entry.button?.blur();
+          entry.native.dispose();
+        }
+        if (!this.ui.disposed) this.ui.focus();
+        this.dirty = true;
+      } catch (error) { this.ui.report(error); }
+    };
+    window.addEventListener("blur", (event) => { if (event.target === window) interrupt(); }, {signal:nativeEvents.signal});
+    document.addEventListener("visibilitychange", () => {if (document.hidden) interrupt();}, {signal:nativeEvents.signal});
+    this.subscriptions.push(() => nativeEvents.abort());
     this.subscriptions.push(
       ui.subscribe(() => {
         this.dirty = true;
@@ -328,7 +343,7 @@ export class CanvasVisual implements CanvasPresentation {
             display.addChild(entry.text);
           }
         }
-        if (entry.native && entry.native.revision !== node.control?.revision) {
+        if (entry.native && (entry.native.disposed || entry.native.revision !== node.control?.revision)) {
           entry.native.dispose();
           entry.native = this.native(node, entry.abort.signal);
           entry.button = entry.native.element;
