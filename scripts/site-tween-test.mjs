@@ -85,12 +85,41 @@ export async function testTween(frame, page) {
       window.tweenDemo.game.engine.scene.id === "lab" &&
       window.tweenDemo.game.engine.scene.state === "active",
   );
+  // Activation precedes the first simulation/frame-source update. Wait for a
+  // rendered live frame and image readiness before testing a fresh held key.
+  await frame.evaluate(() => window.tweenDemo.game.whenReady());
+  await frame.waitForFunction(
+    () => window.tweenDemo.lab.linearView.offsetX > 0,
+  );
   await frame.locator(".simpludify").focus();
   const before = await frame.evaluate(() => window.tweenDemo.lab.sprite.x);
   await page.keyboard.down("d");
-  await frame.waitForFunction(
-    (x) => window.tweenDemo.lab.sprite.x > x + 5,
-    before,
-  );
-  await page.keyboard.up("d");
+  try {
+    await frame.waitForFunction((x) => {
+      const d = window.tweenDemo;
+      if (d.game.engine.disposed)
+        throw Error(`Disposed during movement: ${document.body.textContent}`);
+      return d.lab.sprite.x > x + 5;
+    }, before);
+  } catch (error) {
+    console.error(
+      "Tween movement diagnostic",
+      await frame.evaluate(() => {
+        const d = window.tweenDemo;
+        return {
+          beforeScene: d.game.engine.scene.id,
+          paused: d.game.paused,
+          disposed: d.game.engine.disposed,
+          steps: d.game.engine.stepCount,
+          x: d.lab.sprite.x,
+          input: d.game.engine.input.snapshot(),
+          active: document.activeElement?.outerHTML,
+          body: document.body.textContent,
+        };
+      }),
+    );
+    throw error;
+  } finally {
+    await page.keyboard.up("d");
+  }
 }

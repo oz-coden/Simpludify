@@ -151,6 +151,7 @@ for (const fallback of [false, true])
       await page.evaluate(() => {
         const f = window.tweenProbe;
         f.lab.ui.scale = 1.25;
+        f.game.setViewport();
         f.focus(f.lab.field);
       });
       const input = page.getByRole("textbox", {
