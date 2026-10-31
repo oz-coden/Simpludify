@@ -21,6 +21,7 @@ import {
   PointerLeave,
 } from "@simpludify/web";
 import { RendererType } from "pixi.js";
+import { inspectCanvasResources } from "../helpers/canvas-resources";
 
 /** Real native input and pointer delivery with deterministic simulation/presentation frames. */
 export async function focusFixture() {
@@ -161,7 +162,7 @@ export async function focusFixture() {
     last,
     errors,
     hoverEvents,
-    rendererType: RendererType[renderer.type],
+    rendererType: RendererType[inspectCanvasResources(renderer).rendererType],
     counts: () => ({ clicks, domClicks }),
     finish: () => finish(),
     tick,
