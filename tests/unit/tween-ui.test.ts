@@ -273,3 +273,29 @@ it("a changed program write from onChange keeps its value and reports existing E
   expect(f.clock.diagnostics.active).toBe(0);
   f.s.dispose();
 });
+
+it("a transparent presentation can fade in alongside a Slider value sequence", () => {
+  const e = new Engine(),
+    s = CanvasSlider({ value: 0 }),
+    panel = CanvasColumn([s]),
+    ui = new CanvasUI(e.scene, panel);
+  ui.layout(400, 300, () => ({ width: 50, height: 20 }));
+  panel.setPresentation({ opacity: 0 });
+  e.step(0);
+  const p = e.scene.presentationTweens.play(
+    Tween.parallel(
+      Tween.to(canvasTween(panel).opacity, 1, { duration: 1 }),
+      Tween.sequence(
+        Tween.delay(0.25),
+        Tween.to(sliderTween(s), 100, { duration: 0.75 }),
+      ),
+    ),
+  );
+  e.scene.advancePresentation(0.5);
+  expect(panel.presentation.opacity).toBe(0.5);
+  expect(s.value).toBe(33);
+  e.scene.advancePresentation(0.5);
+  expect(p.state).toBe("completed");
+  expect(s.value).toBe(100);
+  e.dispose();
+});

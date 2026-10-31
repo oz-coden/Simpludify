@@ -1,6 +1,6 @@
-import { EngineError } from "../foundation/diagnostics";
-import type { LifetimeOwner } from "../foundation/lifetime";
+import { EngineError } from "./diagnostics";
 import { Easing, type EasingFunction } from "./easing";
+import type { LifetimeOwner } from "./lifetime";
 
 export type TweenCancelReason =
   | "cancelled"

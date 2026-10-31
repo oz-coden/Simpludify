@@ -1,5 +1,5 @@
-import { Tween, tweenFinite } from "../animation/tween";
 import { EngineError } from "../foundation/diagnostics";
+import { Tween, tweenFinite } from "../foundation/tween";
 import type { CanvasSliderNode } from "./canvas-input";
 import type { CanvasNode } from "./canvas-node";
 /** Translation is projected together with scroll and inherited by descendants; no Flex property is written. */
@@ -27,6 +27,24 @@ export function canvasTween(node: CanvasNode) {
     opacity: bind("opacity"),
   });
 }
+/** Presentation transparency hides interaction, not program-driven animation. */
+function sliderAvailable(node: CanvasNode): boolean {
+  for (
+    let current: CanvasNode | undefined = node;
+    current;
+    current = current.parent
+  )
+    if (
+      current.disposed ||
+      !current.visible ||
+      !current.enabled ||
+      current.busy ||
+      current.style.pointerEvents === "none" ||
+      current.ui?.disposed
+    )
+      return false;
+  return true;
+}
 /** Logical and display modes reserve the same channel, so a Slider has one animation authority. */
 export function sliderTween(
   node: CanvasSliderNode,
@@ -44,7 +62,7 @@ export function sliderTween(
       mode === "value"
         ? node.writeAnimatedValue(value)
         : node.writeAnimatedDisplayValue(value),
-    valid: () => node.available && !node.editing,
+    valid: () => sliderAvailable(node) && !node.editing,
     stamp: () => node.animationRevision,
     watch: (invalidate) => {
       const removers = [
@@ -53,7 +71,7 @@ export function sliderTween(
       for (let p: CanvasNode | undefined = node; p; p = p.parent)
         removers.push(
           p.observeMutation(() => {
-            if (!node.available) invalidate("target-unavailable");
+            if (!sliderAvailable(node)) invalidate("target-unavailable");
           }),
         );
       return () => {

@@ -1,4 +1,3 @@
-import { TweenScheduler } from "../animation/tween";
 import { EngineError } from "../foundation/diagnostics";
 import { EventBus } from "../foundation/events";
 import {
@@ -7,6 +6,7 @@ import {
   type LifetimeOwner,
 } from "../foundation/lifetime";
 import { SimulationTimers } from "../foundation/timers";
+import { TweenScheduler } from "../foundation/tween";
 import type { InputSystem } from "../interaction/input";
 import type { Actor } from "./actor";
 import { ComponentPhase, type UpdateContext } from "./component";

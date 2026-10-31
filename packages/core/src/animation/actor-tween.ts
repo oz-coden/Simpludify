@@ -1,7 +1,7 @@
 import { EngineError } from "../foundation/diagnostics";
+import { Tween, tweenFinite } from "../foundation/tween";
 import { Renderable } from "../graphics/components";
 import type { Actor } from "../scene/actor";
-import { Tween, tweenFinite } from "./tween";
 /** Explicit draw-only channels. World Transform/Motion/CollisionBody are never tweened. */
 export function actorTween(actor: Actor) {
   const view = actor.require(Renderable.type);
