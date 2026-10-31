@@ -1,5 +1,9 @@
 # Standard Canvas input controls
 
+## Current candidate — 2026-10-31 15:46 JST
+
+Candidate source: [fce8896](https://github.com/oz-coden/Simpludify/commit/fce8896c6d51621f4d43cbd6463126d5484c97ab). Checkbox, Slider, value/input foundation, portable settings sample, docs and regression fixtures are implemented. Local checks passed: **658 unit tests / 48 files**, Core/Host/type/license checks, both site bases **62 HTML / 3968 references / 56 typed snippets**. Browser enumeration is **266 tests / 17 files**, not a pass result. [CI 41177814782](https://github.com/oz-coden/Simpludify/actions/runs/41177814782) is running; quality and production passed. The earlier pixel-sampling failure below is not hidden or treated as success. Main integration and deployment are pending full candidate CI/review. Select, NumberInput, TextInput/IME and physical-device/assistive-technology validation remain deferred, with no unfinished factories exported.
+
 ## Baseline and scope
 
 Phase A is complete, including live sample/document verification. Start: main `495216b55809eb1e9146a224aea72bc0d0fbc7cc`. Dedicated branch: `feat/canvas-controls-2026-10-31`. No Phase B implementation is added to the scroll branch.
@@ -40,7 +44,16 @@ Phase A is complete, including live sample/document verification. Start: main `4
 
 ## Review and WebGL readback correction
 
-- Local fe1e98b checks passed: **653 unit tests / 48 files**, static/Core-boundary/license checks (unchanged 12 warnings / 11 infos), default production compilation, project site **62 HTML / 3967 references / 56 typed snippets**. CI [41177449987](https://github.com/oz-coden/Simpludify/actions/runs/41177449987) passed quality, production, both site paths and narrow shard 2, but narrow shard 1 failed the new WebGL slider pixel comparison (both samples `[0,0,0]`). All six new Canvas2D/narrow behavioral cases and the WebGL pointer/lifecycle cases in that job passed; the run is not accepted as full success.
+- Local fe1e98b checks passed: **653 unit tests / 48 files**, static/Core-boundary/license checks (unchanged 12 warnings / 11 infos), default production compilation, project site **62 HTML / 3967 references / 56 typed snippets**. CI [41177449987](https://github.com/oz-coden/Simpludify/actions/runs/41177449987) passed quality, production, both site paths and narrow shard 2, but narrow shard 1 failed the new WebGL slider pixel comparison (both samples `[0,0,0]`). All three new Canvas2D/narrow cases and the WebGL pointer/lifecycle cases in that job passed; the run is not accepted as full success.
 - Pixel samples were taken in browser tasks after a previous render/protocol round trip. The new fixture now renders and reads its WebGL back buffer in the same task, matching the existing permanent scroll pixel fixture. Original pixel difference checks remain and now additionally require a bright filled track and a visible checkbox-mark contrast. This corrects a sampling hazard; no engine/driver performance fix is claimed. Exact-source rerun must verify it.
 - Review added invalid-command-during-edit and reentrant program-replacement tests, headless Apply snapshot/lifetime coverage, and large finite keyboard endpoints. Range validation rejects steps that cannot change either endpoint at floating-point precision. Focused suite is now **36/36** (421ms). Browser and full final-source results remain pending.
 - The initial implementation CI 41176849664 was superseded/cancelled by the next checkpoint; intermediate 41177043404 included the settings snapshot type error and was superseded. Keep their history as intermediate evidence, not final verification.
+
+## Final-source local verification
+
+- `npm run check`: passed; baseline 12 warnings / 11 infos unchanged, DOM-free Core/module directions/license checks passed.
+- `npm test`: **658 passed / 48 files**, 4.34s; focused value/control suite **36 passed**. No assertions, retries, existing timeouts or GPU flags were weakened.
+- `npm run site:build -- --base /` + `npm run site:check`: passed. Independent project-base build/check also passed: **62 HTML / 3968 references / 56 typed snippets** for each base. `npm run build -- --target web` compiled successfully at the previous code checkpoint; candidate site builds compile all nine samples including Settings lab. Production smoke is passing in candidate Actions.
+- `npx playwright test --list`: **266 tests / 17 files**. Local pinned browser install failed, so enumeration is not execution. Exact-source Actions results are required. Candidate CI: https://github.com/oz-coden/Simpludify/actions/runs/41177814782 .
+- Changed code: Core `ui/canvas-control.ts`, `ui/canvas-input.ts`, `ui/canvas-node.ts`, routing and exports; Web `canvas-visual.ts`; portable settings definition/entry; unit/browser fixtures. Docs: control/IME design guides, Japanese entry, API/Host/architecture/roadmap/sample/README and site routes. Existing UI tree, lifetime, focus, input systems and renderer resource accounting are reused. No new package/dependency, native target or separate input frame chain.
+- Public API additions are CanvasCheckbox/CanvasCheckboxNode, CanvasSlider/CanvasSliderNode, CanvasInputNode value/event contracts and portable control model/geometry. Existing APIs remain source-compatible; custom Hosts need the new control paint/measure/semantic/key mappings before claiming Checkbox/Slider support.
