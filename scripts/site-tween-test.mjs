@@ -11,8 +11,26 @@ export async function testTween(frame, page) {
   await frame.evaluate(() => {
     window.tweenDemo.lab.display.speed = 100;
   });
-  const press = (name) =>
-    frame.getByRole("button", { name, exact: true }).press("Enter");
+  const press = async (name) => {
+    // Gallery iframes can be shorter than the controls list. Use the engine's
+    // logical focus/reveal API before sending a real native keyboard event.
+    await frame.evaluate((name) => {
+      const d = window.tweenDemo;
+      if (d.game.engine.scene.id !== "lab" || d.lab.root.disposed) return;
+      const pending = [d.lab.root];
+      while (pending.length) {
+        const node = pending.shift();
+        if (node.kind === "button" && node.text === name) {
+          d.lab.ui.focus(node);
+          d.game.setViewport();
+          return;
+        }
+        pending.push(...node.children);
+      }
+      throw Error(`Missing lab button: ${name}`);
+    }, name);
+    await frame.getByRole("button", { name, exact: true }).press("Enter");
+  };
   await press("Pause game");
   await frame.waitForFunction(() => window.tweenDemo.game.paused);
   const x = await frame.evaluate(() => window.tweenDemo.lab.linearView.offsetX);
@@ -66,8 +84,6 @@ export async function testTween(frame, page) {
       window.tweenDemo.lab.hp.value === 75 &&
       window.tweenDemo.lab.hp.displayValue === 75,
   );
-  await press("Pause game");
-  await frame.waitForFunction(() => !window.tweenDemo.game.paused);
   await press("Cancel all");
   assert.equal(
     await frame.evaluate(
@@ -75,6 +91,8 @@ export async function testTween(frame, page) {
     ),
     0,
   );
+  await press("Pause game");
+  await frame.waitForFunction(() => !window.tweenDemo.game.paused);
   await press("Leave Scene");
   await frame.waitForFunction(
     () => window.tweenDemo.game.engine.scene.id === "empty",
