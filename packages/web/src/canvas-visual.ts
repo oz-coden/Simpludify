@@ -243,6 +243,7 @@ export class CanvasVisual implements CanvasPresentation {
       if (model.kind === "checkbox")
         button.setAttribute("aria-checked", String(model.checked));
       else {
+        button.setAttribute("aria-orientation", "horizontal");
         button.setAttribute("aria-valuemin", String(model.min));
         button.setAttribute("aria-valuemax", String(model.max));
         button.setAttribute("aria-valuenow", String(model.value));

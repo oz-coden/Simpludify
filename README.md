@@ -104,6 +104,8 @@ npm run dev -- --example tilemap
 npm run dev -- --example canvas-ui
 ```
 
+The **Settings lab** builds sound/grid checkboxes, volume/speed sliders, Apply/Reset and a scrollable settings form using [standard Canvas value controls](docs/canvas-controls.md). Text/IME editing remains future work.
+
 The **UI list lab** in Canvas trail builds dynamic lists entirely from Core APIs, including touch/mouse dragging, per-viewport inertia, draggable overlay bars, nested content and live policy switches. It is shared with headless tests; [scroll contracts](docs/scrolling.md) define ownership and limits.
 
 [Canvas trail](examples/canvas-ui/README.md) combines Action keyboard/touch input, Canvas title/HUD/buttons, a bounded Flex layout, SpriteAnimation, Tilemap collision, Pause and Scene recreation. [Canvas UI contracts](docs/canvas-ui.md) explain screen coordinates, fixed pointer ownership, native keyboard mirrors and how the existing DOM UI remains available.

@@ -326,3 +326,7 @@ This experimental revision also removes InputState, InputSource, InputReader, Ke
 Canvas panels also support `move(child, finalIndex)` without disposal and `clear()` with aggregate cleanup. CanvasUI owns logical focus and scrolled bounds; [Canvas contracts](canvas-ui.md) and [Host migration](host-boundary.md) cover scroll range, exact text metrics, native AbortSignal compatibility and the portable CancellationSignal.
 
 CanvasScroll supports per-node dragScroll/inertia/scrollbar/dragThreshold, direct thumbs and keyboard scrolling. [Scroll contracts](scrolling.md) cover default values, timestamps, Core advance(seconds), runtime mutation and cancellation. Offset-only updates now project cached layout instead of repeating Flex.
+
+## Standard Canvas value controls
+
+Core/Web `CanvasCheckbox(label, {checked?, readOnly?}, style?)` and `CanvasSlider({label?, min?, max?, step?, value?, readOnly?}, style?)` return typed CanvasInputNode subclasses. Values, onChange/onCommit/onCancel, runtime range updates, read-only behavior and lifecycle are defined in [Canvas controls](canvas-controls.md). Both reuse CanvasUI focus and PointerRouting; Core remains Host-independent. The [settings screen](../examples/canvas-ui/settings-screen.ts) uses standard Core APIs only. Select/NumberInput/TextInput and native IME editing are [design work](text-input-design.md), not implemented factories.

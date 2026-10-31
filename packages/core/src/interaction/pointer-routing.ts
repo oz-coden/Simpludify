@@ -327,7 +327,8 @@ export class PointerRouting {
       if (g.control && !g.controlLocked) {
         const dx = Math.abs(data.screen.x - g.start.screen.x),
           dy = Math.abs(data.screen.y - g.start.screen.y);
-        if (dx >= 8 && dx > dy) g.controlLocked = true;
+        if (dx >= g.control.style.dragThreshold && dx > dy)
+          g.controlLocked = true;
       }
       if (!g.scroll && g.primary && !g.controlLocked) this.claimScroll(g, data);
       if (this.gestures.get(data.pointerId) !== g) return;
@@ -649,8 +650,9 @@ export class PointerRouting {
           .filter(
             ([, g]) =>
               (g.node && !g.node.available) ||
-              (g.control &&
-                g.control.control?.revision !== g.controlRevision) ||
+              (g.node?.control &&
+                g.controlRevision !== undefined &&
+                g.node.control.revision !== g.controlRevision) ||
               (!g.scroll &&
                 g.candidates.some(
                   (n, i) => n.scrollRevision !== g.candidateRevisions[i],

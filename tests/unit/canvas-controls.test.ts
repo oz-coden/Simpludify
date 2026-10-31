@@ -391,3 +391,18 @@ it("keeps shared geometry finite at tiny sizes and ignores zero-travel pointer e
   expect(f.slider.value).toBe(value);
   f.scene.dispose();
 });
+
+it("program and read-only commands cancel a pending checkbox pointer press", () => {
+  const f = fixture(),
+    q = f.point(f.checkbox);
+  f.routing.down(q);
+  f.checkbox.setValue(true);
+  f.routing.up(q);
+  expect(f.checkbox.value).toBe(true);
+  f.routing.down(q);
+  f.checkbox.readOnly = true;
+  f.checkbox.readOnly = false;
+  f.routing.up(q);
+  expect(f.checkbox.value).toBe(true);
+  f.scene.dispose();
+});

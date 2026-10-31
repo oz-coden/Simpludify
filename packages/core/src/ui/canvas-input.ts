@@ -261,9 +261,9 @@ export class CanvasCheckboxNode extends CanvasInputNode<boolean> {
     super(
       "checkbox",
       text,
-      options.checked ?? false,
+      options.checked === undefined ? false : options.checked,
       boolean,
-      options.readOnly ?? false,
+      options.readOnly === undefined ? false : options.readOnly,
       style,
     );
   }
@@ -357,10 +357,10 @@ export class CanvasSliderNode extends CanvasInputNode<number> {
     const range = rangeOf(options);
     super(
       "slider",
-      options.label ?? "Value",
-      options.value ?? range.min,
+      options.label === undefined ? "Value" : options.label,
+      options.value === undefined ? range.min : options.value,
       (value) => numeric(value, range),
-      options.readOnly ?? false,
+      options.readOnly === undefined ? false : options.readOnly,
       { width: 260, maxWidth: "100%", height: 76, ...style },
       sliderKeys,
       "horizontal",
@@ -402,8 +402,14 @@ export class CanvasSliderNode extends CanvasInputNode<number> {
         ? this.min
         : code === "End"
           ? this.max
-          : this.value +
-            direction * this.step * (code.startsWith("Page") ? 10 : 1),
+          : Math.max(
+              this.min,
+              Math.min(
+                this.max,
+                this.value +
+                  direction * this.step * (code.startsWith("Page") ? 10 : 1),
+              ),
+            ),
       "keyboard",
     );
   }

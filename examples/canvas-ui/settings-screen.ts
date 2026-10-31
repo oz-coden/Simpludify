@@ -23,7 +23,12 @@ export function createSettingsScreen(
   const grid = CanvasCheckbox("グリッドを表示 / Show grid");
   const readOnly = CanvasCheckbox("読み取り専用 / Read only");
   const preview = CanvasLabel("", { fontSize: 16 });
-  let applied = Object.freeze({
+  let applied: Readonly<{
+    sound: boolean;
+    volume: number;
+    speed: number;
+    grid: boolean;
+  }> = Object.freeze({
     sound: true,
     volume: 50,
     speed: 1,

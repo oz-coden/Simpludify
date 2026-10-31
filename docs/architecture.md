@@ -159,3 +159,5 @@ Canvas UI is a Core-owned logical tree, not Actors or Components. A Scene or pla
 ## Core modules and additional Hosts
 
 [Core modules and Host contracts](host-boundary.md) describes the checked internal dependencies, portable UI state/layout/input flow, cancellation migration, renderer/Host/target distinction and concrete Host implementation steps. [Work reports](work-reports/README.md) preserve implementation and verification checkpoints.
+
+Canvas Checkbox/Slider use a small optional control port and typed value-node foundation within the existing UI tree. Core owns immediate values, notifications, range validation, focus and pointer arbitration; Web owns paint/font metrics and native ARIA mirrors. No text/IME editor is implemented. [Canvas controls](canvas-controls.md) and [native editing design](text-input-design.md) define the completed scope and future boundary.
