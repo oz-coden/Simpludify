@@ -121,6 +121,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
+      contents: read
       pages: write
       id-token: write
     environment:
@@ -133,3 +134,19 @@ jobs:
           enablement: false
       - uses: actions/deploy-pages@v4
         id: deployment
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium --only-shell
+      - run: node scripts/site-tween-live.mjs
+        env:
+          SITE_URL: https://github.oz-coden.com/Simpludify/
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: published-tween-validation
+          path: test-results/site/tween-live.json
+          if-no-files-found: ignore
