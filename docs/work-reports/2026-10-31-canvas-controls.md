@@ -1,8 +1,8 @@
 # Standard Canvas input controls
 
-## Accepted candidate — 2026-10-31 15:52 JST
+## Merged; deployment verification pending — 2026-10-31 15:54 JST
 
-Candidate source: [fce8896](https://github.com/oz-coden/Simpludify/commit/fce8896c6d51621f4d43cbd6463126d5484c97ab). Checkbox, Slider, value/input foundation, portable settings sample, docs and regression fixtures are implemented. Local checks passed: **658 unit tests / 48 files**, Core/Host/type/license checks, both site bases **62 HTML / 3968 references / 56 typed snippets**. Full [CI 41177814782](https://github.com/oz-coden/Simpludify/actions/runs/41177814782) completed successfully: **266 browser tests / 17 files**, quality, production and both site bases passed. The earlier pixel-sampling failure below is not hidden or treated as success. Final review accepts this scope for integration through [PR #3](https://github.com/oz-coden/Simpludify/pull/3); main CI/deployment/live verification are pending. Select, NumberInput, TextInput/IME and physical-device/assistive-technology validation remain deferred, with no unfinished factories exported.
+Candidate source: [fce8896](https://github.com/oz-coden/Simpludify/commit/fce8896c6d51621f4d43cbd6463126d5484c97ab). Checkbox, Slider, value/input foundation, portable settings sample, docs and regression fixtures are implemented. Local checks passed: **658 unit tests / 48 files**, Core/Host/type/license checks, both site bases **62 HTML / 3968 references / 56 typed snippets**. Full [CI 41177814782](https://github.com/oz-coden/Simpludify/actions/runs/41177814782) completed successfully: **266 browser tests / 17 files**, quality, production and both site bases passed. The earlier pixel-sampling failure below is not hidden or treated as success. [PR #3](https://github.com/oz-coden/Simpludify/pull/3) merged as `ff3972107b2eb45ae7cc8e5da334727e885e9792`. Main [CI 41178455505](https://github.com/oz-coden/Simpludify/actions/runs/41178455505) is running; deployment/live verification are pending. Select, NumberInput, TextInput/IME and physical-device/assistive-technology validation remain deferred, with no unfinished factories exported.
 
 ## Baseline and scope
 
@@ -65,3 +65,9 @@ Phase A is complete, including live sample/document verification. Start: main `4
 - Existing Action/Button/HoldButton/Scroll suites remain part of the passing full regression. No normal CI workflow, launch flags, retries or existing test timeouts were changed. New WebGL fixtures reuse the previously measured 60s setup budget; Canvas2D retains the default budget.
 - Integration is permitted for the completed two controls and foundation only. Select, NumberInput, TextInput/native IME bridge remain unimplemented and documented as future work. No physical touch/other browser/OS IME/assistive-technology certification or new GPU performance claim.
 - This acceptance receipt is saved before merge. Record the merge SHA, exact main CI/deployment and live Settings lab/docs comparison after integration.
+
+## Main integration checkpoint — 2026-10-31 15:54 JST
+
+- [PR #3](https://github.com/oz-coden/Simpludify/pull/3) merged normally as [ff3972107b2eb45ae7cc8e5da334727e885e9792](https://github.com/oz-coden/Simpludify/commit/ff3972107b2eb45ae7cc8e5da334727e885e9792). No forced ref update or remote history rewrite.
+- Main [CI 41178455505](https://github.com/oz-coden/Simpludify/actions/runs/41178455505) is running for the exact merge; do not record success until completion. Pages deployment is gated by the full main checks. After deployment, verify Settings lab, the public control guide and main asset/content consistency, then save the final receipt.
+- This checkpoint changes reports only and uses `[skip ci]` to preserve the running exact-source main validation. Runtime, tests, samples and official API guides remain identical to the accepted candidate.
