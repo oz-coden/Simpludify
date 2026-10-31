@@ -20,3 +20,8 @@
 ## Initial checkpoint
 
 Investigation/design complete. Hover fix, input arbitration, focus improvements, behavioral/pixel regressions, actual Tile trail verification, docs, final CI/review, main integration and deployment/live verification remain pending. No new tests have been executed yet. Save each completed stage and report before long CI/browser work.
+
+## Hover checkpoint
+
+- Added validated CanvasStyle `hoverEffect: auto | none | highlight` (default auto) and shared Core `canvasHoverHighlight` presentation policy. Auto highlights interactive controls only; explicit highlight supports custom pointer panels. Pointer hit-testing and enter/leave delivery are unchanged; style mutation is paint-only.
+- Two focused Core cases passed (default container/control policy, explicit opt-in/out, invalid values, unchanged layout count and nonfocusable containers). WebGL/Canvas2D pixel/event regressions are still pending. No browser success is claimed at this checkpoint.

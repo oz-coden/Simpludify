@@ -6,6 +6,7 @@ import type {
 } from "@simpludify/core";
 import {
   canvasControlText,
+  canvasHoverHighlight,
   canvasScrollbars,
   canvasSliderGeometry,
   cleanupAll,
@@ -486,7 +487,7 @@ export class CanvasVisual implements CanvasPresentation {
               entry.background
                 .roundRect(0, 0, b.width, b.height, s.radius)
                 .fill({ color: 0xffffff, alpha: 0.18 });
-            else if (node.hovered)
+            else if (canvasHoverHighlight(node))
               entry.background
                 .roundRect(0, 0, b.width, b.height, s.radius)
                 .fill({ color: 0xffffff, alpha: 0.08 });

@@ -58,6 +58,8 @@ export interface CanvasStyle {
   dragThreshold?: number;
   /** auto blocks world input, children permits empty-space pass-through, none excludes subtree. */
   pointerEvents?: "auto" | "children" | "none";
+  /** Hover paint only: auto highlights controls; highlight also opts containers in. */
+  hoverEffect?: "auto" | "none" | "highlight";
   background?: number;
   color?: number;
   fontSize?: number;
@@ -86,6 +88,7 @@ export const defaultCanvasStyle = Object.freeze({
   scrollbar: "auto",
   dragThreshold: 8,
   pointerEvents: "children",
+  hoverEffect: "auto",
   color: 0xeff7f6,
   fontSize: 18,
   fontFamily: "system-ui, sans-serif",
@@ -181,6 +184,7 @@ function checkedStyle(value: CanvasStyle): ResolvedCanvasStyle {
         alignSelf: ["start", "center", "end", "stretch"],
         justify: ["start", "center", "end", "space-between", "space-around"],
         pointerEvents: ["auto", "children", "none"],
+        hoverEffect: ["auto", "none", "highlight"],
       };
       if (
         typeof v !== "string" ||

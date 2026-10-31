@@ -85,3 +85,12 @@ export function canvasControlText(node: CanvasNode): string {
         ? model.text || model.placeholder
         : node.text;
 }
+
+/** Hover events/hit ownership remain independent of this presentation-only policy. */
+export function canvasHoverHighlight(node: CanvasNode): boolean {
+  return (
+    node.hovered &&
+    (node.style.hoverEffect === "highlight" ||
+      (node.style.hoverEffect === "auto" && node.interactive))
+  );
+}
