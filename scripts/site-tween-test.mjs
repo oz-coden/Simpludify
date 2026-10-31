@@ -7,6 +7,20 @@ export async function testTween(frame, page) {
   const wait = (predicate, arg) =>
     frame.waitForFunction(predicate, arg, { polling: 50 });
   await wait(() => window.tweenDemo?.game.engine.scene.state === "active");
+  const placement = await frame.evaluate(() => {
+    const box = window.tweenDemo.game.element.getBoundingClientRect();
+    return {
+      top: box.top,
+      bottom: box.bottom,
+      left: box.left,
+      right: box.right,
+      width: innerWidth,
+      height: innerHeight,
+    };
+  });
+  assert.ok(placement.top >= 0 && placement.left >= 0);
+  assert.ok(placement.bottom <= placement.height + 1);
+  assert.ok(placement.right <= placement.width + 1);
   // SwiftShader can spend seconds rendering one frame. The Host deliberately caps
   // its delta, so a wall-clock wait cannot imply 1.6 simulation/display seconds.
   // Exercise real RAF and public speed control here; deterministic browser tests
@@ -44,17 +58,10 @@ export async function testTween(frame, page) {
     );
     await page.keyboard.press("Enter");
   };
-  const advanceDisplay = () =>
-    frame.evaluate(() => {
-      const d = window.tweenDemo;
-      d.lab.scene.advancePresentation(0.05);
-      d.game.setViewport();
-    });
   await press("Pause game");
   await wait(() => window.tweenDemo.game.paused);
   const x = await frame.evaluate(() => window.tweenDemo.lab.linearView.offsetX);
   await press("Fade / Slide UI");
-  await advanceDisplay();
   try {
     await wait(() => {
       const d = window.tweenDemo;
@@ -97,7 +104,6 @@ export async function testTween(frame, page) {
     "UI sequence: completed",
   );
   await press("Tween value to 80");
-  await advanceDisplay();
   await wait(
     () =>
       window.tweenDemo.lab.volume.value === 80 &&
@@ -108,7 +114,6 @@ export async function testTween(frame, page) {
     "Slider value: completed",
   );
   await press("Damage HP");
-  await advanceDisplay();
   await wait(
     () =>
       window.tweenDemo.lab.hp.value === 75 &&
@@ -144,9 +149,9 @@ export async function testTween(frame, page) {
   });
   await page.keyboard.down("d");
   try {
+    await wait((before) => window.tweenDemo.lab.sprite.x > before.x + 5, before);
     const after = await frame.evaluate(() => {
       const d = window.tweenDemo;
-      d.game.engine.step(0.05);
       d.game.pause();
       d.game.setViewport();
       return {

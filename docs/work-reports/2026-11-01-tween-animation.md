@@ -166,3 +166,10 @@ The accepted runtime is being integrated directly from work branch b7093cbb5f7ef
 
 
 Main integration commit: [abdb9b665fffa67aac7631b6b4863d0f4674c095](https://github.com/oz-coden/Simpludify/commit/abdb9b665fffa67aac7631b6b4863d0f4674c095), direct fast-forward from the baseline with all work-branch history retained. [Main CI run](https://github.com/oz-coden/Simpludify/actions/runs/41228626227) is running. Pages and published browser validation are pending. The following metadata checkpoint does not change runtime or restart CI.
+
+
+## Corrected sample viewport bootstrap before publication
+
+Final visible-layout review found a concrete sample bug missed by the earlier model/Canvas-buffer checks: Tween's HTML had copied the full-height empty #app mount from Canvas UI, while its Game correctly used the default document.body parent. Unlike Canvas UI's explicit parent option, this put the game after a viewport-height empty element, with body overflow hidden. Focus-induced document scrolling could expose it inconsistently and offscreen iframe rendering could be throttled. The dedicated fixture replaced body contents, so its 334 successful cases did not detect this bootstrap mismatch. Earlier software-renderer/focus hypotheses were incomplete; the measured GPU disposal delays are real but do not explain this layout defect.
+
+Removed the unused mount from Tween HTML, keeping the standard Game default parent and no game-side DOM manipulation. Added startup assertions that the actual game rectangle fits the visible frame viewport. Production/public smoke is restored to automatic Host RAF for finite animation and held-key motion (public speed=100 only for bounded finite UI waits); explicit test clock advancement is removed. Native foreground, completion callback, Canvas pixel-change, distance and cleanup checks remain. The sample itself continues at speed 1. Main's first integration CI is superseded by this corrective sample commit; no final Pages/live success is claimed until all new gates pass.
