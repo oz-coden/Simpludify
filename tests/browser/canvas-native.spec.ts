@@ -403,4 +403,24 @@ for (const fallback of [false, true])
         await page.evaluate(() => window.nativeProbe.screen.playerName.editing),
       ).toBe(false);
     });
+    test("later Canvas controls retain paint and pointer priority over native editors", async ({
+      page,
+    }) => {
+      const point = await page.evaluate(() => {
+        const f = window.nativeProbe,
+          overlap = f.overlap();
+        return f.center(overlap.cover);
+      });
+      await expect(
+        page.getByRole("textbox", { name: "Overlap input", exact: true }),
+      ).toBeFocused();
+      await page.mouse.click(point.x, point.y);
+      expect(
+        await page.evaluate(() => window.nativeProbe.coveredClicks()),
+      ).toBe(1);
+      await page.evaluate(() => window.nativeProbe.tick());
+      await expect(
+        page.getByRole("textbox", { name: "Overlap input", exact: true }),
+      ).not.toBeFocused();
+    });
   });

@@ -1,4 +1,11 @@
-import { Action, ActionController, defineActions } from "@simpludify/web";
+import {
+  Action,
+  ActionController,
+  CanvasButton,
+  CanvasPanel,
+  CanvasTextInput,
+  defineActions,
+} from "@simpludify/web";
 import { controlsFixture } from "./canvas-controls-fixture";
 export async function nativeFixture() {
   const f = await controlsFixture();
@@ -19,7 +26,36 @@ export async function nativeFixture() {
   f.screen.playerName.onCommit((e) => commits.push(e.value));
   f.screen.playerName.onCancel((e) => cancels.push(e.value));
   f.screen.playerName.onDraftChange((e) => drafts.push(e.draft.text));
-  return { ...f, actions, Actions, changes, commits, cancels, drafts };
+  let coveredClicks = 0;
+  const overlap = () => {
+    f.screen.root.clear();
+    const field = CanvasTextInput(
+      { label: "Overlap input", value: "under" },
+      { height: 100, shrink: 0 },
+    );
+    const cover = CanvasButton(
+      "Cover input",
+      () => {
+        coveredClicks++;
+      },
+      { height: 48, shrink: 0 },
+    );
+    f.screen.root.add(CanvasPanel([field], { height: 40, shrink: 0 }), cover);
+    f.tick();
+    f.focus(field);
+    return { field, cover };
+  };
+  return {
+    ...f,
+    actions,
+    Actions,
+    changes,
+    commits,
+    cancels,
+    drafts,
+    overlap,
+    coveredClicks: () => coveredClicks,
+  };
 }
 declare global {
   interface Window {

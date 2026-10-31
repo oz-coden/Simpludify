@@ -52,6 +52,11 @@ abstract class NativeControl {
       signal = this.abort.signal;
     el.className = "s-canvas-native";
     el.addEventListener(
+      "pointerdown",
+      () => this.run(() => this.ui.stopMotion()),
+      { signal },
+    );
+    el.addEventListener(
       "focus",
       () => this.run(() => this.ui.focus(this.node)),
       { signal },
@@ -330,7 +335,78 @@ export function nativeGeometry(
     c.width <= 0 ||
     c.height <= 0 ||
     node.style.pointerEvents !== "auto";
+  const background = style.background ?? 0x23594e;
   const color = `#${style.color.toString(16).padStart(6, "0")}`;
-  el.style.cssText = `left:${b.x * scale}px;top:${b.y * scale}px;width:${b.width * scale}px;height:${b.height * scale}px;padding:${style.padding * scale}px;font-family:${style.fontFamily};font-size:${style.fontSize * scale}px;--s-native-color:${color};clip-path:inset(${Math.max(0, c.y - b.y) * scale}px ${Math.max(0, b.x + b.width - c.x - c.width) * scale}px ${Math.max(0, b.y + b.height - c.y - c.height) * scale}px ${Math.max(0, c.x - b.x) * scale}px);`;
+  el.style.cssText = `left:${b.x * scale}px;top:${b.y * scale}px;width:${b.width * scale}px;height:${b.height * scale}px;padding:${style.padding * scale}px;font-family:${style.fontFamily};font-size:${style.fontSize * scale}px;--s-native-color:${color};--s-native-background:#${background.toString(16).padStart(6, "0")};color-scheme:${((background >> 16) * 0.2126 + ((background >> 8) & 255) * 0.7152 + (background & 255) * 0.0722) > 128 ? "light" : "dark"};clip-path:inset(${Math.max(0, c.y - b.y) * scale}px ${Math.max(0, b.x + b.width - c.x - c.width) * scale}px ${Math.max(0, b.y + b.height - c.y - c.height) * scale}px ${Math.max(0, c.x - b.x) * scale}px);`;
   if (el.disabled && document.activeElement === el) el.blur();
+}
+
+/** Native editors must not cover later Canvas hit surfaces or overlay scrollbars. */
+export function clipNativeRegions(
+  element: HTMLInputElement | HTMLSelectElement,
+  node: CanvasNode,
+  ui: CanvasUI,
+  clip: UIBounds,
+  covers: readonly UIBounds[],
+): void {
+  let regions: UIBounds[] = [intersectUI(node.bounds, clip)];
+  for (const cover of covers) {
+    const next: UIBounds[] = [];
+    for (const region of regions) {
+      const cut = intersectUI(region, cover);
+      if (cut.width <= 0 || cut.height <= 0) {
+        next.push(region);
+        continue;
+      }
+      const right = region.x + region.width,
+        bottom = region.y + region.height;
+      if (cut.y > region.y)
+        next.push({
+          x: region.x,
+          y: region.y,
+          width: region.width,
+          height: cut.y - region.y,
+        });
+      if (cut.y + cut.height < bottom)
+        next.push({
+          x: region.x,
+          y: cut.y + cut.height,
+          width: region.width,
+          height: bottom - cut.y - cut.height,
+        });
+      if (cut.x > region.x)
+        next.push({
+          x: region.x,
+          y: cut.y,
+          width: cut.x - region.x,
+          height: cut.height,
+        });
+      if (cut.x + cut.width < right)
+        next.push({
+          x: cut.x + cut.width,
+          y: cut.y,
+          width: right - cut.x - cut.width,
+          height: cut.height,
+        });
+    }
+    regions = next;
+    if (!regions.length) break;
+  }
+  const scale = ui.scale,
+    b = node.bounds;
+  const path = regions
+    .filter((r) => r.width > 0 && r.height > 0)
+    .map((r) => {
+      const x = (r.x - b.x) * scale,
+        y = (r.y - b.y) * scale,
+        w = r.width * scale,
+        h = r.height * scale;
+      return `M${x} ${y}h${w}v${h}h${-w}Z`;
+    })
+    .join(" ");
+  element.style.clipPath = path ? `path("${path}")` : "inset(100%)";
+  if (!path) {
+    element.disabled = true;
+    if (document.activeElement === element) element.blur();
+  }
 }

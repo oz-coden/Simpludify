@@ -20,7 +20,11 @@ import {
   Text,
   TextStyle,
 } from "pixi.js";
-import { CanvasNativeSelect, CanvasNativeText } from "./canvas-native";
+import {
+  CanvasNativeSelect,
+  CanvasNativeText,
+  clipNativeRegions,
+} from "./canvas-native";
 
 export interface CanvasPresentation {
   update(width: number, height: number): void;
@@ -337,6 +341,12 @@ export class CanvasVisual implements CanvasPresentation {
     const visited = new Set<CanvasNode>(),
       buttons: (HTMLButtonElement | HTMLSelectElement | HTMLInputElement)[] =
         [];
+    const paint: {
+      node?: CanvasNode;
+      box: UIBounds;
+      native?: CanvasNativeSelect | CanvasNativeText;
+      clip?: UIBounds;
+    }[] = [];
     let order = 0;
     this.ui.walk(
       (node, parentClip) => {
@@ -389,6 +399,12 @@ export class CanvasVisual implements CanvasPresentation {
         }
         this.display.setChildIndex(entry.display, order++);
         this.display.setChildIndex(entry.mask, order++);
+        if (node.style.pointerEvents === "auto")
+          paint.push({
+            node,
+            box: intersectUI(node.bounds, clip),
+            ...(entry.native ? { native: entry.native, clip } : {}),
+          });
         if (entry.button) buttons.push(entry.button);
         const b = node.bounds,
           s = node.style;
@@ -558,6 +574,8 @@ export class CanvasVisual implements CanvasPresentation {
         const entry = this.entries.get(node);
         if (!entry) return;
         const bars = canvasScrollbars(node);
+        for (const bar of bars)
+          paint.push({ box: intersectUI(bar.track, clip) });
         if (!entry.scrollbar && bars.length) {
           entry.scrollbar = new Graphics();
           entry.scrollbar.eventMode = "none";
@@ -604,6 +622,17 @@ export class CanvasVisual implements CanvasPresentation {
         }
       },
     );
+    for (let i = 0; i < paint.length; i++) {
+      const item = paint[i];
+      if (item?.native && item.node && item.clip)
+        clipNativeRegions(
+          item.native.element,
+          item.node,
+          this.ui,
+          item.clip,
+          paint.slice(i + 1).map((p) => p.box),
+        );
+    }
     for (const [node, entry] of this.entries)
       if (!visited.has(node)) {
         this.entries.delete(node);
