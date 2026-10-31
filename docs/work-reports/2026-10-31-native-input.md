@@ -28,3 +28,10 @@ Initial investigation/design complete. Select, text session, TextInput, NumberIn
 - Focused Core verification: **46 passed / 0 failed** across new Select cases and existing control cases. TypeScript passes after correcting the test Scene fixture to provide its required ID. Browser execution is pending; local pinned Chromium download returns a truncated/non-ZIP archive. No native popup or IME certification yet.
 - Shell git push cannot authenticate; checkpoints use the connected GitHub tree/commit/ref API with normal fast-forward updates and expected-head checks. Initial remote design commit: [5678c02](https://github.com/oz-coden/Simpludify/commit/5678c029075f60b2dd0ba9ab99de9df53f2617cb).
 - Next: harden Host generation replacement, implement native text snapshots/drafts and TextInput/NumberInput, add browser regressions and sample/docs.
+
+## Native text contract checkpoint
+
+- Select implementation saved remotely as [da83240](https://github.com/oz-coden/Simpludify/commit/da8324039bd392dc80605aceb318fd1e5332706d).
+- Added a shared Core text editor abstraction carrying immutable single-line draft/UTF-16 selection/direction/composition snapshots and typed draft notifications. Accepted values remain separate; sessions have monotonic identities, generation/availability checks, explicit commit/cancel, blur policy and disposal invalidation.
+- Existing value foundation now retains the actual activation source for edit-end events. Slider's immediate-value behavior remains unchanged. Numeric range normalization was named/exported for reuse; DOM-free compilation and all existing focused control cases still pass.
+- TypeScript compilation passed for this contract checkpoint. Concrete TextInput/NumberInput and Web text adapter/tests remain pending. Actual OS IME is unverified.
