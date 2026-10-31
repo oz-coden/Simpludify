@@ -55,4 +55,4 @@
 
 ## Canvas UIの範囲
 
-CanvasはRow/Column中心のFlex部分仕様と矩形clipを提供します。min/maxと文字の自動折り返しに対応します。CSSの完全再現、完全なUnicode禁則組版、スクロール文書・IME・Canvas文書全体のスクリーンリーダー対応はありません。Tab/Enter/Spaceとボタンの名前・状態を補助DOMで提供します。変更時はルート全体のレイアウト、ヒットテストは可視ノード数に比例する走査です。[仕様と測定の制約](../../docs/canvas-ui.md)を参照してください。
+CanvasはRow/Column中心のFlex部分仕様と矩形clipを提供します。min/maxと文字の自動折り返しに対応します。CSSの完全再現、完全なUnicode禁則組版、複数行・リッチテキスト編集、Canvas文書全体のスクリーンリーダー対応はありません。標準Select・TextInput・NumberInputはHost内部のネイティブ要素を使い、選択・文字編集・IME連携を提供します。実OSの日本語IME候補UI、物理モバイルキーボード、各種ブラウザ・支援技術への適合性は未検証です。Tab/Enter/Spaceと部品の名前・状態をネイティブ要素で提供します。変更時はルート全体のレイアウト、ヒットテストは可視ノード数に比例する走査です。[仕様と測定の制約](../../docs/canvas-ui.md)を参照してください。
