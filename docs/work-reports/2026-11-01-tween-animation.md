@@ -1,5 +1,16 @@
 # Tween and animation foundation
 
+## Final result — complete
+
+Implemented and integrated numeric Tween/Easing, playback/repeat/yoyo, two Scene clocks, lifetime/channel ownership, Actor draw and Canvas/Slider adapters, sequence/parallel and the standard-API Tween lab. **Validated and published code source: 043c1d8d3aeec5cfa485e881de9ca339eeae5653**. [Final main CI and Pages](https://github.com/oz-coden/Simpludify/actions/runs/41229432146) succeeded, including **767 unit / 334 browser cases, 0 failures**, production targets, both site bases and post-deployment Chromium checks of the real public site at both widths. Initial direct integration was abdb9b6; viewport bootstrap was corrected in 9be0c8f/043c1d8 before final acceptance. Later commits only preserve report/index metadata; they do not alter published runtime/API behavior.
+
+- [Public Tween lab](https://github.oz-coden.com/Simpludify/play/tween/index.html) · [English reference](https://github.oz-coden.com/Simpludify/en/tween.html) · [Japanese guide](https://github.oz-coden.com/Simpludify/guides/tween.html).
+- Actor animation changes Renderable draw state; physical world positions remain controlled by Transform/Motion/Body. Canvas presentation supports translation/opacity, with shared hit/native geometry; rotation/scale/color are deferred. Numeric values only; composite loops/additive blending are not exposed.
+- Existing Core/Host, input ownership, native editing, SpriteAnimation, physics and Flex contracts remain separate. No external dependency or npm release was added. The root-layout regression is now guarded by actual visible-rectangle assertions, automatic Host playback, real keyboard delivery and rendered-pixel changes.
+- Actual OS IME/physical mobile keyboards, hardware GPU/native retained memory and universal FPS remain unverified. The interactive computer environment was unavailable during final work; published verification was performed by real Chromium in Actions, not claimed as a manual OS/device test.
+
+The following sections retain investigation, checkpoint failures, rejected hypotheses, fixes, measured conditions and recovery history. The final acceptance section at the end supersedes earlier pending statuses.
+
 ## Baseline and recovery
 
 - Starting main: `8a10b7d91974f44479dc8d507687371836ae4be1`; dedicated branch `feat/tween-animation-2026-11-01`.
@@ -176,3 +187,72 @@ Removed the unused mount from Tween HTML, keeping the standard Game default pare
 
 
 Corrective main commits: [9be0c8f](https://github.com/oz-coden/Simpludify/commit/9be0c8fd6b9fc302f4de52f7036a71f654c6e242) removes the unused mount and adds visible-rectangle/automatic-clock regressions; [043c1d8](https://github.com/oz-coden/Simpludify/commit/043c1d8d3aeec5cfa485e881de9ca339eeae5653) formats the regression and clarifies that terminal callback errors retain the terminal state. [Current main CI](https://github.com/oz-coden/Simpludify/actions/runs/41229432146) validates that corrected source and will deploy/check the public site. The earlier integration run was canceled by the newer main push; it is not the final acceptance run. This metadata checkpoint preserves the root-cause finding and recovery references while the long browser jobs run.
+
+
+## Final main, Pages and public acceptance
+
+Main CI [run 41229432146](https://github.com/oz-coden/Simpludify/actions/runs/41229432146) on corrected source [043c1d8](https://github.com/oz-coden/Simpludify/commit/043c1d8d3aeec5cfa485e881de9ca339eeae5653) finished **success**. Quality, four browser shards, production, both site bases and the deploy job all passed. The Pages deployment step and subsequent live test both succeeded. No PR, force push, history rewrite, package publication or Pages/DNS enablement change was performed.
+
+Final commands/results:
+
+- npm run check: passed (strict app/Core types, formatter/lint, architecture/Host boundaries, graph and licenses); 12 pre-existing warnings / 12 infos.
+- npm test: **767 passed / 0 failed** (56 files).
+- npm run test:browser across desktop/narrow and two shards: **334 passed / 0 failed** (89 + 78 + 89 + 78), with both WebGL/Canvas2D and all existing regressions retained.
+- Production builds/smoke of default UI/Scenes, Signal Run, Canvas UI and Tween: desktop 1440×900 / narrow 390×844 passed at /Simpludify/.
+- npm run site:build, site:check and test:site at / and /Simpludify/: both passed; **65 HTML / 4,250 references / 59 compiled documentation snippets**, all ten examples at both widths, fallback/theme/startup/cleanup coverage.
+- Corrected-source gallery synchronous disposal timings: **2,966.5–10,536.6 ms** across eight new-sample restart/stop observations. All hosts, input sources and Tween clock counts were zero afterward. These are SwiftShader CI measurements; the scoped 60 s new-sample lifecycle budget remains documented, and the separate offscreen bootstrap defect was fixed rather than attributed to GPU delay.
+- Published-site script: both English/Japanese guide content and manifest verified; real Chrome **156.0.8078.4**, both widths, visible game bounds, automatic Host RAF (speed 100 only for finite smoke waits), native key activation, UI/value/HP completion callbacks, held-key world motion plus pixel changes, Scene disposal/recreation and final live-claim release passed. No page errors; final hosts/sources/handles/both clocks zero. [Published JSON artifact](https://github.com/oz-coden/Simpludify/actions/runs/41229432146/artifacts/13053372015) is also retained with the run; its material results are copied below so this report remains useful after artifact retention expires.
+
+Published result:
+
+```json
+{
+  "site": "https://github.oz-coden.com/Simpludify/",
+  "source": "043c1d8d3aeec5cfa485e881de9ca339eeae5653",
+  "documents": [
+    "en/tween.html",
+    "guides/tween.html"
+  ],
+  "viewports": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "cleanup": {
+        "disposed": true,
+        "sources": 0,
+        "simulation": 0,
+        "display": 0,
+        "handles": 0,
+        "hosts": 0,
+        "milliseconds": 6923.199999999997
+      },
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "cleanup": {
+        "disposed": true,
+        "sources": 0,
+        "simulation": 0,
+        "display": 0,
+        "handles": 0,
+        "hosts": 0,
+        "milliseconds": 4240.900000000009
+      },
+      "errors": []
+    }
+  ],
+  "browser": "156.0.8078.4"
+}
+```
+
+Core CPU benchmark remains reproducible with npm run bench:tween -- --out docs/measurements/tween-2026-11-01.json; raw committed data records Node 24.22.1/Linux/EPYC, 300 warmup and 600 measured explicit updates, with no concurrent local checks. It is not a rendering/FPS claim.
+
+Remaining scope and next candidates: explicit physics movement authority if a concrete game requires it; composite-level looping; UI rotation/scale only with coherent clipping/hit/native transforms; controlled hardware/long-duration GPU memory measurements; real OS IME and mobile-device geometry checks. Existing implemented APIs are usable independently; no placeholder/unimplemented control API is exported.
+
+All source, staged history, diagnostics, regression tests, benchmark data and this final record are saved on GitHub. The accepted runtime is 043c1d8; subsequent final-record commits change only docs/work-reports. Main and the dedicated recovery branch retain the original baseline ancestry and implementation checkpoints.
