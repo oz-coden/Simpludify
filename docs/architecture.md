@@ -70,7 +70,7 @@ Each Engine step performs:
 4. Run Update-phase components in the same ordering. Custom movement policies and ActionMovement produce commands here.
 5. Run Integrate components (including Motion), then LateUpdate components for clamps, firing and position-dependent cleanup before collision.
 6. Run registered post-update hooks, including the optional Scene-owned CollisionWorld.
-7. Advance active scene simulation timers, then Scene update callbacks.
+7. Advance captured simulation Tweens, then active scene simulation timers and Scene update callbacks.
 8. Return to the host, which reconciles changed render structure and draws current state.
 
 Membership/component changes are immediately visible to lookup APIs. New Actors and new Components start updating on the **next** step. Removing/disabling Actors or Components prevents subsequent execution immediately; old snapshots are checked for disposal/membership. An Actor disabled at step start remains ineligible until the next step even if enabled mid-step. Changes cannot invalidate iteration or cause double updates. There is no configurable system graph or archetype storage. Requirements do not reorder peers. Use one direction writer per Motion; replace ActionMovement with a custom Update Component rather than depending on two writers overwriting each other. Input-phase scale policies precede the standard Update adapter. [Movement contracts](movement.md) explain the phase migration and ownership.
@@ -103,7 +103,7 @@ Scene/Actor/Component local buses are allocated lazily. Local bus disposal remov
 
 Scene.after/every use simulation seconds, never host timers. They run only when their Scene steps. Repeating timers deliver at most once per step, drop missed repetitions and preserve the fractional interval remainder; zero-delay one-shots fire on the next step. Timer eligibility is captured before logical Action callbacks and all Scene update phases. Timers added during components, contacts, timers or Scene callbacks wait until the next step. Actor/Component ownership optionally cancels timers on destruction; enable/disable does not pause timers. Timer handler failures are aggregated after other due callbacks run.
 
-Disposal is idempotent. All registered cleanup runs even after failures. Scene disposal cancels timers and its event bus, destroys Actors/components, then runs Scene cleanup in reverse registration order. Actors run owned cleanup, close their bus and destroy Components in reverse attachment order. Components release their owned subscriptions/bus and invoke onDestroy. A cleanup registration returns a function that unregisters it; that function does not invoke cleanup.
+Disposal is idempotent. All registered cleanup runs even after failures. Scene disposal cancels both Tween clocks, timers and its event bus, destroys Actors/components, then runs Scene cleanup in reverse registration order. Actors run owned cleanup, close their bus and destroy Components in reverse attachment order. Components release their owned subscriptions/bus and invoke onDestroy. A cleanup registration returns a function that unregisters it; that function does not invoke cleanup.
 
 ## Coordinates, Camera, Viewport and DPI
 
@@ -161,3 +161,7 @@ Canvas UI is a Core-owned logical tree, not Actors or Components. A Scene or pla
 [Core modules and Host contracts](host-boundary.md) describes the checked internal dependencies, portable UI state/layout/input flow, cancellation migration, renderer/Host/target distinction and concrete Host implementation steps. [Work reports](work-reports/README.md) preserve implementation and verification checkpoints.
 
 Canvas Checkbox/Slider use a small optional control port and typed value-node foundation within the existing UI tree. Core owns immediate values, notifications, range validation, focus and pointer arbitration; Web owns paint/font metrics and native ARIA mirrors. Select/TextInput/NumberInput reuse the value foundation with generation-checked native sessions and separate accepted values/drafts. Web owns native popup/caret/selection/clipboard/composition presentation; idle text and control backgrounds remain Canvas-rendered. [Canvas controls](canvas-controls.md) and [native editing contracts](text-input-design.md) define implemented scope and OS IME verification limits.
+
+## Numeric animation clocks
+
+Generic Tween/Easing lives in foundation and depends only on diagnostics/Lifetime. Scene owns lazy simulation and presentation schedulers. Simulation eligibility is captured before input and advances after contacts, before timers. Web feeds presentation seconds once per visible capped frame, including Engine pause; resize/layout does not advance clocks. Display time is independent of fixed/replay simulation. Actor adapters grant Renderable-only capabilities; UI adapters grant projected translation/opacity or Slider value/display capabilities. Canonical target/key claims span clocks, and synchronous lifetime/invalidation cleanup precedes callbacks. See [Tween contracts](tween.md).

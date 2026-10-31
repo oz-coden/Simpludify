@@ -36,7 +36,8 @@
     "bench:movement": "node --expose-gc scripts/benchmark-movement.mjs",
     "bench:renderable": "node scripts/benchmark-renderable.mjs",
     "bench:images": "node scripts/benchmark-images.mjs",
-    "bench:grid": "node --expose-gc scripts/benchmark-grid.mjs"
+    "bench:grid": "node --expose-gc scripts/benchmark-grid.mjs",
+    "bench:tween": "node scripts/benchmark-tweens.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.3",

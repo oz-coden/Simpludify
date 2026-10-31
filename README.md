@@ -168,7 +168,7 @@ npm run site:check
 npm run site:serve
 ```
 
-This integrates documentation and all nine browser examples into `site-dist/`, independently of the existing game-only `dist/`. Use `--base /` for root/custom-domain hosting. `npm run test:site` validates production pages, gallery controls and cleanup at desktop/narrow sizes. [Site build, deployment and validation](docs/site-validation.md) explains Pages Actions and language coverage. No domain or DNS settings are changed by the build.
+This integrates documentation and all ten browser examples into `site-dist/`, independently of the existing game-only `dist/`. Use `--base /` for root/custom-domain hosting. `npm run test:site` validates production pages, gallery controls and cleanup at desktop/narrow sizes. [Site build, deployment and validation](docs/site-validation.md) explains Pages Actions and language coverage. No domain or DNS settings are changed by the build.
 
 ## Documentation
 
@@ -190,3 +190,5 @@ This integrates documentation and all nine browser examples into `site-dist/`, i
 ## License
 
 Original engine code and included example assets are [MIT licensed](LICENSE). Games' original code and assets do not have to use MIT. Bundled dependencies retain their own licenses; see [licensing](docs/licensing.md).
+
+See [Tween and animation](docs/tween.md) for shared numeric animation, Scene clocks, Actor/UI adapters and Slider display values.

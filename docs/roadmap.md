@@ -27,7 +27,7 @@ Simpludify has an experimental Web runtime and a generic composition-based Core.
 - Character, UI/scenes, headless, Beacon field the complete Signal Run collection/survival game, and Blockfall falling-block puzzle with deterministic grid logic, hold/ghost and keyboard/touch controls; Prism Raid adds Triangle ships, Trigger combat and input-only automatic play.
 - Noninteractive source scaffold/dev/check/test/build/doctor, JSON diagnostics, unit/browser/production-subpath tests, baseline scripts and automatic licensing notices.
 
-- Japanese-first static documentation, English technical reference, isolated playable nine-sample gallery, integrated root/project-base builds and Pages workflow. See site-validation for deployment evidence.
+- Japanese-first static documentation, English technical reference, isolated playable ten-sample gallery, integrated root/project-base builds and Pages workflow. See site-validation for deployment evidence.
 
 ## Pending and limits
 
@@ -69,3 +69,5 @@ Consider a clearer `changeScene` name for factory-based navigation, directly con
 
 - Standard Canvas Checkbox and horizontal Slider provide typed values/events, read-only state and shared pointer/keyboard/focus/lifetime behavior; Canvas trail Settings lab uses Core-only definitions. [Control contracts](canvas-controls.md).
 - Canvas Select/TextInput/NumberInput provide typed selection, accepted values versus text drafts, generation-checked native Host editing, finite numeric validation and shared focus/lifetime. [Native editing contracts](text-input-design.md) distinguish automated browser/synthetic composition tests from unverified real OS Japanese IME and physical mobile keyboards.
+
+- Generic numeric Tween, Scene simulation/display clocks, lifetime/channel ownership, sequence/parallel, Actor draw and Canvas/Slider adapters; [contracts and limitations](tween.md).

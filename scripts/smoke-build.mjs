@@ -3,12 +3,15 @@ import { resolve } from "node:path";
 import { chromium } from "@playwright/test";
 import { preview } from "vite";
 import { testCanvasUI } from "./site-canvas-test.mjs";
+import { testTween } from "./site-tween-test.mjs";
 
 const exampleIndex = process.argv.indexOf("--example");
 const example = exampleIndex < 0 ? "ui-scenes" : process.argv[exampleIndex + 1];
 assert.ok(
-  ["ui-scenes", "composition", "signal-run", "canvas-ui"].includes(example),
-  "Choose ui-scenes, composition, signal-run or canvas-ui",
+  ["ui-scenes", "composition", "signal-run", "canvas-ui", "tween"].includes(
+    example,
+  ),
+  "Choose ui-scenes, composition, signal-run, canvas-ui or tween",
 );
 const server = await preview({
   configFile: false,
@@ -39,7 +42,9 @@ try {
     page.on("pageerror", (error) => errors.push(error.message));
     const response = await page.goto("http://127.0.0.1:4175/Simpludify/");
     assert.equal(response?.status(), 200);
-    if (example === "canvas-ui") {
+    if (example === "tween") {
+      await testTween(page, page);
+    } else if (example === "canvas-ui") {
       await testCanvasUI(page, page);
     } else if (example === "signal-run") {
       await page

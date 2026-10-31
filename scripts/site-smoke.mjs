@@ -8,6 +8,7 @@ import { testSiteImages } from "./site-image-test.mjs";
 import { testPrismRaid } from "./site-prism-raid-test.mjs";
 import { serveSite } from "./site-server.mjs";
 import { testSiteTheme } from "./site-theme-test.mjs";
+import { testTween } from "./site-tween-test.mjs";
 
 const { base } = JSON.parse(
   readFileSync("site-dist/site-manifest.json", "utf8"),
@@ -109,7 +110,9 @@ try {
       const element = await page.locator("iframe").elementHandle();
       const frame = await element.contentFrame();
       await frame.waitForSelector("canvas");
-      if (example.id === "prism-raid") {
+      if (example.id === "tween") {
+        await testTween(frame, page);
+      } else if (example.id === "prism-raid") {
         await testPrismRaid(frame, page, context, viewport.width);
       } else if (example.id === "blockfall") {
         await testBlockfall(frame, page, context, viewport.width);
@@ -256,6 +259,7 @@ try {
         });
         await targetFrame.evaluate(() => {
           const game =
+            window.tweenDemo?.game ??
             window.canvasDemo?.game ??
             window.tilemapDemo?.game ??
             window.prismRaid?.game ??
@@ -320,6 +324,7 @@ try {
       theme: true,
       hostCleanupAll: true,
       inspectedEngineCleanup: [
+        "tween",
         "canvas-ui",
         "tilemap",
         "prism-raid",

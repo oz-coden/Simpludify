@@ -1,6 +1,14 @@
 export const repository = "https://github.com/oz-coden/Simpludify";
 export const examples = [
   {
+    id: "tween",
+    title: "Tween lab",
+    summary: "汎用Tween・Easing・Actor/UI・Slider・2つの時計",
+    controls:
+      "Start/RestartでEasingを比較。WASDでSpriteのワールド位置とは独立した描画オフセットを確認。Pause game中もFade/Slide UIやHP表示を操作できます。Tween値のドラッグ、Sequence/Parallel、破棄・再生成も試せます。",
+    guide: "en/tween.html",
+  },
+  {
     id: "character",
     title: "Character",
     summary: "最小のキャラクター移動",
@@ -74,6 +82,8 @@ export const examples = [
   },
 ];
 export const pages = [
+  ["en/tween.html", "docs/tween.md", "Tween and animation", "English"],
+  ["guides/tween.html", "site/ja/tween.md", "Tween・アニメーション", "ガイド"],
   [
     "en/canvas-controls.html",
     "docs/canvas-controls.md",
