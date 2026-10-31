@@ -67,9 +67,8 @@ try {
       };
     });
     assert.equal(cleanup.disposed, true);
-    for (const key of [
-      "sources", "simulation", "display", "handles", "hosts",
-    ]) assert.equal(cleanup[key], 0);
+    for (const key of ["sources", "simulation", "display", "handles", "hosts"])
+      assert.equal(cleanup[key], 0);
     assert.deepEqual(errors, []);
     report.viewports.push({ viewport, cleanup, errors });
     await page.close();
@@ -81,7 +80,7 @@ try {
   mkdirSync("test-results/site", { recursive: true });
   writeFileSync(
     "test-results/site/tween-live.json",
-    JSON.stringify(report, null, 2) + "\n",
+    `${JSON.stringify(report, null, 2)}\n`,
   );
   console.log(JSON.stringify(report, null, 2));
   await browser?.close();
