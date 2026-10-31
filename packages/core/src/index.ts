@@ -1,4 +1,6 @@
+export * from "./animation/easing";
 export * from "./animation/sprite-animation";
+export * from "./animation/tween";
 export * from "./components";
 export * from "./foundation/cancellation";
 export * from "./foundation/diagnostics";

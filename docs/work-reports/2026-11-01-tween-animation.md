@@ -23,3 +23,9 @@ Contributor guidance, README, architecture/API and relevant source were inspecte
 ## Initial checkpoint
 
 Investigation/design complete; implementation and new tests have not run yet. All components, sample/docs, full local/Actions verification, main integration and Pages/live verification remain pending. Real OS IME/mobile and unrelated packaging are outside this work; existing native input must retain its tested behavior. Save each stage before long validation.
+
+## Tween Core checkpoint
+
+Implemented explicit numeric capabilities, plain-record property validation, seven normalized easing functions, immutable to/delay/sequence/parallel recipes, bounded numeric repeat/yoyo, Playback pause/resume/cancel/stop/finite finish and an explicit Scheduler clock. Claims are shared across schedulers, replacement reserves the new owner before old cancellation observers, and parallel aliasing rejects before mutation. Scheduler rosters rebuild on membership changes rather than allocating on every frame; terminal handles release targets, claims, owner/watch subscriptions and scheduler references. Recursive advance/finish and asynchronous hooks/callbacks are diagnosed; failures release state and aggregate after other eligible work. No Host import or dependency was introduced.
+
+Focused Core regression suite: **29 passed, 0 failed**. Covers normalized easings, delay/zero/large times, repeat/yoyo, clock speed, finite finish, composition leftovers, cross-clock conflicts, reentrant replacement, external writes including a later parallel channel, owner destruction, callback failure/reentrancy, paused callbacks, invalid settings and deterministic explicit steps. TypeScript passed after correcting a private optional-channel annotation and removing an unused test import. Scene clocks/adapters/sample and full integration gates remain pending.
