@@ -38,11 +38,12 @@ export class BrowserPointer {
           } catch {
             /* Window capture listeners also cover synthetic events. */
           }
-          this.routing.down(data);
+          const target = this.routing.down(data);
           if (this.routing.has(e.pointerId)) {
             e.preventDefault();
-            // Pointer ownership is independent of compatible button keyboard focus.
-            focusGameSurface(host);
+            // UI gestures retain compatible focus; an explicit world click selects the game.
+            if (target) focusGameSurface(host);
+            else host.focus({ preventScroll: true });
           } else {
             if (this.routing.owns(e.pointerId)) e.preventDefault();
             if (host.hasPointerCapture(e.pointerId))

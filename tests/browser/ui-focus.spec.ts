@@ -149,6 +149,33 @@ for (const fallback of [false, true])
       expect(await page.evaluate(() => window.focusProbe.check.value)).toBe(
         true,
       );
+      // Clicking the actual world deliberately restores its full bindings (including Space).
+      await page.keyboard.down("w");
+      await page.mouse.click(340, 550);
+      await expect(page.locator(".simpludify")).toBeFocused();
+      await expectMovement(page, true);
+      await page.keyboard.up("w");
+      await page.keyboard.press("Space");
+      await tick(page);
+      expect(
+        await page.evaluate(() =>
+          window.focusProbe.controls.button(window.focusProbe.A.Fire),
+        ),
+      ).toMatchObject({ held: false, pressCount: 1 });
+      await page
+        .getByRole("button", { name: "DOM action", exact: true })
+        .focus();
+      await page.keyboard.press("Enter");
+      await page.keyboard.press("Space");
+      await tick(page);
+      expect(
+        await page.evaluate(() =>
+          window.focusProbe.controls.button(window.focusProbe.A.Fire),
+        ),
+      ).toMatchObject({ held: false, pressCount: 0 });
+      expect(
+        await page.evaluate(() => window.focusProbe.counts().domClicks),
+      ).toBe(3);
     });
     test("text and IME isolate gameplay, cancel/commit preserve focus and fresh keydown resumes on a button", async ({
       page,
