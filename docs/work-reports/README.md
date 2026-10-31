@@ -4,6 +4,7 @@ Implementation checkpoints and final verification records live here so repositor
 
 | Date (JST) | Task                                                                      | Status                                                                                                   |
 | ---------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| 2026-10-31 | [Hover, keyboard and focus](2026-10-31-ui-focus-input.md) | In progress: investigation/design checkpoint |
 | 2026-10-31 | [Select and native text editing](2026-10-31-native-input.md)              | Complete: PR #4 merged 884475b; main 696 unit / 294 browser, Pages and live sample/docs verified         |
 | 2026-10-31 | [Standard Canvas input controls](2026-10-31-canvas-controls.md)           | Complete: PR #3 merged ff39721; main 658 unit / 266 browser tests, Pages and live settings/docs verified |
 | 2026-10-30 | [Canvas scroll input](2026-10-30-scroll-input.md)                         | Complete: merged 221b053; main CI/Pages passed; live sample and docs matched main dd2eb0e                |
