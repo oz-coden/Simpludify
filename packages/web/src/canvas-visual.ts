@@ -1,3 +1,4 @@
+import { CanvasNativeSelect } from "./canvas-native";
 import type {
   CanvasNode,
   CanvasUI,
@@ -31,7 +32,8 @@ interface Entry {
   background: Graphics;
   text?: Text;
   mask: Graphics;
-  button?: HTMLButtonElement;
+  button?: HTMLButtonElement | HTMLSelectElement | HTMLInputElement;
+  native?: CanvasNativeSelect;
   abort: AbortController;
   signature?: string;
   paintSignature?: string;
@@ -222,6 +224,7 @@ export class CanvasVisual implements CanvasPresentation {
     return button;
   }
   private updateButton(entry: Entry, node: CanvasNode, clip: UIBounds): void {
+    if (entry.native) { entry.native.update(clip); return; }
     if (!entry.button) return;
     const button = entry.button,
       b = node.bounds,
@@ -242,7 +245,7 @@ export class CanvasVisual implements CanvasPresentation {
       button.setAttribute("aria-readonly", String(model.readOnly));
       if (model.kind === "checkbox")
         button.setAttribute("aria-checked", String(model.checked));
-      else {
+      else if (model.kind === "slider") {
         button.setAttribute("aria-orientation", "horizontal");
         button.setAttribute("aria-valuemin", String(model.min));
         button.setAttribute("aria-valuemax", String(model.max));
@@ -265,7 +268,7 @@ export class CanvasVisual implements CanvasPresentation {
     this.syncs++;
     this.display.scale.set(this.ui.scale);
     const visited = new Set<CanvasNode>(),
-      buttons: HTMLButtonElement[] = [];
+      buttons: (HTMLButtonElement | HTMLSelectElement | HTMLInputElement)[] = [];
     let order = 0;
     this.ui.walk(
       (node, parentClip) => {
@@ -294,7 +297,16 @@ export class CanvasVisual implements CanvasPresentation {
           entry = { display, background, mask, abort: new AbortController() };
           this.entries.set(node, entry);
           if (node.interactive) {
-            entry.button = this.button(node);
+            if (node.control?.model.kind === "select") {
+              entry.native = new CanvasNativeSelect(node, this.ui, entry.abort.signal, (reverse) => {
+                const next = this.ui.focusNext(reverse);
+                if (!next) return false;
+                this.update(this.host.clientWidth, this.host.clientHeight);
+                this.focus(next);
+                return true;
+              });
+              entry.button = entry.native.element;
+            } else entry.button = this.button(node);
             this.element.append(entry.button);
           }
           if (node.kind !== "panel") {
@@ -429,6 +441,7 @@ export class CanvasVisual implements CanvasPresentation {
           }
           entry.display.alpha = enabled ? (model?.readOnly ? 0.7 : 1) : 0.45;
           if (entry.text) {
+            entry.text.visible = !entry.native;
             const m = measuredText ?? this.measure(node);
             if (entry.text.text !== m.text) {
               this.resources.changedText(entry.text.styleKey);

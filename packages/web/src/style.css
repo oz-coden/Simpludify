@@ -151,3 +151,19 @@
 .simpludify > canvas {
   touch-action: none;
 }
+
+/* Engine-owned native editing surfaces; Canvas still owns geometry/background/focus paint. */
+.s-canvas-accessibility .s-canvas-native {
+  position: absolute;
+  pointer-events: auto;
+  box-sizing: border-box;
+  margin: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  border-radius: 0;
+  min-width: 0;
+  user-select: text;
+  color-scheme: dark;
+}
+.s-canvas-native option { background: #16242c; }

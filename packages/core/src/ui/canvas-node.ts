@@ -196,6 +196,9 @@ export type CanvasNodeKind =
   | "label"
   | "button"
   | "hold-button"
+  | "select"
+  | "text-input"
+  | "number-input"
   | "checkbox"
   | "slider";
 /** Host-independent UI model. Single-parent ownership; removing a child disposes that subtree. */

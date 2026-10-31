@@ -20,3 +20,11 @@
 ## Progress and remaining work
 
 Initial investigation/design complete. Select, text session, TextInput, NumberInput, sample/docs, regression tests, review, PR/main integration and Pages verification remain pending. No unfinished factory has been added.
+
+## Select checkpoint
+
+- Implemented copied typed options, label/value separation, program/options replacement, disabled options, read-only, accepted change/commit/cancel transactions and stale-session rejection. Empty options have undefined value; missing values fall back predictably; duplicate values are rejected.
+- Added a narrow native session/port shape and native single-choice Host presentation. Native browser/OS popup handles option scrolling, edge placement and escape from Canvas clips. Existing CanvasUI traversal/blur and CanvasInputNode events are reused.
+- Focused Core verification: **46 passed / 0 failed** across new Select cases and existing control cases. TypeScript passes after correcting the test Scene fixture to provide its required ID. Browser execution is pending; local pinned Chromium download returns a truncated/non-ZIP archive. No native popup or IME certification yet.
+- Shell git push cannot authenticate; checkpoints use the connected GitHub tree/commit/ref API with normal fast-forward updates and expected-head checks. Initial remote design commit: [5678c02](https://github.com/oz-coden/Simpludify/commit/5678c029075f60b2dd0ba9ab99de9df53f2617cb).
+- Next: harden Host generation replacement, implement native text snapshots/drafts and TextInput/NumberInput, add browser regressions and sample/docs.

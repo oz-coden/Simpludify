@@ -127,6 +127,7 @@ export class CanvasUI implements LifetimeOwner {
     const previous = this.focusNode;
     this.focusNode = node;
     if (previous) {
+      previous.control?.native?.end("blur");
       previous.focused = false;
       previous.changed();
     }
