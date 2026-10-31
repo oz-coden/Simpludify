@@ -167,3 +167,10 @@
   color-scheme: dark;
 }
 .s-canvas-native option { background: #16242c; }
+
+.s-canvas-accessibility input.s-canvas-native:not(:focus) {
+  color: transparent !important;
+  caret-color: transparent;
+}
+.s-canvas-accessibility input.s-canvas-native:not(:focus)::placeholder { color: transparent; }
+.s-canvas-accessibility input.s-canvas-native:focus::placeholder { color: currentColor; opacity: .65; }

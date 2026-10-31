@@ -80,3 +80,78 @@ describe("CanvasSelect", () => {
     expect(() => {select.value="normal";}).toThrow();
   });
 });
+
+import { CanvasTextInput, type CanvasTextSnapshot } from "@simpludify/core";
+const draft = (text:string, composing=false): CanvasTextSnapshot => ({text,selectionStart:text.length,selectionEnd:text.length,direction:"none",composing});
+describe("CanvasTextInput native sessions", () => {
+  it("separates accepted values from drafts and sends one change/commit", () => {
+    const node = CanvasTextInput({value:"old"}), changes: string[] = [], commits: string[] = [], drafts: string[] = [];
+    node.onChange((e) => changes.push(e.value)); node.onCommit((e) => commits.push(e.value)); node.onDraftChange((e) => drafts.push(e.draft.text));
+    const session = node.beginTextEdit()!;
+    session.update(draft("new")); session.update(draft("new"));
+    expect(node.value).toBe("old"); expect(node.draft.text).toBe("new");
+    expect(changes).toEqual([]); expect(drafts).toEqual(["new"]);
+    expect(session.commit()).toBe(true);
+    expect(changes).toEqual(["new"]); expect(commits).toEqual(["new"]);
+    expect(session.commit()).toBe(false);
+  });
+  it("preserves Japanese, emoji and combining text with native UTF-16 selection", () => {
+    const node = CanvasTextInput(), text="日本語A😀e\u0301";
+    const session=node.beginTextEdit()!;
+    session.update({...draft(text),selectionStart:3,selectionEnd:6,direction:"backward"});
+    expect(node.draft.selectionEnd).toBe(6);
+    expect(node.draft.direction).toBe("backward");
+    session.commit(); expect(node.value).toBe(text);
+  });
+  it("reports composition without publishing an accepted value and cancels on blur", () => {
+    const a = CanvasTextInput({value:"start"}), b = CanvasTextInput(), scene=new Scene("ime"), ui = new CanvasUI(scene,CanvasColumn([a,b]));
+    ui.layout(400,400,()=>({width:40,height:20})); ui.focus(a);
+    const session=a.beginTextEdit()!; session.update(draft("にほん",true));
+    expect(a.value).toBe("start"); expect(a.draft.composing).toBe(true);
+    ui.focus(b); expect(session.active).toBe(false); expect(a.value).toBe("start"); expect(a.draft.text).toBe("start");
+    scene.dispose();
+  });
+  it("compositionend updates can be repeated without duplicate form commits", () => {
+    const node=CanvasTextInput(), changes:string[]=[];node.onChange(e=>changes.push(e.value));
+    const session=node.beginTextEdit()!;
+    session.update(draft("に",true));session.update(draft("日本",false));session.update(draft("日本",false));
+    expect(changes).toEqual([]);session.commit();expect(changes).toEqual(["日本"]);
+  });
+  it("Escape restores accepted text and program supersession rejects late callbacks", () => {
+    const node=CanvasTextInput({value:"a"});let cancels=0;node.onCancel(()=>cancels++);
+    const first=node.beginTextEdit()!;first.update(draft("b"));first.cancel();
+    expect(node.draft.text).toBe("a");expect(cancels).toBe(1);
+    const second=node.beginTextEdit()!;second.update(draft("変換",true));node.value="program";
+    const third=node.beginTextEdit()!;
+    expect(second.update(draft("late"))).toBe(false);expect(second.commit()).toBe(false);
+    expect(third.id).toBeGreaterThan(second.id);expect(node.value).toBe("program");
+  });
+  it("validates constraints atomically and never accepts overlong composition", () => {
+    const node=CanvasTextInput({value:"😀",maxLength:2});
+    expect(()=>node.setMaxLength(1)).toThrow();expect(node.maxLength).toBe(2);
+    expect(()=>{node.value="abc";}).toThrow();
+    const session=node.beginTextEdit()!;session.update(draft("日本語",true));session.update(draft("日本語"));
+    expect(session.commit()).toBe(false);expect(node.value).toBe("😀");expect(node.editing).toBe(false);
+    node.setMaxLength(undefined);node.value="longer";expect(node.value).toBe("longer");
+    expect(()=>CanvasTextInput({maxLength:-1})).toThrow();expect(()=>CanvasTextInput({value:"a\nb"})).toThrow();
+  });
+  it("rejects malformed snapshots without corrupting the editor", () => {
+    const node=CanvasTextInput(),session=node.beginTextEdit()!;
+    for(const invalid of [{...draft("x"),selectionStart:-1},{...draft("x"),selectionEnd:2},{...draft("x"),selectionStart:0.5},draft("x\ny")])
+      expect(()=>session.update(invalid)).toThrow();
+    expect(node.draft.text).toBe("");
+  });
+  it.each(["readOnly","enabled","visible"] as const)("invalidates text editing on %s",flag=>{
+    const node=CanvasTextInput({value:"a"}),session=node.beginTextEdit()!;session.update(draft("b"));node[flag]=flag==="readOnly";
+    expect(session.active).toBe(false);expect(node.value).toBe("a");expect(node.editing).toBe(false);
+  });
+  it("reentrant program replacement wins over a commit callback",()=>{
+    const node=CanvasTextInput({value:"a"}),commits:string[]=[];
+    node.onChange(e=>{if(e.source!=="program")node.value="replacement";});node.onCommit(e=>commits.push(e.value));
+    const session=node.beginTextEdit()!;session.update(draft("b"));expect(()=>session.commit()).toThrow();expect(node.value).toBe("replacement");expect(commits).toEqual([]);
+  });
+  it("disposal cancels drafts, listeners and late session writes",()=>{
+    const node=CanvasTextInput(),session=node.beginTextEdit()!;session.update(draft("に",true));node.onDraftChange(()=>{});node.dispose();
+    expect(session.update(draft("late"))).toBe(false);expect(node.events.listenerCount()).toBe(0);expect(node.editing).toBe(false);
+  });
+});

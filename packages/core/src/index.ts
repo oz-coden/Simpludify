@@ -29,6 +29,7 @@ export * from "./ui/canvas-control";
 export * from "./ui/canvas-input";
 export * from "./ui/native-edit";
 export * from "./ui/canvas-editor";
+export * from "./ui/canvas-text-input";
 export * from "./ui/canvas-select";
 export * from "./ui/canvas-layout";
 export * from "./ui/canvas-node";

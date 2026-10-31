@@ -1,4 +1,4 @@
-import { CanvasNativeSelect } from "./canvas-native";
+import { CanvasNativeSelect, CanvasNativeText } from "./canvas-native";
 import type {
   CanvasNode,
   CanvasUI,
@@ -33,7 +33,7 @@ interface Entry {
   text?: Text;
   mask: Graphics;
   button?: HTMLButtonElement | HTMLSelectElement | HTMLInputElement;
-  native?: CanvasNativeSelect;
+  native?: CanvasNativeSelect | CanvasNativeText;
   abort: AbortController;
   signature?: string;
   paintSignature?: string;
@@ -134,6 +134,26 @@ export class CanvasVisual implements CanvasPresentation {
   focus(node: CanvasNode): void {
     if (node.available)
       this.entries.get(node)?.button?.focus({ preventScroll: true });
+  }
+  private native(node: CanvasNode, signal: AbortSignal): CanvasNativeSelect | CanvasNativeText {
+    const host = {
+      traverse: (reverse: boolean) => {
+        const next = this.ui.focusNext(reverse);
+        if (!next) return false;
+        this.update(this.host.clientWidth, this.host.clientHeight);
+        this.focus(next);
+        return true;
+      },
+      wheel: (event: WheelEvent) => {
+        const rect = this.host.getBoundingClientRect();
+        const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? this.host.clientHeight : 1;
+        if (this.routing.scroll((event.clientX-rect.x)*this.host.clientWidth/rect.width,
+          (event.clientY-rect.y)*this.host.clientHeight/rect.height,event.deltaX*unit,event.deltaY*unit)) event.preventDefault();
+      },
+    };
+    return node.control?.native?.kind === "select"
+      ? new CanvasNativeSelect(node,this.ui,signal,host)
+      : new CanvasNativeText(node,this.ui,signal,host);
   }
   private button(node: CanvasNode): HTMLButtonElement {
     const button = document.createElement("button");
@@ -297,14 +317,8 @@ export class CanvasVisual implements CanvasPresentation {
           entry = { display, background, mask, abort: new AbortController() };
           this.entries.set(node, entry);
           if (node.interactive) {
-            if (node.control?.model.kind === "select") {
-              entry.native = new CanvasNativeSelect(node, this.ui, entry.abort.signal, (reverse) => {
-                const next = this.ui.focusNext(reverse);
-                if (!next) return false;
-                this.update(this.host.clientWidth, this.host.clientHeight);
-                this.focus(next);
-                return true;
-              });
+            if (node.control?.native) {
+              entry.native = this.native(node, entry.abort.signal);
               entry.button = entry.native.element;
             } else entry.button = this.button(node);
             this.element.append(entry.button);
@@ -313,6 +327,13 @@ export class CanvasVisual implements CanvasPresentation {
             entry.text = new Text({ text: node.text });
             display.addChild(entry.text);
           }
+        }
+        if (entry.native && entry.native.revision !== node.control?.revision) {
+          entry.native.dispose();
+          entry.native = this.native(node, entry.abort.signal);
+          entry.button = entry.native.element;
+          this.element.append(entry.button);
+          delete entry.signature;
         }
         this.display.setChildIndex(entry.display, order++);
         this.display.setChildIndex(entry.mask, order++);
@@ -441,7 +462,7 @@ export class CanvasVisual implements CanvasPresentation {
           }
           entry.display.alpha = enabled ? (model?.readOnly ? 0.7 : 1) : 0.45;
           if (entry.text) {
-            entry.text.visible = !entry.native;
+            entry.text.visible = !entry.native || (node.control?.model.kind === "text" && !node.focused);
             const m = measuredText ?? this.measure(node);
             if (entry.text.text !== m.text) {
               this.resources.changedText(entry.text.styleKey);
@@ -555,6 +576,7 @@ export class CanvasVisual implements CanvasPresentation {
     cleanupAll(
       [
         () => entry.abort.abort(),
+        () => entry.native?.dispose(),
         () => entry.button?.remove(),
         // These Graphics contexts and Text styles are private to this presentation.
         // An options object with only children:true does not destroy owned GraphicsContext in Pixi8.

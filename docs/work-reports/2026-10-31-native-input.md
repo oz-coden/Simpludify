@@ -35,3 +35,11 @@ Initial investigation/design complete. Select, text session, TextInput, NumberIn
 - Added a shared Core text editor abstraction carrying immutable single-line draft/UTF-16 selection/direction/composition snapshots and typed draft notifications. Accepted values remain separate; sessions have monotonic identities, generation/availability checks, explicit commit/cancel, blur policy and disposal invalidation.
 - Existing value foundation now retains the actual activation source for edit-end events. Slider's immediate-value behavior remains unchanged. Numeric range normalization was named/exported for reuse; DOM-free compilation and all existing focused control cases still pass.
 - TypeScript compilation passed for this contract checkpoint. Concrete TextInput/NumberInput and Web text adapter/tests remain pending. Actual OS IME is unverified.
+
+## TextInput checkpoint
+
+- Shared text contract saved as [2901301](https://github.com/oz-coden/Simpludify/commit/29013011e210ce856ff2c0771a7afc5cf83b8004).
+- Added CanvasTextInput with accepted values, immutable drafts/selection/composition, placeholder, validated native UTF-16 maxLength, program replacement, read-only/disabled cancellation, Enter/blur acceptance and Escape rollback. Native focused input supplies browser caret/selection/clipboard/grapheme handling; inactive text remains Canvas-painted.
+- Host surfaces are bound to the Core control revision and replaced on program/options/read-only changes. Detached editor callbacks cannot begin sessions on another generation. Native pointer focus is synchronous; editor gestures are distinct from Canvas drags. Shared CanvasUI handles Tab/reveal; wheel input reaches existing Core scroll routing.
+- Focused Core suites: **58 passed / 0 failed**. TypeScript passed. The new reentrant-change test was corrected to expect the existing EventBus recursive-delivery diagnostic while verifying program replacement wins and stale commit is suppressed; existing behavior/assertions were retained.
+- Local Chromium installation failed after all download attempts (invalid/truncated ZIP). Browser caret/clipboard/IME adapter cases are not yet executed. NumberInput, browser regressions, sample/docs and full CI remain pending.
