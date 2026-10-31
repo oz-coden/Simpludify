@@ -163,3 +163,6 @@ Final review found no remaining correctness failure in the accepted source. Scen
 ## Main integration started
 
 The accepted runtime is being integrated directly from work branch b7093cbb5f7efe30b1f3eba884953f93b4c494bf, preserving all checkpoint history. A compare against the successful 2edfd14 source confirmed that only the main-only live-check script/workflow and work-report metadata changed afterward. Main still matched the recorded baseline immediately before the optimistic, non-force update. Main CI, Pages deployment and the post-publication browser step must now pass; no publication result is claimed yet.
+
+
+Main integration commit: [abdb9b665fffa67aac7631b6b4863d0f4674c095](https://github.com/oz-coden/Simpludify/commit/abdb9b665fffa67aac7631b6b4863d0f4674c095), direct fast-forward from the baseline with all work-branch history retained. [Main CI run](https://github.com/oz-coden/Simpludify/actions/runs/41228626227) is running. Pages and published browser validation are pending. The following metadata checkpoint does not change runtime or restart CI.
