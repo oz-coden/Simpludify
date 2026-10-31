@@ -21,7 +21,7 @@ export async function testTween(frame, page) {
     await frame.waitForFunction(() => {
       const d = window.tweenDemo;
       if (d.game.engine.disposed)
-        throw Error("Tween sample disposed: " + document.body.textContent);
+        throw Error(`Tween sample disposed: ${document.body.textContent}`);
       return (
         d.lab.preview.presentation.opacity === 1 &&
         d.lab.display.diagnostics.active === 0
@@ -44,7 +44,7 @@ export async function testTween(frame, page) {
             duration: p.duration,
             reason: p.reason,
           })),
-          body: document.body.innerText,
+          body: document.body.textContent,
         };
       }),
     );

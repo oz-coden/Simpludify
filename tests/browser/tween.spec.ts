@@ -150,6 +150,7 @@ for (const fallback of [false, true])
     }) => {
       await page.evaluate(() => {
         const f = window.tweenProbe;
+        f.lab.ui.scale = 1.25;
         f.focus(f.lab.field);
       });
       const input = page.getByRole("textbox", {
@@ -220,6 +221,20 @@ for (const fallback of [false, true])
           opacity = f.lab.preview.presentation.opacity;
         f.frame(5);
         const cappedOpacity = f.lab.preview.presentation.opacity;
+        Object.defineProperty(document, "hidden", {
+          configurable: true,
+          get: () => true,
+        });
+        document.dispatchEvent(new Event("visibilitychange"));
+        f.frame(30);
+        const hiddenOpacity = f.lab.preview.presentation.opacity;
+        Object.defineProperty(document, "hidden", {
+          configurable: true,
+          get: () => false,
+        });
+        document.dispatchEvent(new Event("visibilitychange"));
+        f.frame(0);
+        const restoredOpacity = f.lab.preview.presentation.opacity;
         const old = f.lab,
           view = f.linearView();
         const offset = view.offsetX;
@@ -240,6 +255,8 @@ for (const fallback of [false, true])
           paused,
           opacity,
           cappedOpacity,
+          hiddenOpacity,
+          restoredOpacity,
           offset,
           released,
           live,
@@ -250,6 +267,8 @@ for (const fallback of [false, true])
       expect(r.paused).toBe(r.capped);
       expect(r.opacity).toBeCloseTo(0.1);
       expect(r.cappedOpacity).toBeCloseTo(0.2);
+      expect(r.hiddenOpacity).toBe(r.cappedOpacity);
+      expect(r.restoredOpacity).toBe(r.cappedOpacity);
       expect(r.released).toEqual({
         sim: 0,
         display: 0,
