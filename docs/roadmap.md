@@ -66,3 +66,6 @@ Implemented: Scene-owned Web Canvas nodes, Pixi screen presentation, dirty Flex 
 ## Deferred Scene API proposals
 
 Consider a clearer `changeScene` name for factory-based navigation, directly constructed dynamic Scenes for generated levels, and suspend/resume or concurrent Scenes for modal menus and overlays that must preserve simulation state. These require explicit ownership/readiness/input contracts and are not part of Canvas UI integration. Large lists may eventually justify UI virtualization after game workloads establish the need; current layout and hit testing still visit visible model nodes.
+
+- Standard Canvas Checkbox and horizontal Slider provide typed values/events, read-only state and shared pointer/keyboard/focus/lifetime behavior; Canvas trail Settings lab uses Core-only definitions. [Control contracts](canvas-controls.md).
+- Select, numeric draft editing, TextInput/native IME bridge remain future work; [design and required validation](text-input-design.md) are not a shipped API.

@@ -75,6 +75,18 @@ export const examples = [
 ];
 export const pages = [
   [
+    "en/canvas-controls.html",
+    "docs/canvas-controls.md",
+    "Canvas value controls",
+    "English",
+  ],
+  [
+    "en/text-input-design.html",
+    "docs/text-input-design.md",
+    "Native editing design (future)",
+    "English",
+  ],
+  [
     "en/scrolling.html",
     "docs/scrolling.md",
     "Canvas scrolling and input",
