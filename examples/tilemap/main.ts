@@ -160,7 +160,7 @@ game.scene("field", ({ scene, add, ui }) => {
   ui(
     Panel(
       [
-        Label("Focus the field and move with WASD."),
+        Label("Move with WASD, including while using these buttons."),
         position,
         status,
         Panel(

@@ -695,6 +695,10 @@ export class CanvasVisual implements CanvasPresentation {
       anchor = button;
     }
     const focused = this.ui.focusedNode;
+    if (!focused && this.mirroredFocus) {
+      const previous = this.entries.get(this.mirroredFocus)?.button;
+      if (previous && document.activeElement === previous) previous.blur();
+    }
     const button = focused ? this.entries.get(focused)?.button : undefined;
     if (
       (focused !== this.mirroredFocus || focused === restoreNativeFocus) &&

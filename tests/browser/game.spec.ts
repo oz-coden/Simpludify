@@ -65,7 +65,7 @@ test("keeps the UI in bounds at the selected viewport and after a resize", async
     .poll(async () => (await page.locator("canvas").boundingBox())?.width)
     .toBe(600);
 });
-test("releases input on blur, protects control focus, and removes disposed listeners", async ({
+test("releases input on blur, permits gameplay on engine buttons, and removes disposed listeners", async ({
   page,
 }) => {
   await page.goto("/");
@@ -81,11 +81,21 @@ test("releases input on blur, protects control focus, and removes disposed liste
   ).toEqual([]);
   await page.keyboard.up("w");
   await page.getByRole("button").focus();
+  const before = await page.evaluate(
+    () => window.demo.engine.snapshot().actors[0]?.transform?.x ?? 0,
+  );
   await page.keyboard.down("d");
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => window.demo.engine.snapshot().actors[0]?.transform?.x ?? 0,
+      ),
+    )
+    .toBeGreaterThan(before + 5);
+  await page.keyboard.up("d");
   expect(
     await page.evaluate(() => window.demo.engine.input.snapshot()),
   ).toEqual([]);
-  await page.keyboard.up("d");
   const result = await page.evaluate(() => {
     const game = window.demo,
       host = game.element,

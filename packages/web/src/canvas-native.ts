@@ -139,6 +139,7 @@ export class CanvasNativeSelect extends NativeControl {
       "keydown",
       (e) =>
         this.run(() => {
+          if (e.isComposing || e.keyCode === 229) return;
           if (this.tab(e)) return;
           if (e.code === "Escape") {
             this.session?.cancel();

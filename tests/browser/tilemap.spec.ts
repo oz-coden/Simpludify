@@ -152,7 +152,58 @@ for (const fallback of [false, true])
       await expect
         .poll(() => page.evaluate(() => window.tilemapDemo.game.camera.x))
         .toBeGreaterThan(5);
+      // Keep a physical movement key held across a real sample DOM action.
+      const beforeClick = await page.evaluate(
+        () =>
+          window.tilemapDemo.game.engine
+            .snapshot()
+            .actors.find((a) => a.id === "explorer")?.transform?.x ?? 0,
+      );
+      await page.getByRole("button", { name: "Toggle collision" }).click();
+      await expect
+        .poll(() =>
+          page.evaluate(
+            () =>
+              window.tilemapDemo.game.engine
+                .snapshot()
+                .actors.find((a) => a.id === "explorer")?.transform?.x ?? 0,
+          ),
+        )
+        .toBeGreaterThan(beforeClick + 5);
       await page.keyboard.up("KeyD");
+      const stopped = await page.evaluate(
+        () =>
+          window.tilemapDemo.game.engine
+            .snapshot()
+            .actors.find((a) => a.id === "explorer")?.transform?.x ?? 0,
+      );
+      // A fresh keydown on the still-focused button also moves, without clicking the world.
+      await page.keyboard.down("KeyW");
+      const beforeY = await page.evaluate(
+        () =>
+          window.tilemapDemo.game.engine
+            .snapshot()
+            .actors.find((a) => a.id === "explorer")?.transform?.y ?? 0,
+      );
+      await expect
+        .poll(() =>
+          page.evaluate(
+            () =>
+              window.tilemapDemo.game.engine
+                .snapshot()
+                .actors.find((a) => a.id === "explorer")?.transform?.y ?? 0,
+          ),
+        )
+        .toBeLessThan(beforeY - 5);
+      await page.keyboard.up("KeyW");
+      expect(
+        await page.evaluate(
+          () =>
+            window.tilemapDemo.game.engine
+              .snapshot()
+              .actors.find((a) => a.id === "explorer")?.transform?.x ?? 0,
+        ),
+      ).toBe(stopped);
       const previous = await page.evaluate(
         () => window.tilemapDemo.terrain?.revision ?? 0,
       );

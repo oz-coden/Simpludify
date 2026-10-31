@@ -254,6 +254,7 @@ export function mountUI(
         button.addEventListener(
           "keydown",
           (event) => {
+            if (event.isComposing || event.keyCode === 229) return;
             if (event.code !== "Space" && event.code !== "Enter") return;
             event.preventDefault();
             keys.add(event.code);
@@ -264,6 +265,7 @@ export function mountUI(
         button.addEventListener(
           "keyup",
           (event) => {
+            if (event.isComposing || event.keyCode === 229) return;
             if (event.code !== "Space" && event.code !== "Enter") return;
             event.preventDefault();
             keys.delete(event.code);
