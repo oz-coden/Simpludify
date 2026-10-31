@@ -1,4 +1,5 @@
 import type { CanvasNode, UIBounds } from "./canvas-node";
+import type { CanvasNativeControl } from "./native-edit";
 
 export type CanvasActivation = "pointer" | "keyboard" | "accessibility";
 export type CanvasControlModel =
@@ -15,6 +16,29 @@ export type CanvasControlModel =
       readonly step: number;
       readonly ratio: number;
       readonly readOnly: boolean;
+    }
+  | {
+      readonly kind: "select";
+      readonly options: readonly {
+        readonly label: string;
+        readonly disabled: boolean;
+      }[];
+      readonly selectedIndex: number;
+      readonly readOnly: boolean;
+    }
+  | {
+      readonly kind: "text";
+      readonly text: string;
+      readonly placeholder: string;
+      readonly maxLength: number | undefined;
+      readonly inputMode: "text" | "decimal";
+      readonly numeric?: Readonly<{
+        value: number;
+        min: number;
+        max: number;
+        step: number;
+      }>;
+      readonly readOnly: boolean;
     };
 /** Core control commands/data consumed by input routing and Host presentations. Coordinates are UI units. */
 export interface CanvasControlPort {
@@ -22,6 +46,7 @@ export interface CanvasControlPort {
   readonly revision: number;
   readonly keys: readonly string[];
   readonly pointerAxis?: "horizontal";
+  readonly native?: CanvasNativeControl | undefined;
   key(code: string): void;
   beginPointer(x: number, y: number): boolean;
   movePointer(x: number, y: number): void;
@@ -52,5 +77,11 @@ export function canvasSliderGeometry(
 /** Hosts measure/paint this exact string. Slider size is fixed by style, so value changes are paint-only. */
 export function canvasControlText(node: CanvasNode): string {
   const model = node.control?.model;
-  return model?.kind === "slider" ? `${node.text}: ${model.value}` : node.text;
+  return model?.kind === "slider"
+    ? `${node.text}: ${model.value}`
+    : model?.kind === "select"
+      ? (model.options[model.selectedIndex]?.label ?? "")
+      : model?.kind === "text"
+        ? model.text || model.placeholder
+        : node.text;
 }

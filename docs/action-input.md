@@ -197,53 +197,23 @@ reader(token) returns a read-only ActionReader<K> containing kind, owning Scene,
 
 Action values describe controls; text is an independent Web editing stream. English spelling and romanized Japanese answers should normally compare the native field's text, not physical key positions. Romaji-to-kana matching, alternate spellings and scoring stay game rules. Japanese IME games should compare committed text after composition; intermediate candidates are not submissions. KeyboardEvent.key may help display a shortcut but does not replace input events for IME, paste, handwriting or software keyboards.
 
-The existing Web API can host native DOM fields inside game.element. BrowserInput ignores native editors, contenteditable, composing events and legacy IME process-key events, and releases keyboard movement when focus enters the editor. No TextInput UI widget or dedicated text stream is currently exported. This is a deliberate independent responsibility rather than a fallback to removed raw-key APIs.
+`CanvasTextInput` provides a standard single-line field without application DOM code. BrowserInput ignores native editors, contenteditable, composing events and legacy IME process-key events, and releases keyboard movement when focus enters the editor. Core values/drafts and Host-native selection/composition remain independent of gameplay Actions.
 
 ```ts verify
-import { Game } from "@simpludify/web";
+import { CanvasColumn, CanvasTextInput, Game } from "@simpludify/web";
 const game = new Game();
-game.scene("typing", ({ signal, onActivate, onDispose }) => {
-  const field = document.createElement("textarea");
-  field.setAttribute("aria-label", "Typing answer");
-  field.inputMode = "text";
-  field.autocomplete = "off";
-  field.spellcheck = false;
-  onActivate(() => game.element.append(field));
-  onDispose(() => field.remove());
-  let composing = false,
-    committed = field.value;
-  const commit = () => {
-    if (signal.aborted || composing || field.value === committed) return;
-    committed = field.value;
-    // Compare the full committed value with the game's target here.
-  };
-  field.addEventListener(
-    "compositionstart",
-    () => {
-      composing = true;
-    },
-    { signal },
-  );
-  field.addEventListener(
-    "compositionend",
-    () => {
-      composing = false;
-      queueMicrotask(commit); // also handles a final composing input before compositionend
-    },
-    { signal },
-  );
-  field.addEventListener(
-    "input",
-    (event) => {
-      if (!(event as InputEvent).isComposing) commit();
-    },
-    { signal },
-  );
+game.scene("typing", ({ canvasUI }) => {
+  const answer = CanvasTextInput({ label: "Typing answer", maxLength: 100 });
+  answer.onCommit(({ value }) => {
+    // Compare the accepted full answer with the game's target here.
+    console.log(value);
+  });
+  canvasUI(CanvasColumn([answer], { padding: 16 }));
 });
 await game.run("typing");
 ```
 
-Do not append both compositionend.data and input.data: final commits can otherwise be counted twice. Read/deduplicate the full field value and treat deletion/selection replacement/paste as edits. Do not force focus every frame; focus a visible native field from a user tap for mobile keyboards, keep the field accessible and allow browser scrolling/selection. Browser code/key events are not guaranteed for software keyboards. A future optional Web TextInput helper can own the field, report editing/composition/committed snapshots, and release listeners through the Scene signal. It should not map Unicode text onto Button Actions or add a parallel action-controller system. Text replay and OS IME automation are not implemented.
+For per-edit feedback use `onDraftChange` and inspect `draft.composing`; intermediate candidates are not submissions. Compositionend updates a draft, while Enter or ordinary blur accepts the field's value. Do not append both compositionend.data and input.data: full snapshots prevent duplicate insertion and preserve deletion/selection replacement/paste. [Native editing contracts](text-input-design.md) define accepted values, cancellation, selection, Host lifetime and IME limits. Custom Hosts or specialized multiline streams can still own native elements; they must scope listeners and never map Unicode text onto Button Actions. Text replay and OS IME automation are not implemented.
 
 The native typing browser fixture covers ordinary English/romaji keys, text insertion without key events, composing-key suppression and synthetic Japanese commit deduplication. Actual OS IME candidate UI and physical mobile software keyboards still require manual/device testing. The event model follows [W3C UI Events](https://www.w3.org/TR/uievents/) and [Input Events](https://w3c.github.io/input-events/).
 

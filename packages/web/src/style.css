@@ -151,3 +151,41 @@
 .simpludify > canvas {
   touch-action: none;
 }
+
+/* Engine-owned native editing surfaces; Canvas still owns geometry/background/focus paint. */
+.s-canvas-accessibility .s-canvas-native {
+  position: absolute;
+  pointer-events: auto;
+  box-sizing: border-box;
+  margin: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  border-radius: 0;
+  min-width: 0;
+  user-select: text;
+  color-scheme: dark;
+  color: var(--s-native-color);
+}
+.s-canvas-native option {
+  background: var(--s-native-background);
+}
+
+.s-canvas-accessibility input.s-canvas-native:not(:focus) {
+  color: transparent;
+  caret-color: transparent;
+}
+.s-canvas-accessibility input.s-canvas-native:not(:focus)::placeholder {
+  color: transparent;
+}
+.s-canvas-accessibility input.s-canvas-native:focus::placeholder {
+  color: currentColor;
+  opacity: 0.65;
+}
+
+.s-canvas-native:disabled {
+  opacity: 0.45;
+}
+.s-canvas-native[aria-readonly="true"] {
+  opacity: 0.7;
+}

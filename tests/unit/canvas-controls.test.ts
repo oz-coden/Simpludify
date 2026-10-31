@@ -454,7 +454,14 @@ it("the settings definition runs headlessly with a separate applied snapshot and
   screen.sound.value = false;
   screen.apply.activate();
   const applied = screen.applied;
-  expect(applied).toEqual({ sound: false, volume: 75, speed: 1, grid: false });
+  expect(applied).toEqual({
+    sound: false,
+    volume: 75,
+    speed: 1,
+    grid: false,
+    difficulty: "normal",
+    playerName: "Player",
+  });
   expect(Object.isFrozen(applied)).toBe(true);
   screen.volume.value = 20;
   expect(screen.applied).toBe(applied);

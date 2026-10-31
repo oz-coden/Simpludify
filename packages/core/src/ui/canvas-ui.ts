@@ -135,6 +135,7 @@ export class CanvasUI implements LifetimeOwner {
       this.reveal(node);
       node.changed();
     }
+    previous?.control?.native?.end("blur");
   }
   /** Ordered traversal, including offscreen controls. Undefined leaves focus at the boundary. */
   focusNext(reverse = false): CanvasNode | undefined {

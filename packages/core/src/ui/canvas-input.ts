@@ -12,6 +12,7 @@ import {
   type CanvasNodeKind,
   type CanvasStyle,
 } from "./canvas-node";
+import type { CanvasNativeControl } from "./native-edit";
 
 export type CanvasValueSource = CanvasActivation | "program";
 export interface CanvasValueChange<T> {
@@ -36,7 +37,7 @@ export abstract class CanvasInputNode<T> extends CanvasNode {
   private current: T;
   private locked: boolean;
   private inputRevision = 0;
-  private edit: { previous: T } | undefined;
+  private edit: { previous: T; source: CanvasActivation } | undefined;
   private readonly changeEvent =
     defineEvent<CanvasValueChange<T>>("CanvasValueChange");
   private readonly commitEvent =
@@ -76,6 +77,9 @@ export abstract class CanvasInputNode<T> extends CanvasNode {
       get revision() {
         return self.inputRevision;
       },
+      get native() {
+        return self.nativeControl;
+      },
       keys,
       ...(pointerAxis ? { pointerAxis } : {}),
       key: (code: string) => self.controlKey(code),
@@ -89,6 +93,10 @@ export abstract class CanvasInputNode<T> extends CanvasNode {
     return this.port;
   }
   protected abstract model(): CanvasControlModel;
+  protected get nativeControl(): CanvasNativeControl | undefined {
+    return undefined;
+  }
+  protected valueReplaced(): void {}
   protected controlKey(_code: string): void {}
   protected beginPointer(_x: number, _y: number): boolean {
     return false;
@@ -111,6 +119,7 @@ export abstract class CanvasInputNode<T> extends CanvasNode {
     this.assertInputAlive();
     const next = boolean(value);
     if (next === this.locked) return;
+    this.nativeControl?.end("interrupt");
     this.locked = next;
     this.inputRevision++;
     const edit = this.takeEdit();
@@ -145,9 +154,11 @@ export abstract class CanvasInputNode<T> extends CanvasNode {
     this.assertInputAlive();
     const next = this.normalize(value),
       previous = this.current;
+    this.nativeControl?.end("interrupt");
     const edit = this.takeEdit();
     this.current = next;
     this.inputRevision++;
+    this.valueReplaced();
     cleanupAll(
       [
         () => this.changed(),
@@ -184,13 +195,13 @@ export abstract class CanvasInputNode<T> extends CanvasNode {
       "User control update failed",
     );
   }
-  protected beginEdit(): boolean {
+  protected beginEdit(source: CanvasActivation = "pointer"): boolean {
     if (!this.available || this.readOnly || this.edit) return false;
-    this.edit = { previous: this.current };
+    this.edit = { previous: this.current, source };
     this.changed();
     return true;
   }
-  private takeEdit(): { previous: T } | undefined {
+  private takeEdit(): { previous: T; source: CanvasActivation } | undefined {
     const edit = this.edit;
     this.edit = undefined;
     return edit;
@@ -202,7 +213,9 @@ export abstract class CanvasInputNode<T> extends CanvasNode {
         Object.freeze({ node: this, previous, value, source }),
       );
   }
-  private cancelled(edit: { previous: T } | undefined): void {
+  private cancelled(
+    edit: { previous: T; source: CanvasActivation } | undefined,
+  ): void {
     if (edit)
       this.events.emit(
         this.cancelEvent,
@@ -210,7 +223,7 @@ export abstract class CanvasInputNode<T> extends CanvasNode {
           node: this,
           previous: edit.previous,
           value: this.current,
-          source: "pointer",
+          source: edit.source,
         }),
       );
   }
@@ -239,7 +252,7 @@ export abstract class CanvasInputNode<T> extends CanvasNode {
                 node: this,
                 previous: edit.previous,
                 value,
-                source: "pointer",
+                source: edit.source,
               }),
             );
         },
@@ -307,7 +320,7 @@ interface Range {
   max: number;
   step: number;
 }
-function rangeOf(options: CanvasSliderRange): Range {
+export function canvasNumericRange(options: CanvasSliderRange): Range {
   const { min = 0, max = 100, step = 1 } = options;
   if (
     ![min, max, step].every(Number.isFinite) ||
@@ -324,7 +337,7 @@ function rangeOf(options: CanvasSliderRange): Range {
     );
   return { min, max, step };
 }
-function numeric(value: number, range: Range): number {
+export function canvasNumericValue(value: number, range: Range): number {
   if (typeof value !== "number" || !Number.isFinite(value))
     throw new EngineError("INVALID_UI", "Slider value must be finite");
   const { min, max, step } = range;
@@ -355,12 +368,12 @@ const sliderKeys = Object.freeze([
 export class CanvasSliderNode extends CanvasInputNode<number> {
   private readonly range: Range;
   constructor(options: CanvasSliderOptions = {}, style: CanvasStyle = {}) {
-    const range = rangeOf(options);
+    const range = canvasNumericRange(options);
     super(
       "slider",
       options.label === undefined ? "Value" : options.label,
       options.value === undefined ? range.min : options.value,
-      (value) => numeric(value, range),
+      (value) => canvasNumericValue(value, range),
       options.readOnly === undefined ? false : options.readOnly,
       { width: 260, maxWidth: "100%", height: 76, ...style },
       sliderKeys,
@@ -380,7 +393,7 @@ export class CanvasSliderNode extends CanvasInputNode<number> {
   /** Atomic range validation; clamps/snaps the value and cancels active pointer editing. */
   setRange(patch: CanvasSliderRange): void {
     this.assertInputAlive();
-    const next = rangeOf({ ...this.range, ...patch });
+    const next = canvasNumericRange({ ...this.range, ...patch });
     Object.assign(this.range, next);
     this.setValue(this.value);
   }

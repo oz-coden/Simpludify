@@ -20,6 +20,11 @@ import {
   Text,
   TextStyle,
 } from "pixi.js";
+import {
+  CanvasNativeSelect,
+  CanvasNativeText,
+  clipNativeRegions,
+} from "./canvas-native";
 
 export interface CanvasPresentation {
   update(width: number, height: number): void;
@@ -31,7 +36,8 @@ interface Entry {
   background: Graphics;
   text?: Text;
   mask: Graphics;
-  button?: HTMLButtonElement;
+  button?: HTMLButtonElement | HTMLSelectElement | HTMLInputElement;
+  native?: CanvasNativeSelect | CanvasNativeText;
   abort: AbortController;
   signature?: string;
   paintSignature?: string;
@@ -71,6 +77,47 @@ export class CanvasVisual implements CanvasPresentation {
     this.display.zIndex = 1;
     this.element.className = "s-canvas-accessibility";
     this.element.setAttribute("aria-label", "Game controls");
+    const nativeEvents = new AbortController();
+    const interrupt = () => {
+      try {
+        cleanupAll(
+          [
+            ...[...this.entries.values()]
+              .filter((e) => e.native)
+              .map((entry) => () => {
+                try {
+                  entry.native?.dispose();
+                } finally {
+                  entry.button?.blur();
+                }
+              }),
+            () => {
+              if (!this.ui.disposed) this.ui.focus();
+            },
+          ],
+          "Native controls interruption failed",
+        );
+      } catch (error) {
+        this.ui.report(error);
+      } finally {
+        this.dirty = true;
+      }
+    };
+    window.addEventListener(
+      "blur",
+      (event) => {
+        if (event.target === window) interrupt();
+      },
+      { signal: nativeEvents.signal },
+    );
+    document.addEventListener(
+      "visibilitychange",
+      () => {
+        if (document.hidden) interrupt();
+      },
+      { signal: nativeEvents.signal },
+    );
+    this.subscriptions.push(() => nativeEvents.abort());
     this.subscriptions.push(
       ui.subscribe(() => {
         this.dirty = true;
@@ -132,6 +179,41 @@ export class CanvasVisual implements CanvasPresentation {
   focus(node: CanvasNode): void {
     if (node.available)
       this.entries.get(node)?.button?.focus({ preventScroll: true });
+  }
+  private native(
+    node: CanvasNode,
+    signal: AbortSignal,
+  ): CanvasNativeSelect | CanvasNativeText {
+    const host = {
+      traverse: (reverse: boolean) => {
+        const next = this.ui.focusNext(reverse);
+        if (!next) return false;
+        this.update(this.host.clientWidth, this.host.clientHeight);
+        this.focus(next);
+        return true;
+      },
+      wheel: (event: WheelEvent) => {
+        const rect = this.host.getBoundingClientRect();
+        const unit =
+          event.deltaMode === 1
+            ? 16
+            : event.deltaMode === 2
+              ? this.host.clientHeight
+              : 1;
+        if (
+          this.routing.scroll(
+            ((event.clientX - rect.x) * this.host.clientWidth) / rect.width,
+            ((event.clientY - rect.y) * this.host.clientHeight) / rect.height,
+            event.deltaX * unit,
+            event.deltaY * unit,
+          )
+        )
+          event.preventDefault();
+      },
+    };
+    return node.control?.native?.kind === "select"
+      ? new CanvasNativeSelect(node, this.ui, signal, host)
+      : new CanvasNativeText(node, this.ui, signal, host);
   }
   private button(node: CanvasNode): HTMLButtonElement {
     const button = document.createElement("button");
@@ -222,6 +304,10 @@ export class CanvasVisual implements CanvasPresentation {
     return button;
   }
   private updateButton(entry: Entry, node: CanvasNode, clip: UIBounds): void {
+    if (entry.native) {
+      entry.native.update(clip);
+      return;
+    }
     if (!entry.button) return;
     const button = entry.button,
       b = node.bounds,
@@ -242,7 +328,7 @@ export class CanvasVisual implements CanvasPresentation {
       button.setAttribute("aria-readonly", String(model.readOnly));
       if (model.kind === "checkbox")
         button.setAttribute("aria-checked", String(model.checked));
-      else {
+      else if (model.kind === "slider") {
         button.setAttribute("aria-orientation", "horizontal");
         button.setAttribute("aria-valuemin", String(model.min));
         button.setAttribute("aria-valuemax", String(model.max));
@@ -265,7 +351,14 @@ export class CanvasVisual implements CanvasPresentation {
     this.syncs++;
     this.display.scale.set(this.ui.scale);
     const visited = new Set<CanvasNode>(),
-      buttons: HTMLButtonElement[] = [];
+      buttons: (HTMLButtonElement | HTMLSelectElement | HTMLInputElement)[] =
+        [];
+    const paint: {
+      node?: CanvasNode;
+      box: UIBounds;
+      native?: CanvasNativeSelect | CanvasNativeText;
+      clip?: UIBounds;
+    }[] = [];
     let order = 0;
     this.ui.walk(
       (node, parentClip) => {
@@ -294,7 +387,10 @@ export class CanvasVisual implements CanvasPresentation {
           entry = { display, background, mask, abort: new AbortController() };
           this.entries.set(node, entry);
           if (node.interactive) {
-            entry.button = this.button(node);
+            if (node.control?.native) {
+              entry.native = this.native(node, entry.abort.signal);
+              entry.button = entry.native.element;
+            } else entry.button = this.button(node);
             this.element.append(entry.button);
           }
           if (node.kind !== "panel") {
@@ -302,8 +398,25 @@ export class CanvasVisual implements CanvasPresentation {
             display.addChild(entry.text);
           }
         }
+        if (
+          entry.native &&
+          (entry.native.disposed ||
+            entry.native.revision !== node.control?.revision)
+        ) {
+          entry.native.dispose();
+          entry.native = this.native(node, entry.abort.signal);
+          entry.button = entry.native.element;
+          this.element.append(entry.button);
+          delete entry.signature;
+        }
         this.display.setChildIndex(entry.display, order++);
         this.display.setChildIndex(entry.mask, order++);
+        if (node.style.pointerEvents === "auto")
+          paint.push({
+            node,
+            box: intersectUI(node.bounds, clip),
+            ...(entry.native ? { native: entry.native, clip } : {}),
+          });
         if (entry.button) buttons.push(entry.button);
         const b = node.bounds,
           s = node.style;
@@ -429,6 +542,9 @@ export class CanvasVisual implements CanvasPresentation {
           }
           entry.display.alpha = enabled ? (model?.readOnly ? 0.7 : 1) : 0.45;
           if (entry.text) {
+            entry.text.visible =
+              !entry.native ||
+              (node.control?.model.kind === "text" && !node.focused);
             const m = measuredText ?? this.measure(node);
             if (entry.text.text !== m.text) {
               this.resources.changedText(entry.text.styleKey);
@@ -470,6 +586,8 @@ export class CanvasVisual implements CanvasPresentation {
         const entry = this.entries.get(node);
         if (!entry) return;
         const bars = canvasScrollbars(node);
+        for (const bar of bars)
+          paint.push({ box: intersectUI(bar.track, clip) });
         if (!entry.scrollbar && bars.length) {
           entry.scrollbar = new Graphics();
           entry.scrollbar.eventMode = "none";
@@ -516,6 +634,17 @@ export class CanvasVisual implements CanvasPresentation {
         }
       },
     );
+    for (let i = 0; i < paint.length; i++) {
+      const item = paint[i];
+      if (item?.native && item.node && item.clip)
+        clipNativeRegions(
+          item.native.element,
+          item.node,
+          this.ui,
+          item.clip,
+          paint.slice(i + 1).map((p) => p.box),
+        );
+    }
     for (const [node, entry] of this.entries)
       if (!visited.has(node)) {
         this.entries.delete(node);
@@ -542,6 +671,7 @@ export class CanvasVisual implements CanvasPresentation {
     cleanupAll(
       [
         () => entry.abort.abort(),
+        () => entry.native?.dispose(),
         () => entry.button?.remove(),
         // These Graphics contexts and Text styles are private to this presentation.
         // An options object with only children:true does not destroy owned GraphicsContext in Pixi8.

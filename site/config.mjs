@@ -83,7 +83,7 @@ export const pages = [
   [
     "en/text-input-design.html",
     "docs/text-input-design.md",
-    "Native editing design (future)",
+    "Native Canvas editing",
     "English",
   ],
   [
