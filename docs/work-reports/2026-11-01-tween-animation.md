@@ -83,3 +83,33 @@ Static builds/checks succeeded for both `/Simpludify/` and `/`: 65 HTML document
 Latest local full unit run: **767 passed, 0 failed** (56 files), including both final review additions. A work-report index status edit introduced Markdown table padding rejected by the full formatter; corrected the index and reran the full check successfully. Latest Core benchmark after synchronous-hook guards: 1,000 handles p50/p95/p99 **0.151 / 0.249 / 0.496 ms**; 10,000 **1.697 / 2.517 / 3.040 ms**. The earlier measurements above describe the prior checkpoint; the committed JSON describes this guarded runtime. Final branch Actions are queued behind the preceding software-WebGL jobs; integration and deployment remain pending.
 
 Browser final review additionally covers scaled (1.25) translated native editor bounds/selection and hidden/visible timestamp reset without presentation catch-up. Removed new diagnostic-only text/style lint findings; remaining repository lint warnings/info predate this work. These browser assertions await the final branch CI, with unchanged test timeouts and normal-speed dedicated fixture behavior.
+
+## Reviewable files, migration and checkpoints
+
+| Area          | Files and purpose                                                                                                                                                             |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Generic Core  | `foundation/tween.ts`, `foundation/easing.ts`, Core index: explicit numeric capabilities, immutable recipes, synchronous deterministic playback, claims and cleanup           |
+| Clocks        | Core `scene/scene.ts`, Web `game.ts`: captured simulation order and a distinct Host-fed display clock; custom Hosts feed `advancePresentation` explicitly                     |
+| Actor draw    | `graphics/components.ts`, `animation/actor-tween.ts`, Web `renderer.ts`: validated visual fields and adapters; world physics and SpriteAnimation API unchanged                |
+| Canvas        | `canvas-node.ts`, `canvas-ui.ts`, `canvas-control.ts`, Web `canvas-visual.ts`: separate presentation state, inherited projection/opacity, shared paint/hit/native coordinates |
+| Slider        | `canvas-input.ts`, `canvas-tween.ts`: logical/display values and explicit input-intent cancellation; existing onChange/onCommit meanings retained                             |
+| Example/build | `examples/tween/`, CLI, site config, smoke helpers and CI: standard-API lab, gallery routes and production checks                                                             |
+| Evidence      | Tween unit/type/browser suites, `scripts/benchmark-tweens.mjs`, `docs/measurements/tween-2026-11-01.json`, English/Japanese guides and API/architecture/roadmap links         |
+
+Existing Web games need no migration or per-frame callback. Core/custom Hosts retain Engine.step for simulation and supply presentation seconds only if using the display clock. Optional Renderable fields default to identity and Canvas presentation defaults to zero offsets/opacity 1. Slider displayValue defaults to its logical value, preserving existing bars. No external dependency/license change was made.
+
+Checkpoints on `feat/tween-animation-2026-11-01`:
+
+- [0012de0](https://github.com/oz-coden/Simpludify/commit/0012de023dbeb78dd3c5e387b063828de59a439b): investigation/design.
+- [3780fdf](https://github.com/oz-coden/Simpludify/commit/3780fdf4ec51c4c26fa38c62d814d551114abd25): numeric Core.
+- [e21790c](https://github.com/oz-coden/Simpludify/commit/e21790c959aca9c824362b08fc23fea127af99b1): Scene clocks.
+- [992164e](https://github.com/oz-coden/Simpludify/commit/992164edcc2cd6fa6c02f95e37f9a5f12f628447): Actor adapter.
+- [7246524](https://github.com/oz-coden/Simpludify/commit/72465247510d9c9e961e109fc5e2bfda73e9d2d1): Canvas/Slider adapters.
+- [95e4c18](https://github.com/oz-coden/Simpludify/commit/95e4c18d10263488025b59767277aae1ae0b54c4): composition and dependency-layer correction.
+- [36fb23d](https://github.com/oz-coden/Simpludify/commit/36fb23da8c2b06d57bc87e279b635fa183a82a9a): lab/docs/browser coverage.
+- [fb12674](https://github.com/oz-coden/Simpludify/commit/fb12674ca64f46a83ff22360194de749ece4084d): docs compilation and production diagnostics.
+- [8a082ba](https://github.com/oz-coden/Simpludify/commit/8a082ba2d692e16e8c1bbff76738bc1ea58589a7): synchronous-hook hardening and capped smoke playback.
+- [3ac42aa](https://github.com/oz-coden/Simpludify/commit/3ac42aa3f0a99735d740979bfffdd82edc97793f): report formatting.
+- [88c3d66](https://github.com/oz-coden/Simpludify/commit/88c3d667f8d921fb3b30a727e8d58c73e10ef8a9): final scaled native/hidden-clock regressions; runtime source frozen for validation.
+
+Final local acceptance: `npm run check`, `npm test` (**767/0**), default Web build, Tween production-subpath build, integrated site build/check at **both** bases all passed. Each site check verifies **65 HTML / 4,250 references / 59 standalone typechecked examples**. Local browser/production/site execution is unrun due the documented Chromium install failure; [final branch CI run 221](https://github.com/oz-coden/Simpludify/actions/runs/41223656025) must pass those gates. Intermediate obsolete CI runs were canceled by the existing branch concurrency policy; failures were diagnosed above rather than suppressed. No PR or main update yet.
