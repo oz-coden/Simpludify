@@ -46,7 +46,7 @@ export interface CanvasControlPort {
   readonly revision: number;
   readonly keys: readonly string[];
   readonly pointerAxis?: "horizontal";
-  readonly native: CanvasNativeControl | undefined;
+  readonly native?: CanvasNativeControl | undefined;
   key(code: string): void;
   beginPointer(x: number, y: number): boolean;
   movePointer(x: number, y: number): void;

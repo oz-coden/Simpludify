@@ -83,3 +83,10 @@ Initial investigation/design complete. Select, text session, TextInput, NumberIn
 - The new overlap fixture initially lacked three imports; TypeScript caught this before publishing and they are corrected. New runtime/test source must pass a fresh exact-source full CI. Candidate enumeration is now **294 tests / 18 files**; unit suite remains 695 cases.
 
 - Overlap correction saved as [d1291bc](https://github.com/oz-coden/Simpludify/commit/d1291bcd45045308acd8d2917b87a22166e3b24c). Review additionally made presentation-wide interruption aggregate cleanup across all native fields, even if a cancellation observer throws, and routes abort-listener errors through the existing UI error observer. This preserves release guarantees without adding per-control global listeners.
+
+## Final local verification receipt
+
+- Source saved as [55fe488](https://github.com/oz-coden/Simpludify/commit/55fe488a2b0f13b38f4f590b9f53f6e55fcc2590). Full local check passed with unchanged 12 warnings/11 infos; **695 unit tests / 49 files passed**, 4.69s. Final project/root site build/check each passed **62 HTML / 3973 references / 58 typed snippets**. Final browser enumeration: **294 / 18 files**.
+- Kept the native port optional (including explicit undefined) so existing custom Checkbox/Slider control-port implementations remain source-compatible. New controls still require the documented native Host support. This is a type-contract correction; it adds no runtime dependency or behavior.
+- CI 41181889588 narrow shard 1 passed **75 tests**, including the added composition-blur/window/scale cases in both renderers. Quality, production and both site bases passed; later source checkpoints superseded the remaining shards. The intermediate run is not a full acceptance result.
+- The last exact-source candidate must finish all checks before PR/main integration. Actual OS IME and physical-device limits remain unchanged.
