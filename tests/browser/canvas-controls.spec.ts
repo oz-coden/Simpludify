@@ -75,6 +75,7 @@ for (const fallback of [false, true])
         );
       });
       expect(after).not.toEqual(before);
+      expect(Math.max(...before)).toBeGreaterThan(Math.max(...after) + 50);
       await page.keyboard.press("Tab");
       await page.evaluate(() => window.controlsProbe.tick());
       const slider = page.getByRole("slider", {
@@ -88,9 +89,11 @@ for (const fallback of [false, true])
       await slider.press("End");
       await page.evaluate(() => window.controlsProbe.tick());
       await expect(slider).toHaveAttribute("aria-valuenow", "100");
-      expect(
-        await page.evaluate(() => window.controlsProbe.trackPixel()),
-      ).not.toEqual(initial);
+      const filled = await page.evaluate(() =>
+        window.controlsProbe.trackPixel(),
+      );
+      expect(filled).not.toEqual(initial);
+      expect(Math.min(...filled)).toBeGreaterThan(200);
       await slider.press("Home");
       await slider.press("PageUp");
       await slider.press("ArrowRight");

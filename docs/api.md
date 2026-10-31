@@ -281,7 +281,7 @@ Game automatically owns one BrowserInput, routing focused physical KeyboardEvent
 
 InputSystem.createKeyboardSource(owner?) is for implementing a keyboard adapter or testing physical bindings. It accepts only validated KeyCode values, is independently disposable and cannot read game state. InputSystem.snapshot() reports physical-key diagnostics; sourceCount counts device and logical handles. There is no implicit scripted source. InputSystem.clear() silently flushes all sources and pending edges while preserving live handles. InputSystem.keyDown and registration/capture methods are internal routing, not another gameplay input API. Do not attach a second BrowserInput to a Game; it already owns the adapter. Custom keys are ordinary Button Actions with bindings.
 
-Text and IME commits use native input/textarea value, input and composition events, rather than KeyCode. See the working [typing recipe and current limitations](action-input.md#text-and-typing-games). A future TextInput helper belongs in Web and must preserve native editing, selection and composition; it must not introduce another movement/Action state system.
+Text and IME commits use native input/textarea value, input and composition events, rather than KeyCode. See the working [typing recipe and current limitations](action-input.md#text-and-typing-games). Future Canvas text editing keeps logical draft/selection/composition contracts in Core and delegates native editing/IME to the Host; it must not introduce another movement/Action state system. See [native editing design](text-input-design.md).
 
 ## Canvas UI and Pointer
 

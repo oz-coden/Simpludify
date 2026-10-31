@@ -18,6 +18,7 @@ import {
   worldPoint,
 } from "@simpludify/core";
 import { expect, it } from "vitest";
+import { createSettingsScreen } from "../../examples/canvas-ui/settings-screen";
 
 const p = (x: number, y: number, pointerId = 1, button = 0) => ({
   pointerId,
@@ -193,6 +194,7 @@ it.each([
   { max: Infinity },
   { min: -1e308, max: 1e308 },
   { step: Number.MIN_VALUE },
+  { min: 1e16, max: 1e16 + 10, step: 0.1 },
 ])("rejects invalid slider ranges atomically: %o", (patch) => {
   const s = CanvasSlider({ value: 50 });
   expect(() => s.setRange(patch)).toThrow();
@@ -405,4 +407,68 @@ it("program and read-only commands cancel a pending checkbox pointer press", () 
   f.routing.up(q);
   expect(f.checkbox.value).toBe(true);
   f.scene.dispose();
+});
+
+it("invalid program/range/flag commands preserve active edits and their ownership", () => {
+  const f = fixture();
+  f.routing.down(f.point(f.slider, 0.3));
+  const value = f.slider.value;
+  expect(() => f.slider.setValue(NaN)).toThrow();
+  expect(() => f.slider.setRange({ step: 0 })).toThrow();
+  expect(() => {
+    f.slider.readOnly = null as unknown as boolean;
+  }).toThrow();
+  expect(f.slider.value).toBe(value);
+  expect(f.slider.editing).toBe(true);
+  expect(f.routing.diagnostics.controlDrags).toBe(1);
+  f.routing.cancel(1);
+  f.scene.dispose();
+});
+it("a program replacement during change delivery suppresses the stale user commit", () => {
+  const checkbox = CanvasCheckbox("x");
+  let commits = 0;
+  checkbox.onCommit(() => commits++);
+  checkbox.onChange(() => checkbox.setValue(false));
+  expect(() => checkbox.activate()).toThrow();
+  expect(checkbox.value).toBe(false);
+  expect(commits).toBe(0);
+  checkbox.dispose();
+});
+
+it("large finite slider endpoints use saturated keyboard steps instead of overflowing", () => {
+  const f = fixture();
+  f.slider.setRange({ max: 1e308, step: 1e308 });
+  f.slider.value = 0;
+  expect(() => f.routing.controlKey(f.slider, "PageUp")).not.toThrow();
+  expect(f.slider.value).toBe(1e308);
+  f.routing.controlKey(f.slider, "PageDown");
+  expect(f.slider.value).toBe(0);
+  f.scene.dispose();
+});
+it("the settings definition runs headlessly with a separate applied snapshot and scoped listeners", () => {
+  const screen = createSettingsScreen(),
+    scene = new Scene("settings"),
+    ui = new CanvasUI(scene, screen.root);
+  ui.layout(390, 844, measure);
+  screen.volume.value = 75;
+  screen.sound.value = false;
+  screen.apply.activate();
+  const applied = screen.applied;
+  expect(applied).toEqual({ sound: false, volume: 75, speed: 1, grid: false });
+  expect(Object.isFrozen(applied)).toBe(true);
+  screen.volume.value = 20;
+  expect(screen.applied).toBe(applied);
+  screen.readOnly.value = true;
+  screen.sound.activate();
+  expect(screen.sound.value).toBe(false);
+  screen.reset.activate();
+  expect([
+    screen.sound.value,
+    screen.volume.value,
+    screen.readOnly.value,
+  ]).toEqual([true, 50, false]);
+  expect(screen.applied).toBe(applied);
+  scene.dispose();
+  expect(screen.volume.events.listenerCount()).toBe(0);
+  expect(ui.diagnostics.subscriptions).toBe(0);
 });

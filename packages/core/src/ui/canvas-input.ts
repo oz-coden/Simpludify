@@ -315,7 +315,8 @@ function rangeOf(options: CanvasSliderRange): Range {
     step <= 0 ||
     !Number.isFinite(max - min) ||
     !Number.isFinite((max - min) / step) ||
-    (max - min) / step > Number.MAX_SAFE_INTEGER
+    (max - min) / step > Number.MAX_SAFE_INTEGER ||
+    (step < max - min && (min + step === min || max - step === max))
   )
     throw new EngineError(
       "INVALID_UI",

@@ -54,6 +54,8 @@ export async function controlsFixture() {
     tick();
   };
   const pixel = (x: number, y: number) => {
+    // Read the WebGL back buffer in the same task as rendering, before the browser can discard it.
+    tick();
     const canvas = game.element.querySelector("canvas");
     if (!canvas) throw Error("No canvas");
     const copy = document.createElement("canvas");
