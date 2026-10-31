@@ -29,6 +29,7 @@ import {
 } from "@simpludify/web";
 import { startExample } from "../shared/start";
 import { createPortableScreen } from "./portable-screen";
+import { createSettingsScreen } from "./settings-screen";
 
 const terrainSheet = SpriteSheet.grid(
   new URL("../tilemap/terrain.svg", import.meta.url).href,
@@ -46,7 +47,7 @@ const Actions = defineActions({
   Move: Action.axis2D(),
   Pause: Action.button(),
 });
-export const game = new Game<"title" | "field" | "list">({
+export const game = new Game<"title" | "field" | "list" | "settings">({
   parent: document.querySelector<HTMLElement>("#app") ?? document.body,
 });
 export let terrain:
@@ -78,6 +79,7 @@ game.scene("title", ({ canvasUI, onActivate }) => {
             ),
             button("Start", () => game.goTo("field")),
             button("UI list lab", () => game.goTo("list")),
+            button("Settings lab", () => game.goTo("settings")),
           ],
           {
             width: "90%",
@@ -108,6 +110,13 @@ export let portableDemo:
 game.scene("list", ({ canvasUI }) => {
   const screen = createPortableScreen(() => game.goTo("title"));
   portableDemo = { screen, ui: canvasUI(screen.root) };
+});
+export let settingsDemo:
+  | { screen: ReturnType<typeof createSettingsScreen>; ui: CanvasUI }
+  | undefined;
+game.scene("settings", ({ canvasUI }) => {
+  const screen = createSettingsScreen(() => game.goTo("title"));
+  settingsDemo = { screen, ui: canvasUI(screen.root) };
 });
 game.scene(
   "field",

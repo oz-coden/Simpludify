@@ -222,7 +222,9 @@ export abstract class CanvasInputNode<T> extends CanvasNode {
       revision = this.inputRevision;
     cleanupAll(
       [
-        () => this.changed(),
+        () => {
+          if (!this.disposed && !this.ui?.disposed) this.changed();
+        },
         () => {
           if (cancelled) this.cancelled(edit);
           else if (

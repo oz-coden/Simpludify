@@ -24,3 +24,9 @@ Phase A is complete, including live sample/document verification. Start: main `4
 - Added a narrow CanvasControlPort (draw model, key/pointer commands, revision) and CanvasInputNode value subscriptions. Checkbox and horizontal Slider are now implemented in Core; Web paints their data and mirrors checkbox/range ARIA state through the existing semantic button lifecycle. Slider uses shared Core geometry for paint/hits.
 - Program/range/read-only commands invalidate pending pointer/key input; cancellation retains immediate values without a commit. Horizontal slider intent locks its owner; vertical scrolling can cancel a pending slider interaction. Independent sliders use distinct pointer owners. Existing Button/HoldButton routing remains.
 - TypeScript compilation passed for the first connected implementation. Full check/unit/browser verification and the settings sample are still pending; this is not a completion claim. Save this source before running regressions.
+
+## Settings screen and Core regression checkpoint
+
+- Added Core-only `settings-screen.ts`: bilingual sound/grid checkboxes, volume/speed sliders, read-only toggle, separate Apply snapshot, Reset and Back, within a scroll viewport. Canvas trail exposes Settings lab; application definitions use no DOM/Pixi APIs.
+- Added 30 passing Core tests covering program/user value semantics, decimal ranges, invalid configuration, input ownership, multiple controls/pointers, scroll transfer, focus, paint-only value changes, disabled/read-only/hidden/scale/removal commands, callback errors and Scene disposal. Focused command: `npx vitest run tests/unit/canvas-controls.test.ts` (30/30, 681ms).
+- Pinned local browser download failed again. Real browser verification will use GitHub Actions. No browser/IME/physical-device success is claimed yet. Full check/regression tests and actual sample validation remain required.
