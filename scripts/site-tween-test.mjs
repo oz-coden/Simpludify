@@ -104,7 +104,9 @@ export async function testTween(frame, page) {
   await frame.evaluate(() => window.tweenDemo.game.whenReady());
   if (typeof frame.frameElement === "function")
     await (await frame.frameElement()).scrollIntoViewIfNeeded();
-  const step = await frame.evaluate(() => window.tweenDemo.game.engine.stepCount);
+  const step = await frame.evaluate(
+    () => window.tweenDemo.game.engine.stepCount,
+  );
   await wait((count) => window.tweenDemo.game.engine.stepCount > count, step);
   await frame.locator(".simpludify").focus();
   const before = await frame.evaluate(() => ({
@@ -162,7 +164,9 @@ export async function testTween(frame, page) {
       window.tweenDemo.game.engine.scene.state === "active",
   );
   assert.equal(
-    await frame.evaluate(() => window.tweenDemo.lab.simulation.diagnostics.active),
+    await frame.evaluate(
+      () => window.tweenDemo.lab.simulation.diagnostics.active,
+    ),
     4,
   );
 }
