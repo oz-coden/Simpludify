@@ -169,9 +169,10 @@ for (const fallback of [false, true])
       });
       const box = await input.boundingBox();
       expect(box).not.toBeNull();
-      expect(box!.x).toBeCloseTo(r.x, 0);
-      expect(box!.y).toBeCloseTo(r.y, 0);
-      expect(box!.width).toBeCloseTo(r.width, 0);
+      if (!box) throw Error("Native editor is not visible");
+      expect(box.x).toBeCloseTo(r.x, 0);
+      expect(box.y).toBeCloseTo(r.y, 0);
+      expect(box.width).toBeCloseTo(r.width, 0);
       await expect(input).toBeFocused();
       expect(
         await input.evaluate((el) => [

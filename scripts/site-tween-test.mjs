@@ -10,11 +10,39 @@ export async function testTween(frame, page) {
   await frame.waitForFunction(() => window.tweenDemo.game.paused);
   const x = await frame.evaluate(() => window.tweenDemo.lab.linearView.offsetX);
   await press("Fade / Slide UI");
-  await frame.waitForFunction(
-    () =>
-      window.tweenDemo.lab.preview.presentation.opacity === 1 &&
-      window.tweenDemo.lab.display.diagnostics.active === 0,
-  );
+  try {
+    await frame.waitForFunction(() => {
+      const d = window.tweenDemo;
+      if (d.game.engine.disposed)
+        throw Error("Tween sample disposed: " + document.body.textContent);
+      return (
+        d.lab.preview.presentation.opacity === 1 &&
+        d.lab.display.diagnostics.active === 0
+      );
+    });
+  } catch (error) {
+    console.error(
+      "Tween display diagnostic",
+      await frame.evaluate(() => {
+        const d = window.tweenDemo;
+        return {
+          disposed: d.game.engine.disposed,
+          paused: d.game.paused,
+          presentation: d.lab.preview.presentation,
+          active: d.lab.display.diagnostics.active,
+          status: d.lab.status.text,
+          handles: [...d.lab.handles].map((p) => ({
+            state: p.state,
+            elapsed: p.elapsed,
+            duration: p.duration,
+            reason: p.reason,
+          })),
+          body: document.body.innerText,
+        };
+      }),
+    );
+    throw error;
+  }
   assert.equal(
     await frame.evaluate(() => window.tweenDemo.lab.linearView.offsetX),
     x,

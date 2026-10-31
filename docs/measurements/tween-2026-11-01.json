@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-31T17:03:33.107Z",
+  "node": "v24.22.1",
+  "platform": "linux",
+  "cpu": "AMD EPYC 9V74 80-Core Processor",
+  "logicalCPUs": 9,
+  "conditions": "Vite SSR; Core numeric records; one channel/handle; 300 warmup + 600 timed updates at 1/60 sec; synchronous CPU milliseconds per update; no rendering, GPU or native-memory measurement; no concurrent builds/tests",
+  "rows": [
+    {
+      "count": 0,
+      "updates": 600,
+      "p50": 0.00023099999998521525,
+      "p95": 0.00039099999980862776,
+      "p99": 0.0028640000000450527,
+      "active": 0
+    },
+    {
+      "count": 1000,
+      "updates": 600,
+      "p50": 0.11685200000010809,
+      "p95": 0.19427700000005643,
+      "p99": 0.37298200000009274,
+      "active": 1000
+    },
+    {
+      "count": 10000,
+      "updates": 600,
+      "p50": 1.4307349999999133,
+      "p95": 2.089144000000033,
+      "p99": 3.373057000000017,
+      "active": 10000
+    }
+  ]
+}
