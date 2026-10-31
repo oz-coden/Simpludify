@@ -1,6 +1,6 @@
 # Canvas Select and native text editing
 
-Current status: all three controls implemented; final candidate 9cbb490 passed full CI (696 unit / 294 browser tests). Main integration and live deployment verification are pending. Real OS IME/physical mobile keyboards remain unverified.
+Current status: all three controls integrated by PR #4 as 884475b. Candidate CI passed 696 unit / 294 browser tests. Exact main CI, Pages deployment and live verification are pending. Real OS IME/physical mobile keyboards remain unverified.
 
 ## Baseline and recovery
 
@@ -122,3 +122,9 @@ Initial investigation/design complete. Select, text session, TextInput, NumberIn
 
 - [PR #4](https://github.com/oz-coden/Simpludify/pull/4) targets main c7a3fbc. The accepted source is 9cbb490; f6c23a5 and this receipt alter only the report/index. Compare the accepted source with the final PR head before merging.
 - Core/Host, input ownership, IME/blur, program/dynamic changes, error cleanup, overlap priority, public API, idle layout behavior and source/documentation review are complete. Main integration is authorized for all three tested controls; physical IME/mobile/AT certification is explicitly excluded.
+
+## Main integration — 2026-10-31 17:10 JST
+
+- [PR #4](https://github.com/oz-coden/Simpludify/pull/4) merged normally as [884475b52fe9557ba56560263bbe6eed9794d6fe](https://github.com/oz-coden/Simpludify/commit/884475b52fe9557ba56560263bbe6eed9794d6fe). No force push or history rewrite.
+- GitHub comparison from accepted 9cbb490 to final PR head bc75181 confirmed only this report/index changed. Runtime, tests, sample, site/API guides and toolchain match the passing candidate.
+- This integration receipt is documentation-only and uses [skip ci] to preserve the exact merge's running main validation. Pages remains gated by quality, browser, production and both site-base jobs. Record the exact main run/deploy and public sample/guide asset/text comparison after success.
