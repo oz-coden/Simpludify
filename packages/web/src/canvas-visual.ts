@@ -1,4 +1,3 @@
-import { CanvasNativeSelect, CanvasNativeText } from "./canvas-native";
 import type {
   CanvasNode,
   CanvasUI,
@@ -21,6 +20,7 @@ import {
   Text,
   TextStyle,
 } from "pixi.js";
+import { CanvasNativeSelect, CanvasNativeText } from "./canvas-native";
 
 export interface CanvasPresentation {
   update(width: number, height: number): void;
@@ -78,15 +78,29 @@ export class CanvasVisual implements CanvasPresentation {
       try {
         for (const entry of this.entries.values()) {
           if (!entry.native) continue;
-          entry.button?.blur();
           entry.native.dispose();
+          entry.button?.blur();
         }
         if (!this.ui.disposed) this.ui.focus();
         this.dirty = true;
-      } catch (error) { this.ui.report(error); }
+      } catch (error) {
+        this.ui.report(error);
+      }
     };
-    window.addEventListener("blur", (event) => { if (event.target === window) interrupt(); }, {signal:nativeEvents.signal});
-    document.addEventListener("visibilitychange", () => {if (document.hidden) interrupt();}, {signal:nativeEvents.signal});
+    window.addEventListener(
+      "blur",
+      (event) => {
+        if (event.target === window) interrupt();
+      },
+      { signal: nativeEvents.signal },
+    );
+    document.addEventListener(
+      "visibilitychange",
+      () => {
+        if (document.hidden) interrupt();
+      },
+      { signal: nativeEvents.signal },
+    );
     this.subscriptions.push(() => nativeEvents.abort());
     this.subscriptions.push(
       ui.subscribe(() => {
@@ -150,7 +164,10 @@ export class CanvasVisual implements CanvasPresentation {
     if (node.available)
       this.entries.get(node)?.button?.focus({ preventScroll: true });
   }
-  private native(node: CanvasNode, signal: AbortSignal): CanvasNativeSelect | CanvasNativeText {
+  private native(
+    node: CanvasNode,
+    signal: AbortSignal,
+  ): CanvasNativeSelect | CanvasNativeText {
     const host = {
       traverse: (reverse: boolean) => {
         const next = this.ui.focusNext(reverse);
@@ -161,14 +178,26 @@ export class CanvasVisual implements CanvasPresentation {
       },
       wheel: (event: WheelEvent) => {
         const rect = this.host.getBoundingClientRect();
-        const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? this.host.clientHeight : 1;
-        if (this.routing.scroll((event.clientX-rect.x)*this.host.clientWidth/rect.width,
-          (event.clientY-rect.y)*this.host.clientHeight/rect.height,event.deltaX*unit,event.deltaY*unit)) event.preventDefault();
+        const unit =
+          event.deltaMode === 1
+            ? 16
+            : event.deltaMode === 2
+              ? this.host.clientHeight
+              : 1;
+        if (
+          this.routing.scroll(
+            ((event.clientX - rect.x) * this.host.clientWidth) / rect.width,
+            ((event.clientY - rect.y) * this.host.clientHeight) / rect.height,
+            event.deltaX * unit,
+            event.deltaY * unit,
+          )
+        )
+          event.preventDefault();
       },
     };
     return node.control?.native?.kind === "select"
-      ? new CanvasNativeSelect(node,this.ui,signal,host)
-      : new CanvasNativeText(node,this.ui,signal,host);
+      ? new CanvasNativeSelect(node, this.ui, signal, host)
+      : new CanvasNativeText(node, this.ui, signal, host);
   }
   private button(node: CanvasNode): HTMLButtonElement {
     const button = document.createElement("button");
@@ -259,7 +288,10 @@ export class CanvasVisual implements CanvasPresentation {
     return button;
   }
   private updateButton(entry: Entry, node: CanvasNode, clip: UIBounds): void {
-    if (entry.native) { entry.native.update(clip); return; }
+    if (entry.native) {
+      entry.native.update(clip);
+      return;
+    }
     if (!entry.button) return;
     const button = entry.button,
       b = node.bounds,
@@ -303,7 +335,8 @@ export class CanvasVisual implements CanvasPresentation {
     this.syncs++;
     this.display.scale.set(this.ui.scale);
     const visited = new Set<CanvasNode>(),
-      buttons: (HTMLButtonElement | HTMLSelectElement | HTMLInputElement)[] = [];
+      buttons: (HTMLButtonElement | HTMLSelectElement | HTMLInputElement)[] =
+        [];
     let order = 0;
     this.ui.walk(
       (node, parentClip) => {
@@ -343,7 +376,11 @@ export class CanvasVisual implements CanvasPresentation {
             display.addChild(entry.text);
           }
         }
-        if (entry.native && (entry.native.disposed || entry.native.revision !== node.control?.revision)) {
+        if (
+          entry.native &&
+          (entry.native.disposed ||
+            entry.native.revision !== node.control?.revision)
+        ) {
           entry.native.dispose();
           entry.native = this.native(node, entry.abort.signal);
           entry.button = entry.native.element;
@@ -477,7 +514,9 @@ export class CanvasVisual implements CanvasPresentation {
           }
           entry.display.alpha = enabled ? (model?.readOnly ? 0.7 : 1) : 0.45;
           if (entry.text) {
-            entry.text.visible = !entry.native || (node.control?.model.kind === "text" && !node.focused);
+            entry.text.visible =
+              !entry.native ||
+              (node.control?.model.kind === "text" && !node.focused);
             const m = measuredText ?? this.measure(node);
             if (entry.text.text !== m.text) {
               this.resources.changedText(entry.text.styleKey);

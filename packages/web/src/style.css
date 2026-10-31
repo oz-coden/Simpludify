@@ -165,12 +165,20 @@
   min-width: 0;
   user-select: text;
   color-scheme: dark;
+  color: var(--s-native-color);
 }
-.s-canvas-native option { background: #16242c; }
+.s-canvas-native option {
+  background: #16242c;
+}
 
 .s-canvas-accessibility input.s-canvas-native:not(:focus) {
-  color: transparent !important;
+  color: transparent;
   caret-color: transparent;
 }
-.s-canvas-accessibility input.s-canvas-native:not(:focus)::placeholder { color: transparent; }
-.s-canvas-accessibility input.s-canvas-native:focus::placeholder { color: currentColor; opacity: .65; }
+.s-canvas-accessibility input.s-canvas-native:not(:focus)::placeholder {
+  color: transparent;
+}
+.s-canvas-accessibility input.s-canvas-native:focus::placeholder {
+  color: currentColor;
+  opacity: 0.65;
+}

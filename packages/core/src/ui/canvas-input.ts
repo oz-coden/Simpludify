@@ -1,4 +1,3 @@
-import type { CanvasNativeControl } from "./native-edit";
 import { EngineError } from "../foundation/diagnostics";
 import { defineEvent } from "../foundation/events";
 import { cleanupAll, type LifetimeOwner } from "../foundation/lifetime";
@@ -13,6 +12,7 @@ import {
   type CanvasNodeKind,
   type CanvasStyle,
 } from "./canvas-node";
+import type { CanvasNativeControl } from "./native-edit";
 
 export type CanvasValueSource = CanvasActivation | "program";
 export interface CanvasValueChange<T> {
@@ -77,7 +77,9 @@ export abstract class CanvasInputNode<T> extends CanvasNode {
       get revision() {
         return self.inputRevision;
       },
-      get native() { return self.nativeControl; },
+      get native() {
+        return self.nativeControl;
+      },
       keys,
       ...(pointerAxis ? { pointerAxis } : {}),
       key: (code: string) => self.controlKey(code),
@@ -91,7 +93,9 @@ export abstract class CanvasInputNode<T> extends CanvasNode {
     return this.port;
   }
   protected abstract model(): CanvasControlModel;
-  protected get nativeControl(): CanvasNativeControl | undefined { return undefined; }
+  protected get nativeControl(): CanvasNativeControl | undefined {
+    return undefined;
+  }
   protected valueReplaced(): void {}
   protected controlKey(_code: string): void {}
   protected beginPointer(_x: number, _y: number): boolean {
@@ -209,7 +213,9 @@ export abstract class CanvasInputNode<T> extends CanvasNode {
         Object.freeze({ node: this, previous, value, source }),
       );
   }
-  private cancelled(edit: { previous: T; source: CanvasActivation } | undefined): void {
+  private cancelled(
+    edit: { previous: T; source: CanvasActivation } | undefined,
+  ): void {
     if (edit)
       this.events.emit(
         this.cancelEvent,

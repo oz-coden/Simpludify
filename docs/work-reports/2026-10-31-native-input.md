@@ -51,3 +51,12 @@ Initial investigation/design complete. Select, text session, TextInput, NumberIn
 - Dynamic range changes validate first and supersede drafts; native text presentation exposes spinbutton semantics. Slider/NumberInput can share state using onChange with equality guards before reflected program writes.
 - TypeScript passed; focused suites **71 passed / 0 failed**. Added disposal cleanup aggregation and a single presentation-owned window/visibility interruption listener. These last lifecycle changes still need browser regression execution.
 - Next: Settings lab, browser WebGL/Canvas2D desktop/narrow cases, docs, full checks/CI and review. Actual OS IME/physical soft keyboards remain unverified.
+
+## Sample, documentation and browser regression checkpoint
+
+- NumberInput implementation saved as [fb87b99](https://github.com/oz-coden/Simpludify/commit/fb87b991bec244f9d25756969baaaa5a0bd897c4).
+- Settings lab now includes typed difficulty Select, player-name TextInput, synchronized numeric volume and existing Checkbox/Slider/Apply/Reset/read-only/scroll composition. Definitions import Core only; subscriptions are root-scoped. Existing exact snapshot assertions include the newly implemented settings.
+- Added WebGL/Canvas2D × desktop/narrow browser cases for native options/keys, Unicode editing/caret/selection, real browser clipboard shortcuts, composition-event ordering, detached editor rejection, invalid number drafts/keys, native drag ownership/wheel/clipping and Scene cleanup. These are not OS IME tests; execution is pending candidate Actions.
+- Complete local unit suite: **693 passed / 49 files / 0 failed**, 3.73s. Earlier sample snapshot expectation failed solely because it omitted the new fields; the expectation now checks those fields too. No existing regression assertion was removed. TypeScript compilation passes with new fixtures.
+- Updated English editing guide, API, Host/architecture/roadmap, Japanese Canvas entry, sample README and site page title. The guide specifies accepted/draft semantics, typed options, native presentation, UTF-16/maxLength, locale-independent numbers, shared Slider values, Host migration and physical IME/mobile/AT limits.
+- Save before full static/build/site/CI review. Local Chromium remains unavailable; exact-source Actions must pass before integration.

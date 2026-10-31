@@ -142,4 +142,4 @@ Canvas trailの **UI list lab** は、Core APIだけで構築した同じ画面�
 
 `CanvasCheckbox`は真偽値、`CanvasSlider`は数値範囲を扱います。どちらもCoreの値・イベント・フォーカスと既存PointerRoutingを使い、ゲーム側でDOM/Pixiを操作せず構築できます。Canvas trailの **Settings lab** で音声、音量、速度、読み取り専用、適用・リセットを試せます。[引数・値・イベント・入力・破棄の契約](../en/canvas-controls.html) を参照してください。
 
-Sliderは操作中の値を即時反映し、中断時も最後の値を保持します。設定全体を取り消したい場合は、アプリケーション側で保存した値をプログラムから戻します。Select・NumberInput・TextInputと日本語IMEは未実装です。[設計・検証予定](../en/text-input-design.html) と完成済みのCheckbox/Sliderを区別してください。
+Sliderは操作中の値を即時反映し、中断時も最後の値を保持します。設定全体を取り消したい場合は、アプリケーション側で保存した値をプログラムから戻します。`CanvasSelect`・`CanvasTextInput`・`CanvasNumberInput`も同じ値・フォーカス基盤を使います。文字・数値は編集中の`draft`と確定値`value`を分け、Enterまたは通常のフォーカス移動で確定、Escapeで取り消します。日本語IME変換中のEnter/Escapeはネイティブ入力に任せます。Settings labで難易度・プレイヤー名・数値音量を試せます。[生成・イベント・ネイティブ入力・Host移行・未検証事項](../en/text-input-design.html) を参照してください。実OSの日本語IMEと物理端末のソフトウェアキーボードは未検証です。

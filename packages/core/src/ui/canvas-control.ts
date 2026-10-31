@@ -1,5 +1,5 @@
-import type { CanvasNativeControl } from "./native-edit";
 import type { CanvasNode, UIBounds } from "./canvas-node";
+import type { CanvasNativeControl } from "./native-edit";
 
 export type CanvasActivation = "pointer" | "keyboard" | "accessibility";
 export type CanvasControlModel =
@@ -19,7 +19,10 @@ export type CanvasControlModel =
     }
   | {
       readonly kind: "select";
-      readonly options: readonly { readonly label: string; readonly disabled: boolean }[];
+      readonly options: readonly {
+        readonly label: string;
+        readonly disabled: boolean;
+      }[];
       readonly selectedIndex: number;
       readonly readOnly: boolean;
     }
@@ -29,7 +32,12 @@ export type CanvasControlModel =
       readonly placeholder: string;
       readonly maxLength: number | undefined;
       readonly inputMode: "text" | "decimal";
-      readonly numeric?: Readonly<{value:number;min:number;max:number;step:number}>;
+      readonly numeric?: Readonly<{
+        value: number;
+        min: number;
+        max: number;
+        step: number;
+      }>;
       readonly readOnly: boolean;
     };
 /** Core control commands/data consumed by input routing and Host presentations. Coordinates are UI units. */
@@ -74,6 +82,6 @@ export function canvasControlText(node: CanvasNode): string {
     : model?.kind === "select"
       ? (model.options[model.selectedIndex]?.label ?? "")
       : model?.kind === "text"
-        ? (model.text || model.placeholder)
+        ? model.text || model.placeholder
         : node.text;
 }

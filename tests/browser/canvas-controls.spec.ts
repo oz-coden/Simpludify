@@ -188,7 +188,14 @@ for (const fallback of [false, true])
       await page.evaluate(() => window.controlsProbe.tick());
       expect(
         await page.evaluate(() => window.controlsProbe.screen.applied),
-      ).toEqual({ sound: false, volume: 75, speed: 2, grid: false });
+      ).toEqual({
+        sound: false,
+        volume: 75,
+        speed: 2,
+        grid: false,
+        difficulty: "normal",
+        playerName: "Player",
+      });
       await page.evaluate(() => {
         const f = window.controlsProbe;
         f.screen.readOnly.value = true;

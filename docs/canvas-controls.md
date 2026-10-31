@@ -1,6 +1,6 @@
 # Canvas input controls
 
-`CanvasCheckbox` and `CanvasSlider` are portable Core UI nodes, reexported by Web. Their state, events, geometry and interaction meaning do not depend on DOM/Pixi. Web draws them in the game canvas and supplies scoped native focus/ARIA mirrors. **Select, NumberInput and TextInput are not implemented.** [Native editing design](text-input-design.md) records the remaining Host/IME work.
+`CanvasCheckbox` and `CanvasSlider` are portable Core UI nodes, reexported by Web. Their state, events, geometry and interaction meaning do not depend on DOM/Pixi. Web draws them in the game canvas and supplies scoped native focus/ARIA mirrors. `CanvasSelect`, `CanvasTextInput` and `CanvasNumberInput` extend the same value foundation with Host-native selection/text editing. [Native editing contracts](text-input-design.md) describe their draft/commit semantics and IME verification limits.
 
 ## Build a settings screen
 
@@ -40,7 +40,7 @@ game.canvasUI(root);
 await game.run();
 ```
 
-Canvas trail → **Settings lab** uses a [Core-only definition](../examples/canvas-ui/settings-screen.ts). It includes sound/grid settings, volume/speed sliders, a read-only toggle, preview, Apply snapshot, Reset and Back. User code does not create DOM elements or manipulate Pixi. Apply copies the current values; further editing does not mutate that applied snapshot. Reset restores draft defaults, not the previously applied snapshot. These are application decisions, not engine-wide storage/persistence policies.
+Canvas trail → **Settings lab** uses a [Core-only definition](../examples/canvas-ui/settings-screen.ts). It includes sound/grid settings, volume/speed sliders, difficulty selection, player-name editing, a synchronized numeric volume field, read-only mode, preview, Apply snapshot, Reset and Back. User code does not create DOM elements or manipulate Pixi. Apply copies the current values; further editing does not mutate that applied snapshot. Reset restores draft defaults, not the previously applied snapshot. These are application decisions, not engine-wide storage/persistence policies.
 
 ## Value and event contract
 
