@@ -179,9 +179,9 @@ for (const fallback of [false, true])
       await tick(page);
       expect(
         await page.evaluate(() =>
-          window.focusProbe.controls.value(window.focusProbe.A.Fire),
+          window.focusProbe.controls.button(window.focusProbe.A.Fire),
         ),
-      ).toBe(false);
+      ).toMatchObject({ held: false, pressCount: 0 });
       await input.dispatchEvent("compositionend", { data: "あ" });
       await input.press("Escape");
       await expect(input).toHaveValue("Player");
@@ -212,16 +212,16 @@ for (const fallback of [false, true])
       await tick(page);
       expect(
         await page.evaluate(() =>
-          window.focusProbe.controls.value(window.focusProbe.A.Right),
+          window.focusProbe.controls.button(window.focusProbe.A.Right),
         ),
-      ).toBe(false);
+      ).toMatchObject({ held: false, pressCount: 0 });
       await page.keyboard.press("Space");
       await tick(page);
       expect(
         await page.evaluate(() =>
-          window.focusProbe.controls.value(window.focusProbe.A.Fire),
+          window.focusProbe.controls.button(window.focusProbe.A.Fire),
         ),
-      ).toBe(false);
+      ).toMatchObject({ held: false, pressCount: 0 });
       const number = page.getByRole("spinbutton", {
         name: "Canvas number",
         exact: true,
