@@ -342,6 +342,10 @@ export class CanvasVisual implements CanvasPresentation {
       s = this.ui.scale,
       c = intersectUI(b, clip);
     if (button.textContent !== node.text) button.textContent = node.text;
+    // Busy Canvas controls leave Core focus/Tab order. Hand off before native disable
+    // would blur to the page and clear unrelated held gameplay keys.
+    if (node.busy && document.activeElement === button)
+      this.host.focus({ preventScroll: true });
     button.disabled =
       !node.available ||
       c.width <= 0 ||

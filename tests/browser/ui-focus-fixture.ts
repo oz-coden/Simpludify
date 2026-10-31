@@ -32,7 +32,8 @@ export async function focusFixture() {
     hoverEvents: string[] = [];
   let clicks = 0,
     domClicks = 0,
-    finish = () => {};
+    finish = () => {},
+    finishCanvas = () => {};
   const A = defineActions({
     Move: Action.axis2D(),
     Fire: Action.button(),
@@ -73,6 +74,14 @@ export async function focusFixture() {
       { label: "Canvas choice" },
       style,
     ),
+    pending = CanvasButton(
+      "Canvas pending",
+      () =>
+        new Promise<void>((resolve) => {
+          finishCanvas = resolve;
+        }),
+      style,
+    ),
     last = CanvasButton("Last action", () => {}, style),
     scroll = CanvasScroll(
       Array.from({ length: 8 }, (_, i) =>
@@ -82,7 +91,7 @@ export async function focusFixture() {
     ),
     row = CanvasRow([button], { height: 40, shrink: 0 }),
     root = CanvasColumn(
-      [row, check, slider, text, number, select, scroll, last],
+      [row, check, slider, text, number, select, scroll, pending, last],
       {
         width: 310,
         height: 540,
@@ -160,11 +169,13 @@ export async function focusFixture() {
     select,
     scroll,
     last,
+    pending,
     errors,
     hoverEvents,
     rendererType: RendererType[inspectCanvasResources(renderer).rendererType],
     counts: () => ({ clicks, domClicks }),
     finish: () => finish(),
+    finishCanvas: () => finishCanvas(),
     tick,
     move() {
       const before = player.y;

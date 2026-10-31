@@ -176,6 +176,26 @@ for (const fallback of [false, true])
       expect(
         await page.evaluate(() => window.focusProbe.counts().domClicks),
       ).toBe(3);
+      // Focused Canvas async controls hand off before disabling their native mirror.
+      const pending = page.getByRole("button", {
+        name: "Canvas pending",
+        exact: true,
+      });
+      await pending.focus();
+      await page.keyboard.down("w");
+      const position = await page.evaluate(() =>
+        window.focusProbe.center(window.focusProbe.pending),
+      );
+      await page.mouse.click(position.x, position.y);
+      await tick(page);
+      await expect(pending).toBeDisabled();
+      await expect(page.locator(".simpludify")).toBeFocused();
+      await expectMovement(page, true);
+      await page.evaluate(() => window.focusProbe.finishCanvas());
+      await tick(page);
+      await expect(pending).toBeEnabled();
+      await page.keyboard.up("w");
+      await expectMovement(page, false);
     });
     test("text and IME isolate gameplay, cancel/commit preserve focus and fresh keydown resumes on a button", async ({
       page,
@@ -294,6 +314,7 @@ for (const fallback of [false, true])
         ["button", "Entry 5"],
         ["button", "Entry 6"],
         ["button", "Entry 7"],
+        ["button", "Canvas pending"],
         ["button", "Last action"],
       ] as const) {
         await page.keyboard.press("Tab");
