@@ -254,6 +254,12 @@ try {
       }
       assert.equal(await page.locator("iframe").count(), 1);
       const observeCleanup = async (targetFrame) => {
+        if (example.id === "tween")
+          await targetFrame.waitForFunction(
+            () => window.tweenDemo?.game.engine.scene.state === "active",
+            undefined,
+            { polling: 50 },
+          );
         await page.evaluate(() => {
           delete document.body.dataset.sampleCleanup;
         });
@@ -266,11 +272,33 @@ try {
             window.blockfall?.game ??
             window.signalRun?.game ??
             window.demo;
+          const simulation = window.tweenDemo?.lab.simulation,
+            display = window.tweenDemo?.lab.display;
+          let disposalMilliseconds;
+          if (window.tweenDemo) {
+            game.pause();
+            const dispose = game.dispose.bind(game);
+            game.dispose = () => {
+              const start = performance.now();
+              try {
+                return dispose();
+              } finally {
+                disposalMilliseconds = performance.now() - start;
+              }
+            };
+          }
           window.addEventListener(
             "simpludify:dispose",
             () => {
               parent.document.body.dataset.sampleCleanup = JSON.stringify({
                 hosts: document.querySelectorAll(".simpludify").length,
+                ...(simulation
+                  ? {
+                      simulation: simulation.diagnostics.active,
+                      display: display.diagnostics.active,
+                      disposalMilliseconds,
+                    }
+                  : {}),
                 ...(game
                   ? {
                       disposed: game.engine.disposed,
@@ -288,6 +316,11 @@ try {
           await page.evaluate(() => document.body.dataset.sampleCleanup),
         );
         assert.equal(cleaned.hosts, 0);
+        if ("simulation" in cleaned) {
+          assert.equal(cleaned.simulation, 0);
+          assert.equal(cleaned.display, 0);
+          console.log(JSON.stringify({ tweenCleanup: cleaned }));
+        }
         if ("disposed" in cleaned) {
           assert.equal(cleaned.disposed, true);
           assert.equal(cleaned.sources, 0);
@@ -299,14 +332,19 @@ try {
           fullPage: false,
         });
       await observeCleanup(frame);
-      await page.locator("[data-restart]").click();
+      // Tween adds continuously changing visual fields. Software WebGL can block
+      // actionability/teardown beyond 15s; use the same bounded budget as the
+      // dedicated WebGL suite, only for this new sample's lifecycle actions.
+      const lifecycleOptions =
+        example.id === "tween" ? { timeout: 60_000 } : {};
+      await page.locator("[data-restart]").click(lifecycleOptions);
       await assertCleanup();
       await page.frameLocator("iframe").locator("canvas").waitFor();
       const currentFrame = await (
         await page.locator("iframe").elementHandle()
       ).contentFrame();
       await observeCleanup(currentFrame);
-      await page.locator("[data-stop]").click();
+      await page.locator("[data-stop]").click(lifecycleOptions);
       await assertCleanup();
       assert.equal(await page.locator("iframe").count(), 0);
       assert.equal(
