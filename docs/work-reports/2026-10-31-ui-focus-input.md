@@ -25,3 +25,9 @@ Investigation/design complete. Hover fix, input arbitration, focus improvements,
 
 - Added validated CanvasStyle `hoverEffect: auto | none | highlight` (default auto) and shared Core `canvasHoverHighlight` presentation policy. Auto highlights interactive controls only; explicit highlight supports custom pointer panels. Pointer hit-testing and enter/leave delivery are unchanged; style mutation is paint-only.
 - Two focused Core cases passed (default container/control policy, explicit opt-in/out, invalid values, unchanged layout count and nonfocusable containers). WebGL/Canvas2D pixel/event regressions are still pending. No browser success is claimed at this checkpoint.
+
+## Keyboard arbitration checkpoint
+
+Engine-managed DOM/Canvas buttons now consume activation keys while allowing unrelated accepted game bindings. Native editors/selects and unmanaged native buttons remain isolated. The common browser adapter clears its source on editor entry, composition, outside focus, window blur and hiding; capturing keyup always releases, and repeat cannot resurrect a cleared key. Pointer focus preserves an already focused compatible engine button. Synchronous DOM button actions no longer transiently disable their focused element; pending async DOM actions use guarded aria-disabled/busy semantics and leave the Tab order until settled.
+
+Canvas native focus is mirrored only on a logical target change or native generation replacement, rather than on every hover/paint refresh. Browser host Tab enters the live declaration order; native/semantic Tab traverses Core order and leaves at boundaries. Reordering moves siblings around the active native element, preserving selection/composition identity. These changes are checkpointed before browser verification; full regression results are pending. TypeScript passed before the final focus changes; focused hover unit tests: 2 passed, 0 failed.

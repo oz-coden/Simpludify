@@ -26,6 +26,7 @@ import {
   CanvasNativeText,
   clipNativeRegions,
 } from "./canvas-native";
+import { registerGameButton } from "./ui-keyboard";
 
 export interface CanvasPresentation {
   update(width: number, height: number): void;
@@ -62,6 +63,7 @@ export class CanvasVisual implements CanvasPresentation {
   private dirty = true;
   private dead = false;
   private active = false;
+  private mirroredFocus: CanvasNode | undefined;
   private readonly subscriptions: Array<() => void> = [];
   private syncs = 0;
   constructor(
@@ -115,6 +117,28 @@ export class CanvasVisual implements CanvasPresentation {
       "visibilitychange",
       () => {
         if (document.hidden) interrupt();
+      },
+      { signal: nativeEvents.signal },
+    );
+    this.host.addEventListener(
+      "keydown",
+      (event) => {
+        if (
+          !this.active ||
+          event.target !== this.host ||
+          event.code !== "Tab" ||
+          event.shiftKey ||
+          event.isComposing ||
+          event.keyCode === 229
+        )
+          return;
+        this.update(this.host.clientWidth, this.host.clientHeight);
+        const next = this.ui.focusNext();
+        if (next) {
+          event.preventDefault();
+          this.update(this.host.clientWidth, this.host.clientHeight);
+          this.focus(next);
+        }
       },
       { signal: nativeEvents.signal },
     );
@@ -223,6 +247,7 @@ export class CanvasVisual implements CanvasPresentation {
     if (!signal)
       throw new EngineError("INVALID_UI", "Missing Canvas button entry");
     const options = { signal };
+    registerGameButton(button, signal);
     const run = (task: () => void) => {
       try {
         task();
@@ -250,6 +275,7 @@ export class CanvasVisual implements CanvasPresentation {
     button.addEventListener(
       "keydown",
       (event) => {
+        if (event.isComposing || event.keyCode === 229) return;
         if (node.control?.keys.includes(event.code)) {
           event.preventDefault();
           run(() => {
@@ -284,6 +310,7 @@ export class CanvasVisual implements CanvasPresentation {
     button.addEventListener(
       "keyup",
       (event) => {
+        if (event.isComposing || event.keyCode === 229) return;
         if (event.code !== "Enter" && event.code !== "Space") return;
         event.preventDefault();
         run(() => {
@@ -361,6 +388,7 @@ export class CanvasVisual implements CanvasPresentation {
       clip?: UIBounds;
     }[] = [];
     let order = 0;
+    let restoreNativeFocus: CanvasNode | undefined;
     this.ui.walk(
       (node, parentClip) => {
         const measuredText =
@@ -404,6 +432,8 @@ export class CanvasVisual implements CanvasPresentation {
           (entry.native.disposed ||
             entry.native.revision !== node.control?.revision)
         ) {
+          if (document.activeElement === entry.button)
+            restoreNativeFocus = node;
           entry.native.dispose();
           entry.native = this.native(node, entry.abort.signal);
           entry.button = entry.native.element;
@@ -652,16 +682,28 @@ export class CanvasVisual implements CanvasPresentation {
         this.metrics.delete(node);
         this.releaseEntry(entry);
       }
-    for (let i = 0; i < buttons.length; i++) {
+    // Move siblings around the active element: detaching it would end selection/IME.
+    let anchor: Element | null = null;
+    for (let i = buttons.length - 1; i >= 0; i--) {
       const button = buttons[i];
       if (!button) continue;
-      const current = this.element.children.item(i);
-      if (current !== button) this.element.insertBefore(button, current);
+      if (
+        button !== document.activeElement &&
+        button.nextElementSibling !== anchor
+      )
+        this.element.insertBefore(button, anchor);
+      anchor = button;
     }
     const focused = this.ui.focusedNode;
     const button = focused ? this.entries.get(focused)?.button : undefined;
-    if (button && !button.disabled && document.activeElement !== button)
+    if (
+      (focused !== this.mirroredFocus || focused === restoreNativeFocus) &&
+      button &&
+      !button.disabled &&
+      document.activeElement !== button
+    )
       button.focus({ preventScroll: true });
+    this.mirroredFocus = this.ui.focusedNode;
   }
   private releaseEntry(entry: Entry): void {
     const backgroundContext = entry.background.context?.uid,

@@ -89,7 +89,8 @@
 .s-ui button:hover {
   filter: brightness(1.08);
 }
-.s-ui button:disabled {
+.s-ui button:disabled,
+.s-ui button[aria-disabled="true"] {
   opacity: 0.65;
   cursor: progress;
 }

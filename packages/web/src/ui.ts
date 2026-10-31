@@ -1,4 +1,5 @@
 import { cleanupAll } from "@simpludify/core";
+import { registerGameButton } from "./ui-keyboard";
 export const Layout = { Column: "column", Row: "row", Grid: "grid" } as const;
 export type Layout = (typeof Layout)[keyof typeof Layout];
 export const Theme = { Dark: "dark", Light: "light" } as const;
@@ -175,23 +176,37 @@ export function mountUI(
         }),
       );
       const options = { signal: controller.signal };
-      if (node.kind === "button")
+      registerGameButton(button, controller.signal);
+      if (node.kind === "button") {
+        let pending = false;
         button.addEventListener(
           "click",
-          async () => {
-            if (button.disabled) return;
-            button.disabled = true;
+          () => {
+            if (pending || button.disabled) return;
             try {
-              await node.onClick(controller.signal);
+              const result = node.onClick(controller.signal);
+              if (!result || typeof result.then !== "function") return;
+              pending = true;
+              button.setAttribute("aria-disabled", "true");
+              button.setAttribute("aria-busy", "true");
+              button.tabIndex = -1;
+              void Promise.resolve(result)
+                .catch((error) => {
+                  if (!controller.signal.aborted) report(error);
+                })
+                .finally(() => {
+                  pending = false;
+                  button.removeAttribute("aria-disabled");
+                  button.removeAttribute("aria-busy");
+                  button.tabIndex = 0;
+                });
             } catch (error) {
               if (!controller.signal.aborted) report(error);
-            } finally {
-              button.disabled = false;
             }
           },
           options,
         );
-      else {
+      } else {
         button.classList.add("s-hold");
         button.setAttribute("aria-pressed", "false");
         const pointers = new Set<number>(),

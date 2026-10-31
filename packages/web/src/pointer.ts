@@ -6,6 +6,7 @@ import {
   type ViewTransform,
   type WorldPoint,
 } from "@simpludify/core";
+import { focusGameSurface } from "./ui-keyboard";
 /** One DOM capture-phase adapter per Game; Pixi federated events never route these widgets. */
 export class BrowserPointer {
   readonly routing: PointerRouting;
@@ -40,9 +41,8 @@ export class BrowserPointer {
           this.routing.down(data);
           if (this.routing.has(e.pointerId)) {
             e.preventDefault();
-            // Keep game keyboard input while a touch/mouse UI source is held.
-            // Tab still focuses native semantic controls explicitly.
-            host.focus({ preventScroll: true });
+            // Pointer ownership is independent of compatible button keyboard focus.
+            focusGameSurface(host);
           } else {
             if (this.routing.owns(e.pointerId)) e.preventDefault();
             if (host.hasPointerCapture(e.pointerId))
