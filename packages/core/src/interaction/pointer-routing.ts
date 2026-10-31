@@ -75,11 +75,15 @@ interface Gesture {
   axis?: "vertical" | "horizontal" | "both";
   revision?: number;
   bar?: { axis: CanvasScrollbar["axis"]; grab: number; thumb: boolean };
+  control?: CanvasNode;
+  controlRevision?: number;
+  controlLocked?: boolean;
   vx: number;
   vy: number;
 }
 /** @internal Device-independent routing state; DOM is only an adapter. */
 export class PointerRouting {
+  private readonly controlOwners = new Map<CanvasNode, number>();
   private readonly scrollOwners = new Map<CanvasNode, number>();
   private readonly suppressed = new Set<number>();
   private readonly gestures = new Map<number, Gesture>();
@@ -88,6 +92,7 @@ export class PointerRouting {
     { node: CanvasNode; info: PointerInfo }
   >();
   private readonly holds = new Map<CanvasNode, Set<number | string>>();
+  private readonly keyRevisions = new Map<CanvasNode, number>();
   private readonly keys = new Map<CanvasNode, Set<string>>();
   private channel: ScenePointer | undefined;
   private ui: CanvasUI | undefined;
@@ -103,6 +108,7 @@ export class PointerRouting {
       keyboardNodes: this.keys.size,
       deliveries: this.deliveries,
       scrollDrags: this.scrollOwners.size,
+      controlDrags: this.controlOwners.size,
     };
   }
   setScene(channel: ScenePointer, ui?: CanvasUI): void {
@@ -173,6 +179,10 @@ export class PointerRouting {
       this.suppressed.add(data.pointerId);
       return node;
     }
+    if (node && data.button === 0 && this.controlOwners.has(node)) {
+      this.suppressed.add(data.pointerId);
+      return node;
+    }
     if (!node && !data.inside) return;
     const g: Gesture = {
       channel: this.channel,
@@ -217,12 +227,34 @@ export class PointerRouting {
       };
       this.scrollOwners.set(bar.node, data.pointerId);
     }
+    if (node?.control) g.controlRevision = node.control.revision;
     this.gestures.set(data.pointerId, g);
     if (node) g.off = node.onDispose(() => this.cancel(data.pointerId));
     cleanupAll(
       [
         () => {
-          if (node?.interactive && g.primary)
+          const port = node?.control;
+          if (!node || !port?.pointerAxis || !g.primary) return;
+          g.control = node;
+          g.controlRevision = port.revision;
+          this.controlOwners.set(node, data.pointerId);
+          if (
+            !port.beginPointer(
+              data.screen.x / g.scale,
+              data.screen.y / g.scale,
+            ) &&
+            this.gestures.get(data.pointerId) === g
+          ) {
+            this.controlOwners.delete(node);
+            delete g.control;
+          }
+        },
+        () => {
+          if (
+            this.gestures.get(data.pointerId) === g &&
+            node?.interactive &&
+            g.primary
+          )
             this.hold(node, data.pointerId, true);
         },
         () => {
@@ -292,7 +324,12 @@ export class PointerRouting {
     if (this.suppressed.has(data.pointerId)) return;
     const g = this.gestures.get(data.pointerId);
     if (g) {
-      if (!g.scroll && g.primary) this.claimScroll(g, data);
+      if (g.control && !g.controlLocked) {
+        const dx = Math.abs(data.screen.x - g.start.screen.x),
+          dy = Math.abs(data.screen.y - g.start.screen.y);
+        if (dx >= 8 && dx > dy) g.controlLocked = true;
+      }
+      if (!g.scroll && g.primary && !g.controlLocked) this.claimScroll(g, data);
       if (this.gestures.get(data.pointerId) !== g) return;
       if (g.bar && g.scroll && g.ui) {
         const bar = canvasScrollbars(g.scroll).find(
@@ -326,7 +363,13 @@ export class PointerRouting {
           g.scroll.scrollX + dx,
           g.scroll.scrollY + dy,
         );
-      } else g.last = data;
+      } else {
+        g.last = data;
+        g.control?.control?.movePointer(
+          data.screen.x / g.scale,
+          data.screen.y / g.scale,
+        );
+      }
       if (this.gestures.get(data.pointerId) === g)
         this.emit(g, PointerMove, this.inside(g, data));
       return;
@@ -394,6 +437,10 @@ export class PointerRouting {
       return;
     }
     const previous = { ...g };
+    if (g.control) this.controlOwners.delete(g.control);
+    delete g.control;
+    delete g.controlRevision;
+    delete g.controlLocked;
     g.off?.();
     g.scroll = candidate;
     g.node = candidate;
@@ -404,6 +451,7 @@ export class PointerRouting {
     g.off = candidate.onDispose(() => this.cancel(data.pointerId));
     cleanupAll(
       [
+        () => previous.control?.control?.endPointer(true),
         () => {
           if (previous.node?.interactive)
             this.hold(previous.node, data.pointerId, false);
@@ -477,6 +525,7 @@ export class PointerRouting {
     g = this.gestures.get(data.pointerId);
     if (!g) return;
     this.gestures.delete(data.pointerId);
+    if (g.control) this.controlOwners.delete(g.control);
     if (g.scroll) {
       this.scrollOwners.delete(g.scroll);
       const fresh =
@@ -492,6 +541,7 @@ export class PointerRouting {
       [
         () => g.off?.(),
         () => this.released(data.pointerId),
+        () => g.control?.control?.endPointer(false),
         () => {
           if (g.node?.interactive) this.hold(g.node, data.pointerId, false);
         },
@@ -509,7 +559,7 @@ export class PointerRouting {
         },
         () => {
           if (!g.scroll && g.primary && info.inside && g.node?.available)
-            g.node.activate();
+            g.node.activate("pointer");
         },
       ],
       "Pointer up handlers failed",
@@ -520,6 +570,7 @@ export class PointerRouting {
     const g = this.gestures.get(id);
     if (!g) return;
     this.gestures.delete(id);
+    if (g.control) this.controlOwners.delete(g.control);
     if (g.scroll) {
       this.scrollOwners.delete(g.scroll);
       g.scroll.stopScroll();
@@ -529,6 +580,7 @@ export class PointerRouting {
       [
         () => g.off?.(),
         () => this.released(id),
+        () => g.control?.control?.endPointer(true),
         () => {
           if (g.node?.interactive) this.hold(g.node, id, false);
         },
@@ -542,6 +594,14 @@ export class PointerRouting {
       "Pointer cancel handlers failed",
     );
   }
+  /** Control-specific keys take priority over ancestor scrolling. Hosts preserve Tab and native editor input. */
+  controlKey(node: CanvasNode, code: string): boolean {
+    const port = node.control;
+    if (!port?.keys.includes(code) || node.ui !== this.ui || !node.available)
+      return false;
+    port.key(code);
+    return true;
+  }
   hasKey(node: CanvasNode, code: string): boolean {
     return this.keys.get(node)?.has(code) ?? false;
   }
@@ -551,18 +611,23 @@ export class PointerRouting {
     const set = this.keys.get(node) ?? new Set<string>();
     const activate = !down && set.has(code);
     if (down) {
+      if (node.control && !this.keys.has(node))
+        this.keyRevisions.set(node, node.control.revision);
       set.add(code);
       this.keys.set(node, set);
     } else {
       set.delete(code);
-      if (!set.size) this.keys.delete(node);
+      if (!set.size) {
+        this.keys.delete(node);
+        this.keyRevisions.delete(node);
+      }
     }
     cleanupAll(
       [
         () => this.hold(node, `key:${code}`, down),
         () => {
-          if (activate && node.kind === "button" && node.available)
-            node.activate();
+          if (activate && node.kind !== "hold-button" && node.available)
+            node.activate("keyboard");
         },
       ],
       "UI keyboard handlers failed",
@@ -571,6 +636,7 @@ export class PointerRouting {
   releaseKeys(node: CanvasNode): void {
     const keys = [...(this.keys.get(node) ?? [])];
     this.keys.delete(node);
+    this.keyRevisions.delete(node);
     cleanupAll(
       keys.map((code) => () => this.hold(node, `key:${code}`, false)),
       "Keyboard hold cleanup failed",
@@ -583,6 +649,8 @@ export class PointerRouting {
           .filter(
             ([, g]) =>
               (g.node && !g.node.available) ||
+              (g.control &&
+                g.control.control?.revision !== g.controlRevision) ||
               (!g.scroll &&
                 g.candidates.some(
                   (n, i) => n.scrollRevision !== g.candidateRevisions[i],
@@ -610,7 +678,11 @@ export class PointerRouting {
                 this.hover(id, undefined, h.info),
           ),
         ...[...this.keys.keys()]
-          .filter((n) => !n.available)
+          .filter(
+            (n) =>
+              !n.available ||
+              (n.control && this.keyRevisions.get(n) !== n.control.revision),
+          )
           .map((n) => () => this.releaseKeys(n)),
       ],
       "Invalid pointer cleanup failed",

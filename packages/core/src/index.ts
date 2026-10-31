@@ -25,9 +25,10 @@ export * from "./runtime/replay";
 export * from "./scene/actor";
 export * from "./scene/component";
 export * from "./scene/scene";
+export * from "./ui/canvas-control";
+export * from "./ui/canvas-input";
 export * from "./ui/canvas-layout";
 export * from "./ui/canvas-node";
 export * from "./ui/canvas-text";
 export * from "./ui/canvas-ui";
-
 export * from "./ui/scrollbar";

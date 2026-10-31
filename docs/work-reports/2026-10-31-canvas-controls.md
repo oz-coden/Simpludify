@@ -18,3 +18,9 @@ Phase A is complete, including live sample/document verification. Start: main `4
 - Initial checkpoint before implementation. Existing baseline CI: 622 unit / 254 browser tests and Pages deployment passed (Phase A report).
 - Main site rebuild at dd2eb0e and live guide/sample comparison passed during Phase A closure. No Phase B tests have run yet.
 - Next: implement value semantics and two controls, Core routing/geometry, Web paint/semantics, portable settings screen, unit/browser regressions, docs and review. Save checkpoints before long test/CI sessions. Main integration is conditional on successful verification.
+
+## Core/Host implementation checkpoint
+
+- Added a narrow CanvasControlPort (draw model, key/pointer commands, revision) and CanvasInputNode value subscriptions. Checkbox and horizontal Slider are now implemented in Core; Web paints their data and mirrors checkbox/range ARIA state through the existing semantic button lifecycle. Slider uses shared Core geometry for paint/hits.
+- Program/range/read-only commands invalidate pending pointer/key input; cancellation retains immediate values without a commit. Horizontal slider intent locks its owner; vertical scrolling can cancel a pending slider interaction. Independent sliders use distinct pointer owners. Existing Button/HoldButton routing remains.
+- TypeScript compilation passed for the first connected implementation. Full check/unit/browser verification and the settings sample are still pending; this is not a completion claim. Save this source before running regressions.

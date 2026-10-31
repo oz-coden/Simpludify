@@ -5,7 +5,9 @@ import type {
   UIBounds,
 } from "@simpludify/core";
 import {
+  canvasControlText,
   canvasScrollbars,
+  canvasSliderGeometry,
   cleanupAll,
   EngineError,
   intersectUI,
@@ -86,27 +88,35 @@ export class CanvasVisual implements CanvasPresentation {
   }
   private measure = (node: CanvasNode, contentWidth = Infinity) => {
     const { fontSize, fontFamily, textWrap } = node.style;
-    const key = JSON.stringify([node.text, fontSize, fontFamily, textWrap]);
+    const content = canvasControlText(node);
+    const adornment = node.control?.model.kind === "checkbox" ? 30 : 0;
+    const key = JSON.stringify([
+      content,
+      fontSize,
+      fontFamily,
+      textWrap,
+      adornment,
+    ]);
     let cache = this.metrics.get(node);
     if (cache?.key !== key) {
       cache = { key, values: new Map() };
       this.metrics.set(node, cache);
     }
-    const width = textWrap ? contentWidth : Infinity;
+    const width = textWrap ? Math.max(0, contentWidth - adornment) : Infinity;
     const previous = cache.values.get(width);
     if (previous) return previous;
     const style = new TextStyle({ fontSize, fontFamily, wordWrap: false });
     const text = Number.isFinite(width)
       ? wrapCanvasText(
-          node.text,
+          content,
           width,
           (value) => CanvasTextMetrics.measureText(value || " ", style).width,
         )
-      : node.text.replace(/\r\n?/g, "\n");
+      : content.replace(/\r\n?/g, "\n");
     const measured = CanvasTextMetrics.measureText(text || " ", style);
     const result = {
       text,
-      width: text ? measured.width : 0,
+      width: (text ? measured.width : 0) + adornment,
       height: measured.height,
     };
     if (cache.values.size >= 8)
@@ -157,6 +167,13 @@ export class CanvasVisual implements CanvasPresentation {
     button.addEventListener(
       "keydown",
       (event) => {
+        if (node.control?.keys.includes(event.code)) {
+          event.preventDefault();
+          run(() => {
+            this.routing.controlKey(node, event.code);
+          });
+          return;
+        }
         if (this.ui.scrollKey(node, event.code)) {
           event.preventDefault();
           return;
@@ -197,7 +214,8 @@ export class CanvasVisual implements CanvasPresentation {
       "click",
       () =>
         run(() => {
-          if (node.kind === "button" && node.available) node.activate();
+          if (node.kind !== "hold-button" && node.available)
+            node.activate("accessibility");
         }),
       options,
     );
@@ -217,6 +235,19 @@ export class CanvasVisual implements CanvasPresentation {
       node.style.pointerEvents !== "auto";
     if (node.kind === "hold-button")
       button.setAttribute("aria-pressed", String(node.held));
+    const model = node.control?.model;
+    if (model) {
+      button.setAttribute("role", model.kind);
+      button.setAttribute("aria-label", node.text);
+      button.setAttribute("aria-readonly", String(model.readOnly));
+      if (model.kind === "checkbox")
+        button.setAttribute("aria-checked", String(model.checked));
+      else {
+        button.setAttribute("aria-valuemin", String(model.min));
+        button.setAttribute("aria-valuemax", String(model.max));
+        button.setAttribute("aria-valuenow", String(model.value));
+      }
+    }
     button.setAttribute("aria-busy", String(node.busy));
     button.style.cssText = `left:${c.x * s}px;top:${c.y * s}px;width:${c.width * s}px;height:${c.height * s}px;`;
     if (button.disabled && document.activeElement === button) button.blur();
@@ -356,7 +387,46 @@ export class CanvasVisual implements CanvasPresentation {
                 )
                 .stroke({ color: 0xffd36b, width: 3 });
           }
-          entry.display.alpha = enabled ? 1 : 0.45;
+          const model = node.control?.model;
+          if (model?.kind === "checkbox") {
+            const size = Math.min(
+                20,
+                Math.max(0, b.height - 8),
+                Math.max(0, b.width - 8),
+              ),
+              x = Math.min(s.padding, b.width - size),
+              y = (b.height - size) / 2;
+            entry.background
+              .rect(x, y, size, size)
+              .fill({ color: s.color, alpha: 0.15 })
+              .stroke({ color: s.color, width: 2 });
+            if (model.checked)
+              entry.background
+                .moveTo(x + size * 0.2, y + size * 0.5)
+                .lineTo(x + size * 0.43, y + size * 0.75)
+                .lineTo(x + size * 0.83, y + size * 0.22)
+                .stroke({ color: s.color, width: 3 });
+          } else if (model?.kind === "slider") {
+            const geometry = canvasSliderGeometry(node);
+            if (geometry) {
+              const t = geometry.track,
+                thumb = geometry.thumb;
+              entry.background
+                .rect(t.x - b.x, t.y - b.y, t.width, t.height)
+                .fill({ color: s.color, alpha: 0.25 });
+              entry.background
+                .rect(t.x - b.x, t.y - b.y, t.width * model.ratio, t.height)
+                .fill(s.color);
+              entry.background
+                .circle(
+                  thumb.x - b.x + thumb.width / 2,
+                  thumb.y - b.y + thumb.height / 2,
+                  thumb.width / 2,
+                )
+                .fill(s.color);
+            }
+          }
+          entry.display.alpha = enabled ? (model?.readOnly ? 0.7 : 1) : 0.45;
           if (entry.text) {
             const m = measuredText ?? this.measure(node);
             if (entry.text.text !== m.text) {
@@ -378,12 +448,18 @@ export class CanvasVisual implements CanvasPresentation {
               };
             }
             entry.text.position.set(
-              node.interactive
-                ? Math.max(s.padding, (b.width - m.width) / 2)
-                : s.padding,
-              node.interactive
-                ? Math.max(s.padding, (b.height - m.height) / 2)
-                : s.padding,
+              model?.kind === "checkbox"
+                ? s.padding + 30
+                : model?.kind === "slider"
+                  ? s.padding
+                  : node.interactive
+                    ? Math.max(s.padding, (b.width - m.width) / 2)
+                    : s.padding,
+              model?.kind === "slider"
+                ? s.padding
+                : node.interactive
+                  ? Math.max(s.padding, (b.height - m.height) / 2)
+                  : s.padding,
             );
           }
         }

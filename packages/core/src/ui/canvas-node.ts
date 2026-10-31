@@ -2,6 +2,7 @@ import {
   Cancellation,
   type CancellationSignal,
 } from "../foundation/cancellation";
+import type { CanvasActivation, CanvasControlPort } from "./canvas-control";
 export interface CanvasNodeOwner {
   readonly disposed: boolean;
   invalidate(layout?: boolean): void;
@@ -190,7 +191,13 @@ function checkedStyle(value: CanvasStyle): ResolvedCanvasStyle {
   }
   return Object.freeze(result);
 }
-export type CanvasNodeKind = "panel" | "label" | "button" | "hold-button";
+export type CanvasNodeKind =
+  | "panel"
+  | "label"
+  | "button"
+  | "hold-button"
+  | "checkbox"
+  | "slider";
 /** Host-independent UI model. Single-parent ownership; removing a child disposes that subtree. */
 export class CanvasNode implements LifetimeOwner {
   private readonly lifetime = new Lifetime();
@@ -203,7 +210,7 @@ export class CanvasNode implements LifetimeOwner {
     | CanvasNodeOwner
     | undefined;
   private config: ResolvedCanvasStyle;
-  private value: string;
+  private captionValue: string;
   private shown = true;
   private active = true;
   private working = false;
@@ -341,8 +348,8 @@ export class CanvasNode implements LifetimeOwner {
       hold?: (held: boolean) => void;
     } = {},
   ) {
-    this.value = options.text ?? "";
-    if (typeof this.value !== "string")
+    this.captionValue = options.text ?? "";
+    if (typeof this.captionValue !== "string")
       throw new EngineError("INVALID_UI", "UI text must be a string");
     this.config = checkedStyle(options.style ?? {});
     this.click = options.click;
@@ -362,7 +369,7 @@ export class CanvasNode implements LifetimeOwner {
     return this.config;
   }
   get text(): string {
-    return this.value;
+    return this.captionValue;
   }
   get bounds(): UIBounds {
     return this.boundsValue;
@@ -385,8 +392,16 @@ export class CanvasNode implements LifetimeOwner {
   get ui(): CanvasNodeOwner | undefined {
     return this.owner ?? this.parentNode?.ui;
   }
+  /** Optional portable control commands and drawing model. */
+  get control(): CanvasControlPort | undefined {
+    return undefined;
+  }
   get interactive(): boolean {
-    return this.kind === "button" || this.kind === "hold-button";
+    return (
+      this.kind === "button" ||
+      this.kind === "hold-button" ||
+      this.control !== undefined
+    );
   }
   get available(): boolean {
     for (
@@ -464,8 +479,8 @@ export class CanvasNode implements LifetimeOwner {
     this.assertAlive();
     if (typeof text !== "string")
       throw new EngineError("INVALID_UI", "UI text must be a string");
-    if (text === this.value) return;
-    this.value = text;
+    if (text === this.captionValue) return;
+    this.captionValue = text;
     this.changed(true);
   }
   /** Appending claims and eventually disposes children; nodes cannot belong to two trees. */
@@ -547,7 +562,7 @@ export class CanvasNode implements LifetimeOwner {
     }
   }
   /** @internal Async callbacks are cancellable and disable this button until settled. */
-  activate(): void {
+  activate(_source: CanvasActivation = "accessibility"): void {
     if (!this.available || this.kind !== "button" || !this.click) return;
     const result = this.click(this.signal);
     if (result && typeof result.then === "function") {
