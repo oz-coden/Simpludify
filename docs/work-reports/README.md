@@ -4,6 +4,7 @@ Implementation checkpoints and final verification records live here so repositor
 
 | Date (JST) | Task                                                                      | Status                                                                                                           |
 | ---------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| 2026-11-01 | [Experimental npm SDK](2026-11-01-npm-packaging.md) | In progress: SDK packaging and external distribution verification; npm unpublished |
 | 2026-11-01 | [Tile geometry and polygon rendering](2026-11-01-tilemap-geometry.md)     | Complete: main 87a0337; 805 unit / 346 browser; main CI, Pages and published geometry acceptance passed          |
 | 2026-11-01 | [Tilemap collision and rectangle search](2026-11-01-tilemap-collision.md) | Complete: main 3b13557; 779 unit / 338 browser; final CI, Pages and published desktop/narrow acceptance passed   |
 | 2026-11-01 | [Tween and animation foundation](2026-11-01-tween-animation.md)           | Complete: main 043c1d8; 767 unit / 334 browser; CI, Pages and published desktop/narrow browser checks passed     |
