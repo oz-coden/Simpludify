@@ -22,3 +22,15 @@ One foreground worker per shard protects focus/input contracts; browser contexts
 ## Verification and remaining work
 
 Investigation/design complete. Implementation, focused tests, benchmarks, full regression, main integration and published acceptance are pending. No unexecuted checks are marked successful.
+
+## Implementation checkpoint: shared terrain and rectangle geometry
+
+Existing collision policy/override/dynamic APIs were retained. Added internal `TileCollisionIndex` and `CollisionWorld({tileSearch:"rectangles"})`; direct `"cells"` remains default. Rectangles merge complete equal policies horizontally/vertically inside lazy 16x16 chunks. Region policy filters and exact Circle/OBB-vs-region tests reject aggregate candidate shapes before expanding surviving cells in row-major order. Cell manifolds, internal-face suppression, response ordering and contact identities are unchanged.
+
+Invalidation handles single cells, ID defaults, bulk changes and equal-policy image edits (which change future ID membership). Translation reuses local geometry. Map/World disposal releases subscriptions/cache; all changes are observed at the next ordinary collision pass. Added `Tilemap.tileBounds`.
+
+Focused checks: baseline 96 tests passed. Implementation focused suite 87 tests passed, including randomized region coverage/full policies, one-chunk rebuilding, equal-policy image/default edits, exact differential trajectories/events with four Actors, runtime changes from contact handlers, pause/resume, disposal, discrete teleport behavior, new-wall next-pass correction, and existing Actor-wall trajectory comparisons through rectangle/chunk seams. Root and DOM-free Core TypeScript checks passed. Test authoring caught an incorrect Body option name (`type` instead of `motion`); corrected before this checkpoint.
+
+Changed: `packages/core/src/game/{collision,tilemap,tile-collision-geometry,tile-collision-index}.ts`, `tests/helpers/tile-wall-scenario.ts`, `tests/unit/tile-collision-index.test.ts`.
+
+Environment: npm install succeeded. Local Chromium installation returned truncated/non-ZIP downloads on all retries; no local browser pass is claimed. Repository pushes use the connected GitHub Git-data API because shell git has read-only access. All remote updates use expected-head checks and fast-forward only.

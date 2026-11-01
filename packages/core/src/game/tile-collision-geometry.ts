@@ -58,6 +58,20 @@ export function tileGeometry(
   g.cos = 1;
   g.sin = 0;
 }
+/** @internal Box enclosing an exact rectangular union of cells. */
+export function tileRegionGeometry(
+  map: Tilemap<string>,
+  region: TileRange,
+  g: Geometry,
+): void {
+  tileGeometry(map, region.x0, region.y0, g);
+  g.maxX = map.x + (region.x1 + 1) * map.tileWidth;
+  g.maxY = map.y + (region.y1 + 1) * map.tileHeight;
+  g.hx = (g.maxX - g.minX) / 2;
+  g.hy = (g.maxY - g.minY) / 2;
+  g.x = g.minX + g.hx;
+  g.y = g.minY + g.hy;
+}
 export const TileFace = {
   Left: 1,
   Right: 2,
