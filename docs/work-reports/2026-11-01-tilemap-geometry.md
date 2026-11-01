@@ -115,31 +115,31 @@ node scripts/benchmark-square-regression.mjs . benchmarks/tile-geometry/square-c
 
 The square harness explicitly aliases both workspace packages into the selected checkout, so shared node_modules links cannot substitute current engine code for the baseline. Three repeats per condition, five warmups, twenty samples per repeat; dynamic workloads change eight visible cells per draw. Table values are the median of each repeat's p50 CPU milliseconds:
 
-| Backend | Existing image-square workload | Baseline | Current |
-| --- | --- | ---: | ---: |
-| WebGL | 32² / all visible / static | 0.00 | 0.00 |
-| WebGL | 32² / all visible / 8 edits | 0.10 | 0.10 |
-| WebGL | 100² / 475 visible / static | 0.00 | 0.00 |
-| WebGL | 100² / 475 visible / 8 edits | 0.10 | 0.10 |
-| Canvas2D | 32² / all visible / static | 4.15 | 3.80 |
-| Canvas2D | 32² / all visible / 8 edits | 3.90 | 3.70 |
-| Canvas2D | 100² / 475 visible / static | 1.80 | 1.80 |
-| Canvas2D | 100² / 475 visible / 8 edits | 1.80 | 1.70 |
+| Backend  | Existing image-square workload | Baseline | Current |
+| -------- | ------------------------------ | -------: | ------: |
+| WebGL    | 32² / all visible / static     |     0.00 |    0.00 |
+| WebGL    | 32² / all visible / 8 edits    |     0.10 |    0.10 |
+| WebGL    | 100² / 475 visible / static    |     0.00 |    0.00 |
+| WebGL    | 100² / 475 visible / 8 edits   |     0.10 |    0.10 |
+| Canvas2D | 32² / all visible / static     |     4.15 |    3.80 |
+| Canvas2D | 32² / all visible / 8 edits    |     3.90 |    3.70 |
+| Canvas2D | 100² / 475 visible / static    |     1.80 |    1.80 |
+| Canvas2D | 100² / 475 visible / 8 edits   |     1.80 |    1.70 |
 
 No material square-path slowdown was observed in these paired conditions. Zero WebGL medians mean below timer granularity, not zero cost; the small Canvas differences are not a speedup claim or statistical equivalence proof. Both revisions retained one Actor/source and exact expected per-edit visits; all image references/textures released.
 
 Final new color-layer measurements at 4,096 all-visible cells (40 samples / 12 warmups, CPU milliseconds):
 
-| Backend | Geometry | Static draw median | One-cell edit + draw median | 1,000 picks median |
-| --- | --- | ---: | ---: | ---: |
-| WebGL | square | 0.00 | 0.90 | 0.00 |
-| WebGL | triangle | 0.10 | 1.60 | 1.40 |
-| WebGL | hex pointy | 0.10 | 1.90 | 2.50 |
-| WebGL | hex flat | 0.10 | 2.50 | 3.70 |
-| Canvas2D | square | 7.10 | 7.00 | 0.00 |
-| Canvas2D | triangle | 8.90 | 8.70 | 0.70 |
-| Canvas2D | hex pointy | 8.70 | 8.00 | 1.50 |
-| Canvas2D | hex flat | 9.30 | 8.10 | 2.40 |
+| Backend  | Geometry   | Static draw median | One-cell edit + draw median | 1,000 picks median |
+| -------- | ---------- | -----------------: | --------------------------: | -----------------: |
+| WebGL    | square     |               0.00 |                        0.90 |               0.00 |
+| WebGL    | triangle   |               0.10 |                        1.60 |               1.40 |
+| WebGL    | hex pointy |               0.10 |                        1.90 |               2.50 |
+| WebGL    | hex flat   |               0.10 |                        2.50 |               3.70 |
+| Canvas2D | square     |               7.10 |                        7.00 |               0.00 |
+| Canvas2D | triangle   |               8.90 |                        8.70 |               0.70 |
+| Canvas2D | hex pointy |               8.70 |                        8.00 |               1.50 |
+| Canvas2D | hex flat   |               9.30 |                        8.10 |               2.40 |
 
 In the fixed-view 1,024→65,536-cell sweep, live Graphics counts stayed square 192, triangle 336, pointy hex 199 and flat hex 157. Map creation still allocates/copies all Grid cells; culling does not make construction constant-time. All 48 shape/backend/size workloads reported exactly forty reconciliation visits for forty visible edits; stable frames add none. Picking queries a bounded polygon neighborhood, independent of total map size. Large all-visible Canvas2D maps remain more expensive; no GPU completion/native memory/hardware mobile performance is claimed.
 
