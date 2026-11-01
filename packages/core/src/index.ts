@@ -16,6 +16,7 @@ export * from "./game/tilemap";
 export * from "./graphics/camera-follow";
 export * from "./graphics/coordinates";
 export * from "./graphics/sprite-sheet";
+export * from "./graphics/tile-geometry";
 export type { ActionFrame, ActionSchema } from "./interaction/action-frame";
 export * from "./interaction/actions";
 export { InputSystem, KeyboardSource } from "./interaction/input";
