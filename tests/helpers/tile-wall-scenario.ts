@@ -14,6 +14,7 @@ import {
 } from "@simpludify/core";
 export interface WallScenarioOptions {
   corner?: boolean;
+  tileSearch?: "cells" | "rectangles";
   circle: boolean;
   rotation: number;
   horizontal: boolean;
@@ -35,7 +36,10 @@ export function runWallScenario(options: WallScenarioOptions) {
   } = options;
   const tiled = new Engine(),
     reference = new Engine();
-  const world = new CollisionWorld(tiled.scene),
+  const world = new CollisionWorld(
+      tiled.scene,
+      options.tileSearch ? { tileSearch: options.tileSearch } : {},
+    ),
     refWorld = new CollisionWorld(reference.scene);
   new Tilemap({
     sheet: SpriteSheet.grid("unused.png", { frameWidth: 16, frameHeight: 16 }),

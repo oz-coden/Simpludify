@@ -68,6 +68,35 @@ for (const fallback of [false, true])
         });
         expect(r.errors).toEqual([]);
       });
+      test("merged candidates retain rendered wall stops, dynamic edits and cleanup", async ({
+        page,
+      }) => {
+        const r = await page.evaluate(
+          async (url) => (await import(url)).terrainPhysics("rectangles"),
+          url,
+        );
+        expect(r.stop).toEqual({ x: 248, y: 112 });
+        expect(r.actorPixel).toEqual([0, 255, 0]);
+        expect(r.wallPixel).toEqual([255, 0, 0]);
+        expect(r.hiddenStop).toBe(248);
+        expect(r.offscreen.x).toBe(248);
+        expect(r.offscreen.sprites).toBe(0);
+        expect(r.policyOnlyVisits).toBe(0);
+        expect(r.triggerPassed).toBeGreaterThan(272);
+        expect(r.destroyedPassed).toBeGreaterThan(272);
+        expect(r.regeneratedStop).toBe(248);
+        expect(r.index.mode).toBe("rectangles");
+        expect(r.index.regions).toBeLessThan(r.index.cells);
+        expect(r.index.builds).toBeGreaterThan(1);
+        expect(r.releasedChunks).toBe(0);
+        expect(r.released).toEqual({
+          world: true,
+          contacts: 0,
+          cells: 0,
+          refs: 0,
+        });
+        expect(r.errors).toEqual([]);
+      });
       test("collides before a pending image completes and cleans a removed pending map", async ({
         page,
       }) => {
@@ -211,6 +240,26 @@ for (const fallback of [false, true])
             visible: window.tilemapDemo.terrain?.visible,
           })),
         ).toEqual({ enabled: false, visible: true });
+        const doorBefore = await page.evaluate(() =>
+          window.tilemapDemo.terrain?.get(14, 7),
+        );
+        await page
+          .getByRole("button", { name: "Toggle door", exact: true })
+          .click();
+        expect(
+          await page.evaluate(() => window.tilemapDemo.terrain?.get(14, 7)),
+        ).toBe(doorBefore === "stone" ? "grass" : "stone");
+        await page
+          .getByRole("button", { name: "Toggle door", exact: true })
+          .click();
+        expect(
+          await page.evaluate(() => window.tilemapDemo.terrain?.get(14, 7)),
+        ).toBe(doorBefore);
+        expect(
+          await page.evaluate(
+            () => window.tilemapDemo.world?.tileIndexDiagnostics.mode,
+          ),
+        ).toBe("rectangles");
         const old = await page.evaluate(async () => {
           const previous = window.tilemapDemo.world;
           await window.tilemapDemo.game.goTo("rest");

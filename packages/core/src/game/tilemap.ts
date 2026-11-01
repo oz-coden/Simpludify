@@ -321,6 +321,19 @@ export class Tilemap<Name extends string = never> {
       this.y + (y + offset) * this.tileHeight,
     );
   }
+  /** World-space cell rectangle. Grid integer/bounds validation matches tileToWorld. */
+  tileBounds(
+    x: number,
+    y: number,
+  ): { x: number; y: number; width: number; height: number } {
+    const origin = this.tileToWorld(x, y);
+    return {
+      x: origin.x,
+      y: origin.y,
+      width: this.tileWidth,
+      height: this.tileHeight,
+    };
+  }
   /** Half-open bounds: left/top included, right/bottom excluded; outside returns undefined. */
   worldToTile(x: number, y: number): TilePoint | undefined {
     finite(x);

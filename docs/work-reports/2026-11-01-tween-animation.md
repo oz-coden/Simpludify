@@ -209,10 +209,7 @@ Published result:
 {
   "site": "https://github.oz-coden.com/Simpludify/",
   "source": "043c1d8d3aeec5cfa485e881de9ca339eeae5653",
-  "documents": [
-    "en/tween.html",
-    "guides/tween.html"
-  ],
+  "documents": ["en/tween.html", "guides/tween.html"],
   "viewports": [
     {
       "viewport": {

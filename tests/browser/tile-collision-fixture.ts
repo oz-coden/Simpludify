@@ -18,11 +18,13 @@ import { fixture } from "./renderable-fixture";
 
 const image = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="16"><path fill="red" d="M0 0h16v16H0z"/><path fill="blue" d="M16 0h16v16H16z"/></svg>')}`;
 const sheet = SpriteSheet.grid(image, { frameWidth: 16, frameHeight: 16 });
-export async function terrainPhysics() {
+export async function terrainPhysics(
+  tileSearch: "cells" | "rectangles" = "cells",
+) {
   const f = await fixture();
   f.actor.dispose();
   const scene = f.game.engine.scene,
-    world = new CollisionWorld(scene);
+    world = new CollisionWorld(scene, { tileSearch });
   const map = new Tilemap({
     sheet,
     tiles: Grid.generate(16, 12, (x, y) =>
@@ -104,6 +106,7 @@ export async function terrainPhysics() {
     tileWidth: 32,
     tileHeight: 32,
   });
+  const index = world.tileIndexDiagnostics;
   await f.game.goTo("empty");
   const released = {
     world: world.disposed,
@@ -113,6 +116,8 @@ export async function terrainPhysics() {
   };
   f.game.dispose();
   return {
+    index,
+    releasedChunks: world.tileIndexDiagnostics.chunks,
     stop,
     actorPixel,
     wallPixel,

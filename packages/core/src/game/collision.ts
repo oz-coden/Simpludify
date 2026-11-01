@@ -33,8 +33,10 @@ import {
   exposedFaces,
   tileGeometry,
   tileRange,
+  tileRegionGeometry,
   tileResponseManifold,
 } from "./tile-collision-geometry";
+import { TileCollisionIndex } from "./tile-collision-index";
 import {
   type TileContact,
   TileContactEnter,
@@ -59,6 +61,7 @@ interface MapEntry {
   readonly map: Tilemap<string>;
   /** Geometry records exist only for observed cells, shared by their contact pairs. */
   readonly targets: Map<number, TileTarget>;
+  readonly index?: TileCollisionIndex;
 }
 interface TileTarget {
   readonly owner: MapEntry;
@@ -91,6 +94,8 @@ interface TilePair extends PairState {
 }
 type Pair = ActorPair | TilePair;
 export interface CollisionWorldOptions {
+  /** Direct cells suit small Actors; rectangles cache equal-policy 16x16 chunks. */
+  tileSearch?: "cells" | "rectangles";
   iterations?: number;
   tolerance?: number;
 }
@@ -122,6 +127,10 @@ export class CollisionWorld {
     geometry: createGeometry(),
   };
   private readonly range = { x0: 0, y0: 0, x1: 0, y1: 0 };
+  private readonly tileSearch: "cells" | "rectangles";
+  private readonly tileCells: number[] = [];
+  private regionTests = 0;
+  private regionNarrowTests = 0;
   private readonly iterations: number;
   private readonly tolerance: number;
   private corrections = 0;
@@ -147,6 +156,12 @@ export class CollisionWorld {
     readonly scene: Scene,
     options: CollisionWorldOptions = {},
   ) {
+    this.tileSearch = options.tileSearch ?? "cells";
+    if (this.tileSearch !== "cells" && this.tileSearch !== "rectangles")
+      throw new EngineError(
+        "INVALID_VALUE",
+        "tileSearch must be cells or rectangles",
+      );
     this.iterations = options.iterations ?? 6;
     this.tolerance = options.tolerance ?? 1e-7;
     if (
@@ -205,6 +220,33 @@ export class CollisionWorld {
       unresolved: this.tileUnresolved,
       neighborProbes: this.neighborProbes,
       retainedCells,
+    };
+  }
+  /** Cached candidate geometry only; not public contact/response shape counts. */
+  get tileIndexDiagnostics() {
+    let chunks = 0,
+      regions = 0,
+      cells = 0,
+      builds = 0,
+      builtCells = 0;
+    for (const entry of this.maps.values()) {
+      const d = entry.index?.diagnostics;
+      if (!d) continue;
+      chunks += d.chunks;
+      regions += d.regions;
+      cells += d.cells;
+      builds += d.builds;
+      builtCells += d.builtCells;
+    }
+    return {
+      mode: this.tileSearch,
+      chunks,
+      regions,
+      cells,
+      builds,
+      builtCells,
+      regionTests: this.regionTests,
+      regionNarrowTests: this.regionNarrowTests,
     };
   }
   contactsFor(collider: Collider): readonly Contact[] {
@@ -272,7 +314,10 @@ export class CollisionWorld {
       )
         this.entries.delete(collider);
     for (const [map] of this.maps)
-      if (map.disposed || map.scene !== this.scene) this.maps.delete(map);
+      if (map.disposed || map.scene !== this.scene) {
+        this.maps.get(map)?.index?.dispose();
+        this.maps.delete(map);
+      }
     for (const actor of this.scene.actors) {
       const collider = actor.get(Collider.type);
       if (collider && !this.entries.has(collider))
@@ -285,7 +330,14 @@ export class CollisionWorld {
         });
       const map = actor.get(TilemapLayer.type)?.map;
       if (map && !this.maps.has(map))
-        this.maps.set(map, { id: ++this.mapSerial, map, targets: new Map() });
+        this.maps.set(map, {
+          id: ++this.mapSerial,
+          map,
+          targets: new Map(),
+          ...(this.tileSearch === "rectangles"
+            ? { index: new TileCollisionIndex(map) }
+            : {}),
+        });
     }
   }
   private group(a: Entry): Map<Entry | TileTarget, Pair> {
@@ -473,44 +525,73 @@ export class CollisionWorld {
       for (const owner of this.activeMaps) {
         const map = owner.map;
         if (!tileRange(map, a.geometry, this.tolerance, this.range)) continue;
-        for (let y = this.range.y0; y <= this.range.y1; y++)
-          for (let x = this.range.x0; x <= this.range.x1; x++) {
-            this.tileCandidates++;
-            const policy = map.getCollision(x, y);
-            const solid =
-              policy &&
-              pairResponse(a.collider, policy) === CollisionResponse.Solid;
-            if (
-              !policy ||
-              (solidOnly && !solid) ||
-              !allowsPair(a.collider, policy)
-            ) {
-              this.policyRejected++;
-              continue;
-            }
-            this.tileTests++;
-            tileGeometry(map, x, y, this.scratchTile.geometry);
-            if (
-              !contactManifold(
+        if (owner.index) {
+          owner.index.query(
+            this.range,
+            (region) => {
+              this.regionTests++;
+              if (
+                (solidOnly &&
+                  pairResponse(a.collider, region.policy) !==
+                    CollisionResponse.Solid) ||
+                !allowsPair(a.collider, region.policy)
+              )
+                return false;
+              this.regionNarrowTests++;
+              tileRegionGeometry(map, region, this.scratchTile.geometry);
+              return contactManifold(
                 a,
                 this.scratchTile,
                 this.manifold,
                 this.tolerance,
-              )
-            )
-              continue;
-            const pair = this.tilePair(a, owner, x, y, policy);
-            if (solidOnly) this.solving.push(pair);
-            else if (
-              solid &&
-              this.manifold.depth > this.tolerance &&
-              this.inverseMass(a) > 0
-            ) {
-              this.unresolved++;
-              this.tileUnresolved++;
-            }
-          }
+              );
+            },
+            this.tileCells,
+          );
+          for (const index of this.tileCells)
+            this.scanTile(
+              a,
+              owner,
+              index % map.width,
+              Math.floor(index / map.width),
+              solidOnly,
+            );
+        } else {
+          for (let y = this.range.y0; y <= this.range.y1; y++)
+            for (let x = this.range.x0; x <= this.range.x1; x++)
+              this.scanTile(a, owner, x, y, solidOnly);
+        }
       }
+  }
+  private scanTile(
+    a: Entry,
+    owner: MapEntry,
+    x: number,
+    y: number,
+    solidOnly: boolean,
+  ): void {
+    this.tileCandidates++;
+    const policy = owner.map.getCollision(x, y);
+    const solid =
+      policy && pairResponse(a.collider, policy) === CollisionResponse.Solid;
+    if (!policy || (solidOnly && !solid) || !allowsPair(a.collider, policy)) {
+      this.policyRejected++;
+      return;
+    }
+    this.tileTests++;
+    tileGeometry(owner.map, x, y, this.scratchTile.geometry);
+    if (!contactManifold(a, this.scratchTile, this.manifold, this.tolerance))
+      return;
+    const pair = this.tilePair(a, owner, x, y, policy);
+    if (solidOnly) this.solving.push(pair);
+    else if (
+      solid &&
+      this.manifold.depth > this.tolerance &&
+      this.inverseMass(a) > 0
+    ) {
+      this.unresolved++;
+      this.tileUnresolved++;
+    }
   }
   private compare(a: Pair, b: Pair): number {
     if (a.kind !== b.kind) return a.kind === "actor" ? -1 : 1;
@@ -647,6 +728,7 @@ export class CollisionWorld {
       );
     this.stepping = true;
     this.pass++;
+    this.regionTests = this.regionNarrowTests = 0;
     this.candidates =
       this.tests =
       this.tileCandidates =
@@ -706,6 +788,7 @@ export class CollisionWorld {
       this.lifetime.dispose();
     } finally {
       this.entries.clear();
+      for (const entry of this.maps.values()) entry.index?.dispose();
       this.maps.clear();
       this.pairs.clear();
       this.sorted.length =
@@ -713,6 +796,7 @@ export class CollisionWorld {
         this.solving.length =
         this.delivery.length =
           0;
+      this.tileCells.length = 0;
       this.contactCount = this.tileCount = 0;
     }
   }

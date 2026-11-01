@@ -334,3 +334,5 @@ Core/Web `CanvasCheckbox(label, {checked?, readOnly?}, style?)` and `CanvasSlide
 ## Tween and display animation
 
 [Numeric Tween reference](tween.md) defines Tween, Easing, TweenScheduler, Playback, Scene/Game clocks, actorTween, canvasTween and sliderTween. All are exported by Core and Web. Renderable draw offsets, relative rotation/scale and Canvas presentation are independent of world physics and Flex layout. Existing SpriteAnimation remains the source/frame player. Custom Hosts supply explicit display seconds through Scene.advancePresentation; Web supplies them automatically.
+
+Tilemap also provides `tileBounds(x,y)` for a fresh world-space cell rectangle. `CollisionWorld({tileSearch:"rectangles"})` optionally merges equal-policy candidate regions in lazy 16×16 chunks; default `"cells"` retains direct search. Cell contact identity and the shared solver remain unchanged. [Terrain contracts](tilemap-collision.md#optional-rectangle-candidate-search) explain diagnostics, local invalidation and workload-dependent overhead.
