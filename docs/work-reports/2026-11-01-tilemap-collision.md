@@ -75,3 +75,7 @@ Branch acceptance is complete: [CI attempt 2](https://github.com/oz-coden/Simplu
 ## Main integration candidate
 
 Validated runtime/test source is f8f777e; subsequent checkpoint 46d4c13 changes only the work report/index and implemented-scope roadmap. Integrate the recorded tree with a normal merge commit, preserving both main and work-branch ancestry; no forced ref update. Run the full main CI and deploy only after all dependencies succeed. The new live acceptance script will validate actual public `/play/tilemap/` and both updated documentation pages in desktop/narrow Chromium after deployment.
+
+## Main integration checkpoint
+
+Merged with preserved ancestry: [`deb58348960b8b6125455f46f15edfb8ab791ed8`](https://github.com/oz-coden/Simpludify/commit/deb58348960b8b6125455f46f15edfb8ab791ed8). Main was still d17cdf9 immediately before integration; the expected-head, non-forced ref update succeeded. [Main CI 41288401324](https://github.com/oz-coden/Simpludify/actions/runs/41288401324) is running. Pages deployment and public Tile trail/docs acceptance remain pending; the deploy job depends on all quality/browser/production/site-base jobs. No source assertions or timeouts were changed to obtain branch acceptance.
