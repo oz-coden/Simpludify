@@ -32,7 +32,12 @@ const report = {
 };
 async function run(command, args, cwd = root) {
   return await new Promise((done, reject) => {
-    const child = spawn(command, args, {
+    const executable = command === npm ? process.execPath : command;
+    const arguments_ =
+      command === npm ? [process.env.npm_execpath, ...args] : args;
+    if (arguments_.some((arg) => typeof arg !== "string"))
+      throw new Error("Run package validation with npm run test:packages");
+    const child = spawn(executable, arguments_, {
       cwd,
       env: { ...process.env, NODE_PATH: "" },
       stdio: ["ignore", "pipe", "pipe"],
@@ -261,6 +266,7 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
     assert(!lstatSync(installed).isSymbolicLink());
     assert(realpathSync(installed).startsWith(temporary));
   }
+  await run(npm, ["ci", "--ignore-scripts", "--no-audit", "--no-fund"], web);
   await run(npm, ["ls", "@simpludify/core", "pixi.js", "--all"], web);
   checks(
     "Web-only install resolves packed Core transitively, with physical external dependencies",

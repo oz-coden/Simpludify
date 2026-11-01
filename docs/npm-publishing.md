@@ -86,3 +86,9 @@ If both packages already exist and valid Trusted Publishers are configured **bef
 7. Create a GitHub Experimental prerelease at the same tag after both registry versions and the consumer tests succeed. The workflow does not create or modify tags/Releases automatically.
 
 If Core succeeds and Web fails, inspect `npm-sdk-publication` and registry integrity, then rerun with the same tag and exact archives. If an existing published version differs, stop and investigate; a new version needs a separate reviewed release. Never force-push, move a release tag or unpublish as a retry mechanism. A post-publication test failure is not an unpublished state.
+
+## Current release quality guards
+
+`build:packages` checks each package README's experimental version and install command against its package manifest and rejects stale unpublished-state wording. `test:packages` reinstalls the external Web consumer with `npm ci`. `test:starter` copies the committed npm/Vite template to an independent temporary project, installs public 0.1.1, checks types, builds a Pages subpath, exercises CSS/Scene restart and validates generated production notices. The CI starter job runs on Windows and Linux. The starter intentionally follows the latest published SDK rather than unreleased APIs; update and revalidate its manifest and lockfile after a new release.
+
+Source package versions stay at 0.1.1 during development. Local rebuilt tarballs are validation artifacts and do not replace public registry archives. Before the next release, bump Core/Web and source engine versions together, synchronize package README versions and Web's exact Core dependency, run distribution checks, and explicitly authorize publication. Runtime candidates from the SDK-consumer work are `Game.bindViewport` and interrupted native-IME refocus handling.

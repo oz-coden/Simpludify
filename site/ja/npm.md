@@ -19,6 +19,8 @@ SimpludifyのExperimental v0.1.1は、`@simpludify/core`と`@simpludify/web`に�
 
 ## 2. 独立したViteプロジェクトを作る
 
+完成した最小構成は[独立npm/Viteテンプレート](../../templates/npm-vite/README.md)にあります。ディレクトリをコピーして`npm ci`で開始でき、型検査・CSS・Scene再起動と破棄・Pages base・依存ライセンス生成を含みます。公開済み0.1.1のAPIだけを使用します。以下は手作業で組み立てる場合の手順です。
+
 公開済みのnpmパッケージを使います。
 
 ```sh
@@ -27,7 +29,7 @@ cd my-game
 npm init -y
 npm pkg set type=module
 npm pkg set scripts.dev=vite scripts.build="tsc --noEmit && vite build" scripts.preview="vite preview"
-npm install @simpludify/web@0.1.1
+npm install --save-exact @simpludify/web@0.1.1
 npm install --save-dev vite@8.3.5 typescript@7.0.2
 ```
 
@@ -111,6 +113,8 @@ npm run dev
 
 ターミナルに表示されたURLを開きます。ゲーム領域をクリック、またはTabで選択してからWASDで移動します。Canvas UIのボタンはポインター・キーボードで操作できます。
 
+生成された`package-lock.json`をGitへコミットし、CIや別端末では`npm ci`を実行します。新たな依存追加や意図的な更新時にだけ`npm install`でlockfileを更新します。
+
 ## 3. CSS・画像・終了処理
 
 Webのエントリーは、スコープ付き標準CSSを自動importします。明示的なimportも利用できます。
@@ -132,7 +136,9 @@ npm run preview
 
 サブディレクトリに配置する場合は`npm run build -- --base /my-game/`ではなく、`npx tsc --noEmit`の後に`npx vite build --base /my-game/`を実行します。`dist/`全体を静的ホストへ配置します。依存のライセンス表記は配布アプリケーション側でも維持してください。SDKにはMITライセンスが含まれ、PixiJSなどの依存はそれぞれのライセンスに従います。
 
-## 5. 公開前の配布アーカイブを使う
+テンプレートでは`npm run build -- --base /my-game/`を直接利用でき、配布する実行依存の本文を`THIRD-PARTY-NOTICES.txt`へ生成します。lockfile内の推移依存も対象で、不足本文はビルドを失敗させます。`@pixi/colord@2.9.6`の本文不足は出典付きの固定ファイルで補っています。
+
+## 5. ソース変更を配布アーカイブで検証する
 
 リポジトリ管理者は`npm ci`、`npm run pack:packages`で2つの`.tgz`を生成できます。独立したゲームプロジェクトには、エンジンのソースコピーをせずにアーカイブを導入できます。
 

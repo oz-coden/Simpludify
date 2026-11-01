@@ -14,9 +14,19 @@ test("Flex viewport follows UI scale, resize and padding while pointer and camer
     { width: 390, height: 844 },
   ]) {
     await page.setViewportSize(size);
+    await page.waitForFunction(() => {
+      const f = window.integration;
+      void f.game.viewport;
+      return (
+        Math.abs(
+          f.current.root.bounds.width * f.current.ui.scale -
+            f.game.element.clientWidth,
+        ) < 0.1
+      );
+    });
     const state = await page.evaluate(() => {
       const f = window.integration,
-        p = f.current!;
+        p = f.current;
       p.ui.scale = 1.25;
       p.hud.setStyle({ padding: 14 });
       const v = f.game.viewport,
@@ -52,7 +62,9 @@ test("Flex viewport follows UI scale, resize and padding while pointer and camer
     await expect
       .poll(() => page.evaluate(() => window.integration.clicks))
       .toBe(clicks + 1);
-    await page.getByRole("button", { name: "Step", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Step", exact: true })
+      .press("Enter");
     expect(await page.evaluate(() => window.integration.clicks)).toBe(
       clicks + 1,
     );
@@ -63,7 +75,7 @@ test("empty regions reject world clicks, replacement is safe and unbind restores
 }) => {
   const result = await page.evaluate(() => {
     const f = window.integration,
-      p = f.current!;
+      p = f.current;
     p.region.visible = false;
     const empty = f.game.view;
     p.region.visible = true;
@@ -82,7 +94,7 @@ test("empty regions reject world clicks, replacement is safe and unbind restores
   expect(result.manual).toEqual({ x: 2, y: 3, width: 200, height: 100 });
   await page.evaluate(() => {
     const f = window.integration,
-      p = f.current!;
+      p = f.current;
     f.game.bindViewport(p.ui, p.region);
     p.region.visible = false;
   });
@@ -100,7 +112,7 @@ test("DOM and Canvas Tab order preserves editing ownership and display continues
   await name.press("ArrowRight");
   await name.press("Space");
   expect(
-    await page.evaluate(() => window.integration.current!.demo.world.step),
+    await page.evaluate(() => window.integration.current.demo.world.step),
   ).toBe(0);
   await name.press("Tab");
   await expect(
@@ -114,9 +126,9 @@ test("DOM and Canvas Tab order preserves editing ownership and display continues
   const step = page.getByRole("button", { name: "Step", exact: true });
   await expect(step).toBeFocused();
   await step.press("Enter");
-  await page.getByRole("button", { name: "Pause", exact: true }).click();
+  await page.getByRole("button", { name: "Pause", exact: true }).press("Enter");
   await expect
-    .poll(() => page.evaluate(() => window.integration.current!.demo.progress))
+    .poll(() => page.evaluate(() => window.integration.current.demo.progress))
     .toBe(1);
   expect(await page.evaluate(() => window.integration.game.engine.paused)).toBe(
     true,
@@ -141,7 +153,7 @@ test("scene replacement cancels unfinished display, rejects disposed UI and rest
 }) => {
   const result = await page.evaluate(async () => {
     const f = window.integration,
-      old = f.current!;
+      old = f.current;
     old.demo.step();
     const scheduler = old.scene.presentationTweens;
     await f.game.goTo("empty");
@@ -158,7 +170,7 @@ test("scene replacement cancels unfinished display, rejects disposed UI and rest
       rejected,
       disposed,
       active,
-      step: f.current!.demo.world.step,
+      step: f.current.demo.world.step,
       viewport: f.game.viewport,
       oldViewport: old.region.bounds,
     };
@@ -186,9 +198,10 @@ test("touch activates Canvas controls without dispatching a world click", async 
   await page.waitForFunction(() => !!window.integration);
   const point = await page.evaluate(() => {
     const f = window.integration,
-      p = f.current!,
-      b = p.hud.children[0]!.children[0]!.bounds,
+      p = f.current,
+      b = p.hud.children[0]?.children[0]?.bounds,
       rect = f.game.element.getBoundingClientRect();
+    if (!b) throw new Error("Missing Step button");
     return {
       x: rect.x + (b.x + b.width / 2) * p.ui.scale,
       y: rect.y + (b.y + b.height / 2) * p.ui.scale,
@@ -196,7 +209,7 @@ test("touch activates Canvas controls without dispatching a world click", async 
   });
   await page.touchscreen.tap(point.x, point.y);
   expect(
-    await page.evaluate(() => window.integration.current!.demo.world.step),
+    await page.evaluate(() => window.integration.current.demo.world.step),
   ).toBe(1);
   expect(await page.evaluate(() => window.integration.clicks)).toBe(0);
   await context.close();

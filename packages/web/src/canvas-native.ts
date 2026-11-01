@@ -228,6 +228,16 @@ export class CanvasNativeText extends NativeControl {
         }),
       options,
     );
+    el.addEventListener(
+      "blur",
+      () => {
+        // Interrupted IME sessions may not deliver compositionend before this surface is reused.
+        this.composing = false;
+        this.session = undefined;
+        this.source = "keyboard";
+      },
+      options,
+    );
     el.addEventListener("focus", () => this.run(() => this.begin()), options);
     el.addEventListener(
       "compositionstart",

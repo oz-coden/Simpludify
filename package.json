@@ -41,7 +41,8 @@
     "build:packages": "node scripts/build-packages.mjs",
     "test:packages": "node scripts/test-packages.mjs",
     "test:packages:registry": "node scripts/test-packages.mjs --registry",
-    "pack:packages": "node scripts/pack-packages.mjs"
+    "pack:packages": "node scripts/pack-packages.mjs",
+    "test:starter": "node scripts/test-starter.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.3",

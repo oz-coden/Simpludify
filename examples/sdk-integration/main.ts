@@ -13,6 +13,7 @@ import {
   Transform,
   worldPoint,
 } from "@simpludify/web";
+import { startExample } from "../shared/start";
 import { createDiscreteDemo } from "./model";
 
 const parent = document.querySelector<HTMLElement>("#app");
@@ -131,12 +132,16 @@ const dispose = () => {
   abort.abort();
   game.dispose();
 };
-window.addEventListener("pagehide", dispose, { once: true });
-await game.run("play");
+window.addEventListener("pagehide", dispose, { signal: abort.signal });
+window.addEventListener("simpludify:dispose", dispose, {
+  signal: abort.signal,
+});
+await startExample(game, "play");
 // Public demo diagnostics also support automated checks of the shipped sample.
 const integration = {
   game,
   get current() {
+    if (!probe) throw new Error("Integration Scene is not ready");
     return probe;
   },
   get clicks() {

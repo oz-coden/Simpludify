@@ -105,6 +105,9 @@ jobs:
       - run: npm run site:build -- --base "${{ matrix.base }}"
       - run: npm run site:check
       - run: npm run test:site
+      - run: node scripts/site-sdk-integration-live.mjs
+        env:
+          SITE_BASE: ${{ matrix.base }}
       - run: node scripts/site-tile-geometry-live.mjs
         env:
           SITE_BASE: ${{ matrix.base }}
@@ -139,9 +142,25 @@ jobs:
           name: npm-sdk-validation
           path: test-results/packages/
           if-no-files-found: ignore
+  sdk-starter:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium --only-shell
+      - run: npm run test:starter
   deploy:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: [quality, browser, production, site-bases, packages]
+    needs: [quality, browser, production, site-bases, packages, sdk-starter]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -165,6 +184,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium --only-shell
+      - run: node scripts/site-sdk-integration-live.mjs
+        env:
+          SITE_URL: https://github.oz-coden.com/Simpludify/
       - run: node scripts/site-tween-live.mjs
         env:
           SITE_URL: https://github.oz-coden.com/Simpludify/
@@ -179,6 +201,7 @@ jobs:
         with:
           name: published-sample-validation
           path: |
+            test-results/site/sdk-integration-live.json
             test-results/site/tween-live.json
             test-results/site/tilemap-live.json
             test-results/site/tile-geometry-live.json
