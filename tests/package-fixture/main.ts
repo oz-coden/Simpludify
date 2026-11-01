@@ -16,6 +16,7 @@ const game = new Game<"first" | "second">({
   parent: document.querySelector<HTMLElement>("#app") ?? document.body,
 });
 const actions = defineActions({ Move: Action.axis2D() });
+const image = new URL("./sprite.svg", import.meta.url).href;
 let clicks = 0;
 let disposals = 0;
 let player = Character();
@@ -34,6 +35,7 @@ for (const id of ["first", "second"] as const) {
     player = add(
       Character({ x: 100, y: 250, movement: controls.reader(actions.Move) }),
     );
+    add(Character({ x: 200, y: 250, source: { kind: "image", url: image } }));
     button = CanvasButton("Next scene", () => {
       clicks++;
       return game.goTo(id === "first" ? "second" : "first");

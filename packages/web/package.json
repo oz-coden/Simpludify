@@ -26,6 +26,8 @@
     "README.md"
   ],
   "sideEffects": [
+    "./dist/index.js",
+    "./src/index.ts",
     "**/*.css"
   ],
   "license": "MIT",

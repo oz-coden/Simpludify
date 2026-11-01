@@ -305,6 +305,30 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
   checks(
     "Web consumer public declarations typecheck without workspace paths or skipLibCheck",
   );
+  await build({
+    configFile: false,
+    root: web,
+    base: "/external-game/",
+    build: {
+      outDir: join(web, "dist"),
+      target: "es2022",
+      assetsInlineLimit: 0,
+    },
+  });
+  const assets = readdirSync(join(web, "dist/assets"));
+  assert(assets.some((name) => name.endsWith(".svg")));
+  assert(
+    assets.some(
+      (name) =>
+        name.endsWith(".css") &&
+        readFileSync(join(web, "dist/assets", name), "utf8").includes(
+          ".simpludify",
+        ),
+    ),
+  );
+  checks(
+    "external Vite production subpath build includes scoped CSS and app image asset",
+  );
   browser = await chromium.launch({
     headless: true,
     ...(process.env.CHROMIUM_PATH
@@ -326,11 +350,6 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
       preview: { host: "127.0.0.1", port: 0 },
       build: { outDir: join(web, "dist"), target: "es2022" },
     };
-    if (production) {
-      await build(config);
-      const assets = readdirSync(join(web, "dist/assets"));
-      assert(assets.some((name) => name.endsWith(".css")));
-    }
     const server = production
       ? await preview(config)
       : await viteServer(config);
@@ -352,6 +371,12 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
           "relative",
         );
         assert.equal(await page.locator(".simpludify > canvas").count(), 1);
+        const diagnostics = await page.evaluate(
+          () => window.packageProbe.game.renderer.diagnostics,
+        );
+        assert.equal(diagnostics.visuals, 2);
+        assert.equal(diagnostics.imageEntries, 1);
+        assert.equal(diagnostics.imageReferences, 2);
         const initial = await page.evaluate(() => window.packageProbe.x);
         await page
           .locator(".simpludify")
@@ -406,6 +431,9 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
         assert.equal(state.renderer.visuals, 0);
         assert.equal(state.renderer.textures, 0);
         assert.equal(state.renderer.presentations, 0);
+        assert.equal(state.renderer.imageReferences, 0);
+        assert.equal(state.renderer.imageEntries, 0);
+        assert.equal(state.renderer.pendingImages, 0);
         assert.deepEqual(errors, []);
         await page.close();
       }
