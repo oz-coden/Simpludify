@@ -14,7 +14,7 @@ A code-first TypeScript 2D game engine. Create a visible character, responsive U
 
 `@simpludify/core@0.1.1` contains host-independent simulation and geometry; `@simpludify/web@0.1.1` adds browser rendering/input/UI and installs Core/PixiJS as dependencies. Both ship compiled ESM and TypeScript declarations. APIs may change between 0.x releases.
 
-**Registry status: published.** Browser projects can install with `npm install @simpludify/web@0.1.1`. The [complete npm/Vite guide](site/ja/npm.md) includes project setup, runnable game code, automatic/explicit CSS, production builds and known limits. For independent projects, use the published registry packages rather than copying engine source. [Publishing and OIDC procedures](docs/npm-publishing.md) describe the initial-publication authentication constraint and the manual release workflow.
+**Registry status: published.** Browser projects can install with `npm install @simpludify/web@0.1.1`. The [complete npm/Vite guide](site/ja/npm.md) includes project setup, runnable game code, automatic/explicit CSS, production builds and known limits. For independent projects, use the published registry packages rather than copying engine source. [実際のゲーム開発で確認したSDK利用パターン](docs/sdk-consumer-patterns.md)に、HUDとViewport、Canvas/DOMのフォーカス、Tween、ライセンスの注意点をまとめています。 [Publishing and OIDC procedures](docs/npm-publishing.md) describe the initial-publication authentication constraint and the manual release workflow.
 
 ## Quick start
 
