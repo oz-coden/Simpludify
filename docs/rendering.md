@@ -221,3 +221,7 @@ CHROMIUM_PATH=/path/to/chrome-headless-shell npm run bench:renderable -- --out /
 ```
 
 For the historical side, create a detached worktree at 3442f43, run npm ci there, and invoke the current benchmark script by absolute path from that worktree with `--legacy --out /tmp/before.json`. The legacy switch is benchmark-only, not a supported game API. Reports preserve source commits/runtime-diff hashes and raw samples.
+
+## Hexagon shape
+
+`Shape.Hexagon` adds a pointy centered hexagon to the existing shape source API. Full bounding width/height, live properties, Transform composition and Tween channels work as for Triangle. Exact polygon physics is not implied. See [shape and geometry contracts](tile-geometry.md#actor-hexagon).

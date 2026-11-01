@@ -73,7 +73,7 @@ Numeric grid-frame upper bounds and decoded rectangle bounds cannot be known bef
 
 Integer tile (0,0) is the map's top-left; x grows right, y down. x/y placement can be negative. tileToWorld requires an in-bounds tile and returns a branded WorldPoint at its top-left, or its center with `{center:true}`. `worldToTile(x,y)` floors the translated/scaled coordinates and returns a branded TilePoint or undefined outside. Left/top boundaries are included; right/bottom are excluded. Exact internal boundaries select the cell to the right/below. Nonfinite input is rejected. Negative world coordinates are valid when within a negatively placed map.
 
-Screen conversion remains Game.screenToWorld/pointerToWorld/worldToScreen, using the existing Camera, Viewport, logical resolution and DPR contracts. No screen or physical pixel coordinate is interpreted as a tile index. Move x/y to translate a map; map rotation, scaling, isometric and hexagonal projection are outside this foundation.
+Screen conversion remains Game.screenToWorld/pointerToWorld/worldToScreen, using the existing Camera, Viewport, logical resolution and DPR contracts. No screen or physical pixel coordinate is interpreted as a tile index. Move x/y to translate a map; map rotation, scaling and isometric projection are outside this image-grid foundation. Separate [color geometry layers](tile-geometry.md) provide triangle/hex tilings.
 
 ## Ordering, culling, edits and resources
 

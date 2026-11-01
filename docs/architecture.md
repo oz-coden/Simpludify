@@ -165,3 +165,7 @@ Canvas Checkbox/Slider use a small optional control port and typed value-node fo
 ## Numeric animation clocks
 
 Generic Tween/Easing lives in foundation and depends only on diagnostics/Lifetime. Scene owns lazy simulation and presentation schedulers. Simulation eligibility is captured before input and advances after contacts, before timers. Web feeds presentation seconds once per visible capped frame, including Engine pause; resize/layout does not advance clocks. Display time is independent of fixed/replay simulation. Actor adapters grant Renderable-only capabilities; UI adapters grant projected translation/opacity or Slider value/display capabilities. Canonical target/key claims span clocks, and synchronous lifetime/invalidation cleanup precedes callbacks. See [Tween contracts](tween.md).
+
+## Polygon tilings
+
+[TileGeometry](tile-geometry.md) computes immutable local tilings without storage or ownership. GeometryTilemap copies Grid color data and places one passive Actor/Component, reusing Scene lifetime and renderer depth ordering. Its Web Graphics presentation subscribes to changed indices and retains visible cells only. Existing textured Tilemap and optional collision indexing remain separate; no polygon physics, texture-mask ownership or new scheduler is introduced.

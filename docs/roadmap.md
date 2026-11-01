@@ -71,3 +71,7 @@ Consider a clearer `changeScene` name for factory-based navigation, directly con
 
 - Standard Canvas Checkbox and horizontal Slider provide typed values/events, read-only state and shared pointer/keyboard/focus/lifetime behavior; Canvas trail Settings lab uses Core-only definitions. [Control contracts](canvas-controls.md).
 - Canvas Select/TextInput/NumberInput provide typed selection, accepted values versus text drafts, generation-checked native Host editing, finite numeric validation and shared focus/lifetime. [Native editing contracts](text-input-design.md) distinguish automated browser/synthetic composition tests from unverified real OS Japanese IME and physical mobile keyboards.
+
+## Tile geometry
+
+Square/triangle/pointy-hex/flat-hex coordinate geometry, finite color layers, picking, edge neighbors, hex distance/disks, local dynamic updates and Actor Hexagon are implemented. See [contracts and validation limits](tile-geometry.md). Polygon image UV/masks, polygon Colliders and automatic polygon terrain physics are deferred.

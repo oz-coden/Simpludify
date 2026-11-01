@@ -160,3 +160,25 @@ it("rejects malformed data and invalid indexed access without mutation", () => {
   }).toThrow();
   expect(m.x).toBe(0);
 });
+
+it("releases ownership even when presentation destruction throws", () => {
+  const m = new GeometryTilemap({
+    geometry: TileGeometry.hex({ radius: 10 }),
+    tiles: [[0]],
+  });
+  const release = vi.fn(),
+    v = new GeometryTilemapVisual(m, release);
+  v.render(
+    createViewTransform({ viewport: { x: 0, y: 0, width: 800, height: 450 } }),
+  );
+  const destroy = vi.spyOn(v.display, "destroy").mockImplementationOnce(() => {
+    throw Error("cleanup failed");
+  });
+  expect(() => m.dispose()).toThrow();
+  expect(release).toHaveBeenCalledTimes(1);
+  expect(v.disposed).toBe(true);
+  destroy.mockRestore();
+  v.display.destroy({ children: true, context: true });
+  v.dispose();
+  expect(release).toHaveBeenCalledTimes(1);
+});
