@@ -59,7 +59,7 @@ Implemented: standalone RandomManager, cached named streams, actual automatic se
 
 ## Optional Tilemap collision
 
-The finite Tilemap now supports copied ID policies, sparse cell overrides and dedicated TileContactEnter/Stay/Exit through the existing CollisionWorld. Actor Contact stays unchanged. Local candidate queries, equal-policy exposed-feature response and one shared iteration budget are implemented. See [API and limits](tilemap-collision.md). CCD, rigid-body response, streaming, slopes and general deep-embedding recovery remain outside scope.
+The finite Tilemap now supports copied ID policies, sparse cell overrides and dedicated TileContactEnter/Stay/Exit through the existing CollisionWorld. Actor Contact stays unchanged. Local candidate queries, optional lazy 16×16 chunk rectangle candidate search, equal-policy exposed-feature response and one shared iteration budget are implemented. Cell events retain their identity across chunk rebuilds. `tileBounds` complements the existing tile/world point conversions. See [API and limits](tilemap-collision.md). CCD, rigid-body response, streaming, slopes and general deep-embedding recovery remain outside scope.
 
 ## Canvas UI and Pointer input
 
