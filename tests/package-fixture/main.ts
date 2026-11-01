@@ -33,7 +33,12 @@ for (const id of ["first", "second"] as const) {
       bindings: { Move: KeyboardBindings.WASD },
     });
     player = add(
-      Character({ x: 100, y: 250, movement: controls.reader(actions.Move) }),
+      Character({
+        x: 100,
+        y: 250,
+        movement: controls.reader(actions.Move),
+        source: { kind: "image", url: image },
+      }),
     );
     add(Character({ x: 200, y: 250, source: { kind: "image", url: image } }));
     button = CanvasButton("Next scene", () => {

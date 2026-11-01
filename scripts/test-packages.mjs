@@ -283,6 +283,10 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
   );
   cpSync("tests/package-fixture", web, { recursive: true });
   writeFileSync(
+    join(web, "explicit-css.ts"),
+    'import "@simpludify/web/style.css";\n',
+  );
+  writeFileSync(
     join(web, "tsconfig.json"),
     JSON.stringify({
       compilerOptions: {
@@ -294,7 +298,7 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
         skipLibCheck: false,
         noEmit: true,
       },
-      include: ["main.ts"],
+      include: ["main.ts", "explicit-css.ts"],
     }),
   );
   await run(

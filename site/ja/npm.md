@@ -67,7 +67,7 @@ npm install --save-dev vite@8.3.5 typescript@7.0.2
 
 `main.ts`を作成します。
 
-```ts
+```ts verify
 import {
   Action,
   ActionController,
