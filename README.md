@@ -2,7 +2,7 @@
 
 [公式ドキュメント・サンプル](https://oz-coden.github.io/Simpludify/) · [日本語ガイドのソース](site/ja/index.md) · [English API](docs/api.md)
 
-コード主導・軽量・AIネイティブな、TypeScript製の実験的2Dコンテンツエンジンです。ゲームやインタラクティブコンテンツを、理解しやすい標準APIで構築します。理解しやすく、一貫性があり、保守しやすいAPIを優先します。公開npm SDKではなく、ソースワークスペースを取得して利用します。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できる10のサンプルを公式サイトにまとめています。
+コード主導・軽量・AIネイティブな、TypeScript製の実験的2Dコンテンツエンジンです。ゲームやインタラクティブコンテンツを、理解しやすい標準APIで構築します。理解しやすく、一貫性があり、保守しやすいAPIを優先します。公開npm SDKではなく、ソースワークスペースを取得して利用します。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できるサンプルを公式サイトにまとめています。
 
 A code-first TypeScript 2D game engine. Create a visible character, responsive UI, and scene navigation using ordinary code and browser tooling.
 
@@ -98,6 +98,14 @@ npm run dev -- --example tilemap
 
 [Tile trail](examples/tilemap/README.md) places copied Grid/row data with SpriteSheet frames, independent layers, camera follow and live cell edits. [Tilemap contracts](docs/tilemap.md) and [measured limits](docs/tilemap-performance.md) describe the finite-map foundation. Optional [Tilemap collision](docs/tilemap-collision.md) adds typed cell contacts, Solid walls and Trigger terrain through the same CollisionWorld.
 
+## Tile geometry
+
+```sh
+npm run dev -- --example tile-geometry
+```
+
+[Tile geometry lab](examples/tile-geometry/README.md) compares square, triangle and both axial hex orientations, with pointer painting, neighbor highlights and Camera controls. [GeometryTilemap](docs/tile-geometry.md) draws real polygon color fills and supports local cell updates; `Shape.Hexagon` is also available for ordinary Actors. Polygon image masks and polygon Colliders are not included.
+
 ## Canvas UI and Pointer input
 
 ```sh
@@ -168,7 +176,7 @@ npm run site:check
 npm run site:serve
 ```
 
-This integrates documentation and all ten browser examples into `site-dist/`, independently of the existing game-only `dist/`. Use `--base /` for root/custom-domain hosting. `npm run test:site` validates production pages, gallery controls and cleanup at desktop/narrow sizes. [Site build, deployment and validation](docs/site-validation.md) explains Pages Actions and language coverage. No domain or DNS settings are changed by the build.
+This integrates documentation and all browser examples into `site-dist/`, independently of the existing game-only `dist/`. Use `--base /` for root/custom-domain hosting. `npm run test:site` validates production pages, gallery controls and cleanup at desktop/narrow sizes. [Site build, deployment and validation](docs/site-validation.md) explains Pages Actions and language coverage. No domain or DNS settings are changed by the build.
 
 ## Documentation
 

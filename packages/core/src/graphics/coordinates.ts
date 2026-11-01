@@ -9,6 +9,9 @@ export interface Point {
   readonly x: number;
   readonly y: number;
 }
+export interface TilePoint extends Point {
+  readonly space: "tile";
+}
 export interface WorldPoint extends Point {
   readonly space: "world";
 }

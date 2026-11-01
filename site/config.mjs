@@ -1,6 +1,14 @@
 export const repository = "https://github.com/oz-coden/Simpludify";
 export const examples = [
   {
+    id: "tile-geometry",
+    title: "Tile geometry lab",
+    summary: "四角形・三角形・六角形の描画、選択、隣接と動的更新",
+    controls:
+      "Geometryを切り替え、タイルをクリック／タップして色変更と隣接セルを確認。Pan・Zoom、非表示切り替え、Scene再生成も操作できます。六角形はPointy/Flat対応。",
+    guide: "guides/tile-geometry.html",
+  },
+  {
     id: "tween",
     title: "Tween lab",
     summary: "汎用Tween・Easing・Actor/UI・Slider・2つの時計",
@@ -292,6 +300,18 @@ export const pages = [
   ],
   ["en/performance.html", "docs/performance.md", "Performance", "English"],
   ["en/licensing.html", "docs/licensing.md", "Licensing", "English"],
+  [
+    "guides/tile-geometry.html",
+    "site/ja/tile-geometry.md",
+    "三角形・六角形タイル",
+    "ガイド",
+  ],
+  [
+    "en/tile-geometry.html",
+    "docs/tile-geometry.md",
+    "Tile geometry contracts",
+    "English",
+  ],
 ].map(([route, source, title, section]) => ({
   route,
   source,

@@ -44,6 +44,7 @@ export const Shape = {
   Character: "character",
   Circle: "circle",
   Triangle: "triangle",
+  Hexagon: "hexagon",
 } as const;
 export const SpriteFit = { Contain: "contain", Stretch: "stretch" } as const;
 export type SpriteFit = (typeof SpriteFit)[keyof typeof SpriteFit];

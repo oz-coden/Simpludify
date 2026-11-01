@@ -97,3 +97,7 @@ npm run dev -- --example tilemap
 矩形は候補の絞り込みに使い、接触セルごとの細かな判定・位置補正・TileContactイベントは従来どおりです。小さいActorや密な接触では管理コストが増える場合があるため、既定値は`tileSearch: "cells"`です。`world.tileIndexDiagnostics`でキャッシュ中のcells／regions／chunks、構築回数などを確認できます。[契約と性能上の制約](../en/tilemap-collision.html#optional-rectangle-candidate-search)を参照してください。
 
 Tile trailは矩形検索を使用し、地形のセル数と矩形数を表示します。Toggle doorで石壁の(14,7)を開閉できます。タイルデータは即時に変わり、衝突は次の判定パス、描画は次の表示更新で反映します。接触イベント内で変更しても、そのパスの走査をやり直しません。Actorの足元に壁を置いた場合は次のパスで既存の補正を適用し、完全に埋まった状態の解消までは保証しません。
+
+## 三角形・六角形
+
+単色の三角形・六角形レイヤーは[Tile geometry](tile-geometry.md)を使います。四角形画像用Tilemap・Collisionとは独立して利用でき、座標変換・選択・隣接・更新を提供します。

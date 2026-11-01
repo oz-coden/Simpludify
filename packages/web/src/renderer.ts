@@ -3,6 +3,7 @@ import {
   type Actor,
   cleanupAll,
   EngineError,
+  GeometryTilemapLayer,
   imageSize,
   type PreparedScene,
   Renderable,
@@ -15,6 +16,7 @@ import {
 } from "@simpludify/core";
 import { Application, Container, Graphics, Sprite, Texture } from "pixi.js";
 import { type CanvasPresentation, CanvasVisual } from "./canvas-visual";
+import { GeometryTilemapVisual } from "./geometry-tilemap-visual";
 import {
   pruneUITextKeys,
   releaseUIGraphics,
@@ -136,6 +138,29 @@ export class PixiRenderer implements RendererPort {
       createdSprites,
       destroyedSprites,
       validatedFrames,
+    };
+  }
+  private readonly geometryTilemaps = new Set<GeometryTilemapVisual>();
+  get geometryTilemapDiagnostics() {
+    let graphics = 0,
+      visitedCells = 0,
+      updatedTiles = 0,
+      createdGraphics = 0,
+      destroyedGraphics = 0;
+    for (const t of this.geometryTilemaps) {
+      graphics += t.graphics.size;
+      visitedCells += t.stats.visitedCells;
+      updatedTiles += t.stats.updatedTiles;
+      createdGraphics += t.stats.createdGraphics;
+      destroyedGraphics += t.stats.destroyedGraphics;
+    }
+    return {
+      maps: this.geometryTilemaps.size,
+      graphics,
+      visitedCells,
+      updatedTiles,
+      createdGraphics,
+      destroyedGraphics,
     };
   }
   private ready = false;
@@ -269,7 +294,7 @@ export class PixiRenderer implements RendererPort {
     root.addChild(world, mask);
     root.mask = mask;
     const visuals = new Map<Actor, Visual>();
-    const tilemaps = new Map<Actor, TilemapVisual>();
+    const tilemaps = new Map<Actor, TilemapVisual | GeometryTilemapVisual>();
     const drawOrder: {
       display: Sprite | Graphics | Container;
       order: number;
@@ -341,6 +366,26 @@ export class PixiRenderer implements RendererPort {
         if (source.shape === Shape.Circle)
           display
             .circle(0, 0, Math.min(width, height) / 2)
+            .fill(component.color);
+        else if (source.shape === Shape.Hexagon)
+          display
+            .poly(
+              [
+                0,
+                -height / 2,
+                width / 2,
+                -height / 4,
+                width / 2,
+                height / 4,
+                0,
+                height / 2,
+                -width / 2,
+                height / 4,
+                -width / 2,
+                -height / 4,
+              ],
+              true,
+            )
             .fill(component.color);
         else if (source.shape === Shape.Triangle)
           display
@@ -561,11 +606,14 @@ export class PixiRenderer implements RendererPort {
         if (
           actor.disposed ||
           actor.scene !== scene ||
-          !actor.get(TilemapLayer.type) ||
+          !(entry instanceof TilemapVisual
+            ? actor.get(TilemapLayer.type)
+            : actor.get(GeometryTilemapLayer.type)) ||
           entry.disposed
         ) {
           entry.dispose();
-          this.tilemaps.delete(entry);
+          if (entry instanceof TilemapVisual) this.tilemaps.delete(entry);
+          else this.geometryTilemaps.delete(entry);
           tilemaps.delete(actor);
         }
       let order = 0;
@@ -581,13 +629,28 @@ export class PixiRenderer implements RendererPort {
               changed,
               this.onError,
               () => {
-                if (tile) this.tilemaps.delete(tile);
+                if (tile instanceof TilemapVisual) this.tilemaps.delete(tile);
                 depthDirty = true;
               },
             );
             world.addChild(tile.display);
             tilemaps.set(actor, tile);
             this.tilemaps.add(tile);
+          }
+          tile.order = order;
+        }
+        const geometryLayer = actor.get(GeometryTilemapLayer.type);
+        if (geometryLayer) {
+          let tile = tilemaps.get(actor);
+          if (!tile) {
+            const created = new GeometryTilemapVisual(geometryLayer.map, () => {
+              this.geometryTilemaps.delete(created);
+              depthDirty = true;
+            });
+            tile = created;
+            world.addChild(tile.display);
+            tilemaps.set(actor, tile);
+            this.geometryTilemaps.add(created);
           }
           tile.order = order;
         }
@@ -606,7 +669,8 @@ export class PixiRenderer implements RendererPort {
     const sync = () => {
       reconcile();
       for (const entry of visuals.values()) update(entry);
-      for (const entry of tilemaps.values()) entry.sync();
+      for (const entry of tilemaps.values())
+        if (entry instanceof TilemapVisual) entry.sync();
     };
     const prepared: PreparedScene = {
       ready: async () => {
@@ -623,6 +687,7 @@ export class PixiRenderer implements RendererPort {
             if (entry.controller) pending = true;
           }
           for (const entry of tilemaps.values()) {
+            if (!(entry instanceof TilemapVisual)) continue;
             if (entry.error) throw entry.error;
             if (entry.controller) pending = true;
           }
@@ -734,7 +799,8 @@ export class PixiRenderer implements RendererPort {
             () => {
               for (const entry of tilemaps.values()) {
                 entry.dispose();
-                this.tilemaps.delete(entry);
+                if (entry instanceof TilemapVisual) this.tilemaps.delete(entry);
+                else this.geometryTilemaps.delete(entry);
               }
               tilemaps.clear();
             },

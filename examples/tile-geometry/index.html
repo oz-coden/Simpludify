@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Tile geometry lab | Simpludify</title></head>
+<body><main>
+<header><h1>Tile geometry lab</h1><p>Tap a tile to paint it. Gold cells share an edge. Shapes and physics are independent.</p></header>
+<nav aria-label="Geometry controls">
+<label>Geometry <select id="geometry"><option value="square">Square</option><option value="triangle">Triangle</option><option value="pointy" selected>Hex pointy</option><option value="flat">Hex flat</option></select></label>
+<button id="zoom-in" type="button">Zoom +</button><button id="zoom-out" type="button">Zoom −</button><button id="reset" type="button">Reset view</button>
+<button id="paint" type="button">Paint selected</button><button id="hide" type="button">Hide / show selected</button><button id="rebuild" type="button">Recreate scene</button>
+</nav>
+<div id="app"></div>
+<div class="below"><p id="selection" role="status" aria-live="polite">Select a tile.</p><nav aria-label="Pan camera"><button type="button" data-pan="-60,0">Pan ←</button><button type="button" data-pan="60,0">Pan →</button><button type="button" data-pan="0,-60">Pan ↑</button><button type="button" data-pan="0,60">Pan ↓</button></nav><p>WASD also pans. Cyan: Triangle Actor. Pink: Hexagon Actor (animated with Tween). Color layers have no automatic Collider.</p></div>
+</main><script type="module" src="./main.ts"></script></body></html>

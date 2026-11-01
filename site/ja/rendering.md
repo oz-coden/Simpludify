@@ -45,6 +45,8 @@ view.opacity = 0.5;
 
 `source`は`{ kind: "shape", shape: Shape.Triangle }`などの図形、または`{ kind: "image", url, fit? }`の画像です。省略時はBox、画像のfit省略時はContain。Stretchは幅・高さ全体へ伸縮します。sourceはコピー・凍結されるため、画像やfitの変更はsource全体を再代入します。同じ内容の指定はrevisionも画像要求も変えません。
 
+`Shape.Hexagon`で中心配置の六角形も表示できます。幅・高さ・回転・色・透明度・Tweenは既存Shapeと共通です。[三角形・六角形タイル](tile-geometry.md)に寸法とCollisionとの独立性をまとめています。
+
 幅・高さは正の有限数、colorは0〜0xffffffの整数、opacityは0〜1、zIndexは有限数、visibleはbooleanです。不正値は状態変更前に拒否します。表示状態のrevisionはSceneの構造revisionと独立し、依存Componentや所有権を変えません。Transform・Colliderの寸法も変更しません。
 
 初期色は図形がミント、画像が無着色の白です。source変更後もcolorは維持するため、色付き図形から画像へ変えるときは必要に応じて白を指定します。図形では塗り色、画像ではRGB乗算です。元画像を任意の単色へ置き換える効果とは異なります。Characterの目は本体と異なる色を維持します。

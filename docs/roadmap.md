@@ -18,7 +18,7 @@ Simpludify has an experimental Web runtime and a generic composition-based Core.
 - DOM-free Engine stepping, frozen frame input, managed seeded randomness and generic snapshots.
 - Synchronous Scene states, exclusive ownership, lifecycle hooks and aggregate cleanup.
 - Dynamic Actors/Components with deterministic membership and update rules, dependency diagnostics and enable flags.
-- Transform, Renderable (live validated dimensions/color and explicit Box/Circle/Character/Triangle/image sources), live validated Motion speed/direction, optional scaled ActionMovement and the Character composition preset. Input/Update commands precede Integrate and LateUpdate.
+- Transform, Renderable (live validated dimensions/color and explicit Box/Circle/Character/Triangle/Hexagon/image sources), live validated Motion speed/direction, optional scaled ActionMovement and the Character composition preset. Input/Update commands precede Integrate and LateUpdate.
 - Optional typed local/external events with owner-scoped subscriptions and simulation timers.
 - Single Camera/Viewport, logical resolution, pure World/Screen transforms, pointer/DPR handling and optional bounded CameraFollow.
 - Pixi shape/image rendering, dynamic component reconciliation, pending-image cancellation and resource diagnostics.
@@ -71,3 +71,7 @@ Consider a clearer `changeScene` name for factory-based navigation, directly con
 
 - Standard Canvas Checkbox and horizontal Slider provide typed values/events, read-only state and shared pointer/keyboard/focus/lifetime behavior; Canvas trail Settings lab uses Core-only definitions. [Control contracts](canvas-controls.md).
 - Canvas Select/TextInput/NumberInput provide typed selection, accepted values versus text drafts, generation-checked native Host editing, finite numeric validation and shared focus/lifetime. [Native editing contracts](text-input-design.md) distinguish automated browser/synthetic composition tests from unverified real OS Japanese IME and physical mobile keyboards.
+
+## Tile geometry
+
+Square/triangle/pointy-hex/flat-hex coordinate geometry, finite color layers, picking, edge neighbors, hex distance/disks, local dynamic updates and Actor Hexagon are implemented. See [contracts and validation limits](tile-geometry.md). Polygon image UV/masks, polygon Colliders and automatic polygon terrain physics are deferred.

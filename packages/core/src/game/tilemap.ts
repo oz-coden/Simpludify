@@ -8,7 +8,11 @@ import {
   type TileCollisionOptions,
   type TileCollisionPolicy,
 } from "../game/tilemap-collision";
-import { type WorldPoint, worldPoint } from "../graphics/coordinates";
+import {
+  type TilePoint,
+  type WorldPoint,
+  worldPoint,
+} from "../graphics/coordinates";
 import type { SpriteSheet } from "../graphics/sprite-sheet";
 import { Actor, type ActorOptions } from "../scene/actor";
 import {
@@ -25,11 +29,7 @@ export type {
 } from "../game/tilemap-collision";
 
 export type TileId<Name extends string = never> = number | Name | null;
-export interface TilePoint {
-  readonly space: "tile";
-  readonly x: number;
-  readonly y: number;
-}
+export type { TilePoint } from "../graphics/coordinates";
 export interface TilemapOptions<Name extends string> extends ActorOptions {
   sheet: SpriteSheet<Name>;
   tiles:
