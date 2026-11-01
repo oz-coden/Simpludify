@@ -18,7 +18,8 @@ const updateViewport = () => {
   const height = game.element.clientHeight;
   if (width > 0 && height > 0) {
     game.setViewport({
-      x: 0, y: 64,
+      x: 0,
+      y: 64,
       width,
       height: Math.max(1, height - 96),
     });
@@ -30,7 +31,7 @@ context.onActivate(updateViewport);
 context.onDispose(() => resizeObserver.disconnect());
 ```
 
-The 64px HUD and 32px lower inset above are application-specific *examples*, not framework constants. For a dynamic layout, the application should read its own UI bounds and update the viewport whenever layout changes. Convert pointer world positions through `tilemap.worldToTile` rather than dividing browser client coordinates by tile size.
+The 64px HUD and 32px lower inset above are application-specific _examples_, not framework constants. For a dynamic layout, the application should read its own UI bounds and update the viewport whenever layout changes. Convert pointer world positions through `tilemap.worldToTile` rather than dividing browser client coordinates by tile size.
 
 A possible future helper could connect a layout-owned region to a world viewport, but must clarify CSS vs logical units, scaling, scene disposal, pointer hit-testing, and empty-size behavior before being introduced as a public API.
 
@@ -47,7 +48,7 @@ These are application integration responsibilities; avoid a game-specific giant 
 
 ## Deterministic world state and presentation Tween
 
-For turn-based or integer-step games, **commit the discrete world first**; use `scene.presentationTweens` to animate a *separate* numeric display progress. Never allow presentation frames to affect collision, occupancy, door schedules, or replay state.
+For turn-based or integer-step games, **commit the discrete world first**; use `scene.presentationTweens` to animate a _separate_ numeric display progress. Never allow presentation frames to affect collision, occupancy, door schedules, or replay state.
 
 The following pattern shows the separation; `renderBetween` belongs to the game and reads two immutable world snapshots.
 
