@@ -69,3 +69,7 @@ Final local `npm run check`: passed with existing informational/warning diagnost
 The external packaging job in https://github.com/oz-coden/Simpludify/actions/runs/41320035646 (job 124888378228, source `0d0d3f1`) passed all packed checks, including development and production subpath browser rendering at desktop/narrow sizes, automatic CSS, WASD input, Canvas pointer/keyboard controls, repeated Scene transitions and Game disposal. That run's existing source-based production/site checks exposed the CSS barrel metadata issue documented above; they are not accepted as passed. A later fixture strengthens image/explicit-CSS assertions; its final CI is still pending.
 
 Local `pack:packages` and all root quality checks pass. A read-only publication preflight correctly failed closed on registry fetch timeout in this environment; no mutation occurred. Earlier `npm view` E404 results remain the only anonymous public-version observation; publisher/org authorization is still unverified.
+
+## Publication guard review
+
+The publication command rejects execution without GitHub Actions OIDC before registry or publish calls; this local guard check passed. The validation job explicitly receives only `contents: read` and `actions: read` to inspect the required successful CI run; the separate publish job receives `contents: read` and `id-token: write`. No access-token fallback is configured. The workflow has not been run because npm bootstrap/configuration and explicit final publish approval are not available.

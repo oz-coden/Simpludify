@@ -16,6 +16,9 @@ concurrency:
   cancel-in-progress: false
 jobs:
   validate:
+    permissions:
+      contents: read
+      actions: read
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 30
