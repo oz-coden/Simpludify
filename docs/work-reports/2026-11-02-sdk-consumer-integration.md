@@ -26,3 +26,26 @@ Reproduced a native text bug before fixing it: synthetic composition followed by
 The three new headless discrete-world tests pass. The first combined focused browser run after the fix passed 37/38 tests: the remaining viewport test read layout before ResizeObserver delivery after a browser resize. Updated it to wait for host/UI widths to agree; retesting is pending. Initial mirror-button click tests were corrected to use keyboard activation: mirrors intentionally do not receive real pointer clicks, which are separately tested on the Canvas surface and through touch.
 
 Official gallery/source integration and a production/live SDK sample check are added. Final full checks, PR/main CI, Windows and published-site verification remain pending. Run To Exit's repository and public game have not been modified.
+
+## Reviewed implementation and local validation
+
+PR #7 passed all CI and merged as `315efb7c83cf9ffa707558322f69d4c74e078ef9` ([CI](https://github.com/oz-coden/Simpludify/actions/runs/41342668958)). The implementation checkpoint `a99483cb1f024f8467c300f9733333ea295111db` includes that main merge as a parent. Separate runtime PR: [#8](https://github.com/oz-coden/Simpludify/pull/8).
+
+Only one public API was added: `Game.bindViewport(ui, node): () => void`, in Web. It is additive; Core and existing `setViewport`/Tween/input signatures are unchanged. New bindings replace old bindings safely, staged UI is isolated, and disposal restores manual projection. Input-transparent slots remain usable world regions. Dedicated slots are supported; arbitrary nested scroll/clip masks are deliberately outside this helper's contract.
+
+Verified locally:
+
+- `npm ci`, `npm run check` (Core boundary, TypeScript, formatting, dependency notices); existing nonfatal lint warnings remain.
+- `npm test`: **808 tests / 61 files passed**, including three new headless discrete-state tests.
+- Native input regression suite: all 28 desktop/narrow × WebGL/Canvas2D cases passed after the blur fix. The integration lab's initial 10 browser cases passed after waiting for actual resize delivery. Four additional resize/ownership checks passed for both viewports, including staged preparation failure, foreign UI, region removal and transparent slots.
+- `npm run test:packages`: external Core-only Node/NodeNext types, Web public declarations, lockfile `npm ci`, CSS, images, development/production subpath behavior and complete cleanup passed. The local-tarball fixture now additionally uses `bindViewport`; its rerun is pending at this checkpoint. Registry-mode fixtures deliberately avoid unreleased API.
+- `npm run test:starter`: independent public-registry 0.1.1 installation, typecheck, production `/starter-test/`, CSS, Scene restart and notices passed on Linux. Negative checks reject stale README metadata and empty production license text. Windows validation is an explicit CI matrix job.
+- `npm run build -- --target web` passed.
+- `npm run site:build -- --base /Simpludify/`, `npm run site:check`: 73 HTML documents, 5091 local references and 65 standalone documentation snippets passed.
+- `scripts/site-sdk-integration-live.mjs` passed against the production project-base build at 1440×900 and 390×844 with DPR 2; operations, paused display Tween, Scene reload and disposal had no page errors and zero remaining hosts/active display Tweens. Full site gallery and root-base CI remain pending at this checkpoint.
+
+Deferred deliberately: a CLI generator (copyable independent starter is sufficient), a new discrete-world Tween/command VM (existing Tween APIs work), a generalized DOM focus-restoration API (application row identity is application-owned), and arbitrary nested world masks (no consumer need established). No runtime dependency was added. Core remains browser-free. Run To Exit remains untouched and the standalone registry starter provides an independent real consumer.
+
+Next npm release candidates: corrected package README metadata, `Game.bindViewport`, native text composition/refocus fix. Template/build/distribution checks and official examples are source tooling/docs. Public npm 0.1.1 archives are unchanged, and no npm release/tag was created. Remaining limitations: synthetic IME tests are not OS-level IME certification; the viewport binding supports dedicated unscrolled slots; Windows and final PR/main/site status must be recorded after CI.
+
+Local follow-up: the packed-runtime `bindViewport` fixture rerun passed, including public types and all desktop/narrow development/production checks. Full project-base gallery smoke passed with no failures, startup fallback and Canvas2D fallback included. Two additional screenshot-pixel tests confirmed collapsed viewports actually remove world pixels, beyond inspecting view metadata. The browser suite now contains 360 declared cases across the two viewport projects. Before the final source CI, the Linux starter job passed in the earlier checkpoint CI; Windows is still pending there. These are measured functional checks, not benchmark claims.

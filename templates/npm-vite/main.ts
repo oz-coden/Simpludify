@@ -38,9 +38,14 @@ game.scene("play", (context) => {
 });
 const dispose = () => game.dispose();
 window.addEventListener("pagehide", dispose, { once: true });
+const restore = (event: PageTransitionEvent) => {
+  if (event.persisted && game.engine.disposed) window.location.reload();
+};
+window.addEventListener("pageshow", restore);
 if (import.meta.hot)
   import.meta.hot.dispose(() => {
     window.removeEventListener("pagehide", dispose);
+    window.removeEventListener("pageshow", restore);
     dispose();
   });
 try {

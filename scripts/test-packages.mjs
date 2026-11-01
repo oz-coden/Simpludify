@@ -288,6 +288,22 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
     web,
   );
   cpSync("tests/package-fixture", web, { recursive: true });
+  if (!registryMode) {
+    // Validate the unreleased additive API through emitted declarations and packed runtime.
+    // Registry mode deliberately keeps the immutable public 0.1.1 fixture unchanged.
+    const main = join(web, "main.ts");
+    writeFileSync(
+      main,
+      readFileSync(main, "utf8")
+        .replace("  CanvasLabel,", "  CanvasLabel,\n  CanvasPanel,")
+        .replace(
+          "    canvasUI(ui);",
+          `    const region = CanvasPanel([], { grow: 1, minHeight: 100, pointerEvents: "none" });
+    const canvas = canvasUI(CanvasColumn([ui, region], { height: "100%" }));
+    game.bindViewport(canvas, region);`,
+        ),
+    );
+  }
   writeFileSync(
     join(web, "explicit-css.ts"),
     'import "@simpludify/web/style.css";\n',

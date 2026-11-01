@@ -169,3 +169,5 @@ Generic Tween/Easing lives in foundation and depends only on diagnostics/Lifetim
 ## Polygon tilings
 
 [TileGeometry](tile-geometry.md) computes immutable local tilings without storage or ownership. GeometryTilemap copies Grid color data and places one passive Actor/Component, reusing Scene lifetime and renderer depth ordering. Its Web Graphics presentation subscribes to changed indices and retains visible cells only. Existing textured Tilemap and optional collision indexing remain separate; no polygon physics, texture-mask ownership or new scheduler is introduced.
+
+A Web `Game.bindViewport(ui, node)` binding connects a dedicated resolved Canvas layout slot to the world projection. The Game reads UI geometry before world rendering and pointer conversion; Core layout still has no knowledge of cameras or browser viewports. UI units become host CSS pixels via UI scale, while DPR remains presentation-only. UI/node lifetime releases the binding, staged bindings do not affect the active presentation, and empty regions produce a zero world clip with a finite internal transform. This additive API is for the next SDK release after published 0.1.1.

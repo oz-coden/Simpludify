@@ -721,8 +721,12 @@ export class Game<SceneId extends string = string> {
         y,
         Math.min(this.height, (b.y + b.height) * scale),
       );
-      empty =
-        region.ui !== ui || !region.available || right <= x || bottom <= y;
+      // Input transparency of the slot does not hide its world. Visibility and enable
+      // state do; a dedicated slot may use pointerEvents: "none" for pass-through.
+      let visible = region.ui === ui;
+      for (let node: CanvasNode | undefined = region; node; node = node.parent)
+        if (node.disposed || !node.visible || !node.enabled) visible = false;
+      empty = !visible || right <= x || bottom <= y;
       v = {
         x,
         y,

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import type { Game, SceneContext } from "@simpludify/web";
 
 const url = `/@fs/${process.cwd()}/examples/sdk-integration/index.html`;
 test.use({ deviceScaleFactor: 2 });
@@ -213,4 +214,129 @@ test("touch activates Canvas controls without dispatching a world click", async 
   ).toBe(1);
   expect(await page.evaluate(() => window.integration.clicks)).toBe(0);
   await context.close();
+});
+
+test("foreign UI is rejected, staged bindings are isolated, failed preparation cleans up and transparent slots stay visible", async ({
+  page,
+}) => {
+  const moduleURL = `/@fs/${process.cwd()}/packages/web/src/index.ts`;
+  const result = await page.evaluate(async (moduleURL) => {
+    const {
+      CanvasColumn,
+      CanvasPanel,
+      Game: WebGame,
+    } = await import(moduleURL);
+    const f = window.integration,
+      old = f.current;
+    old.region.setStyle({ pointerEvents: "none" });
+    const before = f.game.viewport;
+    const other = new WebGame();
+    const otherUI = other.canvasUI(CanvasPanel([]));
+    let foreign = false,
+      wrongNode = false;
+    try {
+      f.game.bindViewport(otherUI, otherUI.root);
+    } catch {
+      foreign = true;
+    }
+    try {
+      f.game.bindViewport(old.ui, otherUI.root);
+    } catch {
+      wrongNode = true;
+    }
+    other.dispose();
+    const game = f.game as Game<string>;
+    let stageUI: typeof old.ui | undefined,
+      stageRegion: typeof old.region | undefined;
+    let fail = () => {};
+    let prepared = () => {};
+    const ready = new Promise<void>((resolve) => {
+      prepared = resolve;
+    });
+    game.scene("failed", async (context: SceneContext) => {
+      const region: typeof old.region = CanvasPanel([], { height: 20 });
+      stageRegion = region;
+      stageUI = context.canvasUI(CanvasColumn([region]));
+      game.bindViewport(stageUI, region);
+      prepared();
+      await new Promise<void>((_resolve, reject) => {
+        fail = () => reject(new Error("expected preparation failure"));
+      });
+    });
+    const pending = game.goTo("failed").catch(() => undefined);
+    await ready;
+    const during = f.game.viewport;
+    fail();
+    await pending;
+    const after = f.game.viewport;
+    const stagedDisposed = !!stageUI?.disposed && !!stageRegion?.disposed;
+    const sameScene = f.game.engine.scene === old.scene;
+    old.root.remove(old.region);
+    const restored = f.game.viewport;
+    return {
+      before,
+      during,
+      after,
+      foreign,
+      wrongNode,
+      stagedDisposed,
+      sameScene,
+      restored,
+      hostWidth: f.game.element.clientWidth,
+    };
+  }, moduleURL);
+  expect(result.before.height).toBeGreaterThan(0);
+  expect(result.during).toEqual(result.before);
+  expect(result.after).toEqual(result.before);
+  expect(result.foreign).toBe(true);
+  expect(result.wrongNode).toBe(true);
+  expect(result.stagedDisposed).toBe(true);
+  expect(result.sameScene).toBe(true);
+  expect(result.restored.x).toBe(0);
+  expect(result.restored.y).toBe(0);
+  expect(result.restored.width).toBe(result.hostWidth);
+});
+
+test("a collapsed viewport removes world pixels in the actual renderer", async ({
+  page,
+}) => {
+  const point = await page.evaluate(() => {
+    const f = window.integration,
+      screen = f.game.worldToScreen({ space: "world", x: 35, y: 60 }),
+      rect = f.game.element.getBoundingClientRect();
+    return { x: rect.x + screen.x, y: rect.y + screen.y };
+  });
+  const pixel = async () => {
+    const base64 = (await page.screenshot()).toString("base64");
+    return page.evaluate(
+      async ({ base64, point }) => {
+        const image = new Image();
+        image.src = `data:image/png;base64,${base64}`;
+        await image.decode();
+        const canvas = document.createElement("canvas");
+        canvas.width = image.naturalWidth;
+        canvas.height = image.naturalHeight;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) throw new Error("Missing pixel reader");
+        ctx.drawImage(image, 0, 0);
+        const ratio = image.naturalWidth / innerWidth;
+        return [
+          ...ctx.getImageData(
+            Math.floor(point.x * ratio),
+            Math.floor(point.y * ratio),
+            1,
+            1,
+          ).data,
+        ];
+      },
+      { base64, point },
+    );
+  };
+  expect((await pixel()).slice(0, 3)).toEqual([104, 220, 197]);
+  await page.evaluate(async () => {
+    const f = window.integration;
+    f.current.region.visible = false;
+    await f.game.whenReady();
+  });
+  expect((await pixel()).slice(0, 3)).not.toEqual([104, 220, 197]);
 });
