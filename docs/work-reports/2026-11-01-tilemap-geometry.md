@@ -4,7 +4,7 @@
 
 - Starting main: `86f5a28f19f67688f564598353c73650d9e1b18b`.
 - Branch: `feat/tilemap-geometry-2026-11-01`.
-- Status: implementation and all major candidate checks passed; final checkpoint and main/Pages acceptance pending.
+- Status: integrated on main `87a0337770946f29eb3bd26b061d81b6d800b74d`; main CI and Pages/public acceptance pending.
 
 ## Existing implementation review
 
@@ -144,3 +144,9 @@ Final new color-layer measurements at 4,096 all-visible cells (40 samples / 12 w
 In the fixed-view 1,024→65,536-cell sweep, live Graphics counts stayed square 192, triangle 336, pointy hex 199 and flat hex 157. Map creation still allocates/copies all Grid cells; culling does not make construction constant-time. All 48 shape/backend/size workloads reported exactly forty reconciliation visits for forty visible edits; stable frames add none. Picking queries a bounded polygon neighborhood, independent of total map size. Large all-visible Canvas2D maps remain more expensive; no GPU completion/native memory/hardware mobile performance is claimed.
 
 Review: Core host boundaries and circle/box Collision algorithms/indexing are unchanged. TilePoint moved to coordinates with the old Tilemap reexport preserved. All new rendering uses existing Scene ownership, camera transforms and depth ordering; no polygon physics, SpriteSheet ownership, new dependencies, force pushes or history rewrites were introduced. Remaining scope limitations: color-only polygon tiles; image clipping/UV/atlas design, arbitrary N-gon physics and general mobile/Safari/Firefox validation are deferred. No known blocker remains for integration.
+
+### Main integration checkpoint
+
+Safely merged the accepted branch into main with a two-parent commit, [87a0337770946f29eb3bd26b061d81b6d800b74d](https://github.com/oz-coden/Simpludify/commit/87a0337770946f29eb3bd26b061d81b6d800b74d). The starting main had not changed; the ref update rejected mismatched expected heads and used force=false. Final pre-integration `check` passed with only the original 12 warnings/12 info suggestions. Runtime/physics dependencies and lockfile are unchanged.
+
+[Main CI / Pages 41304716229](https://github.com/oz-coden/Simpludify/actions/runs/41304716229) is running. Do not treat deployment/public acceptance as complete until its jobs and the published geometry sample pass. If interrupted, inspect this run, verify main head, then run `SITE_URL=https://github.oz-coden.com/Simpludify/ node scripts/site-tile-geometry-live.mjs` with a compatible Chromium; append final evidence to this report and the index. All implementation and measurements are already on main.
