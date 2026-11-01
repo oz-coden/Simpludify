@@ -33,7 +33,8 @@ export function createDiscreteDemo(
       x:
         (previous.cells[i] ?? 0) +
         (cell - (previous.cells[i] ?? 0)) * display.progress,
-      opacity: cell === 6 ? 1 - display.progress : 1,
+      opacity:
+        previous.cells[i] === 6 ? 0 : cell === 6 ? 1 - display.progress : 1,
     }));
   const redraw = () => paint(sample());
   const binding = Tween.bind({

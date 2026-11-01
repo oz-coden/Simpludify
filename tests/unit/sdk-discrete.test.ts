@@ -69,5 +69,10 @@ it("fades escaped displays without mutating committed occupancy", () => {
   expect(demo.sample()[1]?.opacity).toBeCloseTo(0.5);
   engine.scene.advancePresentation(0.175);
   expect(demo.sample()[1]?.opacity).toBe(0);
+  demo.step();
+  expect(demo.sample()[1]?.opacity).toBe(0);
+  engine.scene.advancePresentation(0.175);
+  expect(demo.sample()[1]?.opacity).toBe(0);
+  expect(demo.world.cells).toEqual([4, 6]);
   engine.dispose();
 });
