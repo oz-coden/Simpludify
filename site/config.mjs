@@ -1,6 +1,14 @@
 export const repository = "https://github.com/oz-coden/Simpludify";
 export const examples = [
   {
+    id: "sdk-integration",
+    title: "SDK integration lab",
+    summary: "Flex連動Viewport・DOMフォーム・整数ステップの表示Tween",
+    controls:
+      "Stepを連打、Restartで初期化。Pause中も表示Tweenが進みます。TabでDOMとCanvas入力を移動し、Scene/Returnで破棄と再生成を確認できます。",
+    guide: "guides/sdk-integration.html",
+  },
+  {
     id: "tile-geometry",
     title: "Tile geometry lab",
     summary: "四角形・三角形・六角形の描画、選択、隣接と動的更新",
@@ -90,6 +98,18 @@ export const examples = [
   },
 ];
 export const pages = [
+  [
+    "guides/sdk-integration.html",
+    "examples/sdk-integration/README.md",
+    "SDK integration lab",
+    "サンプル",
+  ],
+  [
+    "en/sdk-consumer-patterns.html",
+    "docs/sdk-consumer-patterns.md",
+    "SDK consumer patterns",
+    "English",
+  ],
   ["guides/npm.html", "site/ja/npm.md", "npm SDK導入", "ガイド"],
   [
     "en/npm-publishing.html",

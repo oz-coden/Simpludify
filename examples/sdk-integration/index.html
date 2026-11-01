@@ -1,0 +1,4 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SDK integration lab</title>
+<style>html,body{margin:0;height:100%;background:#101f2a;color:#edf7ff;font:16px system-ui}body{display:flex;flex-direction:column}#app{flex:1;min-height:360px}form{padding:12px;display:flex;gap:12px;flex-wrap:wrap}input,button{font:inherit}button:focus-visible,input:focus-visible{outline:3px solid #ffca70}#status{padding:0 12px}</style></head>
+<body><form id="editor"><label>名前 / Name <input id="name" value="日本語プレイヤー"></label><label>Step note <input id="note" type="number" value="1"></label><button type="submit">Save note</button></form><div id="app"></div><p id="status" role="status">Canvas HUDとDOMフォームをTabで移動できます。</p><button type="button" id="after">After game</button><script type="module" src="./main.ts"></script></body></html>
