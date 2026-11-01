@@ -105,6 +105,9 @@ jobs:
       - run: npm run site:build -- --base "${{ matrix.base }}"
       - run: npm run site:check
       - run: npm run test:site
+      - run: node scripts/site-tilemap-live.mjs
+        env:
+          SITE_BASE: ${{ matrix.base }}
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
@@ -144,9 +147,14 @@ jobs:
       - run: node scripts/site-tween-live.mjs
         env:
           SITE_URL: https://github.oz-coden.com/Simpludify/
+      - run: node scripts/site-tilemap-live.mjs
+        env:
+          SITE_URL: https://github.oz-coden.com/Simpludify/
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
-          name: published-tween-validation
-          path: test-results/site/tween-live.json
+          name: published-sample-validation
+          path: |
+            test-results/site/tween-live.json
+            test-results/site/tilemap-live.json
           if-no-files-found: ignore

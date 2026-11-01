@@ -55,3 +55,38 @@ CHROMIUM_PATH=/path/to/chrome-headless-shell node scripts/benchmark-tilemap.mjs 
 ```
 
 Run alone. The script starts its own Vite server on port 4173, validates expected Sprite/visit/resource counts, and fails on fixture/page errors. It does not change runtime dependencies.
+
+## Rectangle collision search
+
+CPU-only measurements on Node v24.22.1, Linux / AMD EPYC 9V74. No renderer/browser, FPS or GPU measurements are implied. The same harness measured baseline Core `d17cdf9b6ef7e33e61576c4ed24cbfcc837c38eb` and current Core `9132f79a78c23ed6cd6ad8efdc881dc9282c7749`. No other local tests/builds ran during collection. [Baseline raw data](../benchmarks/tile-index/baseline.json) and [current raw data](../benchmarks/tile-index/current.json) include every sample, construction/cold-step times, update samples, diagnostics and forced-GC heap deltas.
+
+Each case warms 15 steps and records 40 steps at 1/60s, then 40 alternating single-cell edits plus zero-second collision steps. Cell dimensions 24×16. Small-wall uses 32 dynamic circles of radius 10 beside vertical walls; wide-sparse uses eight rotated 384×12 Trigger boxes across wall columns every 16 cells; filtered-dense uses eight radius-160 circles whose masks reject a completely filled map; dense-trigger uses eight radius-80 Trigger circles inside filled terrain. Actor masks reject Actor/Actor pairs. P50/p95 use nearest rank. All times below are p50 milliseconds per Engine.step.
+
+| Map     | Workload       | Baseline cells | Current cells | Current rectangles | Cached cells → rectangles |
+| ------- | -------------- | -------------: | ------------: | -----------------: | ------------------------: |
+| 32×32   | small-wall     |         0.2255 |        0.2462 |             0.2826 |                    32 → 2 |
+| 32×32   | wide-sparse    |         0.0791 |        0.0819 |             0.0492 |                    32 → 2 |
+| 32×32   | filtered-dense |         0.1364 |        0.1788 |             0.0277 |                   512 → 2 |
+| 32×32   | dense-trigger  |         0.2769 |        0.2995 |             0.3194 |                   512 → 2 |
+| 128×128 | small-wall     |         0.1430 |        0.1522 |             0.1902 |                  544 → 34 |
+| 128×128 | wide-sparse    |         0.0362 |        0.0454 |             0.0649 |                  224 → 14 |
+| 128×128 | filtered-dense |         0.1259 |        0.1352 |             0.0127 |                 4096 → 16 |
+| 128×128 | dense-trigger  |         0.2319 |        0.3511 |             0.3147 |                 2816 → 11 |
+| 512×512 | small-wall     |         0.1114 |        0.1359 |             0.2515 |                  544 → 34 |
+| 512×512 | wide-sparse    |         0.0360 |        0.0451 |             0.0634 |                  224 → 14 |
+| 512×512 | filtered-dense |         0.1238 |        0.1613 |             0.0138 |                 4352 → 17 |
+| 512×512 | dense-trigger  |         0.2010 |        0.3779 |             0.3205 |                 2816 → 11 |
+
+The favorable filtered-dense case eliminates repeated per-cell policy work by rejecting whole equal-policy rectangles. Wide-sparse results vary by footprint and size. Small-wall index overhead is consistently unfavorable here; dense touching Triggers still expand cells to preserve exact contact payloads. Therefore `tileSearch:"cells"` remains the default. These short CPU series show environment/JIT variation as well as implementation effects; baseline/current cell timings are not identical, and they do not establish a universal regression or speedup. Changing just map extent does not imply more collision work when query footprints remain local.
+
+Single-cell edits rebuilt at most one 256-cell chunk in every measured indexed case. Cached cells/regions describe only queried chunks, not total map coverage. A full 512×512 map has 262,144 cells; the filtered-dense run cached 4,352 collidable cells as 17 rectangles. No per-cell Actor/Collider existed before or after this change; region reduction is candidate-index geometry reduction, not a claim of 256× fewer narrow phases, response corrections or events. The index is additive memory: raw signed forced-GC heap deltas are noisy, and fixtures still retain disposed map/Actor references, so they are not a leak proof or total process/GPU memory measurement. Exact cache/contact/image-reference cleanup is tested separately.
+
+Reproduce on the committed source, with no concurrent tests/builds:
+
+```sh
+node --expose-gc scripts/benchmark-tile-index.mjs --out /tmp/tile-index-current.json
+git worktree add --detach ../Simpludify-baseline d17cdf9b6ef7e33e61576c4ed24cbfcc837c38eb
+node --expose-gc scripts/benchmark-tile-index.mjs --core ../Simpludify-baseline/packages/core/src/index.ts --baseline --out /tmp/tile-index-baseline.json
+```
+
+The harness loads each Core directly using Vite SSR; no browser or image decode is involved. It asserts cache/contact release after disposal and retains the exact measured Core SHA. Re-run multiple series on deployment hardware before selecting a search mode; wall-clock microbenchmarks are not CI performance thresholds.

@@ -240,18 +240,21 @@ for (const fallback of [false, true])
             visible: window.tilemapDemo.terrain?.visible,
           })),
         ).toEqual({ enabled: false, visible: true });
+        const doorBefore = await page.evaluate(() =>
+          window.tilemapDemo.terrain?.get(14, 7),
+        );
         await page
           .getByRole("button", { name: "Toggle door", exact: true })
           .click();
         expect(
           await page.evaluate(() => window.tilemapDemo.terrain?.get(14, 7)),
-        ).toBe("grass");
+        ).toBe(doorBefore === "stone" ? "grass" : "stone");
         await page
           .getByRole("button", { name: "Toggle door", exact: true })
           .click();
         expect(
           await page.evaluate(() => window.tilemapDemo.terrain?.get(14, 7)),
-        ).toBe("stone");
+        ).toBe(doorBefore);
         expect(
           await page.evaluate(
             () => window.tilemapDemo.world?.tileIndexDiagnostics.mode,

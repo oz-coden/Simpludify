@@ -329,3 +329,53 @@ it("returns validated independent cell rectangles at negative origins and half-o
     expect(() => map.tileBounds(x, 0)).toThrow();
   map.dispose();
 });
+
+it.each([true, false])(
+  "conservatively rejects regions for random Circle/OBB positions, rotations and chunk-edge tolerance (circle=%s)",
+  (circle) => {
+    const pairs = (["cells", "rectangles"] as const).map((tileSearch) => {
+      const engine = new Engine(),
+        world = new CollisionWorld(engine.scene, { tileSearch });
+      const map = make(32).place(engine.scene);
+      for (let y = 0; y < 32; y++)
+        for (let x = 0; x < 32; x++)
+          if ((x * 7 + y * 3) % 5 === 0) map.setCollision(x, y, null);
+      const a = engine.scene.add(new Actor()),
+        t = a.add(new Transform());
+      const c = a.add(
+        new Collider(
+          circle
+            ? { shape: CollisionShape.Circle, radius: 30 }
+            : { width: 150, height: 9 },
+        ),
+      );
+      return { engine, world, t, c };
+    });
+    let seed = 17441;
+    for (let i = 0; i < 150; i++) {
+      seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+      const x = i < 3 ? -70 + 16 * 24 + (i - 1) * 1e-8 : (seed % 1000) - 150;
+      const y = ((seed >>> 12) % 700) - 150,
+        rotation = (seed % 628) / 100;
+      const snapshots = pairs.map((f) => {
+        f.t.x = x;
+        f.t.y = y;
+        f.t.rotation = rotation;
+        f.t.scaleX = i % 2 ? -1 : 1;
+        f.t.scaleY = circle ? f.t.scaleX : 1.3;
+        f.engine.step(0);
+        return f.world
+          .tileContactsFor(f.c)
+          .map(({ tileX, tileY, depth, normalX, normalY }) => ({
+            tileX,
+            tileY,
+            depth,
+            normalX,
+            normalY,
+          }));
+      });
+      expect(snapshots[1]).toEqual(snapshots[0]);
+    }
+    for (const f of pairs) f.engine.dispose();
+  },
+);
