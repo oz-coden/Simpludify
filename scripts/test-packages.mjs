@@ -404,7 +404,8 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
         assert.equal(state.actors, 0);
         assert.equal(state.host, 0);
         assert.equal(state.renderer.visuals, 0);
-        assert.equal(state.renderer.imageTextures, 0);
+        assert.equal(state.renderer.textures, 0);
+        assert.equal(state.renderer.presentations, 0);
         assert.deepEqual(errors, []);
         await page.close();
       }

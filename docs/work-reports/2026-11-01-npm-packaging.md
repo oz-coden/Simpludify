@@ -48,3 +48,12 @@ Web ESM/type/CSS output builds successfully: 93.95 kB unminified JS (22.55 kB gz
 Actual npm tarballs pass file allowlist/integrity/source-map checks. Independent Core-only installation passes Node execution, Engine lifecycle and NodeNext typechecking with ES2022 and no ambient host types. Independent Web-only installation passes automatic Core resolution through a temporary scoped registry serving the actual Core tarball; no direct Core dependency, workspace link or runtime alias is used. Web public declarations pass strict typechecking without skipLibCheck. The initial packed test detected TS2882 for CSS; added `style.css.d.ts` and a typed CSS export. Local browser launch is currently blocked by unavailable Playwright Chromium; the official browser download returned invalid ZIP content. Browser checks are required in CI, not marked passed locally.
 
 The dedicated manual OIDC workflow and publication integrity/retry script are implemented; final review and CI remain pending. No publication attempt was made. Registry permissions are unverified.
+
+## Trusted Publishing and regression checkpoint
+
+- Remote checkpoints: investigation `43f7a8f`, Core `3e3d379`, Web/external tests/workflow `4e90801`.
+- Local unit regression: 60 files / 805 tests passed. Root check passed before the new docs/workflow additions; final format/check is running.
+- Added normal-CI `packages` job with external development/production browser consumers and archived actual tarballs/results; Pages deployment now also depends on it.
+- Manual publishing validates an explicitly approved v0.1.0 tag matching the dispatched main SHA, with a successful main push CI. A separate OIDC-only publish job consumes the validated archives, verifies integrity, checks both registry versions before mutation, publishes/verifies Core before Web, and tests clean public-registry installs. No workflow was dispatched and no OIDC permissions are claimed verified.
+- Added Japanese standalone Vite/CSS/lifecycle guide and English release/bootstrap runbook. Source scaffold and npm SDK paths are distinct; all public registry statuses remain unpublished. Root pack command rebuilds and saves npm pack metadata; consumers receive no repository-only lifecycle scripts.
+- Local Chromium is unavailable, and the pinned official installer produced invalid ZIP content. Browser results must come from CI. Source regression CI started at https://github.com/oz-coden/Simpludify/actions/runs/41319627407 ; it precedes the final dedicated packaging job and final format fixes, so it is not final acceptance.

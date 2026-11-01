@@ -90,6 +90,13 @@ export const examples = [
   },
 ];
 export const pages = [
+  ["guides/npm.html", "site/ja/npm.md", "npm SDK導入", "ガイド"],
+  [
+    "en/npm-publishing.html",
+    "docs/npm-publishing.md",
+    "npm publishing",
+    "English",
+  ],
   ["en/tween.html", "docs/tween.md", "Tween and animation", "English"],
   ["guides/tween.html", "site/ja/tween.md", "Tween・アニメーション", "ガイド"],
   [

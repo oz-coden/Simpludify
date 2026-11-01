@@ -10,10 +10,10 @@ SimpludifyのExperimental v0.1.0は、`@simpludify/core`と`@simpludify/web`に�
 - ES2022、ResizeObserverに対応したモダンブラウザ。自動動作検証の対象はChromium/WebGLです。他ブラウザの互換性は未確認です。
 - Viteなど、ESMとCSS importを扱うブラウザ用バンドラー。
 
-| パッケージ | 内容 |
-| --- | --- |
+| パッケージ         | 内容                                                                                                                                                                 |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `@simpludify/core` | Scene・Actor・Component、Grid・Geometry・Tilemap、Collision、Tween・Animation、Event・Timer、Camera、Canvas UIのモデル。DOM・PixiJSへの依存なし。Node.jsでも利用可能 |
-| `@simpludify/web` | Game、PixiJS描画、ブラウザ入力、Canvas UI・DOM UIの表示。Core APIを再export。CoreとPixiJSは依存として自動導入 |
+| `@simpludify/web`  | Game、PixiJS描画、ブラウザ入力、Canvas UI・DOM UIの表示。Core APIを再export。CoreとPixiJSは依存として自動導入                                                        |
 
 ブラウザゲームではWebだけをインストールすれば使えます。CommonJS、Node/SSR上でのWeb起動、Electron/Tauriの配布ツール、エディター、画像素材、リポジトリ専用CLIは含みません。
 
@@ -69,8 +69,15 @@ npm install --save-dev vite@8.3.5 typescript@7.0.2
 
 ```ts
 import {
-  Action, ActionController, CanvasButton, CanvasColumn, CanvasLabel,
-  Character, defineActions, Game, KeyboardBindings,
+  Action,
+  ActionController,
+  CanvasButton,
+  CanvasColumn,
+  CanvasLabel,
+  Character,
+  defineActions,
+  Game,
+  KeyboardBindings,
 } from "@simpludify/web";
 
 const game = new Game({
@@ -83,11 +90,16 @@ const controls = new ActionController(actions, {
   bindings: { Move: KeyboardBindings.WASD },
 });
 game.add(Character({ movement: controls.reader(actions.Move) }));
-game.canvasUI(CanvasColumn([
-  CanvasLabel("My first game"),
-  CanvasButton("Pause", () => game.pause()),
-  CanvasButton("Resume", () => game.resume()),
-], { padding: 16, gap: 12 }));
+game.canvasUI(
+  CanvasColumn(
+    [
+      CanvasLabel("My first game"),
+      CanvasButton("Pause", () => game.pause()),
+      CanvasButton("Resume", () => game.resume()),
+    ],
+    { padding: 16, gap: 12 },
+  ),
+);
 await game.run();
 
 // ページからゲームを取り除く際は game.dispose() を呼びます。

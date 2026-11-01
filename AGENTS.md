@@ -33,7 +33,7 @@ Unit fixtures cover movement/input/determinism, generic Actors/Components/depend
 - Explain actual tested support and deferred features precisely. Do not claim packaging, benchmarks or browser compatibility from unrun paths.
 - Public docs, code comments and commit messages must make sense without private planning conversations. Match existing language/style and avoid unnecessary unrelated edits.
 
-The project and internal packages are private workspaces for now. Do not publish npm packages or create releases as part of routine implementation work.
+The root workspace is private; Core/Web are experimental publishable SDKs. Run `npm run test:packages` for distribution changes, including real external tarball consumers. `npm run pack:packages` rebuilds both packages before packing. Do not publish npm packages or create releases as part of routine implementation work; obtain explicit release authorization and final publication approval. See `docs/npm-publishing.md` for OIDC/bootstrap constraints.
 
 ## Official documentation site
 

@@ -1,6 +1,6 @@
 # Architecture
 
-Simpludify separates a synchronous, DOM-free simulation from a browser host that owns asynchronous readiness, rendering, input events and DOM UI. The private source workspaces are `@simpludify/core` and `@simpludify/web`. No Electron, AI service or generic ECS scheduler is part of the Core.
+Simpludify separates a synchronous, DOM-free simulation from a browser host that owns asynchronous readiness, rendering, input events and DOM UI. The experimental SDK workspaces are `@simpludify/core` and `@simpludify/web`. No Electron, AI service or generic ECS scheduler is part of the Core.
 
 ## Responsibilities and boundaries
 

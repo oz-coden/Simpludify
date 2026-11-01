@@ -7,7 +7,7 @@ on:
         required: true
         default: v0.1.0
       confirmation:
-        description: 'Type: publish @simpludify/core@0.1.0 and @simpludify/web@0.1.0'
+        description: "Type: publish @simpludify/core@0.1.0 and @simpludify/web@0.1.0"
         required: true
 permissions:
   contents: read
@@ -36,6 +36,7 @@ jobs:
           test "$CONFIRMATION" = 'publish @simpludify/core@0.1.0 and @simpludify/web@0.1.0'
           sha=$(git rev-parse 'refs/tags/v0.1.0^{commit}')
           git merge-base --is-ancestor "$sha" origin/main
+          test "$sha" = "$GITHUB_SHA"
           SHA="$sha" node --input-type=module <<'JS'
           import {execFileSync} from 'node:child_process';
           const runs = JSON.parse(execFileSync('gh', ['api', `repos/${process.env.GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${process.env.SHA}&event=push&per_page=100`], {encoding:'utf8'})).workflow_runs;
