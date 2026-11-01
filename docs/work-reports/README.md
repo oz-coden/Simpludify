@@ -15,3 +15,5 @@ Implementation checkpoints and final verification records live here so repositor
 | 2026-10-30 | [Core modules and host-independent Canvas UI](2026-10-30-core-host-ui.md) | Complete: merged ba1345e; main CI 570 unit / 238 browser tests and Pages deployment passed                                             |
 
 Before long-running verification or integration, commit implementation and update the corresponding report, then push the branch. Final reports must include check counts, CI links, commits and integration SHA; never mark an unexecuted check successful.
+
+- [2026-11-02 npm SDK documentation review](2026-11-02-sdk-docs-review.md)

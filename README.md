@@ -2,19 +2,19 @@
 
 [公式ドキュメント・サンプル](https://oz-coden.github.io/Simpludify/) · [日本語ガイドのソース](site/ja/index.md) · [English API](docs/api.md)
 
-コード主導・軽量・AIネイティブな、TypeScript製の実験的2Dコンテンツエンジンです。ゲームやインタラクティブコンテンツを、理解しやすい標準APIで構築します。理解しやすく、一貫性があり、保守しやすいAPIを優先します。Experimental v0.1.0のnpm SDKを準備中です。レジストリ公開は未確認ですが、配布アーカイブから独立プロジェクトへ導入できます。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できるサンプルを公式サイトにまとめています。
+コード主導・軽量・AIネイティブな、TypeScript製の実験的2Dコンテンツエンジンです。ゲームやインタラクティブコンテンツを、理解しやすい標準APIで構築します。理解しやすく、一貫性があり、保守しやすいAPIを優先します。Experimental v0.1.1のnpm SDKを公開済みです。独立プロジェクトからnpmで導入できます。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できるサンプルを公式サイトにまとめています。
 
 A code-first TypeScript 2D game engine. Create a visible character, responsive UI, and scene navigation using ordinary code and browser tooling.
 
 [Core / Hostの責務と移植性](docs/host-boundary.md) · [作業報告・検証結果](docs/work-reports/README.md)
 
-**Status: experimental Web engine with a composition-based Core.** The API can change before a stable release. Electron/Tauri/Android packaging is pending. No npm package or release is published.
+**Status: experimental Web engine with a composition-based Core.** The API can change before a stable release. Electron/Tauri/Android packaging is pending. The Core and Web SDK packages are published on npm as v0.1.1.
 
-## Experimental npm SDK v0.1.0
+## Experimental npm SDK v0.1.1
 
-`@simpludify/core@0.1.0` contains host-independent simulation and geometry; `@simpludify/web@0.1.0` adds browser rendering/input/UI and installs Core/PixiJS as dependencies. Both ship compiled ESM and TypeScript declarations. APIs may change between 0.x releases.
+`@simpludify/core@0.1.1` contains host-independent simulation and geometry; `@simpludify/web@0.1.1` adds browser rendering/input/UI and installs Core/PixiJS as dependencies. Both ship compiled ESM and TypeScript declarations. APIs may change between 0.x releases.
 
-**Registry status: not yet published.** After publication is confirmed, browser projects can install with `npm install @simpludify/web@0.1.0`. The [complete npm/Vite guide](site/ja/npm.md) includes project setup, runnable game code, automatic/explicit CSS, production builds and known limits. Before publication, use both verified tarballs from `npm run pack:packages`; no engine source copy is needed. [Publishing and OIDC procedures](docs/npm-publishing.md) describe the initial-publication authentication constraint and the manual release workflow.
+**Registry status: published.** Browser projects can install with `npm install @simpludify/web@0.1.1`. The [complete npm/Vite guide](site/ja/npm.md) includes project setup, runnable game code, automatic/explicit CSS, production builds and known limits. For independent projects, use the published registry packages rather than copying engine source. [実際のゲーム開発で確認したSDK利用パターン](docs/sdk-consumer-patterns.md)に、HUDとViewport、Canvas/DOMのフォーカス、Tween、ライセンスの注意点をまとめています。 [Publishing and OIDC procedures](docs/npm-publishing.md) describe the initial-publication authentication constraint and the manual release workflow.
 
 ## Quick start
 
