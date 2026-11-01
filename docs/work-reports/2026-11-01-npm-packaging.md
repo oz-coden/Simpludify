@@ -34,3 +34,7 @@ Initial publication cannot be assumed to work through an unconfigured OIDC ident
 ## Resume
 
 Read this report and inspect the branch head. Implement SDK builds and package metadata, then external tarball verification, manual OIDC workflow, guides and full regression checks. Save a remote checkpoint before long checks. Do not publish or mark npm installation as available until public registry verification succeeds.
+
+## Core checkpoint
+
+Core now has public compiled ESM/type exports, MIT metadata, a restricted file list and a standalone library build. `node scripts/build-packages.mjs core` and Node import/step/dispose passed (273.81 kB unminified JS, 69.17 kB gzip, embedded-source map). The pinned TypeScript 7 CLI provides no legacy compiler API; declaration path normalization therefore validates emitted static relative specifiers against actual .d.ts files. Packed external and NodeNext type checks remain pending. Root workspace resolution will be adjusted before full checks.
