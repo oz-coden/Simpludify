@@ -1,5 +1,8 @@
 # Experimental npm SDK publishing
 
+> **Current status (2026-11-02):** Both `@simpludify/core@0.1.0` / `@simpludify/web@0.1.0` and `@simpludify/core@0.1.1` / `@simpludify/web@0.1.1` have been published. Version 0.1.1 was published using GitHub Actions Trusted Publishing (OIDC). The initial-bootstrap and unpublished-state steps below document the *historical v0.1.0 preparation process* and must not be followed as if these packages were still unpublished. For a new release, review the current workflow's version guards and the target version before dispatching.
+
+
 Targets: `@simpludify/core@0.1.0` and `@simpludify/web@0.1.0`, public npm registry, MIT, ESM only. The npm release is **not yet published**. Source and documentation must not imply registry availability until the clean public-registry installation test succeeds. No v0.1.0 tag or GitHub Release has been created by this preparation work.
 
 ## Build and verify without publishing
