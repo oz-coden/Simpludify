@@ -73,3 +73,11 @@ Next: save this checkpoint, run benchmark alone, complete checks/unit/regression
 All source is checkpointed before complete browser/build/site verification. Main integration is still pending.
 
 Boundary validation caught a type-only graphics→game dependency from the new geometry helper. Moved the existing structural TilePoint type into graphics/coordinates and reexported it from game/tilemap, preserving its public name/shape and all runtime Tilemap behavior. The boundary validator was not relaxed. Production geometry acceptance passed locally for both viewport sizes, including exact pink cell pixels and Narrow touch input.
+
+### Full CI candidate
+
+Local final-source `check` passed (strict workspace/Core types, unchanged boundary rules, Biome, architecture validation, license allowlist). Full unit suite again passed **805/805**. Existing default production build/smoke passed at both viewport sizes. Full browser regression and integrated site smoke are running; no failure is currently waived. `/Simpludify/` geometry production acceptance already passed both sizes with exact painted RGB pixels and Narrow touchscreen delivery.
+
+All-visible 4,096-cell results illustrate the limit: WebGL static draw medians about 0.1ms, one-cell-edit draw about 1.4–2.8ms; Canvas2D static about 7.5–9.1ms and edited about 7.7–8.9ms on the measured software environment. One-cell reconciliation remains one cell, but downstream Pixi/draw work is not guaranteed constant-time. Fixed-view picking batches of 1,000 were about 0.1ms square, 0.8–1.0ms triangle, 1.5–1.7ms pointy hex and 2.2ms flat hex in the first fixed-view sweep. These are environment-specific observations, not FPS/GPU/native/mobile promises. Final paired square-regression measurements and exact CI links will follow.
+
+The previous pushed checkpoint is `2d87941761bb14b80429911b4e2d95bdb51fc2d5`. This candidate triggers the existing complete CI plus new production geometry checks; no main integration yet.
