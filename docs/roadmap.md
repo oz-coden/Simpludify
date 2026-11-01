@@ -33,7 +33,7 @@ Simpludify has an experimental Web runtime and a generic composition-based Core.
 
 ## Pending and limits
 
-Windows/Electron packaging and Windows executable smoke tests are pending. There is no portable executable guarantee or cross-language SDK. Public npm publication, compiled SDK packages and automated vendored-engine upgrades are deferred.
+Windows/Electron packaging and Windows executable smoke tests are pending. There is no portable executable guarantee or cross-language SDK. Compiled ESM/type SDK packages and external tarball validation are implemented; public npm publication and automated vendored-engine upgrades remain pending. See [npm distribution and publishing](npm-publishing.md).
 
 No impulse/angular rigid-body simulation or continuous collision detection, multiple cameras/viewports, infinite maps, audio, save-game format, networking, generic ECS, asset manifest/font manager or visual editor is implemented. Actors/components are destroyed on removal; reusable pooling and scene reactivation are not implicit features. Dynamic images load asynchronously and can fail independently of logical Actors.
 

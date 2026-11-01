@@ -1,0 +1,116 @@
+name: Publish experimental npm SDK
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing validated main tag (v0.1.0)
+        required: true
+        default: v0.1.0
+      confirmation:
+        description: "Type: publish @simpludify/core@0.1.0 and @simpludify/web@0.1.0"
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: npm-publish-v0.1.0
+  cancel-in-progress: false
+jobs:
+  validate:
+    permissions:
+      contents: read
+      actions: read
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      sha: ${{ steps.revision.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Validate approval, tag and source revision
+        id: revision
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+          CONFIRMATION: ${{ inputs.confirmation }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test "$RELEASE_TAG" = v0.1.0
+          test "$CONFIRMATION" = 'publish @simpludify/core@0.1.0 and @simpludify/web@0.1.0'
+          sha=$(git rev-parse 'refs/tags/v0.1.0^{commit}')
+          git merge-base --is-ancestor "$sha" origin/main
+          test "$sha" = "$GITHUB_SHA"
+          SHA="$sha" node --input-type=module <<'JS'
+          import {execFileSync} from 'node:child_process';
+          const runs = JSON.parse(execFileSync('gh', ['api', `repos/${process.env.GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${process.env.SHA}&event=push&per_page=100`], {encoding:'utf8'})).workflow_runs;
+          if (!runs.some(run => run.head_branch === 'main' && run.status === 'completed' && run.conclusion === 'success')) throw new Error('Tag must have a successful main push CI run');
+          JS
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ steps.revision.outputs.sha }}
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+      - run: npx playwright install --with-deps chromium --only-shell
+      - run: npm run test:packages
+      - name: Record exact archives
+        run: |
+          npm pack ./packages/core --ignore-scripts --json --pack-destination test-results/packages > test-results/packages/core-pack.json
+          npm pack ./packages/web --ignore-scripts --json --pack-destination test-results/packages > test-results/packages/web-pack.json
+          cd test-results/packages
+          sha256sum *.tgz > SHA256SUMS
+      - run: node scripts/publish-packages.mjs
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: npm-sdk-validation
+          path: test-results/packages/
+  publish:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ needs.validate.outputs.sha }}
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Check OIDC-compatible tooling
+        run: |
+          node --input-type=module <<'JS'
+          import {execFileSync} from 'node:child_process';
+          const version = execFileSync('npm', ['--version'], {encoding:'utf8'}).trim().split('.').map(Number);
+          if (version[0] < 11 || version[0] === 11 && (version[1] < 5 || version[1] === 5 && version[2] < 1)) throw new Error('npm >=11.5.1 required');
+          console.log(process.version, version.join('.'));
+          JS
+      - uses: actions/download-artifact@v7.0.0
+        with:
+          name: npm-sdk-validation
+          path: test-results/packages
+      - name: Publish exact validated archives, Core first
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          cd test-results/packages
+          sha256sum --check SHA256SUMS
+          cd ../..
+          node scripts/publish-packages.mjs --publish
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium --only-shell
+      - name: Verify public registry clean installation
+        run: npm run test:packages:registry
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: npm-sdk-publication
+          path: test-results/packages/

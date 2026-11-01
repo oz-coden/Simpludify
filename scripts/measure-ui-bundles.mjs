@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { gzipSync } from "node:zlib";
-import { build } from "vite";
+import { build } from "./workspace-vite.mjs";
 
 const git = (...a) => execFileSync("git", a, { encoding: "utf8" }).trim();
 assert.equal(

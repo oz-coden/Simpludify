@@ -63,10 +63,17 @@ for (const folder of ["core", "web"]) {
   const pkg = JSON.parse(
     readFileSync(`packages/${folder}/package.json`, "utf8"),
   );
-  for (const entry of typeof pkg.exports === "string"
-    ? [pkg.exports]
-    : Object.values(pkg.exports)) {
-    if (!existsSync(join("packages", folder, entry)))
+  function leaves(value) {
+    return typeof value === "string"
+      ? [value]
+      : Object.values(value).flatMap(leaves);
+  }
+  for (const entry of leaves(pkg.exports)) {
+    // Distribution existence is verified separately after build:packages.
+    if (
+      !entry.startsWith("./dist/") &&
+      !existsSync(join("packages", folder, entry))
+    )
       throw new Error(`EXPORT_MISSING: ${folder}: ${entry}`);
   }
   if (

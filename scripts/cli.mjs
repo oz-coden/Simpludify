@@ -122,7 +122,7 @@ try {
       );
     if (command === "dev" && json)
       fail("INVALID_ARGUMENT", "--json is reserved for finite commands", 2);
-    const { createServer, build } = await import("vite");
+    const { createServer, build } = await import("./workspace-vite.mjs");
     const config = {
       configFile: false,
       root: join(root, "examples", example),

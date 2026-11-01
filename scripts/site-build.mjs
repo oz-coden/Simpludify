@@ -10,8 +10,8 @@ import {
 } from "node:fs";
 import { dirname, posix, resolve } from "node:path";
 import MarkdownIt from "markdown-it";
-import { build } from "vite";
 import { examples, pages, repository } from "../site/config.mjs";
+import { build } from "./workspace-vite.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 process.chdir(root);

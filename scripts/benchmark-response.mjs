@@ -4,7 +4,7 @@ import { writeFileSync } from "node:fs";
 import { cpus, platform } from "node:os";
 import { resolve } from "node:path";
 import { chromium } from "@playwright/test";
-import { createServer, preview } from "vite";
+import { createServer, preview } from "./workspace-vite.mjs";
 
 const args = process.argv.slice(2);
 function option(name, fallback) {

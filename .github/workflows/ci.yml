@@ -121,9 +121,27 @@ jobs:
         if: github.ref == 'refs/heads/main' && github.event_name == 'push' && matrix.artifact == 'project'
         with:
           path: site-dist
+  packages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium --only-shell
+      - run: npm run test:packages
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: npm-sdk-validation
+          path: test-results/packages/
+          if-no-files-found: ignore
   deploy:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: [quality, browser, production, site-bases]
+    needs: [quality, browser, production, site-bases, packages]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

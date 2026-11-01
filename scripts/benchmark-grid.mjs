@@ -5,7 +5,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { cpus } from "node:os";
 import { dirname } from "node:path";
 import { performance } from "node:perf_hooks";
-import { createServer } from "vite";
+import { createServer } from "./workspace-vite.mjs";
 
 if (!global.gc) throw new Error("Run with node --expose-gc");
 const server = await createServer({

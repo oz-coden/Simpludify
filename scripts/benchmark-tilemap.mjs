@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { chromium } from "@playwright/test";
-import { createServer } from "vite";
+import { createServer } from "./workspace-vite.mjs";
 
 const root = process.cwd();
 const output = resolve(process.argv[2] ?? "benchmarks/tilemap/results.json");

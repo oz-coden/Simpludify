@@ -12,7 +12,11 @@
     "skipLibCheck": true,
     "noEmit": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {
+      "@simpludify/core": ["./packages/core/src/index.ts"],
+      "@simpludify/web": ["./packages/web/src/index.ts"]
+    }
   },
   "include": ["packages/**/*.ts", "examples/**/*.ts", "tests/**/*.ts", "*.ts"]
 }

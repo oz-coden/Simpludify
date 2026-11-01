@@ -1,6 +1,6 @@
 import { writeFileSync } from "node:fs";
 import { arch, cpus, platform, release } from "node:os";
-import { createServer } from "vite";
+import { createServer } from "./workspace-vite.mjs";
 
 const server = await createServer({
   configFile: false,

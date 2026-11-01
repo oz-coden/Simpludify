@@ -37,7 +37,11 @@
     "bench:renderable": "node scripts/benchmark-renderable.mjs",
     "bench:images": "node scripts/benchmark-images.mjs",
     "bench:grid": "node --expose-gc scripts/benchmark-grid.mjs",
-    "bench:tween": "node scripts/benchmark-tweens.mjs"
+    "bench:tween": "node scripts/benchmark-tweens.mjs",
+    "build:packages": "node scripts/build-packages.mjs",
+    "test:packages": "node scripts/test-packages.mjs",
+    "test:packages:registry": "node scripts/test-packages.mjs --registry",
+    "pack:packages": "node scripts/pack-packages.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.3",

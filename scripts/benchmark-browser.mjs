@@ -2,7 +2,7 @@ import { writeFileSync } from "node:fs";
 import { cpus, platform } from "node:os";
 import { resolve } from "node:path";
 import { chromium } from "@playwright/test";
-import { createServer } from "vite";
+import { createServer } from "./workspace-vite.mjs";
 
 const root = process.cwd();
 const server = await createServer({
