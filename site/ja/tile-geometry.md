@@ -5,27 +5,42 @@
 ## 作成と更新
 
 ```ts verify
-import { Game, GeometryTilemap, Grid, HexOrientation, PointerClick, TileGeometry } from "@simpludify/web";
+import {
+  Game,
+  GeometryTilemap,
+  Grid,
+  HexOrientation,
+  PointerClick,
+  TileGeometry,
+} from "@simpludify/web";
 const game = new Game();
 const ground = new GeometryTilemap({
-  geometry: TileGeometry.hex({ radius: 24, orientation: HexOrientation.Pointy }),
-  tiles: Grid.generate(12, 10, (q, r) => (q + r) % 2 ? 0x397c87 : 0x305c70),
-  x: 80, y: 90,
+  geometry: TileGeometry.hex({
+    radius: 24,
+    orientation: HexOrientation.Pointy,
+  }),
+  tiles: Grid.generate(12, 10, (q, r) => ((q + r) % 2 ? 0x397c87 : 0x305c70)),
+  x: 80,
+  y: 90,
 }).place(game.engine.scene);
-game.pointer.events.on(PointerClick, info => {
-  const tile = ground.screenToTile(game.view, info.screen);
-  if (tile) ground.set(tile.x, tile.y, 0xea739e);
-}, game.engine.scene);
+game.pointer.events.on(
+  PointerClick,
+  (info) => {
+    const tile = ground.screenToTile(game.view, info.screen);
+    if (tile) ground.set(tile.x, tile.y, 0xea739e);
+  },
+  game.engine.scene,
+);
 await game.run();
 ```
 
 セルはRGB整数、非表示セルは`null`です。0は黒色として扱います。Grid・行配列はコピーされ、`get/set/fill/copyTiles`で操作します。セル変更は描画へ自動反映され、静止した画面で変更がなければセルの再構築はありません。画像の多角形切り抜き・SpriteSheetのUV対応は今回の単色レイヤーにはありません。
 
-| 形状 | 指定 | 座標 |
-| --- | --- | --- |
-| 四角形 | `TileGeometry.square({width: 40, height: 32})` | 列・行。height省略時はwidth |
-| 三角形 | `TileGeometry.triangle({width: 48})` | 列・行。列+行が偶数なら上向き、奇数なら下向き。横間隔は幅の半分 |
-| 六角形 | `TileGeometry.hex({radius: 24, orientation: HexOrientation.Flat})` | Axialのq/rをx/yとして指定。PointyとFlatに対応 |
+| 形状   | 指定                                                               | 座標                                                            |
+| ------ | ------------------------------------------------------------------ | --------------------------------------------------------------- |
+| 四角形 | `TileGeometry.square({width: 40, height: 32})`                     | 列・行。height省略時はwidth                                     |
+| 三角形 | `TileGeometry.triangle({width: 48})`                               | 列・行。列+行が偶数なら上向き、奇数なら下向き。横間隔は幅の半分 |
+| 六角形 | `TileGeometry.hex({radius: 24, orientation: HexOrientation.Flat})` | Axialのq/rをx/yとして指定。PointyとFlatに対応                   |
 
 三角形のheight省略時は正三角形です。六角形のradiusは中心から頂点までの距離です。六角形(0,0)の中心が配置原点となり、有限マップはq/rの平行四辺形です。見た目が横長の長方形になるとは限りません。
 

@@ -51,6 +51,7 @@ export class GeometryTilemap {
   private readonly owner: Actor;
   readonly geometry: TileGeometry;
   private readonly cells: Grid<TileColor>;
+  private readonly extent: TileBounds;
   private readonly listeners = new Set<(index: number | null) => void>();
   private version = 0;
   private left = 0;
@@ -83,6 +84,14 @@ export class GeometryTilemap {
         color(input[y]?.[x] as TileColor),
       );
     }
+    const first = this.geometry.bounds(0, 0),
+      last = this.geometry.bounds(this.width - 1, this.height - 1);
+    this.extent = {
+      x: first.x,
+      y: first.y,
+      width: finite(last.x + last.width - first.x),
+      height: finite(last.y + last.height - first.y),
+    };
     this.x = options.x ?? 0;
     this.y = options.y ?? 0;
     this.zIndex = options.zIndex ?? 0;
@@ -133,7 +142,8 @@ export class GeometryTilemap {
   set x(value: number) {
     this.alive();
     finite(value);
-    const b = this.geometry.bounds(this.width - 1, this.height - 1);
+    const b = this.extent;
+    finite(value + b.x);
     finite(value + b.x + b.width);
     this.left = value;
   }
@@ -143,7 +153,8 @@ export class GeometryTilemap {
   set y(value: number) {
     this.alive();
     finite(value);
-    const b = this.geometry.bounds(this.width - 1, this.height - 1);
+    const b = this.extent;
+    finite(value + b.y);
     finite(value + b.y + b.height);
     this.top = value;
   }
@@ -218,6 +229,13 @@ export class GeometryTilemap {
   }
   /** Hidden/null cells are still selectable. Infinite-tiling ties resolve before map clipping. */
   worldToTile(x: number, y: number): TilePoint | undefined {
+    finite(x);
+    finite(y);
+    const b = this.extent,
+      lx = x - this.x,
+      ly = y - this.y;
+    if (lx < b.x || ly < b.y || lx > b.x + b.width || ly > b.y + b.height)
+      return undefined;
     const t = this.geometry.worldToTile(finite(x) - this.x, finite(y) - this.y);
     return this.inBounds(t.x, t.y) ? t : undefined;
   }

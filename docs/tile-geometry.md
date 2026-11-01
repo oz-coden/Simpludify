@@ -9,7 +9,7 @@ import { Game, GeometryTilemap, Grid, TileGeometry } from "@simpludify/web";
 const game = new Game();
 const map = new GeometryTilemap({
   geometry: TileGeometry.hex({ radius: 24 }),
-  tiles: Grid.generate(12, 10, (q, r) => (q + r) % 2 ? 0x397c87 : 0x305c70),
+  tiles: Grid.generate(12, 10, (q, r) => ((q + r) % 2 ? 0x397c87 : 0x305c70)),
   x: 80,
   y: 90,
 }).place(game.engine.scene);
@@ -26,11 +26,11 @@ A cell is a 24-bit RGB integer (including zero/black), or `null` for no drawing.
 
 ## Coordinates and polygon shape
 
-| Geometry factory | Indices / origin | Shape / size |
-| --- | --- | --- |
-| `TileGeometry.square({width,height?})` | column/row; (0,0) bounding origin (0,0) | half-open rectangular cells; height defaults to width |
-| `TileGeometry.triangle({width,height?})` | column/row; horizontal stride width/2, vertical stride height | even column+row points up; odd points down; height defaults to width×√3/2 |
-| `TileGeometry.hex({radius,orientation?})` | axial q/r as x/y; (0,0) center (0,0) | regular hexagon; radius is center-to-vertex; default Pointy |
+| Geometry factory                          | Indices / origin                                              | Shape / size                                                              |
+| ----------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `TileGeometry.square({width,height?})`    | column/row; (0,0) bounding origin (0,0)                       | half-open rectangular cells; height defaults to width                     |
+| `TileGeometry.triangle({width,height?})`  | column/row; horizontal stride width/2, vertical stride height | even column+row points up; odd points down; height defaults to width×√3/2 |
+| `TileGeometry.hex({radius,orientation?})` | axial q/r as x/y; (0,0) center (0,0)                          | regular hexagon; radius is center-to-vertex; default Pointy               |
 
 `HexOrientation.Pointy` has horizontal center spacing √3×radius and row contribution half that spacing; vertical row spacing is 1.5×radius. `HexOrientation.Flat` has horizontal q spacing 1.5×radius, vertical r spacing √3×radius, and q contributes half the vertical spacing. Both share axial neighbor/distance logic. Finite hex storage is a q/r parallelogram, not a staggered rectangular screen region. The (0,0) hex extends left/up of its placement origin; use `tileBounds` when positioning the whole map. Raw geometry supports signed safe-integer indices; finite maps use 0≤x<width and 0≤y<height.
 
@@ -43,17 +43,27 @@ A cell is a 24-bit RGB integer (including zero/black), or `null` for no drawing.
 Finite `map.worldToTile` resolves infinite ownership **before** bounds clipping; it returns undefined when that owner is outside storage. Consequently a finite outer edge can belong to the absent neighbor even when the remaining tile touches it. This keeps picking independent of map size and avoids edges changing ownership after adding data. Nonfinite world inputs throw. Noninteger/out-of-map indexed operations throw GRID_BOUNDS.
 
 ```ts verify
-import { Game, GeometryTilemap, PointerClick, TileGeometry } from "@simpludify/web";
+import {
+  Game,
+  GeometryTilemap,
+  PointerClick,
+  TileGeometry,
+} from "@simpludify/web";
 const game = new Game();
 const map = new GeometryTilemap({
   geometry: TileGeometry.triangle({ width: 48 }),
   tiles: [[0x305c70, 0x397c87, 0x305c70]],
-  x: 100, y: 100,
+  x: 100,
+  y: 100,
 }).place(game.engine.scene);
-game.pointer.events.on(PointerClick, info => {
-  const tile = map.screenToTile(game.view, info.screen);
-  if (tile) map.set(tile.x, tile.y, 0xea739e);
-}, game.engine.scene);
+game.pointer.events.on(
+  PointerClick,
+  (info) => {
+    const tile = map.screenToTile(game.view, info.screen);
+    if (tile) map.set(tile.x, tile.y, 0xea739e);
+  },
+  game.engine.scene,
+);
 await game.run();
 ```
 
@@ -81,10 +91,15 @@ Only visible bounding candidates retain Graphics. Unchanged views with no edits 
 import { Actor, Renderable, Shape, Transform } from "@simpludify/core";
 const actor = new Actor();
 actor.add(new Transform({ x: 100, y: 100, rotation: Math.PI / 6 }));
-const view = actor.add(new Renderable({
-  source: { kind: "shape", shape: Shape.Hexagon },
-  width: 60, height: 70, color: 0xea739e, opacity: 0.8,
-}));
+const view = actor.add(
+  new Renderable({
+    source: { kind: "shape", shape: Shape.Hexagon },
+    width: 60,
+    height: 70,
+    color: 0xea739e,
+    opacity: 0.8,
+  }),
+);
 view.source = { kind: "shape", shape: Shape.Triangle };
 view.source = { kind: "shape", shape: Shape.Hexagon };
 ```

@@ -1,6 +1,5 @@
 import { EngineError, positive } from "../foundation/diagnostics";
-import type { TilePoint } from "../game/tilemap";
-import type { Point } from "./coordinates";
+import type { Point, TilePoint } from "./coordinates";
 
 export interface TileBounds extends Point {
   readonly width: number;
@@ -32,11 +31,10 @@ function rect(b: TileBounds): void {
       "Tile query extents must be nonnegative",
     );
 }
-const tile = (x: number, y: number): TilePoint => ({
-  space: "tile",
-  x: x || 0,
-  y: y || 0,
-});
+const tile = (x: number, y: number): TilePoint => {
+  integer(x, y);
+  return { space: "tile", x: x || 0, y: y || 0 };
+};
 const directions = [
   [1, 0],
   [1, -1],

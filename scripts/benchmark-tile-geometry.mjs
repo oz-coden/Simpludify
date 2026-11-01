@@ -84,7 +84,7 @@ try {
         worldResolution: { width: 400, height: 300 },
         warmupFrames: 12,
         samples: 40,
-        note: "One foreground page, no concurrent tests/builds. CPU wall times include Pixi render submission, not GPU completion; software SwiftShader. Creation includes Grid allocation/copy. Map-size sweep with a fixed viewport, not all-visible throughput. Selection batch=1000. Raw samples retained.",
+        note: "One foreground page, no concurrent tests/builds. CPU wall times include Pixi render submission, not GPU completion; software SwiftShader. Creation includes Grid allocation/copy. Fixed-view map-size sweep plus all-visible 16/32/64 maps. Selection batch=1000; range batch=100. Raw samples retained.",
         runs,
       },
       null,

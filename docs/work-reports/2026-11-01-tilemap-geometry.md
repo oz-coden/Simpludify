@@ -59,3 +59,17 @@ Browser validation on local Chromium 153 (isolated temporary `@sparticuz/chromiu
 Initial fixture failures: Canvas UI was configured after run (unsupported), and the sample Canvas root background filled the entire viewport. Fixed fixture setup through a Scene factory and bounded the sample label to a noninteractive 320×36 panel. A flat-hex click target was outside the zoomed viewport; changed the test to an in-viewport tile while keeping real pointer delivery and exact coordinate assertions. Additional Hexagon contour/transform/live-property assertions and repeatable CPU/render/picking measurements are being finalized.
 
 Next: save this checkpoint, run benchmark alone, complete checks/unit/regression browser/build/site and full CI, review changes, then merge and verify Pages. No integration has occurred.
+
+### Pre-integration validation checkpoint
+
+- Full local unit suite: **805 passed / 60 files** (includes square Collision/index tests).
+- `/Simpludify/` site build and site:check passed: **68 HTML documents, 4,537 references, 64 standalone snippets**.
+- Geometry browser tests: 8 passed; expanded Hexagon contour/live transform assertions and true touchscreen input on Narrow are included in the next complete browser run.
+- First full `check` found only new Markdown snippet/table and benchmark JSON formatting errors; formatting was corrected without changing assertions. Recheck is in progress.
+- Performance harness now covers fixed-view maps 32²/100²/256² and all-visible 16²/32²/64² on both renderers, 12 warmups, 40 timed samples, raw data in `benchmarks/tile-geometry/results.json`. Isolated measurement confirmed exactly 40 cell visits for 40 edits, regardless of total/visible cells; static frames add none. CPU timings include draw submission, not GPU completion. Zero medians can reflect 0.1ms timer quantization, not free work. A paired square-image baseline/current harness is also committed for regression measurement.
+- Review added a cached finite-map extent gate: extremely distant finite world points safely return undefined before infinite-coordinate arithmetic. Placement validates both ends of its extent; no new physics changes.
+- New production/live acceptance script verifies both guides, actual selected-cell pixels, color/null changes, Camera conversion, narrow touchscreen input and Scene/Game disposal. CI will execute it for both site bases and after Pages deploy.
+
+All source is checkpointed before complete browser/build/site verification. Main integration is still pending.
+
+Boundary validation caught a type-only graphics→game dependency from the new geometry helper. Moved the existing structural TilePoint type into graphics/coordinates and reexported it from game/tilemap, preserving its public name/shape and all runtime Tilemap behavior. The boundary validator was not relaxed. Production geometry acceptance passed locally for both viewport sizes, including exact pink cell pixels and Narrow touch input.

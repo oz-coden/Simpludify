@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test";
 const fixtureURL = `/@fs/${process.cwd()}/tests/browser/tile-geometry-fixture.ts`;
 for (const fallback of [false, true])
   test.describe(`geometry ${fallback ? "Canvas2D" : "WebGL"}`, () => {
+    test.use({ hasTouch: true });
     test.beforeEach(async ({ page }) => {
       if (fallback)
         await page.addInitScript(() => {
@@ -111,7 +112,9 @@ for (const fallback of [false, true])
             b = game.element.getBoundingClientRect();
           return { x: b.x + p.x, y: b.y + p.y, before: terrain.get(4, 4) };
         });
-        await page.mouse.click(target.x, target.y);
+        if (test.info().project.name === "narrow")
+          await page.touchscreen.tap(target.x, target.y);
+        else await page.mouse.click(target.x, target.y);
         await expect(page.locator("#selection")).toContainText("(4, 4)");
         expect(
           await page.evaluate(() => window.geometryDemo.terrain.get(4, 4)),

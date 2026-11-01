@@ -73,6 +73,7 @@ for (const geometry of geometries) {
       expect(m.screenToTile(view, screenPoint(-10, -10))).toBeUndefined();
     }
     expect(m.worldToTile(-10000, -10000)).toBeUndefined();
+    expect(m.worldToTile(1e300, -1e300)).toBeUndefined();
     expect(m.neighbors(0, 0).every((t) => m.inBounds(t.x, t.y))).toBe(true);
     const b = m.tileBounds(1, 1),
       v = m.tileVertices(1, 1);
