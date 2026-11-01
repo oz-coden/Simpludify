@@ -133,6 +133,7 @@ for (const fallback of [false, true])
           Shape.Circle,
           Shape.Character,
           Shape.Triangle,
+          Shape.Hexagon,
         ];
         for (const [i, shape] of shapeKinds.entries()) {
           const actor = game.add(new Actor());
@@ -211,7 +212,7 @@ for (const fallback of [false, true])
     expect(state.front).toEqual([255, 0, 0]);
     expect(state.resourcesAfterRemove?.visuals).toBe(1);
     expect(state.triangleContextDestroyed).toBe(true);
-    expect(state.existing).toEqual(Array(4).fill([0, 255, 0]));
+    expect(state.existing).toEqual(Array(5).fill([0, 255, 0]));
     expect(state.resized).toEqual(state.existing);
     expect(state.empty?.visuals).toBe(0);
     expect(state.disposed).toEqual({

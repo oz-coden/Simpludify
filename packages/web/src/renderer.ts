@@ -367,6 +367,26 @@ export class PixiRenderer implements RendererPort {
           display
             .circle(0, 0, Math.min(width, height) / 2)
             .fill(component.color);
+        else if (source.shape === Shape.Hexagon)
+          display
+            .poly(
+              [
+                0,
+                -height / 2,
+                width / 2,
+                -height / 4,
+                width / 2,
+                height / 4,
+                0,
+                height / 2,
+                -width / 2,
+                height / 4,
+                -width / 2,
+                -height / 4,
+              ],
+              true,
+            )
+            .fill(component.color);
         else if (source.shape === Shape.Triangle)
           display
             .poly(

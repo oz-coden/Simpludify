@@ -158,7 +158,7 @@ for (const [property, values] of Object.entries({
     "box",
     {},
     { kind: "other" },
-    { kind: "shape", shape: "hexagon" },
+    { kind: "shape", shape: "unsupported-polygon" },
     { kind: "shape", shape: Shape.Box, url: "a.png" },
     { kind: "image", url: "" },
     { kind: "image", url: " " },
