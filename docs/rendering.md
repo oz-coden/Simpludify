@@ -28,7 +28,7 @@ Validated display changes advance read-only `revision`, independently of Scene's
 
 `VisualSource` is a readonly discriminated union:
 
-- `{ kind: "shape", shape: Shape }`: Box, Circle, Character or Triangle. Default: Box.
+- `{ kind: "shape", shape: Shape }`: Box, Circle, Character, Triangle or Hexagon. Default: Box.
 - `{ kind: "image", url: string, fit?: SpriteFit }`: nonempty image URL, default Contain; Stretch fills the requested dimensions.
 
 Sources are copied and frozen. Replace `view.source`, rather than mutating its URL or fit. Omitted and explicit Contain compare equal. Core compares URL strings exactly for revision/no-op behavior. Web resolves them against document.baseURI when acquiring an image and shares equivalent resolved URLs within one Renderer. Separate Renderables retain independent display state and Sprite objects.

@@ -4,7 +4,7 @@
 
 - Starting main: `86f5a28f19f67688f564598353c73650d9e1b18b`.
 - Branch: `feat/tilemap-geometry-2026-11-01`.
-- Status: investigation complete; implementation and validation pending.
+- Status: implementation and all major candidate checks passed; final checkpoint and main/Pages acceptance pending.
 
 ## Existing implementation review
 
@@ -83,3 +83,64 @@ All-visible 4,096-cell results illustrate the limit: WebGL static draw medians a
 The previous pushed checkpoint is `2d87941761bb14b80429911b4e2d95bdb51fc2d5`. This candidate triggers the existing complete CI plus new production geometry checks; no main integration yet.
 
 Integrated gallery smoke initially failed because its generic movement sample branch clicked y=450 outside the new compact canvas. Added a dedicated geometry branch that taps an actual projected cell, asserts exact selection/paint/null changes and WASD camera movement; cleanup inspection now includes geometryDemo. The existing movement assertions for other samples remain unchanged. Candidate CI `https://github.com/oz-coden/Simpludify/actions/runs/41303659994` is superseded by this fix; do not use an older site smoke failure as final acceptance.
+
+### Local build/site completion
+
+- Corrected gallery smoke passed at `/Simpludify/`: all **57 documentation routes / 11 samples**, desktop/narrow, themes, controls, restart/stop and observed Engine/source cleanup.
+- Root `/` build, reference/snippet validation and dedicated geometry production acceptance passed (68 HTML documents, 4,538 references after the rendering-guide link update; 64 verified snippets).
+- A root build run concurrently with other local build/smoke work briefly observed mixed old `/Simpludify/` HTML. Rebuilding root serially removed the stale output and passed; no checker or build assertion was relaxed. CI site bases run in independent jobs.
+- Default production smoke and Signal Run production smoke passed at both sizes; dedicated geometry CLI production build passed.
+- Final-source local `check` remains successful; existing nonblocking warnings/info are unchanged.
+- Full local browser suite is still running without failures. Candidate [CI 41303773376](https://github.com/oz-coden/Simpludify/actions/runs/41303773376) has passed quality, production and both Narrow browser shards; final status pending.
+
+### Candidate CI accepted
+
+[Full candidate CI 41303773376](https://github.com/oz-coden/Simpludify/actions/runs/41303773376), source `11de199358eeb88ef9e7ce7afd20ea4258153d6a`, completed successfully. Quality: **805 unit tests / 60 files**. Browser shards: desktop 89+84, narrow 89+84, total **346 passed**. Production job and both independent site-base jobs passed, including new geometry production acceptance. Branch deploy was correctly skipped; Pages is only deployed after main integration. No failing assertion was weakened or skipped.
+
+The only subsequent source edits are documentation consistency and equivalent template-literal formatting in measurement/live scripts. Final local checks and main CI cover that exact integration tree.
+
+### Final local measurements and integration review
+
+Full local browser suite completed **346/346** in 10.6 minutes, independently of the green CI. Final measurements ran serially after all local tests/builds stopped, on Chromium 153 / software WebGL and Canvas2D, DPR1, 1440×900 viewport, 400×300 logical world. Raw samples and environment metadata are committed in `benchmarks/tile-geometry/`.
+
+Reproduce (with a compatible installed Chromium; CHROMIUM_PATH is optional when Playwright's browser is installed):
+
+```sh
+node scripts/benchmark-tile-geometry.mjs
+git worktree add --detach /tmp/simpludify-square-baseline 86f5a28f19f67688f564598353c73650d9e1b18b
+# Install the same dependencies there, or share node_modules as in the recorded run.
+node scripts/benchmark-square-regression.mjs /tmp/simpludify-square-baseline benchmarks/tile-geometry/square-baseline.json
+node scripts/benchmark-square-regression.mjs . benchmarks/tile-geometry/square-current.json
+```
+
+The square harness explicitly aliases both workspace packages into the selected checkout, so shared node_modules links cannot substitute current engine code for the baseline. Three repeats per condition, five warmups, twenty samples per repeat; dynamic workloads change eight visible cells per draw. Table values are the median of each repeat's p50 CPU milliseconds:
+
+| Backend | Existing image-square workload | Baseline | Current |
+| --- | --- | ---: | ---: |
+| WebGL | 32² / all visible / static | 0.00 | 0.00 |
+| WebGL | 32² / all visible / 8 edits | 0.10 | 0.10 |
+| WebGL | 100² / 475 visible / static | 0.00 | 0.00 |
+| WebGL | 100² / 475 visible / 8 edits | 0.10 | 0.10 |
+| Canvas2D | 32² / all visible / static | 4.15 | 3.80 |
+| Canvas2D | 32² / all visible / 8 edits | 3.90 | 3.70 |
+| Canvas2D | 100² / 475 visible / static | 1.80 | 1.80 |
+| Canvas2D | 100² / 475 visible / 8 edits | 1.80 | 1.70 |
+
+No material square-path slowdown was observed in these paired conditions. Zero WebGL medians mean below timer granularity, not zero cost; the small Canvas differences are not a speedup claim or statistical equivalence proof. Both revisions retained one Actor/source and exact expected per-edit visits; all image references/textures released.
+
+Final new color-layer measurements at 4,096 all-visible cells (40 samples / 12 warmups, CPU milliseconds):
+
+| Backend | Geometry | Static draw median | One-cell edit + draw median | 1,000 picks median |
+| --- | --- | ---: | ---: | ---: |
+| WebGL | square | 0.00 | 0.90 | 0.00 |
+| WebGL | triangle | 0.10 | 1.60 | 1.40 |
+| WebGL | hex pointy | 0.10 | 1.90 | 2.50 |
+| WebGL | hex flat | 0.10 | 2.50 | 3.70 |
+| Canvas2D | square | 7.10 | 7.00 | 0.00 |
+| Canvas2D | triangle | 8.90 | 8.70 | 0.70 |
+| Canvas2D | hex pointy | 8.70 | 8.00 | 1.50 |
+| Canvas2D | hex flat | 9.30 | 8.10 | 2.40 |
+
+In the fixed-view 1,024→65,536-cell sweep, live Graphics counts stayed square 192, triangle 336, pointy hex 199 and flat hex 157. Map creation still allocates/copies all Grid cells; culling does not make construction constant-time. All 48 shape/backend/size workloads reported exactly forty reconciliation visits for forty visible edits; stable frames add none. Picking queries a bounded polygon neighborhood, independent of total map size. Large all-visible Canvas2D maps remain more expensive; no GPU completion/native memory/hardware mobile performance is claimed.
+
+Review: Core host boundaries and circle/box Collision algorithms/indexing are unchanged. TilePoint moved to coordinates with the old Tilemap reexport preserved. All new rendering uses existing Scene ownership, camera transforms and depth ordering; no polygon physics, SpriteSheet ownership, new dependencies, force pushes or history rewrites were introduced. Remaining scope limitations: color-only polygon tiles; image clipping/UV/atlas design, arbitrary N-gon physics and general mobile/Safari/Firefox validation are deferred. No known blocker remains for integration.

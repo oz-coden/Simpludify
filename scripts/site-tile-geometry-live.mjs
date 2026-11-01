@@ -122,7 +122,7 @@ try {
   mkdirSync("test-results/site", { recursive: true });
   writeFileSync(
     "test-results/site/tile-geometry-live.json",
-    JSON.stringify(report, null, 2) + "\n",
+    `${JSON.stringify(report, null, 2)}\n`,
   );
   console.log(JSON.stringify(report));
 } finally {

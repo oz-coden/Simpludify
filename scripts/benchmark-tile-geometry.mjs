@@ -72,7 +72,7 @@ try {
   mkdirSync(dirname(output), { recursive: true });
   writeFileSync(
     output,
-    JSON.stringify(
+    `${JSON.stringify(
       {
         date: new Date().toISOString(),
         node: process.version,
@@ -89,7 +89,7 @@ try {
       },
       null,
       2,
-    ) + "\n",
+    )}\n`,
   );
   console.log(`Geometry measurements saved: ${output}`);
 } finally {

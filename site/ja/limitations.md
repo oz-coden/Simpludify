@@ -5,6 +5,7 @@
 ## 実装済み
 
 - 有限Tilemap：Grid／行列のコピー、SpriteSheet、レイヤー配置、表示範囲カリング、セル変更。
+- TileGeometry／GeometryTilemap：四角形・三角形・六角形2方向の単色描画、座標変換、選択、隣接、動的更新。画像の多角形切り抜きや多角形Collisionは対象外。
 - 任意の地形衝突：ID既定・セル上書き、TileContact専用イベント、既存CollisionWorldによる局所判定と位置補正。
 
 - DOM非依存Core、固定入力による明示ステップ、seed付き乱数。
@@ -14,7 +15,7 @@
 - 矩形・円・Character・Triangle・画像描画、表示制御・深度、単一Camera/Viewport、座標変換・追従。
 - 円・回転矩形、layer/mask、Trigger/Solid、接触イベント・問い合わせ、逆質量による位置補正。
 - SpriteSheetのグリッド／矩形／名前付き参照、SpriteAnimationのシミュレーション時間による再生と画像共有。
-- 8つのWebサンプル（Blockfall・Prism Raid・Sprite garden・Tile trailを含む）、Headless実行例、CLI、型検査・単体・ブラウザ・本番ビルド検証。
+- Webサンプル（Blockfall・Prism Raid・Sprite garden・Tile trail・Tile geometry labを含む）、Headless実行例、CLI、型検査・単体・ブラウザ・本番ビルド検証。
 - 日本語中心の静的ドキュメントとサンプルの統合ビルド、GitHub Pages向けActions。
 
 ## 衝突と実行時の制約
