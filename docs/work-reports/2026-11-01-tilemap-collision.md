@@ -79,3 +79,8 @@ Validated runtime/test source is f8f777e; subsequent checkpoint 46d4c13 changes 
 ## Main integration checkpoint
 
 Merged with preserved ancestry: [`deb58348960b8b6125455f46f15edfb8ab791ed8`](https://github.com/oz-coden/Simpludify/commit/deb58348960b8b6125455f46f15edfb8ab791ed8). Main was still d17cdf9 immediately before integration; the expected-head, non-forced ref update succeeded. [Main CI 41288401324](https://github.com/oz-coden/Simpludify/actions/runs/41288401324) is running. Pages deployment and public Tile trail/docs acceptance remain pending; the deploy job depends on all quality/browser/production/site-base jobs. No source assertions or timeouts were changed to obtain branch acceptance.
+
+
+## Final visual-review correction
+
+Reviewed the real main CI narrow screenshots from artifact `browser-validation-narrow-2` (13075629103), WebGL and Canvas2D. The tall DOM controls covered the explorer's spawn even though physics/pixel checks passed underneath. The added index HUD/door enlarged the panel. Applied a sample-only CSS rule: the outer controls panel scrolls within the upper 40% of the host, and its children retain their natural heights. Added a real DOM hit-test assertion at the projected explorer spawn in the actual-input browser test and production/live acceptance; it must hit the canvas rather than an obscuring UI element. This new visual concern justifies one final source/CI validation; no engine behavior or timeout changes. Full source acceptance must use the corrected sample before completion.
