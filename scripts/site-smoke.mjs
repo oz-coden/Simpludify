@@ -110,7 +110,52 @@ try {
       const element = await page.locator("iframe").elementHandle();
       const frame = await element.contentFrame();
       await frame.waitForSelector("canvas");
-      if (example.id === "tween") {
+      if (example.id === "tile-geometry") {
+        await frame.waitForFunction(
+          () => window.geometryDemo?.game.engine.scene.state === "active",
+        );
+        await frame.locator("#geometry").selectOption("triangle");
+        await frame.waitForFunction(
+          () => window.geometryDemo.terrain.geometry.kind === "triangle",
+        );
+        const p = await frame.evaluate(() => {
+          const { game, terrain } = window.geometryDemo;
+          game.setViewport();
+          return game.worldToScreen(
+            terrain.tileToWorld(4, 4, { center: true }),
+          );
+        });
+        await frame.locator("canvas").tap({ position: { x: p.x, y: p.y } });
+        await frame.waitForFunction(
+          () =>
+            window.geometryDemo.selected?.x === 4 &&
+            window.geometryDemo.selected?.y === 4,
+        );
+        assert.equal(
+          await frame.evaluate(() => window.geometryDemo.terrain.get(4, 4)),
+          0xea739e,
+        );
+        await frame.locator("#paint").click();
+        assert.equal(
+          await frame.evaluate(() => window.geometryDemo.terrain.get(4, 4)),
+          0x55d9d1,
+        );
+        await frame.locator("#hide").click();
+        assert.equal(
+          await frame.evaluate(() => window.geometryDemo.terrain.get(4, 4)),
+          null,
+        );
+        await frame.locator("canvas").click({ position: { x: p.x, y: p.y } });
+        const camera = await frame.evaluate(
+          () => window.geometryDemo.game.camera.x,
+        );
+        await page.keyboard.down("KeyD");
+        await frame.waitForFunction(
+          (x) => window.geometryDemo.game.camera.x > x + 5,
+          camera,
+        );
+        await page.keyboard.up("KeyD");
+      } else if (example.id === "tween") {
         await testTween(frame, page);
       } else if (example.id === "prism-raid") {
         await testPrismRaid(frame, page, context, viewport.width);
@@ -265,6 +310,7 @@ try {
         });
         await targetFrame.evaluate(() => {
           const game =
+            window.geometryDemo?.game ??
             window.tweenDemo?.game ??
             window.canvasDemo?.game ??
             window.tilemapDemo?.game ??
@@ -362,6 +408,7 @@ try {
       theme: true,
       hostCleanupAll: true,
       inspectedEngineCleanup: [
+        "tile-geometry",
         "tween",
         "canvas-ui",
         "tilemap",
