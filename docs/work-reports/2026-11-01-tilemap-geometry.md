@@ -37,3 +37,9 @@ Pending. No new tests, benchmarks or public acceptance checks have run at this c
 ### Geometry checkpoint
 
 Implemented `TileGeometry.square/triangle/hex`, centers, vertices, bounds, deterministic picking, neighbor enumeration, hex distance/disks, and clipped per-row bounding candidates. Hex pointy/flat both supported. Fourteen targeted geometry tests pass (625 signed-coordinate centers per geometry, shared edge ownership, symmetric adjacency and brute-force range oracle). Initial tests caught negative zero in candidate output; tile coordinates now canonicalize zero. Renderer/map integration is next. Design commit: `f898a0259f8fd2c9c656b0f093d08d9de006c2a9`.
+
+### Color layer / picking checkpoint
+
+Added `GeometryTilemap`, a copied finite RGB/null Grid placed via one passive Actor/Component, and a Web visible-cell Graphics presentation. Existing textured square Tilemap rendering/data/Collision files are unchanged; only renderer reconciliation/depth ordering recognizes the new layer. Map API includes set/fill/snapshot, world/screen picking, centers, vertices, bounds, finite neighbors and world-bounds candidates. Cell changes retain Graphics; unchanged frames and offscreen edits cause no cell visits. Hidden edits and fill refresh visible geometry. Disposal explicitly destroys Graphics contexts and removes subscriptions.
+
+Targeted geometry/map/square/index regression: 41 tests passed; TypeScript passed. Initial new test used a nonexistent index diagnostic field; corrected it to assert actual chunks/cells/builds all remain zero for polygon layers. Local Playwright browser download failed (truncated/invalid ZIP); browser checks remain pending, not waived. Geometry commit: `ab6d2c9c14c18ba1f21c11075ecc61bca324570d`.

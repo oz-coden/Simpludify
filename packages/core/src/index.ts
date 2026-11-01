@@ -12,6 +12,7 @@ export * from "./foundation/tween";
 export * from "./foundation/version";
 export * from "./game/character";
 export * from "./game/collision";
+export * from "./game/geometry-tilemap";
 export * from "./game/tilemap";
 export * from "./graphics/camera-follow";
 export * from "./graphics/coordinates";
