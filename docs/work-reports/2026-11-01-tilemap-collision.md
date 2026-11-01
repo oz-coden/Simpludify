@@ -1,5 +1,7 @@
 # Tilemap collision: rectangle search and dynamic terrain
 
+**Status: complete.** Final main source `3b13557`; 779 unit / 338 browser; CI, Pages and public desktop/narrow acceptance succeeded. See the completion section for final evidence.
+
 ## Baseline and design checkpoint
 
 - Started 2026-11-01 JST from main `d17cdf9b6ef7e33e61576c4ed24cbfcc837c38eb`.
@@ -92,3 +94,148 @@ Reviewed the real main CI narrow screenshots from artifact `browser-validation-n
 ## Corrected sample: final main checkpoint
 
 Merged the focused-validated sample with preserved ancestry as [`3b135570e5d1c8611d3e4a9382262d8b3aef7fba`](https://github.com/oz-coden/Simpludify/commit/3b135570e5d1c8611d3e4a9382262d8b3aef7fba). [Final main CI 41289464476](https://github.com/oz-coden/Simpludify/actions/runs/41289464476) is running. Manually inspected the focused narrow WebGL screenshot: explorer is visible below the bounded scrolling controls, and wall/ground/foreground layers remain visible. The focused verification workflow was excluded from the merge; the complete main quality/browser/production/both-base/deploy workflow is intact. Final main CI and published acceptance are pending for this corrected sample.
+
+
+## Completion and published acceptance
+
+Completed on 2026-11-01 JST. Final implementation/sample source: [`3b135570e5d1c8611d3e4a9382262d8b3aef7fba`](https://github.com/oz-coden/Simpludify/commit/3b135570e5d1c8611d3e4a9382262d8b3aef7fba). [Final main CI 41289464476](https://github.com/oz-coden/Simpludify/actions/runs/41289464476) succeeded on its first attempt, including all nine jobs and Pages deployment. **779 unit tests / 338 browser tests passed.** Production builds/smoke, root/project site builds, reference checks, 60 standalone typed snippets, full gallery smoke and updated Tile trail acceptance passed. Earlier pending entries above are chronological checkpoints.
+
+Published [Tile trail](https://github.oz-coden.com/Simpludify/play/tilemap/index.html), [Japanese guide](https://github.oz-coden.com/Simpludify/guides/tilemap.html) and [English collision reference](https://github.oz-coden.com/Simpludify/en/tilemap-collision.html) were verified against the final deployed source. Real WASD input stopped the Actor at x=434 and slid along the wall; actual door buttons changed rendered pixels and permitted passage, then closed the wall again. Desktop/narrow spawn-visibility assertions passed. Scene recreation released cached regions/contacts/images, and final disposal released input sources/hosts; no page errors. Existing published Tween acceptance also passed.
+
+Public acceptance data (also retained as `test-results/site/tilemap-live.json` in the [published-sample-validation artifact](https://github.com/oz-coden/Simpludify/actions/runs/41289464476)):
+
+```json
+{
+  "site": "https://github.oz-coden.com/Simpludify/",
+  "source": "3b135570e5d1c8611d3e4a9382262d8b3aef7fba",
+  "documents": ["en/tilemap-collision.html", "guides/tilemap.html"],
+  "viewports": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "stop": {
+        "x": 434,
+        "camera": 34,
+        "contacts": 1,
+        "index": {
+          "mode": "rectangles",
+          "chunks": 1,
+          "regions": 4,
+          "cells": 78,
+          "builds": 1,
+          "builtCells": 256,
+          "regionTests": 3,
+          "regionNarrowTests": 3
+        }
+      },
+      "closedPixel": [136, 150, 153],
+      "openPixel": [55, 99, 74],
+      "released": {
+        "disposed": true,
+        "chunks": 0,
+        "contacts": 0,
+        "refs": 0
+      },
+      "cleanup": {
+        "disposed": true,
+        "chunks": 0,
+        "sources": 0,
+        "hosts": 0
+      },
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "stop": {
+        "x": 434,
+        "camera": 34,
+        "contacts": 1,
+        "index": {
+          "mode": "rectangles",
+          "chunks": 1,
+          "regions": 4,
+          "cells": 78,
+          "builds": 1,
+          "builtCells": 256,
+          "regionTests": 3,
+          "regionNarrowTests": 3
+        }
+      },
+      "closedPixel": [136, 150, 153],
+      "openPixel": [55, 99, 74],
+      "released": {
+        "disposed": true,
+        "chunks": 0,
+        "contacts": 0,
+        "refs": 0
+      },
+      "cleanup": {
+        "disposed": true,
+        "chunks": 0,
+        "sources": 0,
+        "hosts": 0
+      },
+      "errors": []
+    }
+  ]
+}
+```
+
+## Final CI timings and workflow decisions
+
+| Job                                | Elapsed seconds |
+| ---------------------------------- | --------------: |
+| quality                            |              50 |
+| production                         |             191 |
+| site-bases (/Simpludify/, project) |             289 |
+| site-bases (/, root)               |             297 |
+| browser (desktop, 2)               |             542 |
+| browser (narrow, 1)                |             146 |
+| browser (narrow, 2)                |             222 |
+| browser (desktop, 1)               |             390 |
+| deploy                             |              97 |
+
+Elapsed runner times include setup/teardown. Browser rendering/driver variability dominates the longer desktop jobs; these are not measured engine simulation regressions. The final full run required no retry. The scoped visual-fix job took 110s, demonstrating the value of running `npm run test:browser -- tests/browser/tile-collision.spec.ts` and the production Tile trail check before a full candidate run. One earlier unrelated Tween HP wait needed a single production-job-only retry on unchanged source; its precise cause was not established and no timeout/assertion was changed. The first main full run also passed without retry. A second final full main run was justified by the real screenshot occlusion finding and sample correction.
+
+Main keeps foreground-safe single-worker shards, npm caching, obsolete-run cancellation, both site bases and reuse of the validated project Pages artifact. No speculative shard/cache rewrite or timeout extension was introduced. The verification branch's scoped workflow is separate from main. The required public Tile trail check adds explicit post-deployment coverage alongside the existing Tween check.
+
+## Delivered scope and next candidates
+
+Existing cell policies, invisible collision overrides, dynamic edits, Actor/Body integration and Solid/Trigger semantics were reused. Added optional deterministic candidate rectangle merging, lazy 16×16 chunk caching/local invalidation, index diagnostics, `tileBounds`, sample door/index HUD/scrolling controls, exact equivalence tests, backend/viewport/published acceptance, and reproducible baseline/current CPU data. Rectangle regions reduce candidate work; exact cell contacts and the existing response solver remain authoritative. Direct search stays default because small footprints can be slower with the index. No general CCD/deep-start recovery or global minimum rectangle partition is claimed.
+
+Further candidates: bounded eviction for widely explored chunk caches; measured footprint-based search selection; investigation/telemetry for the intermittent preexisting Tween HP smoke wait if it recurs. A merged response solver would require a separate contract review to preserve cell observations and topology behavior.
+
+The final completion/report-index update is documentation only and uses `[skip ci]`; it does not change the validated engine, sample, workflow or official site sources. The full CI/deployed source remains 3b13557.
+
+## Changed files
+
+- `.github/workflows/ci.yml`
+- `benchmarks/tile-index/baseline.json`
+- `benchmarks/tile-index/current.json`
+- `docs/api.md`
+- `docs/roadmap.md`
+- `docs/tilemap-collision.md`
+- `docs/tilemap-performance.md`
+- `docs/tilemap.md`
+- `docs/work-reports/2026-11-01-tilemap-collision.md`
+- `docs/work-reports/2026-11-01-tween-animation.md`
+- `docs/work-reports/README.md`
+- `examples/tilemap/README.md`
+- `examples/tilemap/main.ts`
+- `examples/tilemap/style.css`
+- `packages/core/src/game/collision.ts`
+- `packages/core/src/game/tile-collision-geometry.ts`
+- `packages/core/src/game/tile-collision-index.ts`
+- `packages/core/src/game/tilemap.ts`
+- `scripts/benchmark-tile-index.mjs`
+- `scripts/site-tilemap-live.mjs`
+- `site/ja/tilemap.md`
+- `tests/browser/tile-collision-fixture.ts`
+- `tests/browser/tile-collision.spec.ts`
+- `tests/helpers/tile-wall-scenario.ts`
+- `tests/unit/tile-collision-index.test.ts`
