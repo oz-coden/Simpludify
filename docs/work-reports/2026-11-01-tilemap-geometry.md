@@ -4,7 +4,7 @@
 
 - Starting main: `86f5a28f19f67688f564598353c73650d9e1b18b`.
 - Branch: `feat/tilemap-geometry-2026-11-01`.
-- Status: implementation and all major candidate checks passed; final checkpoint and main/Pages acceptance pending.
+- Status: **complete** — main integration, full main CI, Pages deployment and published browser acceptance passed. Implementation/deployment SHA: `87a0337770946f29eb3bd26b061d81b6d800b74d`.
 
 ## Existing implementation review
 
@@ -144,3 +144,45 @@ Final new color-layer measurements at 4,096 all-visible cells (40 samples / 12 w
 In the fixed-view 1,024→65,536-cell sweep, live Graphics counts stayed square 192, triangle 336, pointy hex 199 and flat hex 157. Map creation still allocates/copies all Grid cells; culling does not make construction constant-time. All 48 shape/backend/size workloads reported exactly forty reconciliation visits for forty visible edits; stable frames add none. Picking queries a bounded polygon neighborhood, independent of total map size. Large all-visible Canvas2D maps remain more expensive; no GPU completion/native memory/hardware mobile performance is claimed.
 
 Review: Core host boundaries and circle/box Collision algorithms/indexing are unchanged. TilePoint moved to coordinates with the old Tilemap reexport preserved. All new rendering uses existing Scene ownership, camera transforms and depth ordering; no polygon physics, SpriteSheet ownership, new dependencies, force pushes or history rewrites were introduced. Remaining scope limitations: color-only polygon tiles; image clipping/UV/atlas design, arbitrary N-gon physics and general mobile/Safari/Firefox validation are deferred. No known blocker remains for integration.
+
+### Main integration checkpoint
+
+Safely merged the accepted branch into main with a two-parent commit, [87a0337770946f29eb3bd26b061d81b6d800b74d](https://github.com/oz-coden/Simpludify/commit/87a0337770946f29eb3bd26b061d81b6d800b74d). The starting main had not changed; the ref update rejected mismatched expected heads and used force=false. Final pre-integration `check` passed with only the original 12 warnings/12 info suggestions. Runtime/physics dependencies and lockfile are unchanged.
+
+[Main CI / Pages 41304716229](https://github.com/oz-coden/Simpludify/actions/runs/41304716229) is running. Do not treat deployment/public acceptance as complete until its jobs and the published geometry sample pass. If interrupted, inspect this run, verify main head, then run `SITE_URL=https://github.oz-coden.com/Simpludify/ node scripts/site-tile-geometry-live.mjs` with a compatible Chromium; append final evidence to this report and the index. All implementation and measurements are already on main.
+
+## Completion and public acceptance
+
+[Main CI / Pages 41304716229](https://github.com/oz-coden/Simpludify/actions/runs/41304716229) completed successfully for integration commit [87a0337](https://github.com/oz-coden/Simpludify/commit/87a0337770946f29eb3bd26b061d81b6d800b74d). All required jobs passed: quality, four browser shards, production, both site bases and deploy. Main unit count: **805**; browser count: **346** (desktop 89+84, narrow 89+84). The final desktop shard took 9.1 minutes and passed without assertion changes/retries; it was a wait, not a skipped check.
+
+Published acceptance passed in the deploy job and independently from local Chromium:
+
+- [Tile geometry lab](https://github.oz-coden.com/Simpludify/play/tile-geometry/index.html): square, triangle, pointy hex and flat hex; desktop 1440×900 and narrow 390×844.
+- Camera pan/zoom followed by real pointer/touch selection of (4,4), exact painted canvas RGB **(234,115,158)**, color toggle and null→visible updates all passed.
+- Scene recreation, no horizontal overflow, final Game/Canvas disposal and no uncaught page errors passed.
+- [Japanese geometry guide](https://github.oz-coden.com/Simpludify/guides/tile-geometry.html) and [English contracts](https://github.oz-coden.com/Simpludify/en/tile-geometry.html) returned 200 and included GeometryTilemap.
+- Existing published Tween and square Tilemap collision acceptance also passed in the deploy job.
+
+[Published evidence artifact](https://github.com/oz-coden/Simpludify/actions/runs/41304716229/artifacts/13083093405) contains the Tween, square Tilemap and geometry live JSON. A permanent geometry copy is [published-main.json](../../benchmarks/tile-geometry/published-main.json). Source recorded in the live result is the deployed integration SHA. The independent local run initially encountered environment proxy/CA transport errors, then passed through the configured proxy with its CA SPKI explicitly pinned; engine code and feature assertions were not changed.
+
+### Delivered API and scope
+
+- `TileGeometry.square/triangle/hex`, `HexOrientation.Pointy/Flat`, local centers/vertices/bounds, deterministic picking, neighbors, bounded range candidates and hex distance/disks.
+- `GeometryTilemap` RGB/null layers, copied Grid/rows, translation/depth, viewport-aware picking, finite neighbors/ranges, incremental visible-cell drawing, dynamic set/fill, snapshots and Scene-owned cleanup.
+- `Shape.Hexagon` through existing Renderable, Transform and Tween channels; existing Triangle and independent circle/box physics remain verified.
+- Runnable narrow/desktop sample, bilingual guides, typechecked standalone examples, unit/browser/build/site checks and raw serial performance data.
+
+Image clipping/UV/atlas mapping inside polygon tiles and polygon physics were not implemented. Existing square image Tilemap/Collision/rectangle merging/16×16 index behavior is preserved. No unresolved integration blocker remains. The final documentation-only acceptance checkpoint records this result after the deployed code commit; it does not change the validated runtime or Pages bundle.
+
+### Commit checkpoints
+
+| Stage                                | Commit                                                                                            |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| Investigation/design                 | [f898a02](https://github.com/oz-coden/Simpludify/commit/f898a0259f8fd2c9c656b0f093d08d9de006c2a9) |
+| Geometry/coordinates                 | [ab6d2c9](https://github.com/oz-coden/Simpludify/commit/ab6d2c9c14c18ba1f21c11075ecc61bca324570d) |
+| Color layers/picking                 | [5bba75e](https://github.com/oz-coden/Simpludify/commit/5bba75eec372985a4b2604d32756eaa5e74bd2fb) |
+| Actor Hexagon/live properties        | [b4fe7e3](https://github.com/oz-coden/Simpludify/commit/b4fe7e396d25e99851ce51c55e76cf2d8da6a2e0) |
+| Sample/docs/browser fixtures         | [469664f](https://github.com/oz-coden/Simpludify/commit/469664f8431d8a73a61baf78b2a1d04904ea2e72) |
+| Full CI candidate/gallery correction | [11de199](https://github.com/oz-coden/Simpludify/commit/11de199358eeb88ef9e7ce7afd20ea4258153d6a) |
+| Final measurements/review            | [e540e8e](https://github.com/oz-coden/Simpludify/commit/e540e8e50413ba43af337ae82b8ebde4af2facd0) |
+| Main integration / published code    | [87a0337](https://github.com/oz-coden/Simpludify/commit/87a0337770946f29eb3bd26b061d81b6d800b74d) |

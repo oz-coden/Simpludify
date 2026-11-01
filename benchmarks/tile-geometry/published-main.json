@@ -1,0 +1,70 @@
+{
+  "site": "https://github.oz-coden.com/Simpludify/",
+  "source": "87a0337770946f29eb3bd26b061d81b6d800b74d",
+  "documents": ["guides/tile-geometry.html", "en/tile-geometry.html"],
+  "viewports": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "shapes": [
+        {
+          "kind": "square",
+          "painted": 15365022,
+          "pixel": [234, 115, 158]
+        },
+        {
+          "kind": "triangle",
+          "painted": 15365022,
+          "pixel": [234, 115, 158]
+        },
+        {
+          "kind": "pointy",
+          "painted": 15365022,
+          "pixel": [234, 115, 158]
+        },
+        {
+          "kind": "flat",
+          "painted": 15365022,
+          "pixel": [234, 115, 158]
+        }
+      ],
+      "disposed": true,
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "shapes": [
+        {
+          "kind": "square",
+          "painted": 15365022,
+          "pixel": [234, 115, 158]
+        },
+        {
+          "kind": "triangle",
+          "painted": 15365022,
+          "pixel": [234, 115, 158]
+        },
+        {
+          "kind": "pointy",
+          "painted": 15365022,
+          "pixel": [234, 115, 158]
+        },
+        {
+          "kind": "flat",
+          "painted": 15365022,
+          "pixel": [234, 115, 158]
+        }
+      ],
+      "disposed": true,
+      "errors": []
+    }
+  ],
+  "workflow": "https://github.com/oz-coden/Simpludify/actions/runs/41304716229",
+  "artifact": "https://github.com/oz-coden/Simpludify/actions/runs/41304716229/artifacts/13083093405",
+  "note": "Published production browser assertions run by the deploy job. Independent local Chromium validation also passed using the environment proxy and its pinned CA SPKI."
+}
