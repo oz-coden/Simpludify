@@ -121,14 +121,26 @@ export async function testTween(frame, page) {
         window.tweenDemo.lab.hp.displayValue === 75,
     );
   } catch (error) {
-    console.error("Tween HP diagnostic", await frame.evaluate(() => {
-      const d = window.tweenDemo;
-      return { value: d.lab.hp.value, displayValue: d.lab.hp.displayValue,
-        status: d.lab.status.text, paused: d.game.paused,
-        active: d.lab.display.diagnostics.active,
-        focused: document.activeElement?.textContent,
-        handles: [...d.lab.handles].map(p => ({ state: p.state, elapsed: p.elapsed, duration: p.duration, reason: p.reason })) };
-    }));
+    console.error(
+      "Tween HP diagnostic",
+      await frame.evaluate(() => {
+        const d = window.tweenDemo;
+        return {
+          value: d.lab.hp.value,
+          displayValue: d.lab.hp.displayValue,
+          status: d.lab.status.text,
+          paused: d.game.paused,
+          active: d.lab.display.diagnostics.active,
+          focused: document.activeElement?.textContent,
+          handles: [...d.lab.handles].map((p) => ({
+            state: p.state,
+            elapsed: p.elapsed,
+            duration: p.duration,
+            reason: p.reason,
+          })),
+        };
+      }),
+    );
     throw error;
   }
   assert.equal(
