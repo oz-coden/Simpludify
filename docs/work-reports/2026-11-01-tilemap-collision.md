@@ -75,3 +75,16 @@ Branch acceptance is complete: [CI attempt 2](https://github.com/oz-coden/Simplu
 ## Main integration candidate
 
 Validated runtime/test source is f8f777e; subsequent checkpoint 46d4c13 changes only the work report/index and implemented-scope roadmap. Integrate the recorded tree with a normal merge commit, preserving both main and work-branch ancestry; no forced ref update. Run the full main CI and deploy only after all dependencies succeed. The new live acceptance script will validate actual public `/play/tilemap/` and both updated documentation pages in desktop/narrow Chromium after deployment.
+
+## Main integration checkpoint
+
+Merged with preserved ancestry: [`deb58348960b8b6125455f46f15edfb8ab791ed8`](https://github.com/oz-coden/Simpludify/commit/deb58348960b8b6125455f46f15edfb8ab791ed8). Main was still d17cdf9 immediately before integration; the expected-head, non-forced ref update succeeded. [Main CI 41288401324](https://github.com/oz-coden/Simpludify/actions/runs/41288401324) is running. Pages deployment and public Tile trail/docs acceptance remain pending; the deploy job depends on all quality/browser/production/site-base jobs. No source assertions or timeouts were changed to obtain branch acceptance.
+
+
+## Final visual-review correction
+
+Reviewed the real main CI narrow screenshots from artifact `browser-validation-narrow-2` (13075629103), WebGL and Canvas2D. The tall DOM controls covered the explorer's spawn even though physics/pixel checks passed underneath. The added index HUD/door enlarged the panel. Applied a sample-only CSS rule: the outer controls panel scrolls within the upper 40% of the host, and its children retain their natural heights. Added a real DOM hit-test assertion at the projected explorer spawn in the actual-input browser test and production/live acceptance; it must hit the canvas rather than an obscuring UI element. This new visual concern justifies one final source/CI validation; no engine behavior or timeout changes. Full source acceptance must use the corrected sample before completion.
+
+## Focused visual acceptance
+
+[Focused CI 41289199458](https://github.com/oz-coden/Simpludify/actions/runs/41289199458) **passed**: all 16 Tile collision browser cases at both viewport sizes and both backends, quality checks, production site build/reference/snippet checks, and actual production Tile trail keyboard/door/pixel/lifecycle acceptance. The new spawn-visibility assertion passed for desktop and narrow. Verification branch `verify/tilemap-ui-2026-11-01` at 411504f differs from implementation checkpoint 1745ee8 **only in `.github/workflows/ci.yml`** to select related validation. That focused workflow is not merged into main; main retains its complete CI/deploy workflow. The unchanged engine runtime already passed full main CI and published acceptance at deb5834 ([41288401324](https://github.com/oz-coden/Simpludify/actions/runs/41288401324)), without a retry. A final full main run is required for the sample visibility correction.

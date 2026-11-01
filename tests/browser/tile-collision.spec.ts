@@ -121,6 +121,24 @@ for (const fallback of [false, true])
           window.demo.dispose();
           await import(url);
         }, `/@fs/${process.cwd()}/examples/tilemap/main.ts`);
+        expect(
+          await page.evaluate(() => {
+            const { game } = window.tilemapDemo;
+            const actor = game.engine.scene.find(
+              "explorer",
+            ) as import("@simpludify/core").CharacterActor;
+            const point = game.worldToScreen({
+              space: "world",
+              x: actor.x,
+              y: actor.y,
+            });
+            const host = game.element.getBoundingClientRect();
+            return document.elementFromPoint(
+              host.left + point.x,
+              host.top + point.y,
+            )?.tagName;
+          }),
+        ).toBe("CANVAS");
         await page.evaluate(
           async (url) => (await import(url)).beginWallTrace(),
           url,

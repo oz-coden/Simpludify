@@ -19,3 +19,5 @@ The position label demonstrates worldToTile/tileToWorld. Last tile contact uses 
 The game explicitly adds one CollisionWorld per Scene, and a Solid Collider + CollisionBody to the explorer. Map rules are separate from image IDs: stone/tree are Solid, water is Trigger, absent rules are visual only. No tile Actor/Collider Component is created. The original terrain SVG and reused Sprite garden hero are MIT assets with root/subpath-safe import.meta.url URLs.
 
 The sample opts into `CollisionWorld({tileSearch:"rectangles"})`. The HUD shows cached collision cells, merged candidate rectangles and chunks. Equal complete policies merge inside lazy 16×16 chunks; editing one cell invalidates just its chunk. Cell contacts and the existing shared solver stay authoritative. Direct `tileSearch:"cells"` remains the engine default because small footprints/dense contacts may not benefit. See [candidate search and dynamic-update contracts](../../docs/tilemap-collision.md#optional-rectangle-candidate-search).
+
+The controls scroll within the upper 40% of the host, leaving the explorer visible in the field. Scroll the panel to reach all editing/navigation buttons.

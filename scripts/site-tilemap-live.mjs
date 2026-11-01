@@ -54,6 +54,19 @@ try {
         timeout: 15000,
       });
     await wait(() => window.tilemapDemo?.game.engine.scene.state === "active");
+    const spawnTarget = await page.evaluate(() => {
+      const { game } = window.tilemapDemo;
+      const actor = game.engine.scene.find("explorer");
+      const p = game.worldToScreen({ space: "world", x: actor.x, y: actor.y });
+      const host = game.element.getBoundingClientRect();
+      return document.elementFromPoint(host.left + p.x, host.top + p.y)
+        ?.tagName;
+    });
+    assert.equal(
+      spawnTarget,
+      "CANVAS",
+      "Spawned explorer must remain visible below the controls",
+    );
     await page.locator(".simpludify").focus();
     await page.keyboard.down("KeyD");
     await wait(

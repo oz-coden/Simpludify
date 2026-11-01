@@ -7,3 +7,11 @@
 .tile-trail .s-panel .s-panel button {
   font-size: 0.875rem;
 }
+.tile-trail .s-ui > .s-panel {
+  max-height: 40%;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+.tile-trail .s-ui > .s-panel > * {
+  flex-shrink: 0;
+}

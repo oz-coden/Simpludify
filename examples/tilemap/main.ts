@@ -166,7 +166,7 @@ game.scene("field", ({ scene, add, ui }) => {
   ui(
     Panel(
       [
-        Label("Move with WASD, including while using these buttons."),
+        Label("Move with WASD. Scroll this panel for editing and navigation."),
         position,
         status,
         geometry,
