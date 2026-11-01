@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { resolve } from "node:path";
 import { chromium } from "@playwright/test";
-import { preview } from "vite";
 import { testCanvasUI } from "./site-canvas-test.mjs";
 import { testTween } from "./site-tween-test.mjs";
+import { preview } from "./workspace-vite.mjs";
 
 const exampleIndex = process.argv.indexOf("--example");
 const example = exampleIndex < 0 ? "ui-scenes" : process.argv[exampleIndex + 1];

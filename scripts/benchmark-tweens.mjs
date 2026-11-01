@@ -3,7 +3,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { cpus, platform } from "node:os";
 import { dirname } from "node:path";
 import { performance } from "node:perf_hooks";
-import { createServer } from "vite";
+import { createServer } from "./workspace-vite.mjs";
 
 const output = process.argv.includes("--out")
   ? process.argv[process.argv.indexOf("--out") + 1]

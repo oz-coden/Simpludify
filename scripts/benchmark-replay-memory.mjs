@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { cpus } from "node:os";
 import { dirname } from "node:path";
-import { createServer } from "vite";
+import { createServer } from "./workspace-vite.mjs";
 
 const args = process.argv.slice(2),
   output = args[0] === "--out" && args.length === 2 ? args[1] : undefined;

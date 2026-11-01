@@ -5,7 +5,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { cpus, platform } from "node:os";
 import { dirname, resolve } from "node:path";
 import { chromium } from "playwright";
-import { createServer } from "vite";
+import { createServer } from "./workspace-vite.mjs";
 
 const root = process.cwd();
 const output = process.argv.includes("--out")

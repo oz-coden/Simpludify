@@ -84,5 +84,7 @@ for (const name of targets) {
       },
     },
   });
+  if (name === "web")
+    writeFileSync(`${directory}/dist/style.css.d.ts`, "export {};\n");
   cpSync("LICENSE", `${directory}/LICENSE`);
 }

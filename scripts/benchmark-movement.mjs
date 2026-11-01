@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { cpus } from "node:os";
 import { dirname } from "node:path";
-import { createServer } from "vite";
+import { createServer } from "./workspace-vite.mjs";
 
 const args = process.argv.slice(2);
 assert(args.length === 0 || (args.length === 2 && args[0] === "--out"));

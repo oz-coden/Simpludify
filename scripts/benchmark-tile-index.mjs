@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { cpus, platform } from "node:os";
 import { dirname, resolve } from "node:path";
-import { createServer } from "vite";
+import { createServer } from "./workspace-vite.mjs";
 
 assert.ok(global.gc, "Run node --expose-gc scripts/benchmark-tile-index.mjs");
 const args = process.argv.slice(2);

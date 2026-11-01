@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { cpus, platform } from "node:os";
-import { createServer } from "vite";
+import { createServer } from "./workspace-vite.mjs";
 
 const root = process.cwd();
 assert(global.gc, "Run with --expose-gc");

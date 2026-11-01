@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { chromium } from "playwright";
-import { createServer } from "vite";
 import { serveSite } from "./site-server.mjs";
+import { createServer } from "./workspace-vite.mjs";
 
 export async function benchmarkBrowser({ seconds, percentile }) {
   const browser = await chromium.launch({

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
-import { createServer } from "vite";
+import { createServer } from "./workspace-vite.mjs";
 
 const args = process.argv.slice(2);
 const output = args[0] === "--out" && args.length === 2 ? args[1] : undefined;

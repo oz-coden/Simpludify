@@ -40,8 +40,5 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
-  },
-  "scripts": {
-    "prepack": "node ../../scripts/build-packages.mjs core"
   }
 }

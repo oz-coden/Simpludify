@@ -5,7 +5,7 @@ import { cpus } from "node:os";
 import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { gzipSync } from "node:zlib";
-import { build } from "vite";
+import { build } from "./workspace-vite.mjs";
 
 assert(global.gc, "Run with --expose-gc");
 assert.equal(

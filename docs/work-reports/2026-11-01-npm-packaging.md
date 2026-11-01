@@ -38,3 +38,13 @@ Read this report and inspect the branch head. Implement SDK builds and package m
 ## Core checkpoint
 
 Core now has public compiled ESM/type exports, MIT metadata, a restricted file list and a standalone library build. `node scripts/build-packages.mjs core` and Node import/step/dispose passed (273.81 kB unminified JS, 69.17 kB gzip, embedded-source map). The pinned TypeScript 7 CLI provides no legacy compiler API; declaration path normalization therefore validates emitted static relative specifiers against actual .d.ts files. Packed external and NodeNext type checks remain pending. Root workspace resolution will be adjusted before full checks.
+
+## Web checkpoint
+
+Web ESM/type/CSS output builds successfully: 93.95 kB unminified JS (22.55 kB gzip) and 3.79 kB CSS. Core/Pixi remain external runtime dependencies. CSS is preserved through a build banner and `sideEffects` metadata. A shared repository-only Vite adapter and TypeScript paths keep source editing/tests/CLI/site/benchmarks independent from distribution output; no consumer alias is required. npm settings browsing encountered a Cloudflare human-verification wall, so authenticated org/publisher permission remains unverified. `npm run check` reached Biome with one newly added report-table formatting error; fix before regression checks. External pack tests still pending.
+
+## External distribution checkpoint
+
+Actual npm tarballs pass file allowlist/integrity/source-map checks. Independent Core-only installation passes Node execution, Engine lifecycle and NodeNext typechecking with ES2022 and no ambient host types. Independent Web-only installation passes automatic Core resolution through a temporary scoped registry serving the actual Core tarball; no direct Core dependency, workspace link or runtime alias is used. Web public declarations pass strict typechecking without skipLibCheck. The initial packed test detected TS2882 for CSS; added `style.css.d.ts` and a typed CSS export. Local browser launch is currently blocked by unavailable Playwright Chromium; the official browser download returned invalid ZIP content. Browser checks are required in CI, not marked passed locally.
+
+The dedicated manual OIDC workflow and publication integrity/retry script are implemented; final review and CI remain pending. No publication attempt was made. Registry permissions are unverified.

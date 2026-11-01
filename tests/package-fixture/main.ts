@@ -1,0 +1,77 @@
+import { Engine } from "@simpludify/core";
+import {
+  Action,
+  ActionController,
+  CanvasButton,
+  CanvasColumn,
+  CanvasLabel,
+  Character,
+  defineActions,
+  Game,
+  KeyboardBindings,
+} from "@simpludify/web";
+
+// Explicit CSS is optional: the Web entry also includes it automatically.
+const game = new Game<"first" | "second">({
+  parent: document.querySelector<HTMLElement>("#app") ?? document.body,
+});
+const actions = defineActions({ Move: Action.axis2D() });
+let clicks = 0;
+let disposals = 0;
+let player = Character();
+let button = CanvasButton("Next scene", () => {});
+let ui: ReturnType<typeof CanvasColumn>;
+for (const id of ["first", "second"] as const) {
+  game.scene(id, ({ scene, add, canvasUI }) => {
+    scene.onDispose(() => {
+      disposals++;
+    });
+    const controls = new ActionController(actions, {
+      scene,
+      input: game.engine.input,
+      bindings: { Move: KeyboardBindings.WASD },
+    });
+    player = add(
+      Character({ x: 100, y: 250, movement: controls.reader(actions.Move) }),
+    );
+    button = CanvasButton("Next scene", () => {
+      clicks++;
+      return game.goTo(id === "first" ? "second" : "first");
+    });
+    ui = CanvasColumn([CanvasLabel("Packed SDK"), button], {
+      padding: 16,
+      gap: 12,
+    });
+    canvasUI(ui);
+  });
+}
+await game.run("first");
+if (!(game.engine instanceof Engine)) throw new Error("Duplicate Core runtime");
+const probe = {
+  game,
+  get x() {
+    return player.x;
+  },
+  get clicks() {
+    return clicks;
+  },
+  get disposals() {
+    return disposals;
+  },
+  get bounds() {
+    return { ...button.bounds };
+  },
+  get uiDisposed() {
+    return ui.disposed;
+  },
+  dispose() {
+    game.dispose();
+    game.dispose();
+  },
+};
+declare global {
+  interface Window {
+    packageProbe: typeof probe;
+  }
+}
+window.packageProbe = probe;

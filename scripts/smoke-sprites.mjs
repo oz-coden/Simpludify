@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { resolve } from "node:path";
 import { chromium } from "@playwright/test";
-import { preview } from "vite";
+import { preview } from "./workspace-vite.mjs";
 
 // Run after: npm run build -- --target web --example sprites --base /Simpludify/
 const server = await preview({
