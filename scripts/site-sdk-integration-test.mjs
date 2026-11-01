@@ -5,6 +5,11 @@ export async function testSDKIntegration(page) {
     () =>
       window.integration?.current && !window.integration.game.engine.disposed,
   );
+  // Numeric clock precision is covered headlessly; exercise real capped RAF here
+  // without assuming a software-rendered frame arrives every wall-clock 16ms.
+  await page.evaluate(() => {
+    window.integration.current.scene.presentationTweens.speed = 100;
+  });
   await page.getByRole("button", { name: "Step", exact: true }).press("Enter");
   await page.getByRole("button", { name: "Step", exact: true }).press("Space");
   assert.equal(

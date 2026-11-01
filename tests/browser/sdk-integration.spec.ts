@@ -3,6 +3,8 @@ import type { Game, SceneContext } from "@simpludify/web";
 
 const url = `/@fs/${process.cwd()}/examples/sdk-integration/index.html`;
 test.use({ deviceScaleFactor: 2 });
+// Software WebGL can take seconds per frame; preserve a bounded rendering budget.
+test.setTimeout(60_000);
 test.beforeEach(async ({ page }) => {
   await page.goto(url);
   await page.waitForFunction(() => !!window.integration);
@@ -128,8 +130,16 @@ test("DOM and Canvas Tab order preserves editing ownership and display continues
   await expect(step).toBeFocused();
   await step.press("Enter");
   await page.getByRole("button", { name: "Pause", exact: true }).press("Enter");
+  await page.evaluate(() => {
+    window.integration.current.scene.presentationTweens.speed = 100;
+  });
+  // Start a fresh display animation while simulation is already paused. One real RAF
+  // can complete it even with the Host delta cap on slow software-renderer runners.
+  await step.press("Enter");
   await expect
-    .poll(() => page.evaluate(() => window.integration.current.demo.progress))
+    .poll(() => page.evaluate(() => window.integration.current.demo.progress), {
+      timeout: 30_000,
+    })
     .toBe(1);
   expect(await page.evaluate(() => window.integration.game.engine.paused)).toBe(
     true,
