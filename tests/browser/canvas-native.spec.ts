@@ -381,6 +381,12 @@ for (const fallback of [false, true])
         const f = window.nativeProbe;
         f.focus(f.screen.playerName);
       });
+      // A composition interrupted by focus transfer must not poison the next editing session.
+      await input.fill("refocused 日本語");
+      await input.press("Enter");
+      expect(
+        await page.evaluate(() => window.nativeProbe.screen.playerName.value),
+      ).toBe("refocused 日本語");
       await input.fill("window draft");
       await page.evaluate(() => {
         window.dispatchEvent(new Event("blur"));
@@ -391,7 +397,7 @@ for (const fallback of [false, true])
           window.nativeProbe.screen.playerName.value,
           window.nativeProbe.screen.playerName.editing,
         ]),
-      ).toEqual(["Player", false]);
+      ).toEqual(["refocused 日本語", false]);
       await page.evaluate(() => {
         const f = window.nativeProbe;
         f.focus(f.screen.playerName);

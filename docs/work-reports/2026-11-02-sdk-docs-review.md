@@ -7,3 +7,5 @@ Reviewed the six changed documentation files against the SDK exports and Run To 
 The original head failed the repository formatter on two Markdown files. Applied only the required formatting corrections. Runtime API changes and executable integration examples belong to a separate implementation PR.
 
 Validation checkpoint: `npm ci` succeeded. The initial `npm run check` failed solely on those two formatter errors. Revalidation and CI are pending at this checkpoint; do not merge until CI succeeds.
+
+Completion: corrected head `fc148e660cd44ae3373e5654f1380dbeae8ef9f3` passed local check and all CI jobs ([run 41342668958](https://github.com/oz-coden/Simpludify/actions/runs/41342668958)). PR #7 merged as `315efb7c83cf9ffa707558322f69d4c74e078ef9`. The runtime work is separate in PR #8.

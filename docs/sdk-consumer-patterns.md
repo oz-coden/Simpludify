@@ -80,3 +80,9 @@ context.onUpdate(() => renderBetween(oldWorld, newWorld, display.progress));
 This is a **pattern sketch**, not a standalone copy-paste example: `world`, `World`, and `renderBetween` are application symbols. For actual rendering during a simulation pause, choose an appropriate rendering/update hook for the host. For rapid step advancement or restarting from the initial state, decide whether to finish or cancel the old animation and deliberately reset the endpoints. Scene ownership ensures cleanup on scene disposal.
 
 See [Tween and animation](tween.md) and the [Tween lab](../examples/tween/README.md) for complete engine examples, and the [Run To Exit integration review](https://github.com/oz-coden/Run-To-Exit/blob/main/docs/engine-review.md) for a working consumer example.
+
+## Executable integration and independent starter
+
+The [SDK integration lab](../examples/sdk-integration/README.md) exercises Flex-owned world space, DOM/Canvas Tab traversal, display-only discrete Tween and Scene replacement. Its `Game.bindViewport` helper is new source functionality for the next SDK release, not part of published v0.1.1. The existing `setViewport` pattern above remains valid for 0.1.1.
+
+The [independent npm/Vite starter](../templates/npm-vite/README.md) deliberately uses only published 0.1.1 APIs. It has a committed lockfile, `npm ci`, explicit CSS, Scene startup/disposal, Pages `--base`, and fail-on-missing production license generation. CI copies it outside the workspace and validates it on Windows and Linux. No CLI generator is necessary for this small, inspectable template.

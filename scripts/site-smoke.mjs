@@ -6,6 +6,7 @@ import { testBlockfall } from "./site-blockfall-test.mjs";
 import { testCanvasUI } from "./site-canvas-test.mjs";
 import { testSiteImages } from "./site-image-test.mjs";
 import { testPrismRaid } from "./site-prism-raid-test.mjs";
+import { testSDKIntegration } from "./site-sdk-integration-test.mjs";
 import { serveSite } from "./site-server.mjs";
 import { testSiteTheme } from "./site-theme-test.mjs";
 import { testTween } from "./site-tween-test.mjs";
@@ -110,7 +111,9 @@ try {
       const element = await page.locator("iframe").elementHandle();
       const frame = await element.contentFrame();
       await frame.waitForSelector("canvas");
-      if (example.id === "tile-geometry") {
+      if (example.id === "sdk-integration") {
+        await testSDKIntegration(frame);
+      } else if (example.id === "tile-geometry") {
         await frame.waitForFunction(
           () => window.geometryDemo?.game.engine.scene.state === "active",
         );
@@ -310,6 +313,7 @@ try {
         });
         await targetFrame.evaluate(() => {
           const game =
+            window.integration?.game ??
             window.geometryDemo?.game ??
             window.tweenDemo?.game ??
             window.canvasDemo?.game ??

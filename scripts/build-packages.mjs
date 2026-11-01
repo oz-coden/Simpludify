@@ -1,3 +1,4 @@
+import "./check-package-readmes.mjs";
 import { execFileSync } from "node:child_process";
 import {
   cpSync,

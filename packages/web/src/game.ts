@@ -93,6 +93,11 @@ export class Game<SceneId extends string = string> {
   private canvas: CanvasUI | undefined;
   private canvasPresentation: CanvasPresentation | undefined;
   private defaultCanvas: CanvasUI | undefined;
+  private readonly ownedCanvas = new WeakSet<CanvasUI>();
+  private readonly viewportBindings = new WeakMap<
+    CanvasUI,
+    { node: CanvasNode; dispose: () => void }
+  >();
   get pointer(): ScenePointer {
     this.assertAlive();
     return this.channelFor(this.engine.scene);
@@ -339,6 +344,7 @@ export class Game<SceneId extends string = string> {
         "Define one default Canvas UI before run",
       );
     this.defaultCanvas = new CanvasUI(this.engine.scene, root, options);
+    this.ownedCanvas.add(this.defaultCanvas);
     return this.defaultCanvas;
   }
   uiOverlay(...nodes: UINode[]): void {
@@ -462,6 +468,7 @@ export class Game<SceneId extends string = string> {
                       "A Scene has one Canvas UI root",
                     );
                   canvas = new CanvasUI(scene, root, options);
+                  this.ownedCanvas.add(canvas);
                   return canvas;
                 },
                 actions: (actions, bindings) =>
@@ -606,6 +613,41 @@ export class Game<SceneId extends string = string> {
     this.updateProjection();
     return this.projection;
   }
+  /** Bind the mounted UI's resolved region to the world viewport. UI units become CSS pixels.
+   * One binding per UI; replacement/unbind restores the manual viewport. UI/node disposal unbinds.
+   * A collapsed/hidden region clips all world rendering and pointer input. No extra frame/observer.
+   */
+  bindViewport(ui: CanvasUI, node: CanvasNode): () => void {
+    this.assertAlive();
+    if (
+      !this.ownedCanvas.has(ui) ||
+      ui.disposed ||
+      node.disposed ||
+      node.ui !== ui
+    )
+      throw new EngineError(
+        "UI_OWNERSHIP",
+        "Viewport region must belong to this Game's Canvas UI",
+      );
+    this.viewportBindings.get(ui)?.dispose();
+    let removed = false;
+    const off: (() => void)[] = [];
+    const binding = {
+      node,
+      dispose: () => {
+        if (removed) return;
+        removed = true;
+        if (this.viewportBindings.get(ui) === binding)
+          this.viewportBindings.delete(ui);
+        for (const unregister of off) unregister();
+        this.projectionDirty = true;
+      },
+    };
+    this.viewportBindings.set(ui, binding);
+    off.push(ui.onDispose(binding.dispose), node.onDispose(binding.dispose));
+    this.projectionDirty = true;
+    return binding.dispose;
+  }
   setViewport(viewport?: Viewport): void {
     this.assertAlive();
     const next = viewport ? { ...viewport } : undefined;
@@ -663,10 +705,49 @@ export class Game<SceneId extends string = string> {
     this.render();
   }
   private updateProjection(): void {
-    const v = this.requestedViewport,
-      c = this.camera;
+    // Resolve UI before projection so drawing, getters and pointer conversion see one layout.
+    this.canvasPresentation?.update(this.width, this.height);
+    const ui = this.canvas;
+    const region = ui ? this.viewportBindings.get(ui)?.node : undefined;
+    let v = this.requestedViewport;
+    let empty = false;
+    if (ui && region) {
+      const b = region.bounds,
+        scale = ui.scale;
+      const x = Math.max(0, Math.min(this.width, b.x * scale));
+      const y = Math.max(0, Math.min(this.height, b.y * scale));
+      const right = Math.max(x, Math.min(this.width, (b.x + b.width) * scale));
+      const bottom = Math.max(
+        y,
+        Math.min(this.height, (b.y + b.height) * scale),
+      );
+      // Input transparency of the slot does not hide its world. Visibility and enable
+      // state do; a dedicated slot may use pointerEvents: "none" for pass-through.
+      let visible = region.ui === ui;
+      for (let node: CanvasNode | undefined = region; node; node = node.parent)
+        if (node.disposed || !node.visible || !node.enabled) visible = false;
+      empty = !visible || right <= x || bottom <= y;
+      v = {
+        x,
+        y,
+        width: empty ? 0 : right - x,
+        height: empty ? 0 : bottom - y,
+      };
+    }
+    const viewport = v ?? {
+      x: 0,
+      y: 0,
+      width: this.width,
+      height: this.height,
+    };
+    const previous = this.projection.viewport;
+    const c = this.camera;
     if (
       !this.projectionDirty &&
+      previous.x === viewport.x &&
+      previous.y === viewport.y &&
+      previous.width === viewport.width &&
+      previous.height === viewport.height &&
       this.cameraX === c.x &&
       this.cameraY === c.y &&
       this.cameraZoom === c.zoom
@@ -677,11 +758,17 @@ export class Game<SceneId extends string = string> {
     this.cameraY = c.y;
     this.cameraZoom = c.zoom;
     this.projection = createViewTransform({
-      viewport: v ?? { x: 0, y: 0, width: this.width, height: this.height },
+      viewport: empty ? { ...viewport, width: 1, height: 1 } : viewport,
       resolution: this.resolution,
       aspect: this.aspect,
       camera: c,
     });
+    if (empty)
+      this.projection = {
+        ...this.projection,
+        viewport,
+        clip: { ...viewport, width: 0, height: 0 },
+      };
   }
   private resize(): void {
     if (this.dead || !this.rendererReady) return;
@@ -709,7 +796,6 @@ export class Game<SceneId extends string = string> {
   }
   private render(): void {
     this.updateProjection();
-    this.canvasPresentation?.update(this.width, this.height);
     this.prepared?.render(this.projection);
   }
   private readonly tick = (time: number): void => {

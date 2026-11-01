@@ -184,3 +184,7 @@ A native accessibility activation invokes Button callbacks. Text-only Canvas lab
 Run [Canvas trail](../examples/canvas-ui/README.md) for the complete Sprite/Tilemap/Collision/HUD/input/Scene integration example. [Implementation and validation](canvas-ui-implementation.md) records actual gates and limitations.
 
 [Touch dragging, inertia, overlay scrollbars and dynamic policy](scrolling.md) document the current portable scrolling API. [Measured projection costs](scroll-performance.md) separate layout work from actual renderer performance.
+
+## Layout-owned world viewport (next SDK release)
+
+The Web-only `game.bindViewport(ui, region)` uses a dedicated unscrolled Canvas layout slot as the world viewport. It resolves Flex geometry before rendering and pointer conversion, follows UI scale and host resize, and releases with the UI/region. A `pointerEvents: "none"` slot remains a visible world region; input transparency does not hide it. Hidden/disabled/empty slots clip world rendering and pointer input. Existing `setViewport` is the manual fallback after unbinding. See the [SDK integration lab](../examples/sdk-integration/README.md) for complete ownership, empty-region and replacement semantics. This helper is unavailable in immutable npm v0.1.1.

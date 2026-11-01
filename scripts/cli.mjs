@@ -97,6 +97,7 @@ try {
     if (
       ![
         "character",
+        "sdk-integration",
         "ui-scenes",
         "composition",
         "signal-run",
