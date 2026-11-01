@@ -35,7 +35,7 @@ const record = {
 };
 const pause = (ms) => new Promise((done) => setTimeout(done, ms));
 async function metadata(name) {
-  const url = `https://registry.npmjs.org/${encodeURIComponent(name)}/0.1.0`;
+  const url = `https://registry.npmjs.org/${encodeURIComponent(name)}/0.1.1`;
   const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
   if (response.status === 404) return undefined;
   if (!response.ok)
@@ -51,7 +51,7 @@ try {
       readFileSync(`packages/${name}/package.json`, "utf8"),
     );
     assert.equal(manifest.name, `@simpludify/${name}`);
-    assert.equal(manifest.version, "0.1.0");
+    assert.equal(manifest.version, "0.1.1");
     assert.equal(manifest.private, undefined);
     assert.equal(
       manifest.repository.url,
@@ -76,7 +76,7 @@ try {
       assert.equal(
         existing.dist.integrity,
         entry.integrity,
-        `Existing ${entry.name}@0.1.0 differs: never overwrite or silently skip it`,
+        `Existing ${entry.name}@0.1.1 differs: never overwrite or silently skip it`,
       );
   }
   for (const entry of entries) {

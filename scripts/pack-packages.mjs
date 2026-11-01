@@ -3,6 +3,8 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
+const npmCli = process.env.npm_execpath;
+if (!npmCli) throw new Error("Run through npm (npm run pack:packages)");
 process.chdir(root);
 const output = resolve("test-results/packages");
 mkdirSync(output, { recursive: true });
@@ -11,8 +13,9 @@ execFileSync(process.execPath, ["scripts/build-packages.mjs"], {
 });
 for (const name of ["core", "web"]) {
   const data = execFileSync(
-    process.platform === "win32" ? "npm.cmd" : "npm",
+    process.execPath,
     [
+      npmCli,
       "pack",
       `./packages/${name}`,
       "--ignore-scripts",

@@ -81,7 +81,7 @@ try {
       const pkg = JSON.parse(
         readFileSync(`packages/${name}/package.json`, "utf8"),
       );
-      assert.equal(pkg.version, "0.1.0");
+      assert.equal(pkg.version, "0.1.1");
       assert.equal(pkg.private, undefined);
       const paths = packed.files.map((file) => file.path);
       for (const path of paths)
@@ -101,7 +101,7 @@ try {
       );
       if (name === "web") {
         assert(paths.includes("dist/style.css"));
-        assert.equal(pkg.dependencies["@simpludify/core"], "0.1.0");
+        assert.equal(pkg.dependencies["@simpludify/core"], "0.1.1");
       }
       const map = JSON.parse(
         readFileSync(`packages/${name}/dist/index.js.map`, "utf8"),
@@ -144,7 +144,7 @@ try {
       }),
     );
   }
-  const coreSpec = registryMode ? "@simpludify/core@0.1.0" : tarballs.core.path;
+  const coreSpec = registryMode ? "@simpludify/core@0.1.1" : tarballs.core.path;
   await run(
     npm,
     ["install", "--ignore-scripts", "--no-audit", "--no-fund", coreSpec],
@@ -205,9 +205,9 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
       response.end(
         JSON.stringify({
           name: entry.pkg.name,
-          "dist-tags": { latest: "0.1.0" },
+          "dist-tags": { latest: "0.1.1" },
           versions: {
-            "0.1.0": {
+            "0.1.1": {
               ...entry.pkg,
               dist: {
                 tarball: `http://127.0.0.1:${registry.address().port}/${name}.tgz`,
@@ -248,7 +248,7 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
         "--ignore-scripts",
         "--no-audit",
         "--no-fund",
-        "@simpludify/web@0.1.0",
+        "@simpludify/web@0.1.1",
       ],
       web,
     );
