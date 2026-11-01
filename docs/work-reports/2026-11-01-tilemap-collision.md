@@ -59,7 +59,7 @@ Local focused index suite: 12 tests passed, including 150 randomized Circle and 
 - Branch candidate: [`f8f777e`](https://github.com/oz-coden/Simpludify/commit/f8f777ef04daba854377a4227ef306b4dc143f37), [CI 41287591351](https://github.com/oz-coden/Simpludify/actions/runs/41287591351).
 - Browser: **338 passed**, desktop/narrow × WebGL/Canvas2D coverage, including all prior Collision/Actor/Canvas UI/Tween fixtures. Four shards passed (89+80 tests per viewport).
 - Both site-base jobs passed their full gallery smoke and the new production Tile trail acceptance. In each viewport, the Actor stopped at x=434, camera.x=34, with one cell contact; cached 78 collision cells became 4 candidate rectangles in one queried chunk. Closed/open door pixels were [136,150,153] / [55,99,74]. Releasing the Scene returned contacts/chunks/image references to zero; final Game disposal returned input sources/hosts/chunks to zero. No page errors.
-- The first production job passed existing UI/scenes, Signal Run and Canvas UI builds/smoke, then failed the **unchanged Tween** smoke at `scripts/site-tween-test.mjs:117` waiting for HP logical/display values to both reach 75. Tilemap/index is not used by that sample. Other Tween browser/gallery checks passed. Inspected the input helper and display-time HP recipe; no Tilemap path is involved. A single production-job-only rerun on identical source is pending; no assertion/timeout was changed. The API initially rejected rerun while the overall workflow was active, so the retry began only after the other jobs finished.
+- The first production job passed existing UI/scenes, Signal Run and Canvas UI builds/smoke, then failed the **unchanged Tween** smoke at `scripts/site-tween-test.mjs:117` waiting for HP logical/display values to both reach 75. Tilemap/index is not used by that sample. Other Tween browser/gallery checks passed. Inspected the input helper and display-time HP recipe; no Tilemap path is involved. The single production-job-only rerun on identical source **passed** (workflow attempt 2); no assertion/timeout was changed. The original wait failure did not reproduce, so its precise root cause remains undetermined rather than being attributed conclusively to WebGL. The API initially rejected rerun while the overall workflow was active, so the retry began only after the other jobs finished.
 
 ## Final review and scope
 
@@ -69,4 +69,9 @@ Limitations: rectangles optimize candidate geometry, **not** a replacement recta
 
 Checkpoint commits: [design f64ab4a](https://github.com/oz-coden/Simpludify/commit/f64ab4ae61ca8443a07eaa710af632314bbe85a0), [index/updates/coordinates c4c2d57](https://github.com/oz-coden/Simpludify/commit/c4c2d57188b0cb03d719fe994deecac0c3ba570d), [sample/docs/browser fixtures 9132f79](https://github.com/oz-coden/Simpludify/commit/9132f79a78c23ed6cd6ad8efdc881dc9282c7749), [measurements/full candidate f8f777e](https://github.com/oz-coden/Simpludify/commit/f8f777ef04daba854377a4227ef306b4dc143f37).
 
-Main integration and public Pages verification remain pending until final branch acceptance. No release or npm publication is part of this change.
+Branch acceptance is complete: [CI attempt 2](https://github.com/oz-coden/Simpludify/actions/runs/41287591351/attempts/2) succeeded. Main integration and public Pages verification are next. No release or npm publication is part of this change.
+
+
+## Main integration candidate
+
+Validated runtime/test source is f8f777e; subsequent checkpoint 46d4c13 changes only the work report/index and implemented-scope roadmap. Integrate the recorded tree with a normal merge commit, preserving both main and work-branch ancestry; no forced ref update. Run the full main CI and deploy only after all dependencies succeed. The new live acceptance script will validate actual public `/play/tilemap/` and both updated documentation pages in desktop/narrow Chromium after deployment.
