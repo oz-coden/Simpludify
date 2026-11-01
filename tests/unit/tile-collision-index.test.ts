@@ -172,7 +172,9 @@ function simulation(tileSearch: "cells" | "rectangles", circle: boolean) {
     );
     actor.add(new Motion({ x: 1, y: 1, speed: 100 }));
     actor.add(
-      new CollisionBody({ motion: i === 2 ? BodyType.Static : BodyType.Dynamic }),
+      new CollisionBody({
+        motion: i === 2 ? BodyType.Static : BodyType.Dynamic,
+      }),
     );
     const c = actor.add(
       new Collider({

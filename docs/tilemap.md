@@ -95,3 +95,7 @@ npm run build -- --target web --example tilemap --base /Simpludify/
 [Tile trail](../examples/tilemap/README.md) uses original artwork, three maps, animated WASD movement, camera follow, tile editing and Scene round trips. Stone/tree terrain is Solid and water is a pass-through Trigger. [Tilemap collision](tilemap-collision.md) documents optional ID defaults, cell overrides, dedicated TileContact events and the shared CollisionWorld. Visibility/rendering and collision remain independent.
 
 No infinite streaming, atlas file parser, autotiling, editor, animation tiles, physics rewrite, generic ControlGuard or new UI framework is introduced. Large all-visible Canvas2D maps remain expensive; native/GPU memory and mobile/Safari/Firefox hardware have not been verified.
+
+### Cell rectangles
+
+`map.tileBounds(x,y)` returns a fresh `{x,y,width,height}` in world units, using the same integer/bounds validation as `tileToWorld`. Negative placement origins and rectangular cells are supported. `tileToWorld(x,y,{center:true})` supplies the center; `worldToTile` converts finite world points with half-open bounds. To edit a world point, call `worldToTile` and, when it returns a cell, use the existing `get`/`set` or `setCollision`. Outside points return undefined; invalid indexed reads/writes throw GRID_BOUNDS. No implicit wrapping, clamping or world-coordinate overload is added.

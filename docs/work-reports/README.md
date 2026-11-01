@@ -4,7 +4,7 @@ Implementation checkpoints and final verification records live here so repositor
 
 | Date (JST) | Task                                                                      | Status                                                                                                           |
 | ---------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| 2026-11-01 | [Tilemap collision and rectangle search](2026-11-01-tilemap-collision.md) | In progress: design checkpoint; implementation and acceptance pending |
+| 2026-11-01 | [Tilemap collision and rectangle search](2026-11-01-tilemap-collision.md) | In progress: design checkpoint; implementation and acceptance pending                                            |
 | 2026-11-01 | [Tween and animation foundation](2026-11-01-tween-animation.md)           | Complete: main 043c1d8; 767 unit / 334 browser; CI, Pages and published desktop/narrow browser checks passed     |
 | 2026-10-31 | [Hover, keyboard and focus](2026-10-31-ui-focus-input.md)                 | Complete: direct main 1d9901d; 701 unit / 314 browser, final main CI/Pages and live gameplay/forms/docs verified |
 | 2026-10-31 | [Select and native text editing](2026-10-31-native-input.md)              | Complete: PR #4 merged 884475b; main 696 unit / 294 browser, Pages and live sample/docs verified                 |

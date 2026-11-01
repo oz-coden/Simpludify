@@ -34,3 +34,9 @@ Focused checks: baseline 96 tests passed. Implementation focused suite 87 tests 
 Changed: `packages/core/src/game/{collision,tilemap,tile-collision-geometry,tile-collision-index}.ts`, `tests/helpers/tile-wall-scenario.ts`, `tests/unit/tile-collision-index.test.ts`.
 
 Environment: npm install succeeded. Local Chromium installation returned truncated/non-ZIP downloads on all retries; no local browser pass is claimed. Repository pushes use the connected GitHub Git-data API because shell git has read-only access. All remote updates use expected-head checks and fast-forward only.
+
+## Dynamic update, coordinate, layer and sample checkpoint
+
+Added/validated the lazy chunk invalidation alongside the rectangle implementation, without introducing another update queue or physics loop. Existing rendering remains independent (zIndex/visibility vs physics response/layer/mask). Tile trail now explicitly uses rectangle search, displays cached cells/regions/chunks and adds a fixed door at (14,7), retaining existing WASD, wall editing, Trigger, camera, SpriteAnimation and Scene transitions. Added WebGL/Canvas2D pixel/physics/cleanup tests for rectangle mode, plus door/real-input sample checks in both viewport projects. Browser tests are authored and typechecked, not yet executed. Added CPU benchmark script; collection follows this committed checkpoint. English API/contracts and Japanese guide describe only implemented APIs and explicitly distinguish candidate rectangles from cell responses/events.
+
+Quality-check finding: main's final Tween report contained an unformatted JSON block introduced after its last CI. Applied the formatter's three-line-array-to-one-line-only change, preserving that report's content. Also formatted the new index row and static-Body fixture. No existing assertions were weakened.

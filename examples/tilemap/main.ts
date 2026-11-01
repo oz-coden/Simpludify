@@ -44,7 +44,7 @@ export let terrain:
 export let world: CollisionWorld | undefined;
 const Actions = defineActions({ Move: Action.axis2D() });
 game.scene("field", ({ scene, add, ui }) => {
-  world = new CollisionWorld(scene);
+  world = new CollisionWorld(scene, { tileSearch: "rectangles" });
   const ground = new Tilemap({
     sheet,
     tiles: Grid.generate(64, 48, (x, y) =>
@@ -133,6 +133,7 @@ game.scene("field", ({ scene, add, ui }) => {
     status = Label("Stone/trees: Solid. Water: pass-through Trigger.", {
       muted: true,
     });
+  const geometry = Label("", { muted: true });
   collider.events.on(TileContactEnter, (contact) => {
     status.setText(
       `Last tile contact: ${contact.response} (${contact.tileX}, ${contact.tileY}).`,
@@ -149,6 +150,11 @@ game.scene("field", ({ scene, add, ui }) => {
     player.x = Math.max(20, Math.min(2028, player.x));
     player.y = Math.max(20, Math.min(1516, player.y));
     follow.update(player, seconds);
+    const index = world?.tileIndexDiagnostics;
+    if (index)
+      geometry.setText(
+        `Collision index: ${index.cells} cells → ${index.regions} rectangles / ${index.chunks} chunks`,
+      );
     const tile = ground.worldToTile(player.x, player.y);
     if (tile) {
       const world = ground.tileToWorld(tile.x, tile.y);
@@ -163,6 +169,7 @@ game.scene("field", ({ scene, add, ui }) => {
         Label("Move with WASD, including while using these buttons."),
         position,
         status,
+        geometry,
         Panel(
           [
             Button("Paint under player", () => {
@@ -185,6 +192,16 @@ game.scene("field", ({ scene, add, ui }) => {
                   tile.y,
                   ground.get(tile.x, tile.y) === "stone" ? "grass" : "stone",
                 );
+            }),
+            Button("Toggle door", () => {
+              ground.set(
+                14,
+                7,
+                ground.get(14, 7) === "stone" ? "grass" : "stone",
+              );
+              status.setText(
+                `Door (14, 7) ${ground.get(14, 7) === "stone" ? "closed" : "open"}.`,
+              );
             }),
             Button("Toggle collision", () => {
               ground.collisionEnabled = !ground.collisionEnabled;

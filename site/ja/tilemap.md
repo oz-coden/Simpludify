@@ -62,10 +62,11 @@ const map = new Tilemap({
 const origin = map.tileToWorld(1, 1);
 const center = map.tileToWorld(1, 1, { center: true });
 const tile = map.worldToTile(center.x, center.y);
-console.log(origin, tile);
+const bounds = map.tileBounds(1, 1);
+console.log(origin, tile, bounds);
 ```
 
-左上原点、右向きx・下向きyです。tileToWorldはタイル左上、center指定は中心を返します。worldToTileは左／上を含み、右／下を含まない範囲で切り捨て計算し、マップ外ならundefinedです。内部境界は右／下のセルに属します。画面座標は先にGame.pointerToWorldなどでワールド座標へ変換します。
+左上原点、右向きx・下向きyです。tileToWorldはタイル左上、center指定は中心を返します。worldToTileは左／上を含み、右／下を含まない範囲で切り捨て計算し、マップ外ならundefinedです。内部境界は右／下のセルに属します。`tileBounds(x,y)`はワールド単位の新しい`{x,y,width,height}`を返し、タイル座標の整数・範囲チェックはtileToWorldと共通です。画面座標は先にGame.pointerToWorldなどでワールド座標へ変換します。
 
 地面・壁・装飾はそれぞれ作ってplaceしてください。zIndexは普通のRenderableと共通で、同値なら配置順です。Actorを地面と装飾の間に描けます。1枚のTilemap内にActorを差し込む順序制御はありません。初期版の配置は平行移動のみです。
 
@@ -88,3 +89,11 @@ npm run dev -- --example tilemap
 衝突を使う場合は、SceneにCollisionWorldを1つ作り、動かすActorにSolid ColliderとCollisionBodyを追加します。Tilemapのcollision.tilesへIDごとの応答を設定し、setCollision(x,y,null)でセルだけ無効、resetCollision(x,y)で継承に戻せます。visibleは描画だけ、collisionEnabledは衝突だけ、enabledは配置全体を止めます。Actor用Contactは変更せず、地形用にはTileContactEnter/Stay/Exitを購読します。[詳しい契約](../en/tilemap-collision.html)と[衝突ガイド](collision.md)を参照してください。
 
 無限マップ、エディター、オートタイル、複雑なアニメーションタイルは未実装です。完全な剛体物理やCCD、任意の深い埋まりからの復帰は保証しません。
+
+## 矩形統合と局所更新
+
+`new CollisionWorld(scene, { tileSearch: "rectangles" })`で、同じ応答・layer・maskを持つ隣接タイルを矩形の衝突候補へ統合します。横の連続区間を作り、同じ幅の区間が続けば縦へ伸ばします。穴や異なる属性をまたがず、16×16セルの区画内に限定します。必要な区画だけ構築し、1セルの変更ならその区画だけを無効にして、次の衝突判定で再構築します。ID共通設定の変更では該当IDを含むキャッシュ区画、fillでは全キャッシュ区画が対象です。
+
+矩形は候補の絞り込みに使い、接触セルごとの細かな判定・位置補正・TileContactイベントは従来どおりです。小さいActorや密な接触では管理コストが増える場合があるため、既定値は`tileSearch: "cells"`です。`world.tileIndexDiagnostics`でキャッシュ中のcells／regions／chunks、構築回数などを確認できます。[契約と性能上の制約](../en/tilemap-collision.html#optional-rectangle-candidate-search)を参照してください。
+
+Tile trailは矩形検索を使用し、地形のセル数と矩形数を表示します。Toggle doorで石壁の(14,7)を開閉できます。タイルデータは即時に変わり、衝突は次の判定パス、描画は次の表示更新で反映します。接触イベント内で変更しても、そのパスの走査をやり直しません。Actorの足元に壁を置いた場合は次のパスで既存の補正を適用し、完全に埋まった状態の解消までは保証しません。
