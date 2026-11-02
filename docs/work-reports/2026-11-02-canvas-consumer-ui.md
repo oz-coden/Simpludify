@@ -28,3 +28,10 @@ Implementation and browser regression checks are in progress. Standard Chromium 
 - External tarball suite passed before the focus correction: Core-only Node/NodeNext, Web-only automatic Core install, dev and production subpaths, desktop/390/320 layouts, input, Scene transitions and idempotent cleanup. It will be repeated on the final candidate.
 - SDK version 0.1.3 is prepared for the next release. Public registry/starter documentation continues to describe published 0.1.2. No tag, npm publish or publication workflow dispatch has occurred.
 - Run To Exit PR: https://github.com/oz-coden/Run-To-Exit/pull/7. Engine PR: https://github.com/oz-coden/Simpludify/pull/11.
+
+## Ownership and repeat-focus checkpoint
+
+- Repeating `focus(node)` on the same node now reveals its current geometry after list growth/reorder. The first layout correction alone did not address this early-return path.
+- UI invalidation after disposal is now a no-op, so routing release/hover cleanup cannot recursively attempt focus on an already-disposed UI. This fixes an actual external Scene replacement failure observed in Run To Exit.
+- 811 unit tests passed after these fixes. The focused/hovered Scene replacement browser regression is added alongside the label and dynamic-focus checks.
+- v0.1.3 candidate Core/Web archives were packed; no publication has occurred. Final archive integrity and CI will be recorded after the remaining regression checks.

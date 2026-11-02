@@ -125,7 +125,10 @@ export class CanvasUI implements LifetimeOwner {
         "UI_OWNERSHIP",
         "Focus requires a reachable interactive node in this UI",
       );
-    if (this.focusNode === node) return;
+    if (this.focusNode === node) {
+      if (node) this.reveal(node);
+      return;
+    }
     const previous = this.focusNode;
     this.focusNode = node;
     if (previous) {
@@ -270,6 +273,7 @@ export class CanvasUI implements LifetimeOwner {
     }
   }
   /** @internal */ invalidate(layout = false): void {
+    if (this.disposed) return;
     if (
       this.focusNode &&
       (this.focusNode.ui !== this || !this.focusNode.available)

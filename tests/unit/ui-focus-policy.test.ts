@@ -149,3 +149,35 @@ it("focus resolves newly added and newly shown controls using the last host metr
   expect(ui.focusedNode).toBeUndefined();
   scene.dispose();
 });
+
+it("refocusing the same control reveals its new position after a list reorder", () => {
+  const nodes = Array.from({ length: 4 }, (_, i) =>
+    CanvasButton(String(i), () => {}, { height: 50, shrink: 0 }),
+  );
+  const root = CanvasScroll(nodes, { height: 70, width: 200 });
+  const scene = new Scene("same-focus"),
+    ui = new CanvasUI(scene, root);
+  ui.layout(300, 200, () => ({ width: 100, height: 20 }));
+  ui.focus(nodes[0]);
+  root.move(nodes[0]!, 3);
+  ui.focus(nodes[0]);
+  expect(ui.focusedNode).toBe(nodes[0]);
+  expect(root.scrollY).toBeGreaterThan(100);
+  scene.dispose();
+});
+
+it("ignores presentation invalidation while disposal callbacks release a focused control", () => {
+  const node = CanvasButton("focused", () => {});
+  const scene = new Scene("dispose-focused"),
+    ui = new CanvasUI(scene, CanvasColumn([node]));
+  ui.layout(300, 200, () => ({ width: 100, height: 20 }));
+  ui.focus(node);
+  ui.onDispose(() => {
+    node.hovered = false;
+    node.changed();
+  });
+  expect(() => scene.dispose()).not.toThrow();
+  expect(ui.focusedNode).toBeUndefined();
+  expect(ui.diagnostics.nodes).toBe(0);
+  expect(() => ui.invalidate(true)).not.toThrow();
+});

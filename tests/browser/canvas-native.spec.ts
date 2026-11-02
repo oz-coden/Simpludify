@@ -100,6 +100,20 @@ for (const fallback of [false, true])
         }),
       ).toBeFocused();
     });
+    test("Scene disposal releases a hovered and focused Canvas button without stale UI errors", async ({
+      page,
+    }) => {
+      const point = await page.evaluate(() => {
+        const f = window.nativeProbe;
+        f.focus(f.screen.apply);
+        return f.center(f.screen.apply);
+      });
+      await page.mouse.move(point.x, point.y);
+      await page.evaluate(async () => {
+        await window.nativeProbe.game.goTo("empty");
+      });
+      await expect(page.locator(".s-canvas-accessibility")).toHaveCount(0);
+    });
     test("native Select labels, disabled options, keyboard, program replacement and blur", async ({
       page,
     }) => {
