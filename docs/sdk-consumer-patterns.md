@@ -14,7 +14,9 @@ Canvas UI uses CSS-sized layout while world rendering is controlled by the Game 
 
 ```ts
 const region = CanvasPanel([], { grow: 1, pointerEvents: "none" });
-const ui = context.canvasUI(CanvasColumn([hud, region, hint], { height: "100%" }));
+const ui = context.canvasUI(
+  CanvasColumn([hud, region, hint], { height: "100%" }),
+);
 game.bindViewport(ui, region);
 ```
 

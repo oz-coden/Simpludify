@@ -35,13 +35,13 @@ The existing workflow is `.github/workflows/npm-publish.yml` and uses only `work
 
 For **both** packages, npm Settings → Trusted publishing must match:
 
-| Field | Value |
-| --- | --- |
-| GitHub user | `oz-coden` |
-| Repository | `Simpludify` |
-| Workflow filename | `npm-publish.yml` |
-| Environment | Empty; the workflow declares none |
-| Allowed actions | Direct `npm publish` enabled |
+| Field             | Value                             |
+| ----------------- | --------------------------------- |
+| GitHub user       | `oz-coden`                        |
+| Repository        | `Simpludify`                      |
+| Workflow filename | `npm-publish.yml`                 |
+| Environment       | Empty; the workflow declares none |
+| Allowed actions   | Direct `npm publish` enabled      |
 
 The [official Trusted Publishing guide](https://docs.npmjs.com/trusted-publishers/) was checked on 2026-11-02. It requires supported hosted runners, Node >=22.14 and npm >=11.5.1. Package settings need authenticated owner access; repository admin permission alone cannot confirm the current npm publisher settings. A successful previous OIDC release confirms historical operation, not current configuration. Do not change account security or collect credentials as part of a release.
 

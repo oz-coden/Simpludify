@@ -393,9 +393,13 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
         assert.equal(diagnostics.imageEntries, 1);
         assert.equal(diagnostics.imageReferences, 2);
         const initial = await page.evaluate(() => window.packageProbe.x);
-        await page
-          .locator(".simpludify")
-          .click({ position: { x: 320, y: 330 } });
+        const worldCenter = await page.evaluate(() => {
+          const v = window.packageProbe.game.viewport;
+          if (v.width <= 0 || v.height <= 0)
+            throw new Error("Empty bound world region");
+          return { x: v.x + v.width / 2, y: v.y + v.height / 2 };
+        });
+        await page.locator(".simpludify").click({ position: worldCenter });
         await page.keyboard.down("d");
         await page.waitForFunction(
           (x) => window.packageProbe.x > x + 5,
