@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { validateCoreDependency } from "./core-boundary.mjs";
+import { sdkVersion } from "./sdk-version.mjs";
 
 const core = "packages/core/src";
 function files(dir) {
@@ -85,12 +86,5 @@ for (const folder of ["core", "web"]) {
 }
 console.log("Architecture and required-file validation passed.");
 
-const workspaceVersion = JSON.parse(
-  readFileSync("package.json", "utf8"),
-).version;
-const sourceVersion = readFileSync(
-  "packages/core/src/foundation/version.ts",
-  "utf8",
-).match(/ENGINE_VERSION = "([^"]+)"/)?.[1];
-if (workspaceVersion !== sourceVersion)
-  throw new Error("ENGINE_VERSION does not match package.json");
+const workspaceVersion = sdkVersion;
+console.log(`SDK version ${workspaceVersion} is consistent.`);

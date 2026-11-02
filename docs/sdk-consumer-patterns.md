@@ -10,30 +10,19 @@ Include the dependency license texts and notices when redistributing a bundled g
 
 ## Canvas HUD and game world viewport
 
-Canvas UI uses CSS-sized layout while world rendering is controlled by the Game viewport. For a map below a game HUD, reserve a consistent region and update it when the host size changes:
+Canvas UI uses CSS-sized layout while world rendering is controlled by the Game viewport. Starting with the v0.1.2 source candidate, bind the resolved Flex region rather than duplicating HUD height constants:
 
 ```ts
-const updateViewport = () => {
-  const width = game.element.clientWidth;
-  const height = game.element.clientHeight;
-  if (width > 0 && height > 0) {
-    game.setViewport({
-      x: 0,
-      y: 64,
-      width,
-      height: Math.max(1, height - 96),
-    });
-  }
-};
-const resizeObserver = new ResizeObserver(updateViewport);
-resizeObserver.observe(game.element);
-context.onActivate(updateViewport);
-context.onDispose(() => resizeObserver.disconnect());
+const region = CanvasPanel([], { grow: 1, pointerEvents: "none" });
+const ui = context.canvasUI(
+  CanvasColumn([hud, region, hint], { height: "100%" }),
+);
+game.bindViewport(ui, region);
 ```
 
-The 64px HUD and 32px lower inset above are application-specific _examples_, not framework constants. For a dynamic layout, the application should read its own UI bounds and update the viewport whenever layout changes. Convert pointer world positions through `tilemap.worldToTile` rather than dividing browser client coordinates by tile size.
+The binding follows layout changes, text wrapping, UI scale and host resize. It converts resolved UI units to CSS viewport pixels, clips empty regions and releases automatically when the UI or region is disposed. Use `pointerEvents: "none"` for a noninteractive world spacer so it does not capture world input. See [API contracts](api.md) and the [integration lab](../examples/sdk-integration/README.md).
 
-A possible future helper could connect a layout-owned region to a world viewport, but must clarify CSS vs logical units, scaling, scene disposal, pointer hit-testing, and empty-size behavior before being introduced as a public API.
+Published v0.1.1 consumers continue to use `setViewport` with their own scoped `ResizeObserver`; `bindViewport` requires the v0.1.2 release. Convert pointer world positions through `tilemap.worldToTile` rather than dividing browser client coordinates by tile size.
 
 ## Canvas and DOM focus integration
 
@@ -83,6 +72,6 @@ See [Tween and animation](tween.md) and the [Tween lab](../examples/tween/README
 
 ## Executable integration and independent starter
 
-The [SDK integration lab](../examples/sdk-integration/README.md) exercises Flex-owned world space, DOM/Canvas Tab traversal, display-only discrete Tween and Scene replacement. Its `Game.bindViewport` helper is new source functionality for the next SDK release, not part of published v0.1.1. The existing `setViewport` pattern above remains valid for 0.1.1.
+The [SDK integration lab](../examples/sdk-integration/README.md) exercises Flex-owned world space, DOM/Canvas Tab traversal, display-only discrete Tween and Scene replacement. Its `Game.bindViewport` helper is source functionality in the v0.1.2 candidate, not part of published v0.1.1. The existing `setViewport` pattern above remains valid for 0.1.1.
 
 The [independent npm/Vite starter](../templates/npm-vite/README.md) deliberately uses only published 0.1.1 APIs. It has a committed lockfile, `npm ci`, explicit CSS, Scene startup/disposal, Pages `--base`, and fail-on-missing production license generation. CI copies it outside the workspace and validates it on Windows and Linux. No CLI generator is necessary for this small, inspectable template.

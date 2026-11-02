@@ -10,6 +10,10 @@ A code-first TypeScript 2D game engine. Create a visible character, responsive U
 
 **Status: experimental Web engine with a composition-based Core.** The API can change before a stable release. Electron/Tauri/Android packaging is pending. The Core and Web SDK packages are published on npm as v0.1.1.
 
+## v0.1.2 release preparation
+
+Source packages are now v0.1.2. The latest confirmed public npm release is v0.1.1; v0.1.2 remains pending publication. The candidate adds layout-owned world viewports through `Game.bindViewport()` and interrupted Japanese IME refocus fixes from PR #8. See [release validation and status](docs/work-reports/2026-11-02-v0.1.2-release.md) and [publishing procedures](docs/npm-publishing.md). The registry installation instructions and independent starter below remain on the available v0.1.1 until the next release is verified.
+
 ## Experimental npm SDK v0.1.1
 
 `@simpludify/core@0.1.1` contains host-independent simulation and geometry; `@simpludify/web@0.1.1` adds browser rendering/input/UI and installs Core/PixiJS as dependencies. Both ship compiled ESM and TypeScript declarations. APIs may change between 0.x releases.

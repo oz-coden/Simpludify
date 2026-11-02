@@ -5,6 +5,7 @@ import {
   CanvasButton,
   CanvasColumn,
   CanvasLabel,
+  CanvasPanel,
   Character,
   defineActions,
   Game,
@@ -49,7 +50,13 @@ for (const id of ["first", "second"] as const) {
       padding: 16,
       gap: 12,
     });
-    canvasUI(ui);
+    const region = CanvasPanel([], {
+      grow: 1,
+      minHeight: 100,
+      pointerEvents: "none",
+    });
+    const canvas = canvasUI(CanvasColumn([ui, region], { height: "100%" }));
+    game.bindViewport(canvas, region);
   });
 }
 await game.run("first");

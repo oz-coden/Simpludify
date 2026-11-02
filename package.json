@@ -1,6 +1,6 @@
 {
   "name": "simpludify",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -42,7 +42,8 @@
     "test:packages": "node scripts/test-packages.mjs",
     "test:packages:registry": "node scripts/test-packages.mjs --registry",
     "pack:packages": "node scripts/pack-packages.mjs",
-    "test:starter": "node scripts/test-starter.mjs"
+    "test:starter": "node scripts/test-starter.mjs",
+    "version:sdk": "node scripts/set-sdk-version.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.3",
