@@ -134,11 +134,13 @@ try {
       );
       item.status = "publish-command-succeeded";
       let result;
-      for (let attempt = 0; attempt < 12; attempt++) {
+      // npm may scan a new version for several minutes after accepting the publish.
+      const visibleBy = Date.now() + 6 * 60_000;
+      do {
         result = await metadata(entry.name);
-        if (result) break;
+        if (result || Date.now() >= visibleBy) break;
         await pause(5000);
-      }
+      } while (Date.now() < visibleBy);
       assert(
         result,
         `Publication not visible for ${entry.name}; inspect registry before retry`,

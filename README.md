@@ -2,25 +2,21 @@
 
 [公式ドキュメント・サンプル](https://oz-coden.github.io/Simpludify/) · [日本語ガイドのソース](site/ja/index.md) · [English API](docs/api.md)
 
-コード主導・軽量・AIネイティブな、TypeScript製の実験的2Dコンテンツエンジンです。ゲームやインタラクティブコンテンツを、理解しやすい標準APIで構築します。理解しやすく、一貫性があり、保守しやすいAPIを優先します。Experimental v0.1.1のnpm SDKを公開済みです。独立プロジェクトからnpmで導入できます。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できるサンプルを公式サイトにまとめています。
+コード主導・軽量・AIネイティブな、TypeScript製の実験的2Dコンテンツエンジンです。ゲームやインタラクティブコンテンツを、理解しやすい標準APIで構築します。理解しやすく、一貫性があり、保守しやすいAPIを優先します。Experimental v0.1.2のnpm SDKを公開済みです。独立プロジェクトからnpmで導入できます。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できるサンプルを公式サイトにまとめています。
 
 A code-first TypeScript 2D game engine. Create a visible character, responsive UI, and scene navigation using ordinary code and browser tooling.
 
 [Core / Hostの責務と移植性](docs/host-boundary.md) · [作業報告・検証結果](docs/work-reports/README.md)
 
-**Status: experimental Web engine with a composition-based Core.** The API can change before a stable release. Electron/Tauri/Android packaging is pending. The Core and Web SDK packages are published on npm as v0.1.1.
+**Status: experimental Web engine with a composition-based Core.** The API can change before a stable release. Electron/Tauri/Android packaging is pending. The Core and Web SDK packages are published on npm as v0.1.2.
 
-## v0.1.2 release preparation
+## Experimental npm SDK v0.1.2
 
-Source packages are now v0.1.2. The latest confirmed public npm release is v0.1.1; v0.1.2 remains pending publication. The candidate adds layout-owned world viewports through `Game.bindViewport()` and interrupted Japanese IME refocus fixes from PR #8. See [release validation and status](docs/work-reports/2026-11-02-v0.1.2-release.md) and [publishing procedures](docs/npm-publishing.md). The registry installation instructions and independent starter below remain on the available v0.1.1 until the next release is verified.
+`@simpludify/core@0.1.2` contains host-independent simulation and geometry; `@simpludify/web@0.1.2` adds browser rendering/input/UI and installs Core/PixiJS as dependencies. Both ship compiled ESM and TypeScript declarations. APIs may change between 0.x releases.
 
-## Experimental npm SDK v0.1.1
+**Registry status: published.** Browser projects can install with `npm install @simpludify/web@0.1.2`. The [complete npm/Vite guide](site/ja/npm.md) includes project setup, runnable game code, automatic/explicit CSS, production builds and known limits. For independent projects, use the published registry packages rather than copying engine source. [実際のゲーム開発で確認したSDK利用パターン](docs/sdk-consumer-patterns.md)に、HUDとViewport、Canvas/DOMのフォーカス、Tween、ライセンスの注意点をまとめています。 [Publishing and OIDC procedures](docs/npm-publishing.md) describe version checks, exact archives and the manual Trusted Publishing workflow. [v0.1.2 publication evidence](docs/work-reports/2026-11-02-v0.1.2-publication.md) records the immutable source revision and validation.
 
-`@simpludify/core@0.1.1` contains host-independent simulation and geometry; `@simpludify/web@0.1.1` adds browser rendering/input/UI and installs Core/PixiJS as dependencies. Both ship compiled ESM and TypeScript declarations. APIs may change between 0.x releases.
-
-**Registry status: published.** Browser projects can install with `npm install @simpludify/web@0.1.1`. The [complete npm/Vite guide](site/ja/npm.md) includes project setup, runnable game code, automatic/explicit CSS, production builds and known limits. For independent projects, use the published registry packages rather than copying engine source. [実際のゲーム開発で確認したSDK利用パターン](docs/sdk-consumer-patterns.md)に、HUDとViewport、Canvas/DOMのフォーカス、Tween、ライセンスの注意点をまとめています。 [Publishing and OIDC procedures](docs/npm-publishing.md) describe the initial-publication authentication constraint and the manual release workflow.
-
-The [independent npm/Vite starter](templates/npm-vite/README.md) includes a committed lockfile, Pages base support, Scene cleanup and dependency notice generation. The [SDK integration lab](examples/sdk-integration/README.md) demonstrates source improvements planned for the next SDK release.
+The [independent npm/Vite starter](templates/npm-vite/README.md) includes a committed lockfile, Pages base support, Scene cleanup and dependency notice generation. The [SDK integration lab](examples/sdk-integration/README.md) demonstrates layout-owned viewports, IME focus ownership and display-only discrete Tween with the published v0.1.2 API.
 
 ## Quick start
 
