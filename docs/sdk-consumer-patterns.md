@@ -26,7 +26,7 @@ Published v0.1.1 consumers continue to use `setViewport` with their own scoped `
 
 ## Canvas and DOM focus integration
 
-Canvas controls are suitable for in-game HUDs and menus; a long reorderable instruction editor with native inputs, IME and accessible document structure may be better kept in DOM.
+Canvas controls can also compose instruction editors and paged event logs. Use Scroll for bounded forms, retain node identity during simulation updates, and restore logical focus after structural edits. The next SDK adds semantic CanvasLabel text; published 0.1.2 omits noninteractive text from its mirror, so complete Canvas migrations must account for that release boundary. Native document structure and live-region announcements still require separate consideration.
 
 - Give a keyboard-operable map region an accessible name, a visible focus state and a textual description of its selected cell. Use arrow keys only when **that region** has focus, so DOM text and number fields retain their key ownership.
 - When rebuilding DOM command rows after inserting, deleting or reordering, identify a surviving control to focus. Prefer logical row identity to a stale DOM element.

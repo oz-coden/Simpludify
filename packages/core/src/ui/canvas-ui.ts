@@ -25,6 +25,7 @@ export class CanvasUI implements LifetimeOwner {
   private focusNode: CanvasNode | undefined;
   private factor: number;
   private dirty = true;
+  private measure: MeasureText | undefined;
   private projectionDirty = true;
   private readonly baseBounds = new WeakMap<CanvasNode, UIBounds>();
   private readonly moving = new Set<CanvasNode>();
@@ -118,6 +119,7 @@ export class CanvasUI implements LifetimeOwner {
   focus(node?: CanvasNode): void {
     if (this.disposed)
       throw new EngineError("OWNER_DISPOSED", "UI has been disposed");
+    this.syncFocusLayout();
     if (node && !this.canFocus(node))
       throw new EngineError(
         "UI_OWNERSHIP",
@@ -139,6 +141,7 @@ export class CanvasUI implements LifetimeOwner {
   }
   /** Ordered traversal, including offscreen controls. Undefined leaves focus at the boundary. */
   focusNext(reverse = false): CanvasNode | undefined {
+    this.syncFocusLayout();
     const order: CanvasNode[] = [];
     this.walk((node) => {
       if (this.canFocus(node)) order.push(node);
@@ -154,6 +157,11 @@ export class CanvasUI implements LifetimeOwner {
       ];
     if (node) this.focus(node);
     return node;
+  }
+  /** Reuse the Host's last metrics after a dynamic form/list mutation. */
+  private syncFocusLayout(): void {
+    if (this.measure && (this.dirty || this.projectionDirty))
+      this.layout(this.width, this.height, this.measure);
   }
   /** Project scroll reveal before testing clips; static clipped controls must not trap Tab. */
   private canFocus(node: CanvasNode): boolean {
@@ -278,6 +286,7 @@ export class CanvasUI implements LifetimeOwner {
   /** @internal Rendering supplies exact text metrics; unchanged frames do no layout. */
   layout(width: number, height: number, measure: MeasureText): boolean {
     if (this.disposed) return false;
+    this.measure = measure;
     const geometry =
       this.dirty || this.width !== width || this.height !== height;
     if (!geometry && !this.projectionDirty) return false;
@@ -498,6 +507,7 @@ export class CanvasUI implements LifetimeOwner {
           this.removeScene = undefined;
           this.nodes = 0;
           this.errors = () => {};
+          this.measure = undefined;
         },
       ],
       "Canvas UI cleanup failed",

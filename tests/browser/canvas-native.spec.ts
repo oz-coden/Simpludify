@@ -82,6 +82,24 @@ for (const fallback of [false, true])
       });
       await expect(mirror).toHaveCount(0);
     });
+    test("a newly visible editor can receive focus before the next presentation frame", async ({
+      page,
+    }) => {
+      await page.evaluate(() => {
+        const f = window.nativeProbe;
+        f.screen.playerName.visible = false;
+        f.tick();
+        f.screen.playerName.visible = true;
+        f.ui.focus(f.screen.playerName);
+        f.tick();
+      });
+      await expect(
+        page.getByRole("textbox", {
+          name: "プレイヤー名 / Player name",
+          exact: true,
+        }),
+      ).toBeFocused();
+    });
     test("native Select labels, disabled options, keyboard, program replacement and blur", async ({
       page,
     }) => {
