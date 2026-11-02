@@ -41,6 +41,7 @@ interface Entry {
   mask: Graphics;
   button?: HTMLButtonElement | HTMLSelectElement | HTMLInputElement;
   native?: CanvasNativeSelect | CanvasNativeText;
+  label?: HTMLSpanElement;
   abort: AbortController;
   signature?: string;
   paintSignature?: string;
@@ -384,8 +385,7 @@ export class CanvasVisual implements CanvasPresentation {
     this.syncs++;
     this.display.scale.set(this.ui.scale);
     const visited = new Set<CanvasNode>(),
-      buttons: (HTMLButtonElement | HTMLSelectElement | HTMLInputElement)[] =
-        [];
+      buttons: HTMLElement[] = [];
     const paint: {
       node?: CanvasNode;
       box: UIBounds;
@@ -426,6 +426,10 @@ export class CanvasVisual implements CanvasPresentation {
               entry.button = entry.native.element;
             } else entry.button = this.button(node);
             this.element.append(entry.button);
+          } else if (node.kind === "label") {
+            entry.label = document.createElement("span");
+            entry.label.className = "s-canvas-label";
+            this.element.append(entry.label);
           }
           if (node.kind !== "panel") {
             entry.text = new Text({ text: node.text });
@@ -454,6 +458,11 @@ export class CanvasVisual implements CanvasPresentation {
             ...(entry.native ? { native: entry.native, clip } : {}),
           });
         if (entry.button) buttons.push(entry.button);
+        if (entry.label) {
+          buttons.push(entry.label);
+          if (entry.label.textContent !== node.text) entry.label.textContent = node.text;
+          entry.label.setAttribute("aria-hidden", String(canvasOpacity(node) === 0));
+        }
         const b = node.bounds,
           s = node.style;
         let enabled = !node.busy;
@@ -731,6 +740,7 @@ export class CanvasVisual implements CanvasPresentation {
         () => entry.abort.abort(),
         () => entry.native?.dispose(),
         () => entry.button?.remove(),
+        () => entry.label?.remove(),
         // These Graphics contexts and Text styles are private to this presentation.
         // An options object with only children:true does not destroy owned GraphicsContext in Pixi8.
         () => entry.background.destroy({ context: true }),
