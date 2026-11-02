@@ -39,6 +39,49 @@ for (const fallback of [false, true])
     test.afterEach(async ({ page }) => {
       expect(await page.evaluate(() => window.nativeProbe.errors)).toEqual([]);
     });
+    test("label semantics follow text, tree order and lifetime without interrupting editing", async ({
+      page,
+    }) => {
+      const mirror = page.locator(".s-canvas-accessibility");
+      await page.evaluate(() => {
+        const f = window.nativeProbe;
+        f.screen.status.setText("入力を確認してください");
+        f.focus(f.screen.playerName);
+      });
+      await expect(
+        mirror
+          .locator(".s-canvas-label")
+          .filter({ hasText: "入力を確認してください" }),
+      ).toHaveCount(1);
+      const input = page.getByRole("textbox", {
+        name: "プレイヤー名 / Player name",
+        exact: true,
+      });
+      await input.fill("日本語の計画");
+      await page.evaluate(() => {
+        const f = window.nativeProbe;
+        f.screen.status.setText("計画を編集中");
+        f.screen.root.move(f.screen.status, 0);
+        f.tick();
+      });
+      await expect(input).toBeFocused();
+      await expect(input).toHaveValue("日本語の計画");
+      await expect(mirror.locator(":scope > *").first()).toHaveText(
+        "計画を編集中",
+      );
+      await page.evaluate(() => {
+        const f = window.nativeProbe;
+        f.screen.status.visible = false;
+        f.tick();
+      });
+      await expect(
+        mirror.locator(".s-canvas-label").filter({ hasText: "計画を編集中" }),
+      ).toHaveCount(0);
+      await page.evaluate(async () => {
+        await window.nativeProbe.game.goTo("empty");
+      });
+      await expect(mirror).toHaveCount(0);
+    });
     test("native Select labels, disabled options, keyboard, program replacement and blur", async ({
       page,
     }) => {

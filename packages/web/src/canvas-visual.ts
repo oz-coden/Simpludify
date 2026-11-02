@@ -460,8 +460,12 @@ export class CanvasVisual implements CanvasPresentation {
         if (entry.button) buttons.push(entry.button);
         if (entry.label) {
           buttons.push(entry.label);
-          if (entry.label.textContent !== node.text) entry.label.textContent = node.text;
-          entry.label.setAttribute("aria-hidden", String(canvasOpacity(node) === 0));
+          if (entry.label.textContent !== node.text)
+            entry.label.textContent = node.text;
+          entry.label.setAttribute(
+            "aria-hidden",
+            String(canvasOpacity(node) === 0),
+          );
         }
         const b = node.bounds,
           s = node.style;
