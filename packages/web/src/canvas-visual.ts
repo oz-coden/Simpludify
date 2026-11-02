@@ -65,6 +65,7 @@ export class CanvasVisual implements CanvasPresentation {
   private dirty = true;
   private dead = false;
   private active = false;
+  private cacheResolution: number | undefined;
   private mirroredFocus: CanvasNode | undefined;
   private readonly subscriptions: Array<() => void> = [];
   private syncs = 0;
@@ -76,6 +77,7 @@ export class CanvasVisual implements CanvasPresentation {
       graphics(graphics: Graphics, context: number | undefined): void;
       text(text: Text, key: string | undefined): void;
       changedText(key: string): void;
+      cacheResolution(): number | undefined;
     },
   ) {
     this.display.eventMode = "none";
@@ -200,7 +202,15 @@ export class CanvasVisual implements CanvasPresentation {
     cache.values.set(width, result);
     return result;
   };
+  private clearCache(): void {
+    if (this.cacheResolution === undefined) return;
+    this.display.renderGroup?.texture?.source.unload();
+    this.display.cacheAsTexture(false);
+    this.cacheResolution = undefined;
+  }
   beforeResolutionChange(): void {
+    this.clearCache();
+    this.dirty = true;
     for (const entry of this.entries.values())
       if (entry.text && !entry.text.destroyed)
         this.resources.changedText(entry.text.styleKey);
@@ -395,6 +405,7 @@ export class CanvasVisual implements CanvasPresentation {
       clip?: UIBounds;
     }[] = [];
     let order = 0;
+    let scrollVisible = false;
     let restoreNativeFocus: CanvasNode | undefined;
     this.ui.walk(
       (node, parentClip) => {
@@ -471,6 +482,14 @@ export class CanvasVisual implements CanvasPresentation {
         }
         const b = node.bounds,
           s = node.style;
+        const scrollBox = intersectUI(b, clip);
+        if (
+          node.style.scroll &&
+          scrollBox.width > 0 &&
+          scrollBox.height > 0 &&
+          canvasOpacity(node) > 0
+        )
+          scrollVisible = true;
         let enabled = !node.busy;
         for (let p: CanvasNode | undefined = node; p; p = p.parent)
           enabled &&= p.enabled;
@@ -743,6 +762,21 @@ export class CanvasVisual implements CanvasPresentation {
     )
       button.focus({ preventScroll: true });
     this.mirroredFocus = this.ui.focusedNode;
+    // Bounded scroll screens amortize stencil/text work across unchanged world frames.
+    const ratio = this.resources.cacheResolution();
+    const cache =
+      scrollVisible &&
+      ratio !== undefined &&
+      Math.max(width, height) * ratio <= 4096
+        ? ratio * this.ui.scale
+        : undefined;
+    if (cache !== this.cacheResolution) {
+      this.clearCache();
+      this.cacheResolution = cache;
+      if (cache !== undefined)
+        this.display.cacheAsTexture({ resolution: cache });
+    }
+    if (cache !== undefined) this.display.updateCacheTexture();
   }
   private releaseEntry(entry: Entry): void {
     const backgroundContext = entry.background.context?.uid,
@@ -786,6 +820,7 @@ export class CanvasVisual implements CanvasPresentation {
       [
         ...this.subscriptions.splice(0),
         ...entries.map((e) => () => this.releaseEntry(e)),
+        () => this.clearCache(),
         () => this.display.destroy({ children: true }),
         () => this.element.remove(),
       ],

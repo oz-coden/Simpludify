@@ -53,3 +53,13 @@ One new public option is justified by the consumer: `CanvasTextInputOptions.inpu
 Investigation of the long-form WebGL path found that fully scroll-clipped entries still submitted their displays and stencil masks for drawing. Web now suppresses those paint submissions while retaining node identity, text semantics and focus traversal. The same rule excludes offscreen overlay scrollbars. `canvasDiagnostics.visibleNodes` exposes the number of paint-visible UI entries for verification; it does not virtualize or remove the model tree.
 
 A 20-row scroll fixture keeps more than 50 model/semantic nodes while fewer than 10 remain paint-visible, including after focusing the final entry. The WebGL and Canvas2D regression passed and confirms that offscreen semantic text remains present and focus reveals the control. The external full-screen WebGL consumer is being repeated to measure the actual effect; no speedup is assumed from the code alone.
+
+## Verified scroll-screen WebGL cache
+
+Culling alone did not resolve the full-screen software-WebGL test timeout. The unchanged UI still repeated many clipped text/stencil draws during world-only frames. WebGL scroll screens now cache their composed UI until a UI mutation, scroll, focus, layout or scale change. Ordinary HUDs without a visible scroller and Canvas2D retain direct rendering. Caching is skipped above a 4096-physical-pixel host edge; cache resolution follows renderer DPR × UI scale.
+
+The private cache target is GPU-unloaded before returning it to Pixi's pool when the cache is disabled, on resize/DPR/UI-scale change, or UI disposal. No global texture-pool clearing or new game configuration is introduced. Real-pixel tests cover changed backgrounds, UI scaling, persistent caching and a target unload on Scene replacement, separately for WebGL and uncached Canvas2D.
+
+The same desktop editor-driven solution case, previously timing out at 180 seconds locally, passed in about 40 seconds using Chromium 153/software WebGL after the corrected cache implementation. This is a single regression-case observation, not a general engine benchmark. Full standard Chromium CI remains required before release.
+
+Final local cache checks passed for WebGL and Canvas2D (4 tests): culling, actual pixel updates, UI scaling and Scene-target unload. All 812 unit tests, quality checks and the repeated packed-package consumer suite passed on the cache implementation.

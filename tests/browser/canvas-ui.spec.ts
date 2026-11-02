@@ -91,6 +91,72 @@ for (const fallback of [false, true])
         ),
       ).toBeLessThan(10);
     });
+    test("scroll-screen caching updates pixels and releases its leased GPU target", async ({
+      page,
+    }) => {
+      await boot(page);
+      const result = await page.evaluate(async (url) => {
+        const { CanvasScroll, CanvasButton } = await import(url);
+        const f = window.canvasProbe;
+        const button = CanvasButton("Cached", () => {}, {
+          width: 120,
+          height: 50,
+          background: 0x880000,
+        });
+        f.root.root.clear();
+        f.root.root.add(CanvasScroll([button], { height: 70, width: 200 }));
+        f.step();
+        const first = f.pixel(button.bounds.x + 8, button.bounds.y + 8);
+        const presentations = (
+          f.renderer as unknown as {
+            canvasPresentations: Set<{
+              display: {
+                isCachedAsTexture: boolean;
+                renderGroup?: {
+                  texture?: {
+                    source: { on(event: string, fn: () => void): void };
+                  };
+                };
+              };
+            }>;
+          }
+        ).canvasPresentations;
+        const display = [...presentations][0]!.display;
+        const initialCache = display.isCachedAsTexture;
+        button.setStyle({ background: 0x008800 });
+        f.step();
+        const second = f.pixel(button.bounds.x + 8, button.bounds.y + 8);
+        const updatedCache = display.isCachedAsTexture;
+        f.root.scale = 1.25;
+        f.step();
+        const scaled = f.pixel(
+          (button.bounds.x + 8) * f.root.scale,
+          (button.bounds.y + 8) * f.root.scale,
+        );
+        let unloaded = 0;
+        const source = display.renderGroup?.texture?.source;
+        source?.on("unload", () => {
+          unloaded++;
+        });
+        await f.game.goTo("empty");
+        return {
+          first,
+          second,
+          initialCache,
+          updatedCache,
+          scaled,
+          hadTarget: !!source,
+          unloaded,
+        };
+      }, `/@fs/${process.cwd()}/packages/web/src/index.ts`);
+      expect(result.first).toEqual([136, 0, 0]);
+      expect(result.second).toEqual([0, 136, 0]);
+      expect(result.scaled).toEqual([0, 136, 0]);
+      expect(result.initialCache).toBe(!fallback);
+      expect(result.updatedCache).toBe(!fallback);
+      expect(result.hadTarget).toBe(!fallback);
+      expect(result.unloaded).toBe(fallback ? 0 : 1);
+    });
     test("wraps mixed text within min/max buttons and keeps paint, native focus and pointer boxes synchronized", async ({
       page,
     }) => {
