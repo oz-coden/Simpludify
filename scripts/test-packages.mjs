@@ -17,6 +17,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { chromium } from "playwright";
 import { build, preview, createServer as viteServer } from "vite";
+import { sdkVersion } from "./sdk-version.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 process.chdir(root);
@@ -86,7 +87,7 @@ try {
       const pkg = JSON.parse(
         readFileSync(`packages/${name}/package.json`, "utf8"),
       );
-      assert.equal(pkg.version, "0.1.1");
+      assert.equal(pkg.version, sdkVersion);
       assert.equal(pkg.private, undefined);
       const paths = packed.files.map((file) => file.path);
       for (const path of paths)
@@ -106,7 +107,7 @@ try {
       );
       if (name === "web") {
         assert(paths.includes("dist/style.css"));
-        assert.equal(pkg.dependencies["@simpludify/core"], "0.1.1");
+        assert.equal(pkg.dependencies["@simpludify/core"], sdkVersion);
       }
       const map = JSON.parse(
         readFileSync(`packages/${name}/dist/index.js.map`, "utf8"),
@@ -149,7 +150,9 @@ try {
       }),
     );
   }
-  const coreSpec = registryMode ? "@simpludify/core@0.1.1" : tarballs.core.path;
+  const coreSpec = registryMode
+    ? `@simpludify/core@${sdkVersion}`
+    : tarballs.core.path;
   await run(
     npm,
     ["install", "--ignore-scripts", "--no-audit", "--no-fund", coreSpec],
@@ -157,7 +160,8 @@ try {
   );
   assert(!existsSync(join(core, "node_modules/@simpludify/web")));
   assert(!existsSync(join(core, "node_modules/pixi.js")));
-  const coreProgram = `import {Engine, Actor, Transform, Grid, TileGeometry, Tween} from '@simpludify/core';
+  const coreProgram = `import {Engine, Actor, Transform, Grid, TileGeometry, Tween, ENGINE_VERSION} from '@simpludify/core';
+if (ENGINE_VERSION !== '${sdkVersion}') throw new Error('Wrong packed engine version');
 const engine = new Engine(); const actor = new Actor(); actor.add(new Transform()); engine.scene.add(actor); engine.step(1/60); engine.dispose();
 if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Missing API');\n`;
   writeFileSync(join(core, "main.mjs"), coreProgram);
@@ -210,9 +214,9 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
       response.end(
         JSON.stringify({
           name: entry.pkg.name,
-          "dist-tags": { latest: "0.1.1" },
+          "dist-tags": { latest: sdkVersion },
           versions: {
-            "0.1.1": {
+            [sdkVersion]: {
               ...entry.pkg,
               dist: {
                 tarball: `http://127.0.0.1:${registry.address().port}/${name}.tgz`,
@@ -253,7 +257,7 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
         "--ignore-scripts",
         "--no-audit",
         "--no-fund",
-        "@simpludify/web@0.1.1",
+        `@simpludify/web@${sdkVersion}`,
       ],
       web,
     );
@@ -288,22 +292,6 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
     web,
   );
   cpSync("tests/package-fixture", web, { recursive: true });
-  if (!registryMode) {
-    // Validate the unreleased additive API through emitted declarations and packed runtime.
-    // Registry mode deliberately keeps the immutable public 0.1.1 fixture unchanged.
-    const main = join(web, "main.ts");
-    writeFileSync(
-      main,
-      readFileSync(main, "utf8")
-        .replace("  CanvasLabel,", "  CanvasLabel,\n  CanvasPanel,")
-        .replace(
-          "    canvasUI(ui);",
-          `    const region = CanvasPanel([], { grow: 1, minHeight: 100, pointerEvents: "none" });
-    const canvas = canvasUI(CanvasColumn([ui, region], { height: "100%" }));
-    game.bindViewport(canvas, region);`,
-        ),
-    );
-  }
   writeFileSync(
     join(web, "explicit-css.ts"),
     'import "@simpludify/web/style.css";\n',
@@ -384,6 +372,7 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
       for (const viewport of [
         { width: 1280, height: 720 },
         { width: 390, height: 844 },
+        { width: 320, height: 740 },
       ]) {
         const page = await browser.newPage({ viewport });
         const errors = [];

@@ -3,16 +3,15 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Existing validated main tag (v0.1.1)
+        description: Existing validated main tag matching the SDK version
         required: true
-        default: v0.1.1
       confirmation:
-        description: "Type: publish @simpludify/core@0.1.1 and @simpludify/web@0.1.1"
+        description: "Type: publish @simpludify/core@VERSION and @simpludify/web@VERSION"
         required: true
 permissions:
   contents: read
 concurrency:
-  group: npm-publish-v0.1.1
+  group: npm-publish
   cancel-in-progress: false
 jobs:
   validate:
@@ -35,9 +34,10 @@ jobs:
           CONFIRMATION: ${{ inputs.confirmation }}
           GH_TOKEN: ${{ github.token }}
         run: |
-          test "$RELEASE_TAG" = v0.1.1
-          test "$CONFIRMATION" = 'publish @simpludify/core@0.1.1 and @simpludify/web@0.1.1'
-          sha=$(git rev-parse 'refs/tags/v0.1.1^{commit}')
+          version=$(node --input-type=module -e 'import {sdkVersion} from "./scripts/sdk-version.mjs"; console.log(sdkVersion)')
+          test "$RELEASE_TAG" = "v$version"
+          test "$CONFIRMATION" = "publish @simpludify/core@$version and @simpludify/web@$version"
+          sha=$(git rev-parse "refs/tags/$RELEASE_TAG^{commit}")
           git merge-base --is-ancestor "$sha" origin/main
           test "$sha" = "$GITHUB_SHA"
           SHA="$sha" node --input-type=module <<'JS'
@@ -65,6 +65,8 @@ jobs:
           cd test-results/packages
           sha256sum *.tgz > SHA256SUMS
       - run: node scripts/publish-packages.mjs
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
@@ -81,6 +83,7 @@ jobs:
       - uses: actions/checkout@v7.0.1
         with:
           ref: ${{ needs.validate.outputs.sha }}
+          fetch-depth: 0
       - uses: actions/setup-node@v7.1.0
         with:
           node-version: 24

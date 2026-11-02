@@ -19,3 +19,5 @@ Before long-running verification or integration, commit implementation and updat
 - [2026-11-02 npm SDK documentation review](2026-11-02-sdk-docs-review.md)
 
 - [2026-11-02 SDK consumer integration](2026-11-02-sdk-consumer-integration.md)
+
+- [2026-11-02 v0.1.2 release preparation](2026-11-02-v0.1.2-release.md)

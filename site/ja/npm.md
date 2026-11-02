@@ -2,6 +2,8 @@
 
 SimpludifyのExperimental v0.1.1は、`@simpludify/core`と`@simpludify/web`に分かれたESM SDKです。0.xではAPIが変更される可能性があります。内部ファイルの直接importは公開APIではありません。
 
+> **v0.1.2の準備状況：** ソースのCore/Webはv0.1.2です。`Game.bindViewport()`と日本語IMEの再フォーカス修正を含みます。npm公開は検証・最終承認待ちです。以下の導入手順とテンプレートは公開確認済みv0.1.1を使用します。v0.1.2を利用する手順への更新は公開後に行います。
+
 **公開状態：`@simpludify/core@0.1.1`と`@simpludify/web@0.1.1`はnpmレジストリで公開済みです。** 以下の手順で独立したプロジェクトにインストールできます。
 
 ## 1. 必要な環境とパッケージ

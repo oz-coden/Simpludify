@@ -3,13 +3,29 @@ import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { sdkVersion } from "./sdk-version.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 process.chdir(root);
+const npmCLI = process.env.npm_execpath;
 const publish = process.argv.includes("--publish");
 if (process.argv.some((value, index) => index > 1 && value !== "--publish"))
   throw new Error("Usage: node scripts/publish-packages.mjs [--publish]");
 if (publish) {
+  assert.equal(
+    process.env.RELEASE_TAG,
+    `v${sdkVersion}`,
+    "Approved tag must match SDK version",
+  );
+  assert.equal(
+    execFileSync(
+      "git",
+      ["rev-parse", `refs/tags/${process.env.RELEASE_TAG}^{commit}`],
+      { encoding: "utf8" },
+    ).trim(),
+    process.env.GITHUB_SHA,
+    "Tag must identify the dispatched source commit",
+  );
   assert.equal(
     process.env.GITHUB_ACTIONS,
     "true",
@@ -35,7 +51,7 @@ const record = {
 };
 const pause = (ms) => new Promise((done) => setTimeout(done, ms));
 async function metadata(name) {
-  const url = `https://registry.npmjs.org/${encodeURIComponent(name)}/0.1.1`;
+  const url = `https://registry.npmjs.org/${encodeURIComponent(name)}/${sdkVersion}`;
   const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
   if (response.status === 404) return undefined;
   if (!response.ok)
@@ -51,13 +67,26 @@ try {
       readFileSync(`packages/${name}/package.json`, "utf8"),
     );
     assert.equal(manifest.name, `@simpludify/${name}`);
-    assert.equal(manifest.version, "0.1.1");
+    assert.equal(manifest.version, sdkVersion);
     assert.equal(manifest.private, undefined);
     assert.equal(
       manifest.repository.url,
       "git+https://github.com/oz-coden/Simpludify.git",
     );
+    assert.equal(packed.name, manifest.name);
+    assert.equal(packed.version, sdkVersion);
+    assert.equal(packed.filename, `simpludify-${name}-${sdkVersion}.tgz`);
     const path = resolve(output, packed.filename);
+    const archived = JSON.parse(
+      execFileSync("tar", ["-xOf", path, "package/package.json"], {
+        encoding: "utf8",
+      }),
+    );
+    assert.deepEqual(
+      archived,
+      manifest,
+      "Archive metadata must match the validated source manifest",
+    );
     assert.equal(
       `sha512-${createHash("sha512").update(readFileSync(path)).digest("base64")}`,
       packed.integrity,
@@ -76,7 +105,7 @@ try {
       assert.equal(
         existing.dist.integrity,
         entry.integrity,
-        `Existing ${entry.name}@0.1.1 differs: never overwrite or silently skip it`,
+        `Existing ${entry.name}@${sdkVersion} differs: never overwrite or silently skip it`,
       );
   }
   for (const entry of entries) {
@@ -88,8 +117,9 @@ try {
     record.packages.push(item);
     if (publish && !existing) {
       execFileSync(
-        "npm",
+        npmCLI ? process.execPath : "npm",
         [
+          ...(npmCLI ? [npmCLI] : []),
           "publish",
           entry.path,
           "--access",
