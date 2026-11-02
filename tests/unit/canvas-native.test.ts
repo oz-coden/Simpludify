@@ -410,3 +410,17 @@ it("typed nullable Select values retain the first enabled option through replace
   ]);
   expect(node.value).toBeNull();
 });
+
+it("text keyboard hints preserve unnormalized numeric drafts and reject unknown modes", () => {
+  for (const inputMode of ["text", "numeric", "decimal"] as const) {
+    const node = CanvasTextInput({ value: "001", inputMode });
+    const model = node.control.model;
+    expect(model.kind).toBe("text");
+    if (model.kind === "text") expect(model.inputMode).toBe(inputMode);
+    expect(node.value).toBe("001");
+    node.value = "日本語";
+    expect(node.value).toBe("日本語");
+    node.dispose();
+  }
+  expect(() => CanvasTextInput({ inputMode: "invalid" as never })).toThrow();
+});

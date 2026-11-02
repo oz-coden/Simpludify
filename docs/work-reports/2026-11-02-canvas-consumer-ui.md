@@ -35,3 +35,9 @@ Implementation and browser regression checks are in progress. Standard Chromium 
 - UI invalidation after disposal is now a no-op, so routing release/hover cleanup cannot recursively attempt focus on an already-disposed UI. This fixes an actual external Scene replacement failure observed in Run To Exit.
 - 811 unit tests passed after these fixes. The focused/hovered Scene replacement browser regression is added alongside the label and dynamic-focus checks.
 - v0.1.3 candidate Core/Web archives were packed; no publication has occurred. Final archive integrity and CI will be recorded after the remaining regression checks.
+
+## Publication authorization and mobile input
+
+The v0.1.3 release is authorized after the implementation and validation complete. The immutable main source, tag, exact archive integrity and successful main CI will be selected before dispatching the existing Core-first OIDC publication workflow. GitHub connector operations do not expose tag creation or workflow dispatch, so the existing GitHub Actions UI is used for those operations. A manual SDK-tag workflow validates the version, exact main SHA and successful push CI, creates only the absent approved tag, and refuses to move an existing tag.
+
+One new public option is justified by the consumer: `CanvasTextInputOptions.inputMode` and exported `CanvasTextInputMode` (`text | numeric | decimal`, default text). Text inputs preserve raw integers for application errors while requesting a numeric mobile keyboard. NumberInput's clamping/snapping semantics are unchanged. This avoids making the game manage a native input element merely to request the proper keyboard. A keyboard hint is not proof of a specific physical soft-keyboard layout. Unit and WebGL/Canvas2D native-attribute/raw-text tests cover the option.

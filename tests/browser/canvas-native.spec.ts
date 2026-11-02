@@ -114,6 +114,31 @@ for (const fallback of [false, true])
       });
       await expect(page.locator(".s-canvas-accessibility")).toHaveCount(0);
     });
+    test("numeric text keyboard hints retain raw text for application validation", async ({
+      page,
+    }) => {
+      await page.evaluate(async (url) => {
+        const { CanvasTextInput } = await import(url);
+        const f = window.nativeProbe;
+        const field = CanvasTextInput({
+          label: "Grid coordinate",
+          value: "001",
+          inputMode: "numeric",
+        });
+        f.screen.scroll.add(field);
+        f.ui.focus(field);
+        f.tick();
+      }, `/@fs/${process.cwd()}/packages/web/src/index.ts`);
+      const input = page.getByRole("textbox", {
+        name: "Grid coordinate",
+        exact: true,
+      });
+      await expect(input).toHaveAttribute("inputmode", "numeric");
+      await expect(input).toHaveValue("001");
+      await input.fill("-1.5");
+      await input.press("Enter");
+      await expect(input).toHaveValue("-1.5");
+    });
     test("native Select labels, disabled options, keyboard, program replacement and blur", async ({
       page,
     }) => {

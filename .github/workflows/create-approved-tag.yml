@@ -1,0 +1,54 @@
+name: Create approved SDK tag
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: SDK tag matching the version in main
+        required: true
+      sha:
+        description: Full main commit SHA with successful push CI
+        required: true
+      confirmation:
+        description: "Type: create TAG at SHA"
+        required: true
+permissions:
+  contents: read
+jobs:
+  tag:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Validate the immutable source and create its tag
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+          RELEASE_SHA: ${{ inputs.sha }}
+          CONFIRMATION: ${{ inputs.confirmation }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(node --input-type=module -e 'import {sdkVersion} from "./scripts/sdk-version.mjs"; console.log(sdkVersion)')
+          test "$RELEASE_TAG" = "v$version"
+          test "$RELEASE_SHA" = "$GITHUB_SHA"
+          test "$CONFIRMATION" = "create $RELEASE_TAG at $RELEASE_SHA"
+          node --input-type=module <<'JS'
+          import {execFileSync} from 'node:child_process';
+          const runs=JSON.parse(execFileSync('gh',['api',`repos/${process.env.GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${process.env.RELEASE_SHA}&event=push&per_page=100`],{encoding:'utf8'})).workflow_runs;
+          if (!runs.some(run=>run.head_branch==='main'&&run.status==='completed'&&run.conclusion==='success')) throw Error('Successful main push CI is required');
+          JS
+          if git show-ref --verify --quiet "refs/tags/$RELEASE_TAG"; then
+            test "$(git rev-parse "refs/tags/$RELEASE_TAG^{commit}")" = "$RELEASE_SHA"
+          else
+            git tag "$RELEASE_TAG" "$RELEASE_SHA"
+            git push origin "refs/tags/$RELEASE_TAG"
+          fi
+          echo "Created or verified $RELEASE_TAG at $RELEASE_SHA" >> "$GITHUB_STEP_SUMMARY"

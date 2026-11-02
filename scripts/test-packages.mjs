@@ -386,6 +386,19 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
           "relative",
         );
         assert.equal(await page.locator(".simpludify > canvas").count(), 1);
+        assert.equal(
+          await page
+            .getByRole("textbox", { name: "Coordinate", exact: true })
+            .getAttribute("inputmode"),
+          "numeric",
+        );
+        assert.equal(
+          await page
+            .locator(".s-canvas-label")
+            .filter({ hasText: "Packed SDK" })
+            .count(),
+          1,
+        );
         const diagnostics = await page.evaluate(
           () => window.packageProbe.game.renderer.diagnostics,
         );

@@ -1,7 +1,10 @@
 import { EngineError } from "../foundation/diagnostics";
 import { CanvasTextEditorNode } from "./canvas-editor";
 import type { CanvasStyle } from "./canvas-node";
+export type CanvasTextInputMode = "text" | "numeric" | "decimal";
 export interface CanvasTextInputOptions {
+  /** Keyboard hint only; accepted text and IME remain unchanged. Default text. */
+  inputMode?: CanvasTextInputMode;
   label?: string;
   value?: string;
   placeholder?: string;
@@ -30,9 +33,18 @@ function validText(value: string, limit: number | undefined): string {
   return value;
 }
 export class CanvasTextInputNode extends CanvasTextEditorNode<string> {
-  private readonly constraints: { maxLength: number | undefined };
+  private readonly constraints: {
+    maxLength: number | undefined;
+    inputMode: CanvasTextInputMode;
+  };
   constructor(options: CanvasTextInputOptions = {}, style: CanvasStyle = {}) {
-    const constraints = { maxLength: lengthLimit(options.maxLength) },
+    const inputMode = options.inputMode ?? "text";
+    if (!["text", "numeric", "decimal"].includes(inputMode))
+      throw new EngineError("INVALID_UI", "Invalid text keyboard hint");
+    const constraints = {
+        maxLength: lengthLimit(options.maxLength),
+        inputMode,
+      },
       initial = validText(options.value ?? "", constraints.maxLength);
     super(
       "text-input",
@@ -52,6 +64,9 @@ export class CanvasTextInputNode extends CanvasTextEditorNode<string> {
   protected override parse(text: string): { value: string } | undefined {
     if (this.maxLength !== undefined && text.length > this.maxLength) return;
     return { value: text };
+  }
+  protected override get inputMode(): CanvasTextInputMode {
+    return this.constraints.inputMode;
   }
   protected override get limit(): number | undefined {
     return this.maxLength;

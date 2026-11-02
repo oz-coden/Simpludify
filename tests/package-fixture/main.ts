@@ -6,6 +6,7 @@ import {
   CanvasColumn,
   CanvasLabel,
   CanvasPanel,
+  CanvasTextInput,
   Character,
   defineActions,
   Game,
@@ -46,10 +47,21 @@ for (const id of ["first", "second"] as const) {
       clicks++;
       return game.goTo(id === "first" ? "second" : "first");
     });
-    ui = CanvasColumn([CanvasLabel("Packed SDK"), button], {
-      padding: 16,
-      gap: 12,
-    });
+    ui = CanvasColumn(
+      [
+        CanvasLabel("Packed SDK"),
+        button,
+        CanvasTextInput({
+          label: "Coordinate",
+          value: "001",
+          inputMode: "numeric",
+        }),
+      ],
+      {
+        padding: 16,
+        gap: 12,
+      },
+    );
     const region = CanvasPanel([], {
       grow: 1,
       minHeight: 100,

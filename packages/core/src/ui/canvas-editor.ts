@@ -77,6 +77,9 @@ export abstract class CanvasTextEditorNode<T> extends CanvasInputNode<T> {
   }
   protected abstract format(value: T): string;
   protected abstract parse(text: string): { value: T } | undefined;
+  protected get inputMode(): "text" | "numeric" | "decimal" {
+    return this.kind === "number-input" ? "decimal" : "text";
+  }
   protected get limit(): number | undefined {
     return undefined;
   }
@@ -108,7 +111,7 @@ export abstract class CanvasTextEditorNode<T> extends CanvasInputNode<T> {
       text: this.editing ? this.buffer.text : this.format(this.value),
       placeholder: this.hint,
       maxLength: this.limit,
-      inputMode: this.kind === "number-input" ? "decimal" : "text",
+      inputMode: this.inputMode,
       readOnly: this.readOnly,
     });
   }
