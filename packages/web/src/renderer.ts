@@ -59,12 +59,14 @@ export class PixiRenderer implements RendererPort {
   private readonly canvasPresentations = new Set<CanvasVisual>();
   get canvasDiagnostics() {
     let nodes = 0,
+      visibleNodes = 0,
       buttons = 0,
       syncs = 0,
       textMetrics = 0;
     for (const p of this.canvasPresentations) {
       const d = p.diagnostics;
       nodes += d.nodes;
+      visibleNodes += d.visibleNodes;
       buttons += d.buttons;
       syncs += d.syncs;
       textMetrics += d.textMetrics;
@@ -72,6 +74,7 @@ export class PixiRenderer implements RendererPort {
     return {
       presentations: this.canvasPresentations.size,
       nodes,
+      visibleNodes,
       buttons,
       syncs,
       textMetrics,

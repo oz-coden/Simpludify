@@ -49,6 +49,48 @@ for (const fallback of [false, true])
       await page.waitForFunction(() => !!window.demo);
     });
     test.afterEach(() => expect(errors).toEqual([]));
+    test("culls fully clipped draws while preserving semantic text and focus reveal", async ({
+      page,
+    }) => {
+      await boot(page);
+      const initial = await page.evaluate(async (url) => {
+        const { CanvasScroll, CanvasColumn, CanvasLabel, CanvasButton } =
+          await import(url);
+        const f = window.canvasProbe;
+        f.root.root.clear();
+        f.root.root.add(
+          CanvasScroll(
+            Array.from({ length: 20 }, (_, i) =>
+              CanvasColumn(
+                [CanvasLabel(`Help ${i}`), CanvasButton(`Item ${i}`, () => {})],
+                { height: 90, shrink: 0 },
+              ),
+            ),
+            { height: 100, width: 240 },
+          ),
+        );
+        f.step();
+        return f.renderer.canvasDiagnostics;
+      }, `/@fs/${process.cwd()}/packages/web/src/index.ts`);
+      expect(initial.visibleNodes).toBeLessThan(10);
+      expect(initial.nodes).toBeGreaterThan(50);
+      await expect(
+        page.locator(".s-canvas-label").filter({ hasText: /^Help 19$/ }),
+      ).toHaveCount(1);
+      await page.evaluate(() => {
+        const f = window.canvasProbe;
+        f.root.focus(f.root.root.children[0]!.children.at(-1)!.children[1]);
+        f.step();
+      });
+      await expect(
+        page.getByRole("button", { name: "Item 19", exact: true }),
+      ).toBeFocused();
+      expect(
+        await page.evaluate(
+          () => window.canvasProbe.renderer.canvasDiagnostics.visibleNodes,
+        ),
+      ).toBeLessThan(10);
+    });
     test("wraps mixed text within min/max buttons and keeps paint, native focus and pointer boxes synchronized", async ({
       page,
     }) => {

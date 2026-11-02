@@ -155,6 +155,8 @@ export class CanvasVisual implements CanvasPresentation {
   get diagnostics() {
     return {
       nodes: this.entries.size,
+      visibleNodes: [...this.entries.values()].filter((e) => e.display.visible)
+        .length,
       buttons: [...this.entries.values()].filter((e) => e.button).length,
       syncs: this.syncs,
       textMetrics: this.metrics.size,
@@ -490,6 +492,10 @@ export class CanvasVisual implements CanvasPresentation {
         if (entry.signature === signature) return;
         entry.signature = signature;
         entry.display.position.set(b.x, b.y);
+        const paintBox = intersectUI(b, clip);
+        const visible =
+          paintBox.width > 0 && paintBox.height > 0 && canvasOpacity(node) > 0;
+        entry.display.visible = visible;
         const clipped =
           clip.x !== 0 ||
           clip.y !== 0 ||
@@ -497,7 +503,7 @@ export class CanvasVisual implements CanvasPresentation {
           clip.height !== height / this.ui.scale;
         entry.display.mask = clipped ? entry.mask : null;
         // StencilMaskPipe collects renderables; includeInBuild is managed by Pixi.
-        entry.mask.renderable = clipped;
+        entry.mask.renderable = clipped && visible;
         const maskSignature = JSON.stringify([
           clipped,
           clip.x,
@@ -651,7 +657,12 @@ export class CanvasVisual implements CanvasPresentation {
         const display = entry.scrollbar;
         if (!display) return;
         this.display.setChildIndex(display, order++);
-        display.visible = bars.length > 0;
+        const viewport = intersectUI(node.bounds, clip);
+        display.visible =
+          bars.length > 0 &&
+          viewport.width > 0 &&
+          viewport.height > 0 &&
+          canvasOpacity(node) > 0;
         display.mask = entry.display.mask;
         const signature = JSON.stringify([
           node.style.color,
