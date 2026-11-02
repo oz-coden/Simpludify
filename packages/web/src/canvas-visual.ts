@@ -41,6 +41,7 @@ interface Entry {
   mask: Graphics;
   button?: HTMLButtonElement | HTMLSelectElement | HTMLInputElement;
   native?: CanvasNativeSelect | CanvasNativeText;
+  label?: HTMLSpanElement;
   abort: AbortController;
   signature?: string;
   paintSignature?: string;
@@ -64,6 +65,7 @@ export class CanvasVisual implements CanvasPresentation {
   private dirty = true;
   private dead = false;
   private active = false;
+  private cacheResolution: number | undefined;
   private mirroredFocus: CanvasNode | undefined;
   private readonly subscriptions: Array<() => void> = [];
   private syncs = 0;
@@ -75,6 +77,7 @@ export class CanvasVisual implements CanvasPresentation {
       graphics(graphics: Graphics, context: number | undefined): void;
       text(text: Text, key: string | undefined): void;
       changedText(key: string): void;
+      cacheResolution(): number | undefined;
     },
   ) {
     this.display.eventMode = "none";
@@ -154,6 +157,8 @@ export class CanvasVisual implements CanvasPresentation {
   get diagnostics() {
     return {
       nodes: this.entries.size,
+      visibleNodes: [...this.entries.values()].filter((e) => e.display.visible)
+        .length,
       buttons: [...this.entries.values()].filter((e) => e.button).length,
       syncs: this.syncs,
       textMetrics: this.metrics.size,
@@ -197,7 +202,15 @@ export class CanvasVisual implements CanvasPresentation {
     cache.values.set(width, result);
     return result;
   };
+  private clearCache(): void {
+    if (this.cacheResolution === undefined) return;
+    // Return the lease intact: unloading a pooled source alone leaves its framebuffer stale on reuse.
+    this.display.cacheAsTexture(false);
+    this.cacheResolution = undefined;
+  }
   beforeResolutionChange(): void {
+    this.clearCache();
+    this.dirty = true;
     for (const entry of this.entries.values())
       if (entry.text && !entry.text.destroyed)
         this.resources.changedText(entry.text.styleKey);
@@ -384,8 +397,7 @@ export class CanvasVisual implements CanvasPresentation {
     this.syncs++;
     this.display.scale.set(this.ui.scale);
     const visited = new Set<CanvasNode>(),
-      buttons: (HTMLButtonElement | HTMLSelectElement | HTMLInputElement)[] =
-        [];
+      buttons: HTMLElement[] = [];
     const paint: {
       node?: CanvasNode;
       box: UIBounds;
@@ -393,6 +405,7 @@ export class CanvasVisual implements CanvasPresentation {
       clip?: UIBounds;
     }[] = [];
     let order = 0;
+    let scrollVisible = false;
     let restoreNativeFocus: CanvasNode | undefined;
     this.ui.walk(
       (node, parentClip) => {
@@ -426,6 +439,23 @@ export class CanvasVisual implements CanvasPresentation {
               entry.button = entry.native.element;
             } else entry.button = this.button(node);
             this.element.append(entry.button);
+          } else if (node.kind === "label") {
+            entry.label = document.createElement("span");
+            entry.label.className = "s-canvas-label";
+            const semantics = node.labelSemantics;
+            if (semantics?.role) {
+              entry.label.setAttribute("role", semantics.role);
+              if (semantics.role === "heading")
+                entry.label.setAttribute("aria-level", String(semantics.level));
+              else {
+                entry.label.setAttribute(
+                  "aria-live",
+                  semantics.role === "alert" ? "assertive" : "polite",
+                );
+                entry.label.setAttribute("aria-atomic", "true");
+              }
+            }
+            this.element.append(entry.label);
           }
           if (node.kind !== "panel") {
             entry.text = new Text({ text: node.text });
@@ -454,8 +484,25 @@ export class CanvasVisual implements CanvasPresentation {
             ...(entry.native ? { native: entry.native, clip } : {}),
           });
         if (entry.button) buttons.push(entry.button);
+        if (entry.label) {
+          buttons.push(entry.label);
+          if (entry.label.textContent !== node.text)
+            entry.label.textContent = node.text;
+          entry.label.setAttribute(
+            "aria-hidden",
+            String(canvasOpacity(node) === 0),
+          );
+        }
         const b = node.bounds,
           s = node.style;
+        const scrollBox = intersectUI(b, clip);
+        if (
+          node.style.scroll &&
+          scrollBox.width > 0 &&
+          scrollBox.height > 0 &&
+          canvasOpacity(node) > 0
+        )
+          scrollVisible = true;
         let enabled = !node.busy;
         for (let p: CanvasNode | undefined = node; p; p = p.parent)
           enabled &&= p.enabled;
@@ -477,6 +524,10 @@ export class CanvasVisual implements CanvasPresentation {
         if (entry.signature === signature) return;
         entry.signature = signature;
         entry.display.position.set(b.x, b.y);
+        const paintBox = intersectUI(b, clip);
+        const visible =
+          paintBox.width > 0 && paintBox.height > 0 && canvasOpacity(node) > 0;
+        entry.display.visible = visible;
         const clipped =
           clip.x !== 0 ||
           clip.y !== 0 ||
@@ -484,7 +535,7 @@ export class CanvasVisual implements CanvasPresentation {
           clip.height !== height / this.ui.scale;
         entry.display.mask = clipped ? entry.mask : null;
         // StencilMaskPipe collects renderables; includeInBuild is managed by Pixi.
-        entry.mask.renderable = clipped;
+        entry.mask.renderable = clipped && visible;
         const maskSignature = JSON.stringify([
           clipped,
           clip.x,
@@ -638,7 +689,12 @@ export class CanvasVisual implements CanvasPresentation {
         const display = entry.scrollbar;
         if (!display) return;
         this.display.setChildIndex(display, order++);
-        display.visible = bars.length > 0;
+        const viewport = intersectUI(node.bounds, clip);
+        display.visible =
+          bars.length > 0 &&
+          viewport.width > 0 &&
+          viewport.height > 0 &&
+          canvasOpacity(node) > 0;
         display.mask = entry.display.mask;
         const signature = JSON.stringify([
           node.style.color,
@@ -719,6 +775,21 @@ export class CanvasVisual implements CanvasPresentation {
     )
       button.focus({ preventScroll: true });
     this.mirroredFocus = this.ui.focusedNode;
+    // Bounded scroll screens amortize stencil/text work across unchanged world frames.
+    const ratio = this.resources.cacheResolution();
+    const cache =
+      scrollVisible &&
+      ratio !== undefined &&
+      Math.max(width, height) * ratio <= 4096
+        ? ratio * this.ui.scale
+        : undefined;
+    if (cache !== this.cacheResolution) {
+      this.clearCache();
+      this.cacheResolution = cache;
+      if (cache !== undefined)
+        this.display.cacheAsTexture({ resolution: cache });
+    }
+    if (cache !== undefined) this.display.updateCacheTexture();
   }
   private releaseEntry(entry: Entry): void {
     const backgroundContext = entry.background.context?.uid,
@@ -731,6 +802,7 @@ export class CanvasVisual implements CanvasPresentation {
         () => entry.abort.abort(),
         () => entry.native?.dispose(),
         () => entry.button?.remove(),
+        () => entry.label?.remove(),
         // These Graphics contexts and Text styles are private to this presentation.
         // An options object with only children:true does not destroy owned GraphicsContext in Pixi8.
         () => entry.background.destroy({ context: true }),
@@ -761,6 +833,7 @@ export class CanvasVisual implements CanvasPresentation {
       [
         ...this.subscriptions.splice(0),
         ...entries.map((e) => () => this.releaseEntry(e)),
+        () => this.clearCache(),
         () => this.display.destroy({ children: true }),
         () => this.element.remove(),
       ],

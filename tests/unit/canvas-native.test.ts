@@ -3,7 +3,13 @@ function required<T>(value: T | undefined): T {
   return value;
 }
 
-import { CanvasColumn, CanvasSelect, CanvasUI, Scene } from "@simpludify/core";
+import {
+  CanvasColumn,
+  CanvasLabel,
+  CanvasSelect,
+  CanvasUI,
+  Scene,
+} from "@simpludify/core";
 import { describe, expect, it } from "vitest";
 
 const options = [
@@ -409,4 +415,44 @@ it("typed nullable Select values retain the first enabled option through replace
     { label: "None", value: null },
   ]);
   expect(node.value).toBeNull();
+});
+
+it("text keyboard hints preserve unnormalized numeric drafts and reject unknown modes", () => {
+  for (const inputMode of ["text", "numeric", "decimal"] as const) {
+    const node = CanvasTextInput({ value: "001", inputMode });
+    const model = node.control.model;
+    expect(model.kind).toBe("text");
+    if (model.kind === "text") expect(model.inputMode).toBe(inputMode);
+    expect(node.value).toBe("001");
+    node.value = "日本語";
+    expect(node.value).toBe("日本語");
+    node.dispose();
+  }
+  expect(() => CanvasTextInput({ inputMode: "invalid" as never })).toThrow();
+});
+
+describe("Canvas label semantics", () => {
+  it("preserves ordinary strings and immutable heading/status/alert metadata", () => {
+    expect(CanvasLabel("Plain").labelSemantics).toBeUndefined();
+    const options = { text: "Plan", role: "heading", level: 2 } as const;
+    const node = CanvasLabel(options);
+    expect(node.labelSemantics).toEqual({ role: "heading", level: 2 });
+    expect(Object.isFrozen(node.labelSemantics)).toBe(true);
+    node.setText("Updated plan");
+    expect(node.text).toBe("Updated plan");
+    for (const role of ["status", "alert"] as const)
+      expect(CanvasLabel({ text: "", role }).labelSemantics?.role).toBe(role);
+  });
+  it("rejects invalid runtime label roles and heading levels", () => {
+    for (const options of [
+      { text: "x", role: "button" },
+      { text: "x", role: "heading" },
+      { text: "x", role: "heading", level: 0 },
+      { text: "x", role: "heading", level: 7 },
+      { text: "x", role: "status", level: 2 },
+    ])
+      expect(() => CanvasLabel(options as never)).toThrow(
+        "Invalid label semantics",
+      );
+  });
 });

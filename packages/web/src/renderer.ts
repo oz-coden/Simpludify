@@ -14,7 +14,14 @@ import {
   Transform,
   type VisualSource,
 } from "@simpludify/core";
-import { Application, Container, Graphics, Sprite, Texture } from "pixi.js";
+import {
+  Application,
+  Container,
+  Graphics,
+  RendererType,
+  Sprite,
+  Texture,
+} from "pixi.js";
 import { type CanvasPresentation, CanvasVisual } from "./canvas-visual";
 import { GeometryTilemapVisual } from "./geometry-tilemap-visual";
 import {
@@ -59,12 +66,14 @@ export class PixiRenderer implements RendererPort {
   private readonly canvasPresentations = new Set<CanvasVisual>();
   get canvasDiagnostics() {
     let nodes = 0,
+      visibleNodes = 0,
       buttons = 0,
       syncs = 0,
       textMetrics = 0;
     for (const p of this.canvasPresentations) {
       const d = p.diagnostics;
       nodes += d.nodes;
+      visibleNodes += d.visibleNodes;
       buttons += d.buttons;
       syncs += d.syncs;
       textMetrics += d.textMetrics;
@@ -72,6 +81,7 @@ export class PixiRenderer implements RendererPort {
     return {
       presentations: this.canvasPresentations.size,
       nodes,
+      visibleNodes,
       buttons,
       syncs,
       textMetrics,
@@ -85,6 +95,10 @@ export class PixiRenderer implements RendererPort {
         releaseUIGraphics(this.app.renderer, graphics, context),
       text: (text, key) => releaseUIText(this.app.renderer, text, key),
       changedText: (key) => this.pendingUITextKeys.add(key),
+      cacheResolution: () =>
+        this.app.renderer.type === RendererType.WEBGL
+          ? this.app.renderer.resolution
+          : undefined,
     });
     this.canvasPresentations.add(visual);
     let disposed = false;

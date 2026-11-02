@@ -31,7 +31,7 @@ export type CanvasControlModel =
       readonly text: string;
       readonly placeholder: string;
       readonly maxLength: number | undefined;
-      readonly inputMode: "text" | "decimal";
+      readonly inputMode: "text" | "numeric" | "decimal";
       readonly numeric?: Readonly<{
         value: number;
         min: number;

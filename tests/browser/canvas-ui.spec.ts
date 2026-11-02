@@ -49,6 +49,137 @@ for (const fallback of [false, true])
       await page.waitForFunction(() => !!window.demo);
     });
     test.afterEach(() => expect(errors).toEqual([]));
+    test("culls fully clipped draws while preserving semantic text and focus reveal", async ({
+      page,
+    }) => {
+      await boot(page);
+      const initial = await page.evaluate(async (url) => {
+        const { CanvasScroll, CanvasColumn, CanvasLabel, CanvasButton } =
+          await import(url);
+        const f = window.canvasProbe;
+        f.root.root.clear();
+        f.root.root.add(
+          CanvasScroll(
+            Array.from({ length: 20 }, (_, i) =>
+              CanvasColumn(
+                [CanvasLabel(`Help ${i}`), CanvasButton(`Item ${i}`, () => {})],
+                { height: 90, shrink: 0 },
+              ),
+            ),
+            { height: 100, width: 240 },
+          ),
+        );
+        f.step();
+        return f.renderer.canvasDiagnostics;
+      }, `/@fs/${process.cwd()}/packages/web/src/index.ts`);
+      expect(initial.visibleNodes).toBeLessThan(10);
+      expect(initial.nodes).toBeGreaterThan(50);
+      await expect(
+        page.locator(".s-canvas-label").filter({ hasText: /^Help 19$/ }),
+      ).toHaveCount(1);
+      await page.evaluate(() => {
+        const f = window.canvasProbe;
+        f.root.focus(f.root.root.children[0]!.children.at(-1)!.children[1]);
+        f.step();
+      });
+      await expect(
+        page.getByRole("button", { name: "Item 19", exact: true }),
+      ).toBeFocused();
+      expect(
+        await page.evaluate(
+          () => window.canvasProbe.renderer.canvasDiagnostics.visibleNodes,
+        ),
+      ).toBeLessThan(10);
+    });
+    test("scroll-screen caching survives repeated reuse and returns its texture lease", async ({
+      page,
+    }) => {
+      await boot(page);
+      const result = await page.evaluate(async (url) => {
+        const { CanvasScroll, CanvasButton } = await import(url);
+        const f = window.canvasProbe;
+        const button = CanvasButton("Cached", () => {}, {
+          width: 120,
+          height: 50,
+          background: 0x880000,
+        });
+        f.root.root.clear();
+        const scroll = CanvasScroll([button], { height: 70, width: 200 });
+        f.root.root.add(scroll);
+        f.step();
+        const first = f.pixel(button.bounds.x + 8, button.bounds.y + 8);
+        const presentations = (
+          f.renderer as unknown as {
+            canvasPresentations: Set<{
+              display: {
+                isCachedAsTexture: boolean;
+                renderGroup?: {
+                  texture?: {
+                    source: { _gpuData: Record<string, unknown> };
+                  };
+                };
+              };
+            }>;
+          }
+        ).canvasPresentations;
+        const display = [...presentations][0]!.display;
+        const initialCache = display.isCachedAsTexture;
+        button.setStyle({ background: 0x008800 });
+        f.step();
+        const second = f.pixel(button.bounds.x + 8, button.bounds.y + 8);
+        const updatedCache = display.isCachedAsTexture;
+        f.root.scale = 1.25;
+        f.step();
+        const scaled = f.pixel(
+          (button.bounds.x + 8) * f.root.scale,
+          (button.bounds.y + 8) * f.root.scale,
+        );
+        const recycled: number[][] = [];
+        for (let i = 0; i < 3; i++) {
+          scroll.visible = false;
+          f.step();
+          scroll.visible = true;
+          f.step();
+          recycled.push(
+            f.pixel(
+              (button.bounds.x + 8) * f.root.scale,
+              (button.bounds.y + 8) * f.root.scale,
+            ),
+          );
+        }
+        const source = display.renderGroup?.texture?.source;
+        await f.game.goTo("empty");
+        const returned = !display.renderGroup?.texture;
+        f.game.dispose();
+        const remainingGPU = source
+          ? Object.values(source._gpuData).filter(Boolean).length
+          : 0;
+        return {
+          first,
+          second,
+          initialCache,
+          updatedCache,
+          scaled,
+          hadTarget: !!source,
+          returned,
+          remainingGPU,
+          recycled,
+        };
+      }, `/@fs/${process.cwd()}/packages/web/src/index.ts`);
+      expect(result.first).toEqual([136, 0, 0]);
+      expect(result.second).toEqual([0, 136, 0]);
+      expect(result.scaled).toEqual([0, 136, 0]);
+      expect(result.initialCache).toBe(!fallback);
+      expect(result.updatedCache).toBe(!fallback);
+      expect(result.hadTarget).toBe(!fallback);
+      expect(result.recycled).toEqual([
+        [0, 136, 0],
+        [0, 136, 0],
+        [0, 136, 0],
+      ]);
+      expect(result.returned).toBe(true);
+      expect(result.remainingGPU).toBe(0);
+    });
     test("wraps mixed text within min/max buttons and keeps paint, native focus and pointer boxes synchronized", async ({
       page,
     }) => {

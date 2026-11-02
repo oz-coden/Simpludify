@@ -127,3 +127,57 @@ it("declaration traversal reveals offscreen scroll descendants in both direction
   expect(scroll.scrollY).toBe(0);
   scene.dispose();
 });
+
+it("focus resolves newly added and newly shown controls using the last host metrics", () => {
+  const first = CanvasButton("first", () => {}, { height: 60, shrink: 0 });
+  const hidden = CanvasButton("hidden", () => {}, { height: 60, shrink: 0 });
+  hidden.visible = false;
+  const root = CanvasScroll([first, hidden], { width: 200, height: 70 });
+  const scene = new Scene("mutated-focus"),
+    ui = new CanvasUI(scene, root);
+  const measure = () => ({ width: 100, height: 20 });
+  ui.layout(300, 200, measure);
+  hidden.visible = true;
+  expect(() => ui.focus(hidden)).not.toThrow();
+  expect(ui.focusedNode).toBe(hidden);
+  expect(root.scrollY).toBeGreaterThan(0);
+  const added = CanvasButton("added", () => {}, { height: 60, shrink: 0 });
+  root.add(added);
+  expect(ui.focusNext()).toBe(added);
+  expect(root.scrollY).toBeGreaterThan(60);
+  root.remove(added);
+  expect(ui.focusedNode).toBeUndefined();
+  scene.dispose();
+});
+
+it("refocusing the same control reveals its new position after a list reorder", () => {
+  const nodes = Array.from({ length: 4 }, (_, i) =>
+    CanvasButton(String(i), () => {}, { height: 50, shrink: 0 }),
+  );
+  const root = CanvasScroll(nodes, { height: 70, width: 200 });
+  const scene = new Scene("same-focus"),
+    ui = new CanvasUI(scene, root);
+  ui.layout(300, 200, () => ({ width: 100, height: 20 }));
+  ui.focus(nodes[0]);
+  root.move(nodes[0]!, 3);
+  ui.focus(nodes[0]);
+  expect(ui.focusedNode).toBe(nodes[0]);
+  expect(root.scrollY).toBeGreaterThan(100);
+  scene.dispose();
+});
+
+it("ignores presentation invalidation while disposal callbacks release a focused control", () => {
+  const node = CanvasButton("focused", () => {});
+  const scene = new Scene("dispose-focused"),
+    ui = new CanvasUI(scene, CanvasColumn([node]));
+  ui.layout(300, 200, () => ({ width: 100, height: 20 }));
+  ui.focus(node);
+  ui.onDispose(() => {
+    node.hovered = false;
+    node.changed();
+  });
+  expect(() => scene.dispose()).not.toThrow();
+  expect(ui.focusedNode).toBeUndefined();
+  expect(ui.diagnostics.nodes).toBe(0);
+  expect(() => ui.invalidate(true)).not.toThrow();
+});

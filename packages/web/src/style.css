@@ -190,3 +190,13 @@
 .s-canvas-native[aria-readonly="true"] {
   opacity: 0.7;
 }
+
+/* Text remains in semantic reading order, including scrolled content, without taking pointer or Tab ownership. */
+.s-canvas-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: pre-wrap;
+}

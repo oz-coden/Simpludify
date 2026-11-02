@@ -39,6 +39,142 @@ for (const fallback of [false, true])
     test.afterEach(async ({ page }) => {
       expect(await page.evaluate(() => window.nativeProbe.errors)).toEqual([]);
     });
+    test("label semantics follow text, tree order and lifetime without interrupting editing", async ({
+      page,
+    }) => {
+      const mirror = page.locator(".s-canvas-accessibility");
+      await page.evaluate(() => {
+        const f = window.nativeProbe;
+        f.screen.status.setText("入力を確認してください");
+        f.focus(f.screen.playerName);
+      });
+      await expect(
+        mirror
+          .locator(".s-canvas-label")
+          .filter({ hasText: "入力を確認してください" }),
+      ).toHaveCount(1);
+      const input = page.getByRole("textbox", {
+        name: "プレイヤー名 / Player name",
+        exact: true,
+      });
+      await input.fill("日本語の計画");
+      await page.evaluate(() => {
+        const f = window.nativeProbe;
+        f.screen.status.setText("計画を編集中");
+        f.screen.root.move(f.screen.status, 0);
+        f.tick();
+      });
+      await expect(input).toBeFocused();
+      await expect(input).toHaveValue("日本語の計画");
+      await expect(mirror.locator(":scope > *").first()).toHaveText(
+        "計画を編集中",
+      );
+      await page.evaluate(() => {
+        const f = window.nativeProbe;
+        f.screen.status.visible = false;
+        f.tick();
+      });
+      await expect(
+        mirror.locator(".s-canvas-label").filter({ hasText: "計画を編集中" }),
+      ).toHaveCount(0);
+      await page.evaluate(async () => {
+        await window.nativeProbe.game.goTo("empty");
+      });
+      await expect(mirror).toHaveCount(0);
+    });
+    test("label headings and stable atomic live regions preserve document semantics", async ({
+      page,
+    }) => {
+      await page.evaluate(async (url) => {
+        const { CanvasLabel } = await import(url);
+        const f = window.nativeProbe;
+        f.screen.scroll.add(
+          CanvasLabel({ text: "Plan instructions", role: "heading", level: 2 }),
+          CanvasLabel({ text: "Ready to run", role: "status" }),
+          CanvasLabel({ text: "", role: "alert" }),
+        );
+        f.tick();
+      }, `/@fs/${process.cwd()}/packages/web/src/index.ts`);
+      await expect(
+        page.getByRole("heading", { name: "Plan instructions", level: 2 }),
+      ).toHaveCount(1);
+      const status = page.getByRole("status"),
+        alert = page.getByRole("alert");
+      await expect(status).toHaveAttribute("aria-live", "polite");
+      await expect(alert).toHaveAttribute("aria-live", "assertive");
+      await expect(alert).toHaveAttribute("aria-atomic", "true");
+      await page.evaluate(() => {
+        const f = window.nativeProbe,
+          children = f.screen.scroll.children;
+        children[children.length - 2]?.setText("Paused");
+        children[children.length - 1]?.setText("Enter a whole number");
+        f.tick();
+      });
+      await expect(status).toHaveText("Paused");
+      await expect(alert).toHaveText("Enter a whole number");
+      await page.evaluate(async () => {
+        await window.nativeProbe.game.goTo("empty");
+      });
+      await expect(status).toHaveCount(0);
+      await expect(alert).toHaveCount(0);
+    });
+    test("a newly visible editor can receive focus before the next presentation frame", async ({
+      page,
+    }) => {
+      await page.evaluate(() => {
+        const f = window.nativeProbe;
+        f.screen.playerName.visible = false;
+        f.tick();
+        f.screen.playerName.visible = true;
+        f.ui.focus(f.screen.playerName);
+        f.tick();
+      });
+      await expect(
+        page.getByRole("textbox", {
+          name: "プレイヤー名 / Player name",
+          exact: true,
+        }),
+      ).toBeFocused();
+    });
+    test("Scene disposal releases a hovered and focused Canvas button without stale UI errors", async ({
+      page,
+    }) => {
+      const point = await page.evaluate(() => {
+        const f = window.nativeProbe;
+        f.focus(f.screen.apply);
+        return f.center(f.screen.apply);
+      });
+      await page.mouse.move(point.x, point.y);
+      await page.evaluate(async () => {
+        await window.nativeProbe.game.goTo("empty");
+      });
+      await expect(page.locator(".s-canvas-accessibility")).toHaveCount(0);
+    });
+    test("numeric text keyboard hints retain raw text for application validation", async ({
+      page,
+    }) => {
+      await page.evaluate(async (url) => {
+        const { CanvasTextInput } = await import(url);
+        const f = window.nativeProbe;
+        const field = CanvasTextInput({
+          label: "Grid coordinate",
+          value: "001",
+          inputMode: "numeric",
+        });
+        f.screen.scroll.add(field);
+        f.ui.focus(field);
+        f.tick();
+      }, `/@fs/${process.cwd()}/packages/web/src/index.ts`);
+      const input = page.getByRole("textbox", {
+        name: "Grid coordinate",
+        exact: true,
+      });
+      await expect(input).toHaveAttribute("inputmode", "numeric");
+      await expect(input).toHaveValue("001");
+      await input.fill("-1.5");
+      await input.press("Enter");
+      await expect(input).toHaveValue("-1.5");
+    });
     test("native Select labels, disabled options, keyboard, program replacement and blur", async ({
       page,
     }) => {
