@@ -38,11 +38,20 @@ async function run(args) {
 const starterVersion = JSON.parse(
   readFileSync(join(project, "package.json"), "utf8"),
 ).dependencies["@simpludify/web"];
-assert.equal(
+assert.match(
   starterVersion,
-  sdkVersion,
-  "Starter must use the released SDK version",
+  /^\d+\.\d+\.\d+$/,
+  "Starter must pin an exact registry SDK version",
 );
+const starterLock = JSON.parse(
+  readFileSync(join(project, "package-lock.json"), "utf8"),
+);
+for (const name of ["core", "web"])
+  assert.equal(
+    starterLock.packages[`node_modules/@simpludify/${name}`].version,
+    starterVersion,
+    "Starter lockfile must match its released SDK dependency",
+  );
 const manifest = { name: "@simpludify/web", version: sdkVersion };
 for (const bad of [
   "Experimental v0.1.0\nnpm install @simpludify/web@0.1.0",
@@ -50,6 +59,16 @@ for (const bad of [
 ])
   assert.throws(() => checkPackageReadme(manifest, bad));
 await run(["ci", "--no-audit", "--no-fund"]);
+for (const name of ["core", "web"])
+  assert.equal(
+    JSON.parse(
+      readFileSync(
+        join(project, `node_modules/@simpludify/${name}/package.json`),
+        "utf8",
+      ),
+    ).version,
+    starterVersion,
+  );
 await run(["run", "check"]);
 await run(["run", "build", "--", "--base", "/starter-test/"]);
 const notices = readFileSync(
