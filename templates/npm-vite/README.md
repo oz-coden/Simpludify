@@ -1,6 +1,6 @@
 # npm / Vite starter
 
-Independent TypeScript game using published `@simpludify/web@0.1.1`. No source aliases, copied engine files or unreleased API. Core and PixiJS resolve transitively; `package-lock.json` pins the complete dependency tree. Requires Node >=22.12 (tested Node 24 in CI).
+Independent TypeScript game using published `@simpludify/web@0.1.2`. No source aliases, copied engine files or unreleased API. Core and PixiJS resolve transitively; `package-lock.json` pins the complete dependency tree. Requires Node >=22.12 (tested Node 24 in CI).
 
 Copy this directory into an empty project, then run these same commands in Windows PowerShell, Command Prompt or a Linux shell:
 
@@ -18,4 +18,4 @@ Open the Vite URL. Click/Tab into the world and use WASD, or use **Move right** 
 
 The build includes `LICENSE.txt` and `THIRD-PARTY-NOTICES.txt`, generated from the installed locked production packages, including nested dependencies. Missing texts fail the build. A version-specific MIT fallback for `@pixi/colord@2.9.6` includes its upstream provenance in `third-party/colord`. Review those files after dependency upgrades; the script verifies available notices rather than deciding the legal suitability of arbitrary future licenses. Platform-specific absent optional packages are excluded from that host's redistributed notices. Build tool licenses are not runtime notices.
 
-`LICENSE` initially contains the starter's MIT license. Preserve it for this code and choose/document your game's own licensing as appropriate. Commit the lockfile after intentional dependency changes. This starter deliberately stays on public 0.1.1; the repository SDK integration lab's `bindViewport` requires the next SDK release.
+`LICENSE` initially contains the starter's MIT license. Preserve it for this code and choose/document your game's own licensing as appropriate. Commit the lockfile after intentional dependency changes. The Canvas HUD and world region are connected with `Game.bindViewport`, so viewport geometry follows the resolved UI layout and Scene disposal.

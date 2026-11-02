@@ -12,6 +12,7 @@ import { join, resolve } from "node:path";
 import { chromium } from "playwright";
 import { preview } from "vite";
 import { checkPackageReadme } from "./check-package-readmes.mjs";
+import { sdkVersion } from "./sdk-version.mjs";
 
 const root = resolve(import.meta.dirname, ".."),
   project = mkdtempSync(join(tmpdir(), "simpludify-starter-"));
@@ -34,10 +35,18 @@ async function run(args) {
     );
   });
 }
-const manifest = { name: "@simpludify/web", version: "0.1.1" };
+const starterVersion = JSON.parse(
+  readFileSync(join(project, "package.json"), "utf8"),
+).dependencies["@simpludify/web"];
+assert.equal(
+  starterVersion,
+  sdkVersion,
+  "Starter must use the released SDK version",
+);
+const manifest = { name: "@simpludify/web", version: sdkVersion };
 for (const bad of [
   "Experimental v0.1.0\nnpm install @simpludify/web@0.1.0",
-  "Experimental v0.1.1\nnpm install @simpludify/web@0.1.1\nOnce published:",
+  `Experimental v${sdkVersion}\nnpm install @simpludify/web@${sdkVersion}\nOnce published:`,
 ])
   assert.throws(() => checkPackageReadme(manifest, bad));
 await run(["ci", "--no-audit", "--no-fund"]);
@@ -48,8 +57,8 @@ const notices = readFileSync(
   "utf8",
 );
 for (const pkg of [
-  "@simpludify/core@0.1.1",
-  "@simpludify/web@0.1.1",
+  `@simpludify/core@${starterVersion}`,
+  `@simpludify/web@${starterVersion}`,
   "pixi.js@",
   "@pixi/colord@2.9.6",
   "0d16e3b7ab0a4bcb42e6682712cc124af5f7ce9d",

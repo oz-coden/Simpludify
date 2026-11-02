@@ -3,6 +3,7 @@ import {
   CanvasButton,
   CanvasColumn,
   CanvasLabel,
+  CanvasPanel,
   Character,
   defineActions,
   Game,
@@ -19,21 +20,24 @@ game.scene("play", (context) => {
   const player = context.add(
     Character({ movement: controls.reader(Actions.Move) }),
   );
-  context.canvasUI(
-    CanvasColumn(
-      [
-        CanvasLabel("Click the world / Tab, then WASD"),
-        CanvasButton("Move right", () => {
-          player.x += 32;
-        }),
-        CanvasButton("Pause / Resume", () =>
-          game.engine.paused ? game.resume() : game.pause(),
-        ),
-        CanvasButton("Restart scene", () => game.goTo("play")),
-      ],
-      { padding: 12, gap: 8 },
-    ),
+  const hud = CanvasColumn(
+    [
+      CanvasLabel("Click the world / Tab, then WASD"),
+      CanvasButton("Move right", () => {
+        player.x += 32;
+      }),
+      CanvasButton("Pause / Resume", () =>
+        game.engine.paused ? game.resume() : game.pause(),
+      ),
+      CanvasButton("Restart scene", () => game.goTo("play")),
+    ],
+    { gap: 8, shrink: 0 },
   );
+  const world = CanvasPanel([], { grow: 1, pointerEvents: "none" });
+  const ui = context.canvasUI(
+    CanvasColumn([hud, world], { height: "100%", padding: 12, gap: 8 }),
+  );
+  game.bindViewport(ui, world);
   // Actors and controls belong to this Scene; Canvas buttons also work on touch.
 });
 const dispose = () => game.dispose();

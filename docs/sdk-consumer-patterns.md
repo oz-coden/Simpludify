@@ -1,6 +1,6 @@
 # Published SDK consumer patterns
 
-The public npm packages `@simpludify/core@0.1.1` and `@simpludify/web@0.1.1` are intended for independent projects. This page records integration patterns observed while migrating [Run To Exit](https://github.com/oz-coden/Run-To-Exit) from a vendored engine workspace to npm.
+The public npm packages `@simpludify/core@0.1.2` and `@simpludify/web@0.1.2` are intended for independent projects. This page records integration patterns observed while migrating [Run To Exit](https://github.com/oz-coden/Run-To-Exit) from a vendored engine workspace to npm.
 
 ## Installation and distribution
 
@@ -10,7 +10,7 @@ Include the dependency license texts and notices when redistributing a bundled g
 
 ## Canvas HUD and game world viewport
 
-Canvas UI uses CSS-sized layout while world rendering is controlled by the Game viewport. Starting with the v0.1.2 source candidate, bind the resolved Flex region rather than duplicating HUD height constants:
+Canvas UI uses CSS-sized layout while world rendering is controlled by the Game viewport. Starting with v0.1.2, bind the resolved Flex region rather than duplicating HUD height constants:
 
 ```ts
 const region = CanvasPanel([], { grow: 1, pointerEvents: "none" });
@@ -72,6 +72,6 @@ See [Tween and animation](tween.md) and the [Tween lab](../examples/tween/README
 
 ## Executable integration and independent starter
 
-The [SDK integration lab](../examples/sdk-integration/README.md) exercises Flex-owned world space, DOM/Canvas Tab traversal, display-only discrete Tween and Scene replacement. Its `Game.bindViewport` helper is source functionality in the v0.1.2 candidate, not part of published v0.1.1. The existing `setViewport` pattern above remains valid for 0.1.1.
+The [SDK integration lab](../examples/sdk-integration/README.md) exercises Flex-owned world space, DOM/Canvas Tab traversal, display-only discrete Tween and Scene replacement. Its `Game.bindViewport` helper is published functionality in v0.1.2. The existing `setViewport` pattern above remains valid for 0.1.1.
 
-The [independent npm/Vite starter](../templates/npm-vite/README.md) deliberately uses only published 0.1.1 APIs. It has a committed lockfile, `npm ci`, explicit CSS, Scene startup/disposal, Pages `--base`, and fail-on-missing production license generation. CI copies it outside the workspace and validates it on Windows and Linux. No CLI generator is necessary for this small, inspectable template.
+The [independent npm/Vite starter](../templates/npm-vite/README.md) uses published 0.1.2 APIs, including layout-bound viewports. It has a committed lockfile, `npm ci`, explicit CSS, Scene startup/disposal, Pages `--base`, and fail-on-missing production license generation. CI copies it outside the workspace and validates it on Windows and Linux. No CLI generator is necessary for this small, inspectable template.
