@@ -49,7 +49,7 @@ for (const id of ["first", "second"] as const) {
     });
     ui = CanvasColumn(
       [
-        CanvasLabel("Packed SDK"),
+        CanvasLabel({ text: "Packed SDK", role: "heading", level: 1 }),
         button,
         CanvasTextInput({
           label: "Coordinate",

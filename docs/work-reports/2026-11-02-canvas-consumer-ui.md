@@ -63,3 +63,9 @@ The private cache target is GPU-unloaded before returning it to Pixi's pool when
 The same desktop editor-driven solution case, previously timing out at 180 seconds locally, passed in about 40 seconds using Chromium 153/software WebGL after the corrected cache implementation. This is a single regression-case observation, not a general engine benchmark. Full standard Chromium CI remains required before release.
 
 Final local cache checks passed for WebGL and Canvas2D (4 tests): culling, actual pixel updates, UI scaling and Scene-target unload. All 812 unit tests, quality checks and the repeated packed-package consumer suite passed on the cache implementation.
+
+## HTML accessibility parity correction
+
+Comparing the original HTML uncovered a material accessibility regression beyond missing text: headings, `role=status`, polite map-target notifications and alert errors would disappear. The label factory therefore accepts the existing string or a small options form, `CanvasLabel({text, role: "heading", level: 2})`, `CanvasLabel({text, role: "status"})`, or `CanvasLabel({text: "", role: "alert"})`. Headings require level 1–6; notification roles are stable atomic polite/assertive live regions. No arbitrary DOM/ARIA bag or application-managed native elements are introduced. Plain labels remain plain text. Notification delivery is assistive-technology-dependent and physical screen-reader verification remains unclaimed.
+
+This final correction adds a second narrowly scoped public option shape after `inputMode`; earlier "no new API"/live-region-deferred statements describe previous checkpoints only. Run To Exit adopts headings and concise status/target/error semantics, avoiding announcements for every log row or simulation tick. New unit, both-renderer browser and external declaration checks are added; the final candidate and CI are repeated before publication.

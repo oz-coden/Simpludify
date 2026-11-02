@@ -82,6 +82,42 @@ for (const fallback of [false, true])
       });
       await expect(mirror).toHaveCount(0);
     });
+    test("label headings and stable atomic live regions preserve document semantics", async ({
+      page,
+    }) => {
+      await page.evaluate(async (url) => {
+        const { CanvasLabel } = await import(url);
+        const f = window.nativeProbe;
+        f.screen.scroll.add(
+          CanvasLabel({ text: "Plan instructions", role: "heading", level: 2 }),
+          CanvasLabel({ text: "Ready to run", role: "status" }),
+          CanvasLabel({ text: "", role: "alert" }),
+        );
+        f.tick();
+      }, `/@fs/${process.cwd()}/packages/web/src/index.ts`);
+      await expect(
+        page.getByRole("heading", { name: "Plan instructions", level: 2 }),
+      ).toHaveCount(1);
+      const status = page.getByRole("status"),
+        alert = page.getByRole("alert");
+      await expect(status).toHaveAttribute("aria-live", "polite");
+      await expect(alert).toHaveAttribute("aria-live", "assertive");
+      await expect(alert).toHaveAttribute("aria-atomic", "true");
+      await page.evaluate(() => {
+        const f = window.nativeProbe,
+          children = f.screen.scroll.children;
+        children[children.length - 2]?.setText("Paused");
+        children[children.length - 1]?.setText("Enter a whole number");
+        f.tick();
+      });
+      await expect(status).toHaveText("Paused");
+      await expect(alert).toHaveText("Enter a whole number");
+      await page.evaluate(async () => {
+        await window.nativeProbe.game.goTo("empty");
+      });
+      await expect(status).toHaveCount(0);
+      await expect(alert).toHaveCount(0);
+    });
     test("a newly visible editor can receive focus before the next presentation frame", async ({
       page,
     }) => {

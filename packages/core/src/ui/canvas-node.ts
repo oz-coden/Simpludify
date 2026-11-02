@@ -73,6 +73,11 @@ export interface CanvasPresentationStyle {
   readonly offsetY: number;
   readonly opacity: number;
 }
+/** Portable text semantics; headings require a document level. */
+export type CanvasLabelOptions = { readonly text: string } & (
+  | { readonly role?: "status" | "alert"; readonly level?: never }
+  | { readonly role: "heading"; readonly level: 1 | 2 | 3 | 4 | 5 | 6 }
+);
 export interface UIBounds {
   readonly x: number;
   readonly y: number;
@@ -352,11 +357,16 @@ export class CanvasNode implements LifetimeOwner {
     | ((signal: CancellationSignal) => void | Promise<void>)
     | undefined;
   private hold: ((held: boolean) => void) | undefined;
+  /** @internal Text semantics supplied by CanvasLabel. */
+  readonly labelSemantics:
+    | Readonly<{ role?: "heading" | "status" | "alert"; level?: number }>
+    | undefined;
   /** @internal Prefer CanvasPanel/Label/Button/HoldButton. */
   constructor(
     readonly kind: CanvasNodeKind,
     options: {
       text?: string;
+      label?: Omit<CanvasLabelOptions, "text">;
       style?: CanvasStyle;
       click?: (signal: CancellationSignal) => void | Promise<void>;
       hold?: (held: boolean) => void;
@@ -365,6 +375,22 @@ export class CanvasNode implements LifetimeOwner {
     this.captionValue = options.text ?? "";
     if (typeof this.captionValue !== "string")
       throw new EngineError("INVALID_UI", "UI text must be a string");
+    if (options.label) {
+      const { role, level } = options.label;
+      if (
+        kind !== "label" ||
+        (role !== undefined &&
+          !["heading", "status", "alert"].includes(role)) ||
+        (role === "heading"
+          ? typeof level !== "number" ||
+            !Number.isInteger(level) ||
+            level < 1 ||
+            level > 6
+          : level !== undefined)
+      )
+        throw new EngineError("INVALID_UI", "Invalid label semantics");
+      this.labelSemantics = Object.freeze({ ...options.label });
+    }
     this.config = checkedStyle(options.style ?? {});
     this.click = options.click;
     this.hold = options.hold;
@@ -690,8 +716,18 @@ export function CanvasColumn(
 ): CanvasNode {
   return CanvasPanel(children, { ...style, direction: "column" });
 }
-export function CanvasLabel(text: string, style: CanvasStyle = {}): CanvasNode {
-  return new CanvasNode("label", { text, style });
+export function CanvasLabel(
+  content: string | CanvasLabelOptions,
+  style: CanvasStyle = {},
+): CanvasNode {
+  if (typeof content === "string")
+    return new CanvasNode("label", { text: content, style });
+  if (!content || typeof content !== "object")
+    throw new EngineError("INVALID_UI", "UI label must be text or options");
+  const { text, ...label } = content;
+  if (typeof text !== "string")
+    throw new EngineError("INVALID_UI", "UI text must be a string");
+  return new CanvasNode("label", { text, label, style });
 }
 export function CanvasButton(
   text: string,

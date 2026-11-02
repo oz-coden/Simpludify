@@ -394,8 +394,7 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
         );
         assert.equal(
           await page
-            .locator(".s-canvas-label")
-            .filter({ hasText: "Packed SDK" })
+            .getByRole("heading", { name: "Packed SDK", level: 1 })
             .count(),
           1,
         );

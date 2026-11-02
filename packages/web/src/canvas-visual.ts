@@ -442,6 +442,19 @@ export class CanvasVisual implements CanvasPresentation {
           } else if (node.kind === "label") {
             entry.label = document.createElement("span");
             entry.label.className = "s-canvas-label";
+            const semantics = node.labelSemantics;
+            if (semantics?.role) {
+              entry.label.setAttribute("role", semantics.role);
+              if (semantics.role === "heading")
+                entry.label.setAttribute("aria-level", String(semantics.level));
+              else {
+                entry.label.setAttribute(
+                  "aria-live",
+                  semantics.role === "alert" ? "assertive" : "polite",
+                );
+                entry.label.setAttribute("aria-atomic", "true");
+              }
+            }
             this.element.append(entry.label);
           }
           if (node.kind !== "panel") {

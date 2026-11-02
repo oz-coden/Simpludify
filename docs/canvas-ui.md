@@ -191,7 +191,15 @@ The Web-only `game.bindViewport(ui, region)` uses a dedicated unscrolled Canvas 
 
 ## Semantic label text (next SDK release)
 
-Web mirrors CanvasLabel text in tree reading order alongside the existing interactive controls. Labels add no Tab stops and never own pointer input. Hidden/disposed labels are removed; zero-opacity text is excluded. Scroll-clipped label text remains available for semantic reading. Text updates and sibling reorder preserve the active native editor and its selection/composition session. This is an accessibility-tree contract, not certification for a physical screen reader. Labels are ordinary text; automatic live-region announcements are not supplied.
+Web mirrors CanvasLabel text in tree reading order alongside the existing interactive controls. Labels add no Tab stops and never own pointer input. Hidden/disposed labels are removed; zero-opacity text is excluded. Scroll-clipped label text remains available for semantic reading. Text updates and sibling reorder preserve the active native editor and its selection/composition session. This is an accessibility-tree contract, not certification for a physical screen reader. Labels are ordinary text by default. For document headings or concise state/error announcements use the options form:
+
+```ts
+CanvasLabel({ text: "Plan", role: "heading", level: 2 });
+const status = CanvasLabel({ text: "Ready", role: "status" });
+const error = CanvasLabel({ text: "", role: "alert" });
+```
+
+Headings require level 1–6. Status/alert mirror polite/assertive atomic live regions; keep the node mounted and update its text rather than recreating it. These creation-time semantics do not add Tab stops or change layout. Do not mark every simulation tick or log row as a live region: excessive announcements obscure useful state changes. Actual speech delivery/timing depends on the browser and assistive technology and is not certified by DOM attribute tests.
 
 Published 0.1.2 mirrors interactive controls only. Full Canvas consumers that previously relied on DOM text should wait for the next SDK before deployment. Keep document titles/language and mount sizing in the host document.
 

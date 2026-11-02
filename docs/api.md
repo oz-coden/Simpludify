@@ -342,3 +342,5 @@ Tilemap also provides `tileBounds(x,y)` for a fresh world-space cell rectangle. 
 ## Polygon tile geometry
 
 [Tile geometry](tile-geometry.md) documents TileGeometry.square/triangle/hex, finite GeometryTilemap RGB/null layers, deterministic polygon selection, neighbors/ranges and Actor Shape.Hexagon. Existing square image Tilemap and circle/box Collision remain unchanged; polygon images and physics are not included.
+
+CanvasLabel accepts a string or CanvasLabelOptions with `text` and optional `role: "status" | "alert"`, or `role: "heading"` with `level: 1..6`. These creation-time text semantics add no focus/pointer ownership; Web supplies heading or atomic live-region semantics. See [semantic label text](canvas-ui.md#semantic-label-text-next-sdk-release).

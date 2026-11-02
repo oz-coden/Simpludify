@@ -164,3 +164,5 @@ UIが消費したkeydownをActionへ重複配送しません。keyupはUIが伝�
 ## 次回SDK向けの入力改善
 
 0.1.3候補では、CanvasLabelの説明文もセマンティックミラーへ渡し、動的リストやフォーム直後のフォーカスと破棄を改善しています。`CanvasTextInput({inputMode: "numeric"})` は文字列を正規化せず、数値用のソフトキーボードを要求する設定です。値の検証はゲーム側で行います。いずれも公開0.1.2には含まれません。実機IME・読み上げソフトでの動作保証とは区別してください。
+
+見出し・状態通知・入力エラーは `CanvasLabel({text: "計画", role: "heading", level: 2})`、`CanvasLabel({text: "計画中", role: "status"})`、`CanvasLabel({text: "", role: "alert"})` で表せます。見出しレベルは1〜6。通知は同じノードを保持し、setTextで更新します。statusはpolite、alertはassertiveのatomic live regionとなります。毎ステップやログ全行を通知対象にしないでください。実際の読み上げは利用環境で別途確認が必要です。
