@@ -1,6 +1,6 @@
 # npm / Vite starter
 
-Independent TypeScript game using published `@simpludify/web@0.1.2`. No source aliases, copied engine files or unreleased API. Core and PixiJS resolve transitively; `package-lock.json` pins the complete dependency tree. Requires Node >=22.12 (tested Node 24 in CI).
+Independent TypeScript game using published `@simpludify/web@0.1.3`. No source aliases, copied engine files or unreleased API. Core and PixiJS resolve transitively; `package-lock.json` pins the complete dependency tree. Requires Node >=22.12 (tested Node 24 in CI).
 
 Copy this directory into an empty project, then run these same commands in Windows PowerShell, Command Prompt or a Linux shell:
 

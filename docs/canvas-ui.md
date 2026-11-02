@@ -185,11 +185,11 @@ Run [Canvas trail](../examples/canvas-ui/README.md) for the complete Sprite/Tile
 
 [Touch dragging, inertia, overlay scrollbars and dynamic policy](scrolling.md) document the current portable scrolling API. [Measured projection costs](scroll-performance.md) separate layout work from actual renderer performance.
 
-## Layout-owned world viewport (next SDK release)
+## Layout-owned world viewport (since v0.1.2)
 
 The Web-only `game.bindViewport(ui, region)` uses a dedicated unscrolled Canvas layout slot as the world viewport. It resolves Flex geometry before rendering and pointer conversion, follows UI scale and host resize, and releases with the UI/region. A `pointerEvents: "none"` slot remains a visible world region; input transparency does not hide it. Hidden/disabled/empty slots clip world rendering and pointer input. Existing `setViewport` is the manual fallback after unbinding. See the [SDK integration lab](../examples/sdk-integration/README.md) for complete ownership, empty-region and replacement semantics. This helper is unavailable in immutable npm v0.1.1.
 
-## Semantic label text (next SDK release)
+## Semantic label text (since v0.1.3)
 
 Web mirrors CanvasLabel text in tree reading order alongside the existing interactive controls. Labels add no Tab stops and never own pointer input. Hidden/disposed labels are removed; zero-opacity text is excluded. Scroll-clipped label text remains available for semantic reading. Text updates and sibling reorder preserve the active native editor and its selection/composition session. This is an accessibility-tree contract, not certification for a physical screen reader. Labels are ordinary text by default. For document headings or concise state/error announcements use the options form:
 
@@ -201,9 +201,9 @@ const error = CanvasLabel({ text: "", role: "alert" });
 
 Headings require level 1–6. Status/alert mirror polite/assertive atomic live regions; keep the node mounted and update its text rather than recreating it. These creation-time semantics do not add Tab stops or change layout. Do not mark every simulation tick or log row as a live region: excessive announcements obscure useful state changes. Actual speech delivery/timing depends on the browser and assistive technology and is not certified by DOM attribute tests.
 
-Published 0.1.2 mirrors interactive controls only. Full Canvas consumers that previously relied on DOM text should wait for the next SDK before deployment. Keep document titles/language and mount sizing in the host document.
+Published 0.1.2 mirrors interactive controls only. Full Canvas consumers need v0.1.3 or later for semantic label text. Keep document titles/language and mount sizing in the host document.
 
-After the first Host layout, explicit focus and traversal also resolve pending layout mutations using that Host's last text metrics. A newly added or newly visible input can receive focus immediately; callers do not need a frame callback solely to acquire nonzero bounds. Ownership, visibility and permanent clipping restrictions still apply. This correction is part of the next SDK release, alongside label semantics.
+After the first Host layout, explicit focus and traversal also resolve pending layout mutations using that Host's last text metrics. A newly added or newly visible input can receive focus immediately; callers do not need a frame callback solely to acquire nonzero bounds. Ownership, visibility and permanent clipping restrictions still apply. This correction is included in v0.1.3 alongside label semantics.
 
 
 ## Paint culling and scroll-screen caching

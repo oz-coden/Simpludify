@@ -2,7 +2,7 @@
 
 ## Release status
 
-Core/Web v0.1.2 were accepted through [Trusted Publishing run 41408637470](https://github.com/oz-coden/Simpludify/actions/runs/41408637470), from source `8122a6dc347d661da24c3df7610d4218a431c314` and tag `v0.1.2`. Both registry versions and their validated SHA512 integrities were confirmed. npm processing exceeded the original one-minute visibility budget, so the same publish job was resumed using identical archives; Core was verified before Web publication. See [publication and registry adoption](work-reports/2026-11-02-v0.1.2-publication.md) for final clean-install and CI results. Older v0.1.0/v0.1.1 remain immutable historical releases.
+Core/Web v0.1.3 were published through [Trusted Publishing run 41502126387](https://github.com/oz-coden/Simpludify/actions/runs/41502126387), from source `1164b77c0bc037f7afc3b29a32b48d6a2d27e476` and tag `v0.1.3`. Core was published and its registry integrity verified before Web publication. The workflow's clean public-registry consumers passed; registry metadata includes SLSA v1 provenance. See [publication and registry adoption](work-reports/2026-11-03-v0.1.3-publication.md) for immutable archive integrities and final consumer CI. Earlier v0.1.0–v0.1.2 remain immutable historical releases.
 
 ## Prepare and verify
 
@@ -25,7 +25,7 @@ The last command only checks archives and registry availability; it does not pub
 
 `test:packages` creates genuine external temporary projects with no workspace aliases or symlinks. Core alone runs in Node and typechecks in NodeNext without DOM ambient types. Web alone resolves the exact Core tarball transitively using a loopback scoped registry. Both development and production subpath builds check CSS, public declarations, images, controls, scene replacement, `bindViewport` and idempotent resource cleanup at desktop, 390px and 320px. `--registry` installs the matching source version from public npm and runs the same fixture, including the new API. Network/authentication failures fail validation. Failed temporary projects remain available for inspection.
 
-CI runs package generation and these external consumers on **Windows and Linux**, as well as the independent npm/Vite starter on both systems. The starter uses the published v0.1.2 registry lockfile. Do not fabricate registry integrity for an unpublished version.
+CI runs package generation and these external consumers on **Windows and Linux**, as well as the independent npm/Vite starter on both systems. The starter uses the published v0.1.3 registry lockfile. Do not fabricate registry integrity for an unpublished version.
 
 `pack:packages` always rebuilds. Only compiled `dist`, metadata, README and MIT license ship. JavaScript maps embed source, declaration maps are omitted, and Web keeps Core and PixiJS as runtime dependencies rather than embedded copies. Web imports scoped CSS automatically and also exports `@simpludify/web/style.css` with declarations. Core has no runtime dependencies. `test-results/packages/` records pack manifests, SHA512 integrities, validation reports and screenshots.
 

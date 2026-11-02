@@ -1,8 +1,8 @@
 # npm SDKからゲームを始める
 
-SimpludifyのExperimental v0.1.2は、`@simpludify/core`と`@simpludify/web`に分かれたESM SDKです。0.xではAPIが変更される可能性があります。内部ファイルの直接importは公開APIではありません。
+SimpludifyのExperimental v0.1.3は、`@simpludify/core`と`@simpludify/web`に分かれたESM SDKです。0.xではAPIが変更される可能性があります。内部ファイルの直接importは公開APIではありません。
 
-**公開状態：`@simpludify/core@0.1.2`と`@simpludify/web@0.1.2`はnpmレジストリで公開済みです。** 以下の手順で独立したプロジェクトにインストールできます。
+**公開状態：`@simpludify/core@0.1.3`と`@simpludify/web@0.1.3`はnpmレジストリで公開済みです。** 以下の手順で独立したプロジェクトにインストールできます。
 
 ## 1. 必要な環境とパッケージ
 
@@ -19,7 +19,7 @@ SimpludifyのExperimental v0.1.2は、`@simpludify/core`と`@simpludify/web`に�
 
 ## 2. 独立したViteプロジェクトを作る
 
-完成した最小構成は[独立npm/Viteテンプレート](../../templates/npm-vite/README.md)にあります。ディレクトリをコピーして`npm ci`で開始でき、型検査・CSS・Scene再起動と破棄・Pages base・依存ライセンス生成を含みます。公開済み0.1.2のAPIを使用し、`Game.bindViewport()`でHUDとWorld領域を連動させます。以下は手作業で組み立てる場合の手順です。
+完成した最小構成は[独立npm/Viteテンプレート](../../templates/npm-vite/README.md)にあります。ディレクトリをコピーして`npm ci`で開始でき、型検査・CSS・Scene再起動と破棄・Pages base・依存ライセンス生成を含みます。公開済み0.1.3のAPIを使用し、`Game.bindViewport()`でHUDとWorld領域を連動させます。以下は手作業で組み立てる場合の手順です。
 
 公開済みのnpmパッケージを使います。
 
@@ -29,7 +29,7 @@ cd my-game
 npm init -y
 npm pkg set type=module
 npm pkg set scripts.dev=vite scripts.build="tsc --noEmit && vite build" scripts.preview="vite preview"
-npm install --save-exact @simpludify/web@0.1.2
+npm install --save-exact @simpludify/web@0.1.3
 npm install --save-dev vite@8.3.5 typescript@7.0.2
 ```
 
@@ -143,17 +143,17 @@ npm run preview
 リポジトリ管理者は`npm ci`、`npm run pack:packages`で2つの`.tgz`を生成できます。独立したゲームプロジェクトには、エンジンのソースコピーをせずにアーカイブを導入できます。
 
 ```sh
-npm install /path/to/simpludify-core-0.1.2.tgz
-npm install /path/to/simpludify-web-0.1.2.tgz
+npm install /path/to/simpludify-core-0.1.3.tgz
+npm install /path/to/simpludify-web-0.1.3.tgz
 ```
 
-公開前はCoreを先に導入します。Webの依存宣言は正式な`@simpludify/core@0.1.2`なので、Coreが未導入・未公開だとレジストリ解決に失敗します。公開後はWebだけの導入で依存が自動解決されます。
+公開前はCoreを先に導入します。Webの依存宣言は正式な`@simpludify/core@0.1.3`なので、Coreが未導入・未公開だとレジストリ解決に失敗します。公開後はWebだけの導入で依存が自動解決されます。
 
 ## 6. 互換性と制約
 
 - ESMとTypeScript型定義を配布します。`dist`内部パスへの直接importやCJSの`require()`はサポートしません。
 - JavaScript source mapには元ソースを埋め込んでいます。型定義mapは配布しません。
-- Core/Webは同じ0.1.2を使用します。WebがCoreを再exportするため、通常はWebからまとめてimportできます。
+- Core/Webは同じ0.1.3を使用します。WebがCoreを再exportするため、通常はWebからまとめてimportできます。
 - Coreの公開型はDOM/Node ambient型なしでも検証します。WebはブラウザのDOM型と実行環境が必要です。
 - 対応範囲の詳細は[制約](limitations.md)、[API](../../docs/api.md)、[Core/Host境界](../../docs/host-boundary.md)を参照してください。
 
