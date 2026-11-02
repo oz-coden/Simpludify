@@ -298,12 +298,21 @@ test("loads a local image sprite, rejects missing assets, and disposes real Pixi
     game.scene("missing", ({ add }) => {
       add(Character({ source: { kind: "image", url: "./not-found.png" } }));
     });
+    game.scene("unsafe" as never, ({ add }) => {
+      add(Character({ source: { kind: "image", url: "javascript:alert(1)" } }));
+    });
     await game.run("image");
     let failure = "";
     try {
       await game.goTo("missing");
     } catch (error) {
       failure = (error as { code: string }).code;
+    }
+    let unsafeFailure = "";
+    try {
+      await game.goTo("unsafe" as never);
+    } catch (error) {
+      unsafeFailure = (error as { code: string }).code;
     }
     for (let i = 0; i < 5; i++) await game.goTo("image");
     const scene = game.engine.scene.id,
@@ -312,6 +321,7 @@ test("loads a local image sprite, rejects missing assets, and disposes real Pixi
     return {
       scene,
       failure,
+      unsafeFailure,
       canvases,
       remaining: document.querySelectorAll("canvas").length,
       cleaned,
@@ -320,6 +330,7 @@ test("loads a local image sprite, rejects missing assets, and disposes real Pixi
   expect(result).toEqual({
     scene: "image",
     failure: "ASSET_LOAD_FAILED",
+    unsafeFailure: "ASSET_LOAD_FAILED",
     canvases: 1,
     remaining: 0,
     cleaned: 6,

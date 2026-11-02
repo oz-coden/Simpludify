@@ -11,6 +11,12 @@ const npmCLI = process.env.npm_execpath;
 const publish = process.argv.includes("--publish");
 if (process.argv.some((value, index) => index > 1 && value !== "--publish"))
   throw new Error("Usage: node scripts/publish-packages.mjs [--publish]");
+if (process.env.RELEASE_TAG !== undefined)
+  assert.equal(
+    process.env.RELEASE_TAG,
+    `v${sdkVersion}`,
+    "Approved tag must match SDK version",
+  );
 if (publish) {
   assert.equal(
     process.env.RELEASE_TAG,

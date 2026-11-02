@@ -179,8 +179,18 @@ export class Game<SceneId extends string = string> {
     });
     if (options.pixelRatio !== undefined)
       positive(options.pixelRatio, "pixelRatio");
-    const theme = Themes[options.theme ?? Theme.Dark];
-    if (!theme) throw new EngineError("INVALID_THEME", "Unknown theme");
+    const themeName = options.theme ?? Theme.Dark;
+    if (!Object.hasOwn(Themes, themeName))
+      throw new EngineError("INVALID_THEME", "Unknown theme");
+    const theme = Themes[themeName];
+    for (const [name, value] of Object.entries(options.tokens ?? {}))
+      if (
+        !Object.hasOwn(theme, name) ||
+        typeof value !== "string" ||
+        !value.trim().length ||
+        /[;{}<>\\\r\n\0]|url\s*\(/i.test(value)
+      )
+        throw new EngineError("INVALID_THEME_TOKEN", `Invalid token: ${name}`);
     const tokens = { ...theme, ...options.tokens };
     this.element = document.createElement("div");
     this.element.className = "simpludify";

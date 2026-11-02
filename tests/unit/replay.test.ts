@@ -483,3 +483,17 @@ it("rejects JSON arrays masquerading as Action kind strings", () => {
   expect(() => parseReplayData(data)).toThrow(/Action schema/);
   a.engine.dispose();
 });
+
+it("rejects expectedMetadata keys inherited from Object.prototype when absent from metadata", () => {
+  const a = recording(),
+    b = setup();
+  expect(
+    () =>
+      new ReplayPlayer(b.engine, a.data, {
+        controllers: { player: b.c },
+        expectedMetadata: { toString: "unexpected" },
+      }),
+  ).toThrow(/Metadata mismatch: toString/);
+  a.engine.dispose();
+  b.engine.dispose();
+});

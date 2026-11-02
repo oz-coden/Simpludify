@@ -265,7 +265,10 @@ export class ReplayPlayer implements ExecutionPort {
         "Controller IDs or Action names/kinds/normalization do not match Replay",
       );
     for (const [key, value] of Object.entries(options.expectedMetadata ?? {}))
-      if (!compatible(copyJson(value), this.data.metadata[key]))
+      if (
+        !Object.hasOwn(this.data.metadata, key) ||
+        !compatible(copyJson(value), this.data.metadata[key])
+      )
         throw new EngineError(
           "REPLAY_INCOMPATIBLE",
           `Metadata mismatch: ${key}`,

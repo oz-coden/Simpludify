@@ -7,7 +7,7 @@ import {
   readFileSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, isAbsolute, join, resolve } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -156,6 +156,13 @@ try {
       : resolve(process.cwd(), destination);
     if (existsSync(output))
       fail("DESTINATION_EXISTS", "Choose a directory that does not exist", 2);
+    const rel = relative(root, output);
+    if (!rel.startsWith("..") && !isAbsolute(rel))
+      fail(
+        "INVALID_ARGUMENT",
+        "Choose a destination outside the repository",
+        2,
+      );
     mkdirSync(output, { recursive: true });
     for (const path of [
       "site",

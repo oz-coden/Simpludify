@@ -41,6 +41,7 @@ function release() {
 }
 
 function launch(button) {
+  if (!button || !/^[a-z0-9-]+$/.test(button.dataset.launch ?? "")) return;
   release();
   current = button.dataset.launch;
   launcher = button;

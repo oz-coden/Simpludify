@@ -1,15 +1,17 @@
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { isAbsolute, join, relative, resolve } from "node:path";
 import { checkSnippets } from "./site-snippets.mjs";
 
 const root = resolve("site-dist");
-const manifest = JSON.parse(readFileSync(`${root}/site-manifest.json`, "utf8"));
+const manifest = JSON.parse(
+  readFileSync(join(root, "site-manifest.json"), "utf8"),
+);
 const files = (dir) =>
   readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
     entry.isDirectory()
-      ? files(`${dir}/${entry.name}`)
-      : [`${dir}/${entry.name}`],
+      ? files(join(dir, entry.name))
+      : [join(dir, entry.name)],
   );
 const documents = files(root).filter((file) => file.endsWith(".html"));
 const ids = new Map(
@@ -25,7 +27,7 @@ const ids = new Map(
 let references = 0;
 for (const file of documents) {
   const html = readFileSync(file, "utf8");
-  const path = file.slice(root.length + 1);
+  const path = relative(root, file).replaceAll("\\", "/");
   for (const match of html.matchAll(/\b(?:href|src)="([^"]+)"/g)) {
     const href = match[1].replaceAll("&amp;", "&");
     if (/^(?:https?:|mailto:|data:)/.test(href)) continue;
@@ -38,8 +40,12 @@ for (const file of documents) {
       root,
       decodeURIComponent(address.pathname.slice(manifest.base.length)),
     );
-    if (address.pathname.endsWith("/")) target += "/index.html";
-    assert(target.startsWith(`${root}/`), `Output escape: ${href}`);
+    if (address.pathname.endsWith("/")) target = join(target, "index.html");
+    const rel = relative(root, target);
+    assert(
+      rel && !rel.startsWith("..") && !isAbsolute(rel),
+      `Output escape: ${href}`,
+    );
     assert(existsSync(target), `Missing target: ${path}: ${href}`);
     if (address.hash && target.endsWith(".html"))
       assert(

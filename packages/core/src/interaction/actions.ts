@@ -136,7 +136,9 @@ export class ActionController<A extends ActionSet>
     for (const action of Object.values(actions)) {
       const binding = checkedBinding(
         action,
-        options.bindings?.[action.name] ?? {},
+        options.bindings && Object.hasOwn(options.bindings, action.name)
+          ? options.bindings[action.name]
+          : {},
       );
       const value = neutral(action);
       this.entries.set(action, {

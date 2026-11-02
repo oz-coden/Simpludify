@@ -288,7 +288,14 @@ export class PixiRenderer implements RendererPort {
     // Image.src resolves against document.baseURI too. Retain query, fragment and
     // credentials; anonymous CORS is fixed for every request in this renderer.
     try {
-      return this.images.acquire(new URL(url, document.baseURI).href, signal);
+      const parsed = new URL(url, document.baseURI);
+      if (
+        !["http:", "https:", "data:", "blob:", "file:"].includes(
+          parsed.protocol,
+        )
+      )
+        throw new Error("Unsupported image URL protocol");
+      return this.images.acquire(parsed.href, signal);
     } catch {
       return Promise.reject(
         new EngineError("ASSET_LOAD_FAILED", "Invalid image URL", {

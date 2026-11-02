@@ -1,4 +1,4 @@
-import { dirname, relative, resolve } from "node:path";
+import { dirname, isAbsolute, relative, resolve } from "node:path";
 
 // Runtime dependencies flow toward data/lifecycle modules. Scene's input ownership
 // identity is type-only; it must not instantiate Action or device implementations.
@@ -22,11 +22,12 @@ export function validateCoreDependency(
     throw new Error(`CORE_BOUNDARY: ${file}: ${specifier}`);
   };
   if (!specifier.startsWith(".")) fail();
-  const from = relative(resolve(core), resolve(file)).split("/");
-  const target = relative(
-    resolve(core),
-    resolve(dirname(file), specifier),
-  ).split("/");
+  const fromRel = relative(resolve(core), resolve(file));
+  const targetRel = relative(resolve(core), resolve(dirname(file), specifier));
+  if (!fromRel || !targetRel || isAbsolute(fromRel) || isAbsolute(targetRel))
+    fail();
+  const from = fromRel.split(/[\\/]+/);
+  const target = targetRel.split(/[\\/]+/);
   if (target[0] === ".." || from[0] === "..") fail();
   // Root files are public export aggregators. Internal modules import concrete files.
   if (from.length === 1) return;

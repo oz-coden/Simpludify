@@ -200,7 +200,9 @@ function checkedStyle(value: CanvasStyle): ResolvedCanvasStyle {
       };
       if (
         typeof v !== "string" ||
-        (choices[key] ? !choices[key].includes(v) : !v.length)
+        (Object.hasOwn(choices, key)
+          ? !choices[key]?.includes(v)
+          : !v.trim().length || /[;{}<>\\\r\n\0]|url\s*\(/i.test(v))
       )
         throw new EngineError("INVALID_UI", `Invalid UI ${key}`);
     }
