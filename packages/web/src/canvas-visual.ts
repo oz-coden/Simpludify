@@ -204,7 +204,7 @@ export class CanvasVisual implements CanvasPresentation {
   };
   private clearCache(): void {
     if (this.cacheResolution === undefined) return;
-    this.display.renderGroup?.texture?.source.unload();
+    // Return the lease intact: unloading a pooled source alone leaves its framebuffer stale on reuse.
     this.display.cacheAsTexture(false);
     this.cacheResolution = undefined;
   }

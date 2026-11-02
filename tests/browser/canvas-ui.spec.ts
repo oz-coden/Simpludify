@@ -91,7 +91,7 @@ for (const fallback of [false, true])
         ),
       ).toBeLessThan(10);
     });
-    test("scroll-screen caching updates pixels and releases its leased GPU target", async ({
+    test("scroll-screen caching survives repeated reuse and returns its texture lease", async ({
       page,
     }) => {
       await boot(page);
@@ -104,7 +104,8 @@ for (const fallback of [false, true])
           background: 0x880000,
         });
         f.root.root.clear();
-        f.root.root.add(CanvasScroll([button], { height: 70, width: 200 }));
+        const scroll = CanvasScroll([button], { height: 70, width: 200 });
+        f.root.root.add(scroll);
         f.step();
         const first = f.pixel(button.bounds.x + 8, button.bounds.y + 8);
         const presentations = (
@@ -114,7 +115,7 @@ for (const fallback of [false, true])
                 isCachedAsTexture: boolean;
                 renderGroup?: {
                   texture?: {
-                    source: { on(event: string, fn: () => void): void };
+                    source: { _gpuData: Record<string, unknown> };
                   };
                 };
               };
@@ -133,12 +134,26 @@ for (const fallback of [false, true])
           (button.bounds.x + 8) * f.root.scale,
           (button.bounds.y + 8) * f.root.scale,
         );
-        let unloaded = 0;
+        const recycled: number[][] = [];
+        for (let i = 0; i < 3; i++) {
+          scroll.visible = false;
+          f.step();
+          scroll.visible = true;
+          f.step();
+          recycled.push(
+            f.pixel(
+              (button.bounds.x + 8) * f.root.scale,
+              (button.bounds.y + 8) * f.root.scale,
+            ),
+          );
+        }
         const source = display.renderGroup?.texture?.source;
-        source?.on("unload", () => {
-          unloaded++;
-        });
         await f.game.goTo("empty");
+        const returned = !display.renderGroup?.texture;
+        f.game.dispose();
+        const remainingGPU = source
+          ? Object.values(source._gpuData).filter(Boolean).length
+          : 0;
         return {
           first,
           second,
@@ -146,7 +161,9 @@ for (const fallback of [false, true])
           updatedCache,
           scaled,
           hadTarget: !!source,
-          unloaded,
+          returned,
+          remainingGPU,
+          recycled,
         };
       }, `/@fs/${process.cwd()}/packages/web/src/index.ts`);
       expect(result.first).toEqual([136, 0, 0]);
@@ -155,7 +172,13 @@ for (const fallback of [false, true])
       expect(result.initialCache).toBe(!fallback);
       expect(result.updatedCache).toBe(!fallback);
       expect(result.hadTarget).toBe(!fallback);
-      expect(result.unloaded).toBe(fallback ? 0 : 1);
+      expect(result.recycled).toEqual([
+        [0, 136, 0],
+        [0, 136, 0],
+        [0, 136, 0],
+      ]);
+      expect(result.returned).toBe(true);
+      expect(result.remainingGPU).toBe(0);
     });
     test("wraps mixed text within min/max buttons and keeps paint, native focus and pointer boxes synchronized", async ({
       page,

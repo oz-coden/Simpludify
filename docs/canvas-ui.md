@@ -204,3 +204,10 @@ Headings require level 1–6. Status/alert mirror polite/assertive atomic live r
 Published 0.1.2 mirrors interactive controls only. Full Canvas consumers that previously relied on DOM text should wait for the next SDK before deployment. Keep document titles/language and mount sizing in the host document.
 
 After the first Host layout, explicit focus and traversal also resolve pending layout mutations using that Host's last text metrics. A newly added or newly visible input can receive focus immediately; callers do not need a frame callback solely to acquire nonzero bounds. Ownership, visibility and permanent clipping restrictions still apply. This correction is part of the next SDK release, alongside label semantics.
+
+
+## Paint culling and scroll-screen caching
+
+Web suppresses fully clipped paint submissions without removing controls or semantic text. `PixiRenderer.canvasDiagnostics.visibleNodes` counts paint-visible entries separately from model nodes. Bounded WebGL scroll screens automatically cache their composed UI until changes; Canvas2D and ordinary non-scroll HUDs draw directly. The cache follows renderer DPR and UI scale, and is skipped above a 4096-physical-pixel host edge. No game configuration is needed.
+
+Disabling or disposing the UI returns its intact texture lease to Pixi's pool for reuse. Idle pool backing is not a live Scene allocation; the renderer releases its managed GPU data at Game disposal. Do not unload only a pooled texture source: its cached framebuffer must remain synchronized. No application or global pool clearing is required.
