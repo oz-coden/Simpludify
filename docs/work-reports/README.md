@@ -29,4 +29,4 @@ Before long-running verification or integration, commit implementation and updat
 
 - [2026-11-03 v0.1.3 publication and Canvas adoption](2026-11-03-v0.1.3-publication.md)
 
-- [Unified input, gamepads and bilingual documentation — v0.1.4](2026-11-03-unified-input-v0.1.4.md)
+- [Unified input, gamepads and bilingual documentation — v0.1.4](2026-11-03-unified-input-v0.1.4.md): PR #15 merged as aa7e5ba; 842 unit / 404 browser tests, Windows/Linux packages, six candidate consumers, main CI and Pages acceptance passed. npm publication awaits final approval.

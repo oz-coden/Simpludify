@@ -1,5 +1,27 @@
 # Unified input, gamepads and bilingual SDK documentation — v0.1.4
 
+## Completion and publication boundary
+
+- PR [#15](https://github.com/oz-coden/Simpludify/pull/15) merged into main as `aa7e5ba05080a56c7137924f406c555a352af351` after final head `23e35ca334872256867341f0e7dbdeff16405cf0` passed [PR CI 41615716203](https://github.com/oz-coden/Simpludify/actions/runs/41615716203) and [branch CI 41615706751](https://github.com/oz-coden/Simpludify/actions/runs/41615706751), all 20 validation jobs in each run.
+- [Main CI and Pages 41617166956](https://github.com/oz-coden/Simpludify/actions/runs/41617166956) passed all 20 validation jobs plus deployment. Node 24 verified 842 unit tests / 63 files; standard Chromium 156 verified 404 browser tests / 23 files (105 + 97 per viewport), Windows/Linux packages and starter, both site bases and six frozen Run To Exit candidate projects. Consumer desktop logs confirm 35 unit and 11 E2E passes; the six-project matrix covers 66 E2E cases and verifies committed dependency files stay unchanged.
+- Published [documentation](https://github.oz-coden.com/Simpludify/), [Japanese gamepads](https://github.oz-coden.com/Simpludify/guides/gamepads.html), [English gamepads](https://github.oz-coden.com/Simpludify/en/gamepads.html) and [input lab](https://github.oz-coden.com/Simpludify/play/unified-input/index.html) were checked after deployment by the workflow's standard-browser SDK/Tween/Tilemap/geometry/input acceptance scripts. The new input script checked all 28 reciprocal guide pairs and four desktop/narrow × WebGL/Canvas2D cases with independent mocked pads, preserved Actor identity, program handoff, pause reset, Scene disposal and zero final sources/hosts.
+- Final site inventory: 78 documentation pages, 13 examples, 91 HTML documents, 7,934 local references and 80 independently typechecked documentation examples. Existing routes are preserved. Current bilingual guides are separated from untranslated historical engineering records; sample instructions/UI are not fully localized.
+- Core/Web source manifests, exact Web→Core dependency, lock metadata and ENGINE_VERSION are aligned to 0.1.4. The independent starter and Run To Exit retain registry 0.1.3. Their candidate validation uses disposable tarball consumers; Run To Exit is frozen at `e3c6f50ad837e2d2c598a1a1d01c47077b33d00c`.
+- **No v0.1.4 tag, GitHub release or npm publication has been created.** Both public latest tags remain 0.1.3 and both target 0.1.4 versions are absent. Final publication approval must explicitly select the validated current main SHA, `v0.1.4`, `@simpludify/core@0.1.4` and `@simpludify/web@0.1.4`. The manual OIDC workflow publishes Core first, verifies its registry integrity, then publishes Web and checks clean registry consumers. Subsequent report-only commits require their own successful main push CI before selecting the publication SHA.
+
+### Prepared archives on the integrated source
+
+`npm run pack:packages` and the non-publishing `GITHUB_SHA=aa7e5ba05080a56c7137924f406c555a352af351 node scripts/publish-packages.mjs` passed. Repacking this main checkout produced identical archive bytes/integrities. The following local preparation records supersede earlier checkpoint archive hashes; they are not invented npm registry integrities. The release workflow will validate and transfer its exact archives to publication.
+
+- `@simpludify/core@0.1.4`: `sha512-nhYq1yYnHfb/A960g3N9ts5j6d6LZhycV37AtJhX9mVccT/yA+pmXbOAVGCSKkYozd9bu6bzCj6EJFqN+34vqQ==`.
+- `@simpludify/web@0.1.4`: `sha512-k8VLMh3YTGnpghH77OiktsJTqbFBWXCKLhoQrb9U/cGE8N2VJx2si1r9fi6/u2//NjVpB/Of+4MIIBR8QaqWLA==`.
+
+### Remaining verification limits
+
+Automated pads/providers and emulated touch do not certify physical gamepads, vendor legends, OS drivers, vibration, physical mobile keyboards, Safari/Firefox or actual OS IME behavior. Current npm-owner Trusted Publisher settings were not re-read; the repository workflow identity is documented and the preceding 0.1.3 OIDC publication demonstrates historical operation. npm-side identity/permissions must remain correct when publication is approved.
+
+The work host could not install standard Chromium (apt user/group restrictions and truncated downloads). Supplemental local checks used Chromium 153; full standard Chromium 156 verification and actual published-site browser checks passed on GitHub runners. A supplemental remote browser attempt from the work host ended with ERR_EMPTY_RESPONSE at navigation after its HTTP guide checks succeeded; this is not counted as a published-site browser pass. No product tests were removed or disabled, and retry counts and global timeouts were not increased.
+
 ## Baseline and checkpoint
 
 - Baseline main: `42302ff3210f8806db63bfe9ad72f376d6e8713d`.
@@ -92,4 +114,4 @@ The broader supplemental site smoke reached the narrow documentation crawl and c
 
 Local project-base full site smoke passed on Chromium 153: all 78 documentation pages and 13 playable examples at desktop/narrow viewports, both themes, input lab gallery mode switching, iframe restart/stop cleanup, focus return and no request/page errors. Targeted responsive checks passed at widths 320/390/760/1440. The final root-base build/static/snippet check and four-case input lab acceptance also passed when served with SITE_BASE=/.
 
-At head `5ce776c`, PR CI completed both site bases successfully, but the parallel branch-push project's site check reported a transient `en/gamepads.html` narrow overflow immediately after the new round-trip language navigation. The fixture now explicitly waits for the navigation load (including stylesheets) after each language link before inspecting layout, retaining the same overflow assertion and deadlines. Full final-head CI is required; earlier failed/cancelled attempts are not final success evidence. The two public registry latest tags were independently checked and remain 0.1.3. No v0.1.4 tag exists and no publication was invoked.
+At head `5ce776c`, PR CI completed both site bases successfully, but the parallel branch-push project's site check reported an `en/gamepads.html` narrow overflow immediately after the new round-trip language navigation. The fixture now explicitly waits for the navigation load (including stylesheets) after each language link before inspecting layout, retaining the same overflow assertion and deadlines. Full final-head CI is required; earlier failed/cancelled attempts are not final success evidence. The two public registry latest tags were independently checked and remain 0.1.3. No v0.1.4 tag exists and no publication was invoked.
