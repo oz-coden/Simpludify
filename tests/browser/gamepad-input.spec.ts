@@ -142,6 +142,7 @@ for (const fallback of [false, true])
       });
       await step(page);
       await page.keyboard.down("d");
+      await step(page);
       expect(
         await page.evaluate(
           () =>
@@ -245,6 +246,7 @@ for (const fallback of [false, true])
         if (p) p.axes[0] = 1;
       });
       await page.keyboard.down("d");
+      await step(page);
       await step(page);
       expect(
         await page.evaluate(() =>
