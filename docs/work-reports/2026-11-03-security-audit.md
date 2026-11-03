@@ -43,3 +43,5 @@
 ## Integration review follow-up
 
 The [integration report](2026-11-03-security-integration.md) records further review against the latest main, corrections to path containment and legitimate input handling, external consumer validation and final merge/deployment evidence. The initial verification above applies to the original Argon commit; follow-up results are recorded separately.
+
+Final integration: PR #14 merged as `1c28c8f913a25db85d1c50604a847bce2db5a303`. Follow-up review corrected path-prefix/symlink containment, optional Action defaults, valid quoted/escaped fonts and a reproduced image-set color-token resource-load bypass. The final source passed 827 unit tests, 392 engine browser tests, all 66 external Run To Exit E2E tests and Windows/Linux package checks. [Main CI 41580443697](https://github.com/oz-coden/Simpludify/actions/runs/41580443697) and Pages/live-site validation succeeded. Full evidence, retained failed checkpoints and limitations are in the [integration report](2026-11-03-security-integration.md). No npm version or existing tag was changed.

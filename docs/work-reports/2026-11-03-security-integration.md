@@ -1,5 +1,7 @@
 # Security audit integration and regression validation
 
+Final status: [PR #14](https://github.com/oz-coden/Simpludify/pull/14) merged as `1c28c8f913a25db85d1c50604a847bce2db5a303`; [main CI and Pages](https://github.com/oz-coden/Simpludify/actions/runs/41580443697) succeeded. See the final acceptance section below; earlier entries are historical checkpoints.
+
 ## Source and integration checkpoint
 
 - PR: [#14](https://github.com/oz-coden/Simpludify/pull/14), `argon/security-audit`.
@@ -53,3 +55,52 @@ A real-browser probe reproduced an external image request from `tokens.backgroun
 The preceding `db3a7c5c020dcba0246e790f7e593e281bc574ab` candidate passed all 66 consumer tests in push CI, but is superseded by this color-token correction and is not the final merge candidate.
 
 Local verification of the color correction: `npm run check` passed; the focused real-browser font/color tests passed 2/2, including no intercepted image request for a CSS variable fallback.
+
+## Final acceptance and integration
+
+The final security source is `5ec075ccdc6ee650b29a21a8f269bb4bf29dddb0`. The v0.1.3 source-to-main comparison contained only documentation and starter registry pins in examples/templates; Core/Web runtime files had no intervening main changes. The main merge was clean and preserved those updates.
+
+| Verification | Result |
+| --- | --- |
+| TypeScript, Biome, architecture/export/version/license checks | Passed; existing non-blocking Biome warnings remain |
+| Core/Web and example unit tests | 62 files / 827 tests passed |
+| Engine browser E2E | 392 passed across desktop/390px, WebGL and Canvas2D; includes composition, focus, scrolling, layout and paint/cache coverage |
+| Production examples | UI Scenes, Signal Run, Canvas UI and Tween build/browser smoke passed |
+| Documentation | Both / and /Simpludify/ builds, 73 pages / 5099 references and 65 typechecked snippets; site/browser and live fixture checks passed |
+| Windows/Linux distribution | npm tarball contents/integrities, Core-only Node/NodeNext, transitive Web install, public declarations and external development/production Vite consumers passed |
+| Published npm starter | Windows/Linux starter checks passed |
+| External Run To Exit candidate | 35 world tests, type check and production build in each isolated copy; all 66 E2E passed (11 cases × 6 renderer/viewport projects) |
+
+The consumer matrix covers native numeric/text editing and validation (including Japanese input values), command reordering/removal, all 50 commands and bounded history, scroll/focus, keyboard/touch projection, original-stage clearance, Scene disposal and real-pixel paint after GPU cache reuse. Automated composition behavior is covered in the engine matrix; physical-device IME is not claimed.
+
+Desktop, 320px and 390px consumer screenshots and the Windows packed SDK 320px production screenshot were inspected. Text/controls remained within the viewport; the desktop map and narrow tab layout painted normally. Focus outlines were retained. These observations supplement behavioral tests rather than substitute for them.
+
+Additional local checks passed: seven malformed documentation sample IDs were rejected while a known sample launched/stopped normally; CLI creation into an external `..valid-project` directory copied the expected project files. Repository Markdown/config is trusted build input, not arbitrary runtime HTML.
+
+### Evidence and deployment
+
+- Final PR CI: [41579224132](https://github.com/oz-coden/Simpludify/actions/runs/41579224132), success.
+- PR #14 merge commit: `1c28c8f913a25db85d1c50604a847bce2db5a303`.
+- Main CI: [41580443697](https://github.com/oz-coden/Simpludify/actions/runs/41580443697), success, including Pages deployment and published SDK integration, Tween, tilemap and tile-geometry checks.
+- Documentation: https://github.oz-coden.com/Simpludify/ .
+- The final accepted candidate supersedes the earlier interrupted/failed checkpoints above. The incorrect initial CSSOM test expectation and local Prism Raid timing failures remain recorded; no tests were disabled or deadlines increased by this change.
+
+### Candidate integrity and immutable releases
+
+| Candidate archive | SHA512 integrity |
+| --- | --- |
+| Core | `sha512-z3oIlf/v7i1cf7LPWnpzMQ9+G1x9pp4IC3bQfzTA5P1SXjWAuwK92KzNC+Ydj4VrFjHQXJ2CtDfGU9bZ9bss1A==` |
+| Web | `sha512-+O9U2At17YoJ9LDhoq+sTst4WFgo4LR1DO86wKSK69azNjRAAGFYRL2e1rmK56an3rLQzAFTnNftkINyr0m2ww==` |
+
+Run To Exit remains at `e3c6f50ad837e2d2c598a1a1d01c47077b33d00c` with registry Core/Web 0.1.3. Its source package.json SHA256 is `a2e397bfe46b14f76903acf64ed47c636938f2e1ca1c5aab13552f3002060499`; package-lock.json is `9928b08d7ae7a93a19b85b1df833b01a8eea86f4e8e8125ee102d21e85b22094`. The working tree and dependency files were unchanged after candidate testing.
+
+The v0.1.3 tag still identifies `1164b77c0bc037f7afc3b29a32b48d6a2d27e476`. Registry integrities match the original publication report (Core `sha512-3hcLff20KzUA2r7UjkMi47EG7C5gh6SAyUl5SM3CY0hme7lSC21Zpy2ts7rbnEIy14H4yz1MLaO+GzDpX4PG8Q==`, Web `sha512-8dtesMt/wmQKMCQPMuTaGyx7bcoeZ4Q2H2rMTH4PyeY2ZEoU1sbalPAWStsm5rB0C34z4ujHxbZ80zZ7OVS56g==`). The candidate archives are unpublished verification artifacts, not replacements for these immutable versions. No release workflow was dispatched.
+
+### Limits and remaining scope
+
+- The fixes are integrated in source and the documentation build. Published 0.1.3 packages and the deployed Run To Exit registry dependencies remain unchanged; distributing the fixes through npm requires a separately authorized future release.
+- Chromium automation includes software WebGL/Canvas2D, synthetic composition and emulated touch. Actual OS IME, physical mobile devices, screen readers and other browsers remain unverified.
+- Windows/Linux results concern npm SDK packaging and external consumers. Native Electron/Tauri/Android application packaging remains unimplemented and was not represented as tested.
+- Automated checks are not a complete security proof. The local preview and copy tools operate on trusted developer-owned filesystem trees.
+
+This documentation-only closeout was recorded after the merged main's complete CI/deployment succeeded. Its `[skip ci]` commit updates only the work reports/index; production, test, workflow, package and site source files remain identical to the validated merge. The deployment above contains the integrated security fixes and updated API guides.

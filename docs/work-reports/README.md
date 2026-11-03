@@ -4,6 +4,7 @@ Implementation checkpoints and final verification records live here so repositor
 
 | Date (JST) | Task                                                                          | Status                                                                                                                                 |
 | ---------- | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-11-03 | [Security audit integration](2026-11-03-security-integration.md) | Complete: PR #14 merged 1c28c8f; 827 unit / 392 browser / 66 consumer E2E; Windows/Linux packages, main CI and Pages passed; no npm publication |
 | 2026-11-03 | [Security audit and input-validation hardening](2026-11-03-security-audit.md) | Complete: input/style/theme/URL/path-boundary hardening, 821 unit tests, site build/check and browser game spec verified               |
 | 2026-11-01 | [Experimental npm SDK](2026-11-01-npm-packaging.md)                           | Complete SDK: main b7951e9, 805 unit / 346 browser and external tarball acceptance; Pages passed; npm bootstrap/authentication pending |
 | 2026-11-01 | [Tile geometry and polygon rendering](2026-11-01-tilemap-geometry.md)         | Complete: main 87a0337; 805 unit / 346 browser; main CI, Pages and published geometry acceptance passed                                |
@@ -27,5 +28,3 @@ Before long-running verification or integration, commit implementation and updat
 - [Canvas screen consumer integration](2026-11-02-canvas-consumer-ui.md)
 
 - [2026-11-03 v0.1.3 publication and Canvas adoption](2026-11-03-v0.1.3-publication.md)
-
-- [Security audit integration and regression validation](2026-11-03-security-integration.md)
