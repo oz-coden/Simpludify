@@ -3,6 +3,12 @@ import { cleanupAll, type LifetimeOwner } from "../foundation/lifetime";
 import type { ActionFrame } from "./action-frame";
 import { OwnedInputSource } from "./input-source";
 import { type KeyCode, parseKeyCode } from "./key-code";
+/** Host device adapter. Sampled before all Action frames; reset flushes held device state. */
+export interface InputAdapter {
+  sample(): void;
+  reset(): void;
+  dispose(): void;
+}
 /** @internal Engine boundary participant, implemented by ActionController. */
 export interface ActionInputPort {
   readonly active: boolean;
@@ -33,6 +39,7 @@ export class KeyboardSource extends OwnedInputSource {
 /** Engine-owned routing and update boundary. No raw game-state/alternate movement API. */
 export class InputSystem {
   private readonly actions = new Set<ActionInputPort>();
+  private readonly adapters = new Set<InputAdapter>();
   private readonly keyboards = new Map<KeyboardSource, Set<KeyCode>>();
   private dead = false;
   private playback = false;
@@ -50,6 +57,15 @@ export class InputSystem {
       this.actions.delete(actions);
     };
   }
+  /** Host integration boundary; ordinary game input uses ActionSource instead. */
+  addAdapter(adapter: InputAdapter): () => void {
+    if (this.dead)
+      throw new EngineError("OWNER_DISPOSED", "Input has been disposed");
+    this.adapters.add(adapter);
+    return () => {
+      this.adapters.delete(adapter);
+    };
+  }
   acceptsKey(code: KeyCode): boolean {
     if (this.playback) return false;
     for (const actions of this.actions) if (actions.accepts(code)) return true;
@@ -65,6 +81,10 @@ export class InputSystem {
   }
   /** @internal Freeze every controller before invoking any callbacks. */
   beginStep(captured?: () => void): void {
+    if (!this.playback) {
+      for (const adapter of [...this.adapters])
+        if (this.adapters.has(adapter)) adapter.sample();
+    }
     if (!this.actions.size) {
       captured?.();
       return;
@@ -168,6 +188,8 @@ export class InputSystem {
   clear(): void {
     for (const keys of this.keyboards.values()) keys.clear();
     for (const actions of this.actions) actions.reset();
+    for (const adapter of [...this.adapters])
+      if (this.adapters.has(adapter)) adapter.reset();
   }
   /** Device diagnostics only; game state is ActionController.snapshot(). */
   snapshot(): readonly KeyCode[] {
@@ -182,12 +204,14 @@ export class InputSystem {
     try {
       cleanupAll(
         [
+          ...[...this.adapters].map((a) => () => a.dispose()),
           ...[...this.actions].map((a) => () => a.dispose()),
           ...[...this.keyboards.keys()].map((s) => () => s.dispose()),
         ],
         "Input cleanup failed",
       );
     } finally {
+      this.adapters.clear();
       this.actions.clear();
       this.keyboards.clear();
     }

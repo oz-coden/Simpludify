@@ -20,6 +20,7 @@ export * from "./graphics/sprite-sheet";
 export * from "./graphics/tile-geometry";
 export type { ActionFrame, ActionSchema } from "./interaction/action-frame";
 export * from "./interaction/actions";
+export type { InputAdapter } from "./interaction/input";
 export { InputSystem, KeyboardSource } from "./interaction/input";
 export * from "./interaction/key-code";
 export * from "./interaction/pointer-routing";

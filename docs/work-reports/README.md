@@ -28,3 +28,5 @@ Before long-running verification or integration, commit implementation and updat
 - [Canvas screen consumer integration](2026-11-02-canvas-consumer-ui.md)
 
 - [2026-11-03 v0.1.3 publication and Canvas adoption](2026-11-03-v0.1.3-publication.md)
+
+- [Unified input, gamepads and bilingual documentation — v0.1.4](2026-11-03-unified-input-v0.1.4.md)
