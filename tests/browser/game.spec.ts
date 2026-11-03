@@ -500,6 +500,7 @@ test("rejects image-valued color tokens and prevents image loading through varia
       "color-mix(in srgb, red, blue)",
       "currentColor",
       "transparent",
+      "\\72 ed",
     ];
     const accepted = colors.map((background) => {
       const game = new Game({ theme: Theme.Light, tokens: { background } });
@@ -523,7 +524,7 @@ test("rejects image-valued color tokens and prevents image loading through varia
     "INVALID_THEME_TOKEN",
     "INVALID_THEME_TOKEN",
   ]);
-  expect(result.accepted).toHaveLength(6);
+  expect(result.accepted).toHaveLength(7);
   expect(result.accepted.every((value) => value.length > 0)).toBe(true);
   expect(result.image).toBe("none");
   expect(requests).toEqual([]);
