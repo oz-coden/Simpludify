@@ -67,12 +67,14 @@ try {
         item.route === "en/gamepads.html"
       ) {
         await language.click();
+        await page.waitForLoadState("load");
         assert.equal(
           new URL(page.url()).pathname,
           new URL(site).pathname +
             (item.lang === "ja" ? "en/gamepads.html" : "guides/gamepads.html"),
         );
         await page.locator("[data-language-link]").click();
+        await page.waitForLoadState("load");
         assert.equal(
           new URL(page.url()).pathname,
           new URL(site).pathname + item.route,

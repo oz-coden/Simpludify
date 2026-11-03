@@ -87,3 +87,9 @@ Canvas buttons' native keyboard mirrors intentionally sit beneath the pointer-ow
 ## Responsive navigation correction
 
 The broader supplemental site smoke reached the narrow documentation crawl and caught horizontal overflow in the localized English header. The mobile header now retains language/theme/menu controls, with page links available through the existing sidebar menu; the English menu label is shortened. Desktop navigation remains complete. The production project build, static link/pair checks and all 80 snippets pass with the correction. The incomplete earlier full site run is not counted as a browser pass. Final-head CI remains required before merge.
+
+## Navigation timing and completed local site evidence
+
+Local project-base full site smoke passed on Chromium 153: all 78 documentation pages and 13 playable examples at desktop/narrow viewports, both themes, input lab gallery mode switching, iframe restart/stop cleanup, focus return and no request/page errors. Targeted responsive checks passed at widths 320/390/760/1440. The final root-base build/static/snippet check and four-case input lab acceptance also passed when served with SITE_BASE=/.
+
+At head `5ce776c`, PR CI completed both site bases successfully, but the parallel branch-push project's site check reported a transient `en/gamepads.html` narrow overflow immediately after the new round-trip language navigation. The fixture now explicitly waits for the navigation load (including stylesheets) after each language link before inspecting layout, retaining the same overflow assertion and deadlines. Full final-head CI is required; earlier failed/cancelled attempts are not final success evidence. The two public registry latest tags were independently checked and remain 0.1.3. No v0.1.4 tag exists and no publication was invoked.
