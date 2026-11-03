@@ -54,7 +54,10 @@ function scalar(
   deadZone: number,
 ): number {
   const group = (indices: readonly number[] | undefined) =>
-    Math.max(0, ...(indices ?? []).map((index) => buttonValue(pad, index)));
+    (indices ?? []).reduce(
+      (maximum, index) => Math.max(maximum, buttonValue(pad, index)),
+      0,
+    );
   const raw =
     finite(
       (binding.axis === undefined ? 0 : finite(pad.axes[binding.axis], -1, 1)) +

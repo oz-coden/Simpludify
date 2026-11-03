@@ -63,7 +63,7 @@ The finite Tilemap now supports copied ID policies, sparse cell overrides and de
 
 ## Canvas UI and Pointer input
 
-Implemented: Scene-owned Web Canvas nodes, Pixi screen presentation, dirty Flex with min/max freeze/reallocation and width-aware grapheme-safe text wrapping, fixed-owner multi-pointer routing, existing ActionSource integration, native keyboard button mirrors, and Canvas trail integration. Existing DOM UI and Core Action contracts remain. See [API and scope](canvas-ui.md), [validation](canvas-ui-implementation.md) and [measurements](canvas-ui-performance.md). Full CSS layout, text editing/document semantics, gamepad adapters, OS/device accessibility verification and hardware GPU profiling remain separate work.
+Implemented: Scene-owned Web Canvas nodes, Pixi screen presentation, dirty Flex with min/max freeze/reallocation and width-aware grapheme-safe text wrapping, fixed-owner multi-pointer routing, existing ActionSource integration, native keyboard button mirrors, and Canvas trail integration. Existing DOM UI and Core Action contracts remain. See [API and scope](canvas-ui.md), [validation](canvas-ui-implementation.md) and [measurements](canvas-ui-performance.md). Native Canvas editing and label semantics are implemented with their documented limits. v0.1.4 adds the Web gamepad adapter and source gating. Full CSS layout, general document semantics, OS/device accessibility verification and hardware GPU profiling remain separate work.
 
 ## Deferred Scene API proposals
 

@@ -179,7 +179,7 @@ Consumed/default-prevented keydown is not also delivered to gameplay. This inclu
 
 Noninteractive Panel/Row/Column/Scroll backgrounds do not brighten by default. `hoverEffect: "highlight"` explicitly opts a custom pointer panel into the highlight; `"none"` suppresses a control's highlight. Neither changes hit tests, PointerEnter/Leave delivery, interactivity or Tab order. Use `pointerEvents: "auto"` separately when a panel should receive pointer events.
 
-A native accessibility activation invokes Button callbacks. Text-only Canvas labels/panels are not mirrored as a semantic document, live regions are not automatically announced, HoldButton is not a universal assistive-technology gesture replacement, and no actual screen-reader/OS IME/physical mobile conformance is claimed. Use DOM UI for those richer requirements. Focus is released when a Scene UI is removed; the application/browser chooses the next focus, and the engine does not trap Tab.
+A native accessibility activation invokes Button callbacks. Since v0.1.3, CanvasLabel text is mirrored in reading order, with optional heading/status/alert semantics. Panels are not a general semantic document and HoldButton is not a universal assistive-technology gesture replacement. No actual screen-reader/OS IME/physical mobile conformance is claimed. Use DOM UI for those richer requirements. Focus is released when a Scene UI is removed; the application/browser chooses the next focus, and the engine does not trap Tab.
 
 Run [Canvas trail](../examples/canvas-ui/README.md) for the complete Sprite/Tilemap/Collision/HUD/input/Scene integration example. [Implementation and validation](canvas-ui-implementation.md) records actual gates and limitations.
 

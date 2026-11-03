@@ -17,6 +17,14 @@ A code-first TypeScript 2D game engine. Create a visible character, responsive U
 
 **Status: experimental Web engine with a composition-based Core.** The API can change before a stable release. Electron/Tauri/Android packaging is pending. The Core and Web SDK packages are published on npm as v0.1.3.
 
+## v0.1.4 source candidate
+
+The source workspaces target **v0.1.4**: integrated security fixes, unified input/gamepads/local multiplayer and bilingual consumer documentation. Registry Core/Web **0.1.3 remain the published versions**. The new gamepad APIs require the candidate source/tarballs until final approval and publication. [Input/gamepad guide](docs/gamepads.md) · [Two-player lab](examples/unified-input/README.md) · [Release preparation report](docs/work-reports/2026-11-03-unified-input-v0.1.4.md).
+
+```sh
+npm run dev -- --example unified-input
+```
+
 ## Experimental npm SDK v0.1.3
 
 `@simpludify/core@0.1.3` contains host-independent simulation and geometry; `@simpludify/web@0.1.3` adds browser rendering/input/UI and installs Core/PixiJS as dependencies. Both ship compiled ESM and TypeScript declarations. APIs may change between 0.x releases.

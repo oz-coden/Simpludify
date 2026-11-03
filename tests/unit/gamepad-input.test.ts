@@ -483,3 +483,31 @@ it("keeps absent and malformed providers safe and neutral", () => {
   engine.dispose();
   expect(input.disposed).toBe(true);
 });
+
+it("flushes every adapter even when another reset fails", () => {
+  const engine = new Engine(),
+    reset = vi.fn();
+  engine.input.addAdapter({
+    sample() {},
+    reset() {
+      throw new Error("adapter reset");
+    },
+    dispose() {},
+  });
+  engine.input.addAdapter({ sample() {}, reset, dispose() {} });
+  expect(() => engine.input.clear()).toThrow("Input reset failed");
+  expect(reset).toHaveBeenCalledTimes(1);
+  engine.dispose();
+});
+
+it("ignores inherited binding fields instead of adopting prototype input", () => {
+  const f = fixture();
+  f.one.rebind({
+    Move: { x: Object.create({ axis: 0 }) as { axis?: number } },
+  });
+  f.engine.step(0);
+  f.first.axes[0] = 1;
+  f.engine.step(0);
+  expect(f.a.value(Actions.Move)).toEqual({ x: 0, y: 0 });
+  f.engine.dispose();
+});

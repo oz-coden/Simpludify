@@ -127,7 +127,7 @@ function record(
     Object.keys(value).some((k) => !keys.includes(k))
   )
     return fail();
-  return value as Record<string, unknown>;
+  return Object.fromEntries(Object.entries(value));
 }
 function axisBinding(value: unknown): GamepadAxisBinding {
   const v = record(value, [

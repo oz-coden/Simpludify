@@ -201,6 +201,11 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium --only-shell
       - run: npm run pack:packages
+      - name: Resolve candidate version
+        id: sdk
+        run: |
+          version=$(node --input-type=module -e 'import {sdkVersion} from "./scripts/sdk-version.mjs"; console.log(sdkVersion)')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
       # Frozen external consumer; its committed registry dependencies stay at 0.1.3.
       - uses: actions/checkout@v7.0.1
         with:
@@ -208,7 +213,7 @@ jobs:
           ref: e3c6f50ad837e2d2c598a1a1d01c47077b33d00c
           path: test-results/consumer-source
       - run: mkdir -p "${{ runner.temp }}/candidate"
-      - run: npm run test:sdk-candidate -- "${{ github.workspace }}/test-results/packages/simpludify-core-0.1.3.tgz" "${{ github.workspace }}/test-results/packages/simpludify-web-0.1.3.tgz" --project=${{ matrix.project }}
+      - run: npm run test:sdk-candidate -- "${{ github.workspace }}/test-results/packages/simpludify-core-${{ steps.sdk.outputs.version }}.tgz" "${{ github.workspace }}/test-results/packages/simpludify-web-${{ steps.sdk.outputs.version }}.tgz" --project=${{ matrix.project }}
         working-directory: test-results/consumer-source
         env:
           TMPDIR: ${{ runner.temp }}/candidate

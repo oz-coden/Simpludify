@@ -6,7 +6,7 @@ Simpludifyは、TypeScriptを中心に2Dゲームをつくる実験的なゲー�
 
 <div class="actions"><a class="primary" href="getting-started.html">最初のゲームをつくる →</a><a href="examples.html">ブラウザで試す</a></div>
 
-> Experimental v0.1.0のnpm SDKを準備中です。[配布アーカイブ・npm導入ガイド](npm.md)で独立プロジェクトを構築できます。レジストリ公開は未確認です。APIは変更される可能性があります。Windows版やネットワーク機能は未実装です。
+> Experimental v0.1.3のnpm SDKを公開済みです。現在のソースはv0.1.4候補を準備しています。[配布アーカイブ・npm導入ガイド](npm.md)で独立プロジェクトを構築できます。新しい入力APIはv0.1.4のソース／候補tarballが対象で、公開には最終承認が必要です。APIは変更される可能性があります。Windows版やネットワーク機能は未実装です。
 
 <div class="feature-grid">
 <section class="feature"><h2>組み合わせてつくる</h2><p>Characterの既定値から始め、Transform・Renderable・Motionや独自Componentへ段階的に進めます。イベント駆動は必須ではありません。</p></section>

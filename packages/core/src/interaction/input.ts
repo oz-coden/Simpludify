@@ -81,7 +81,7 @@ export class InputSystem {
   }
   /** @internal Freeze every controller before invoking any callbacks. */
   beginStep(captured?: () => void): void {
-    if (!this.playback) {
+    if (!this.playback && this.adapters.size) {
       for (const adapter of [...this.adapters])
         if (this.adapters.has(adapter)) adapter.sample();
     }
@@ -187,9 +187,15 @@ export class InputSystem {
   }
   clear(): void {
     for (const keys of this.keyboards.values()) keys.clear();
-    for (const actions of this.actions) actions.reset();
-    for (const adapter of [...this.adapters])
-      if (this.adapters.has(adapter)) adapter.reset();
+    cleanupAll(
+      [
+        ...[...this.actions].map((actions) => () => actions.reset()),
+        ...[...this.adapters].map((adapter) => () => {
+          if (this.adapters.has(adapter)) adapter.reset();
+        }),
+      ],
+      "Input reset failed",
+    );
   }
   /** Device diagnostics only; game state is ActionController.snapshot(). */
   snapshot(): readonly KeyCode[] {

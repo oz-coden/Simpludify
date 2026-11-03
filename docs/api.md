@@ -1,6 +1,6 @@
 # API
 
-`@simpludify/core` is DOM-free. [Typed Action input](action-input.md) defines logical buttons/axes, key bindings, source composition and input boundaries. `@simpludify/web` re-exports Core and supplies Game, PixiRenderer, browser input, DOM UI and scoped default CSS. All mode objects export corresponding union types. Internal packages remain private source workspaces.
+`@simpludify/core` is DOM-free. [Typed Action input](action-input.md) defines logical buttons/axes, key bindings, source composition and input boundaries. `@simpludify/web` re-exports Core and supplies Game, PixiRenderer, browser input, DOM UI and scoped default CSS. All mode objects export corresponding union types. The root workspace is private; Core/Web are publishable SDK packages. This source targets v0.1.4; published registry 0.1.3 remains immutable.
 
 ## Fixed-size two-dimensional data
 
@@ -46,6 +46,8 @@ Click or Tab into the game host to use movement keys. Game does not autofocus. W
 | renderer    | PixiRenderer factory          | Receives owned HTMLElement; returns RendererPort                     |
 | frames      | RAF driver                    | FrameDriver request/cancel; callbacks must be asynchronous           |
 | onError     | console.error                 | Background/UI/cleanup observer; nonfatal errors also reach an alert  |
+
+`Game.gamepads` is the owned GamepadInput adapter. `bind(controller,{index,bindings,deadZone?,mapping?})` returns a controller-owned GamepadSource with enabled/clear/dispose, assign and rebind. Device snapshots and onChange expose browser facts separately from inferred button labels. See the [gamepad API](gamepads.md). `ActionSource.enabled`, `KeyboardSource.enabled` and per-controller `keyboardEnabled` gate existing input paths without replacing readers/Actors. See [source contracts](action-input.md#source-gating-and-gamepads-v014).
 
 Game.add(actor) returns the same Actor and works both before run and during execution. Game.remove(actorOrId) destroys a member of the current Scene and returns whether it existed. During preparation of another Scene these methods still target the current Scene; use the staged context's add/scene for the candidate.
 

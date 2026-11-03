@@ -23,17 +23,17 @@ npm run site:build -- --base /
 
 ## 技術選定
 
-既存のVite 8で複数HTMLと4サンプルをビルドし、Markdownはmarkdown-itで静的HTMLへ変換します。文書表示にVueやReact、実行時Markdown変換は不要です。VitePressも比較しましたが、確認時の安定版1.6.4は別のVite 5とVue等を追加するため、今回は小規模な構成を選びました。
+既存のViteで複数HTMLと登録済みサンプルをビルドし、Markdownはmarkdown-itで静的HTMLへ変換します。文書表示にVueやReact、実行時Markdown変換は不要です。VitePressも比較しましたが、確認時の安定版1.6.4は別のVite 5とVue等を追加するため、今回は小規模な構成を選びました。
 
 ページ一覧・言語・サンプル定義は`site/config.mjs`、日本語本文は`site/ja/`です。既存英語文書を直接取り込み、複製によるずれを防ぎます。本文内の相対Markdownリンクはビルド時にサイトのルートへ変換します。見つからないリポジトリ内資料はGitHubへリンクし、全ローカルリンクとanchorを検査します。
 
 ## GitHub Pages
 
-`.github/workflows/pages.yml`はmain・作業ブランチ・PRで型検査、単体テスト、統合本番ビルド、リンク・アセット検査、既存エンジンとPC/狭幅サイトのブラウザテストを実行し、成果物を保存します。mainまたはmain上の手動実行のみデプロイします。既存CIも継続して実行します。
+`.github/workflows/ci.yml`はmain・作業ブランチ・PRで型検査、単体テスト、統合本番ビルド、リンク・アセット検査、既存エンジンとPC/狭幅サイトのブラウザテストを実行し、成果物を保存します。mainへのpushで全検証成功後にデプロイし、公開URL上の動作確認も行います。既存CIも継続して実行します。
 
 PagesのSourceは**GitHub Actions**を選びます。構成アクションでPagesを自動作成せず、未有効なら設定不足として失敗します。デプロイjobだけが`pages: write`と`id-token: write`を持ち、通常の検証jobは`contents: read`のみです。公開対象は`site-dist/`全体です。
 
-既定の公開先は`https://oz-coden.github.io/Simpludify/`です。公開の可否と検証結果は[サイト運用記録](https://github.com/oz-coden/Simpludify/blob/main/docs/site-validation.md)で確認できます。ソースが公開であることと、Pagesで公開が有効であることは別です。
+既定の公開先は`https://github.oz-coden.com/Simpludify/`です。公開の可否と検証結果は[サイト運用記録](https://github.com/oz-coden/Simpludify/blob/main/docs/site-validation.md)で確認できます。ソースが公開であることと、Pagesで公開が有効であることは別です。
 
 ## 独自ドメインへの移行
 

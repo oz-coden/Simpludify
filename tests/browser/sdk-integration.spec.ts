@@ -62,9 +62,15 @@ test("Flex viewport follows UI scale, resize and padding while pointer and camer
     expect(point.inverse.y).toBeCloseTo(90);
     const clicks = await page.evaluate(() => window.integration.clicks);
     await page.mouse.click(point.x, point.y);
-    await expect
-      .poll(() => page.evaluate(() => window.integration.clicks))
-      .toBe(clicks + 1);
+    // Keep the assertion in the page: software-GPU rendering can delay an RPC
+    // response beyond expect.poll's 5s budget even after the click was handled.
+    await page.waitForFunction(
+      (expected) => window.integration.clicks === expected,
+      clicks + 1,
+    );
+    expect(await page.evaluate(() => window.integration.clicks)).toBe(
+      clicks + 1,
+    );
     await page
       .getByRole("button", { name: "Step", exact: true })
       .press("Enter");
