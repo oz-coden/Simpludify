@@ -187,8 +187,9 @@ export class Game<SceneId extends string = string> {
       if (
         !Object.hasOwn(theme, name) ||
         typeof value !== "string" ||
-        !value.trim().length ||
-        /[;{}<>\\\r\n\0]|url\s*\(/i.test(value)
+        (name === "font"
+          ? !validFontFamily(value)
+          : !value.trim().length || /[;{}<>\\\r\n\0]|url\s*\(/i.test(value))
       )
         throw new EngineError("INVALID_THEME_TOKEN", `Invalid token: ${name}`);
     const tokens = { ...theme, ...options.tokens };
@@ -891,4 +892,15 @@ export class Game<SceneId extends string = string> {
     this.scenes.clear();
     this.pendingScenes.clear();
   }
+}
+
+function validFontFamily(value: string): boolean {
+  const syntax = value
+    .replace(/"(?:\\[^\r\n]|[^"\\])*"|'(?:\\[^\r\n]|[^'\\])*'/g, "family")
+    .replace(/\\(?:[0-9a-f]{1,6}[ \t]?|[^\r\n])/gi, "x");
+  return (
+    value.trim().length > 0 &&
+    !/[\r\n\0]/.test(value) &&
+    !/[;{}<>\\"']|url\s*\(/i.test(syntax)
+  );
 }

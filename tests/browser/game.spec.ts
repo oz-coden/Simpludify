@@ -407,3 +407,61 @@ test("runs the minimal default scene and clamps stalled frames with one owned fr
     remainingFrames: 0,
   });
 });
+
+test("validates theme tokens while preserving quoted and escaped font families through CSSOM", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading")).toBeVisible();
+  const result = await page.evaluate(async (sdk) => {
+    const { Game, CanvasTextInput, CanvasColumn, CanvasUI, Lifetime } =
+      await import(sdk);
+    const { nativeGeometry } = await import(
+      `${sdk.replace("index.ts", "canvas-native.ts")}`
+    );
+    const fonts = [
+      '"Font;Name", sans-serif',
+      '"URL(Font)", serif',
+      "My\\ Font, sans-serif",
+      '"日本語フォント", system-ui',
+    ];
+    return fonts.map((font) => {
+      const game = new Game({
+        tokens: {
+          font,
+          accent: "hsl(210 50% 50%)",
+          surface: "rgba(0, 0, 0, 0.5)",
+        },
+      });
+      const owner = new Lifetime();
+      const input = CanvasTextInput(
+        { value: "safe" },
+        { width: 100, height: 32, fontFamily: font },
+      );
+      const ui = new CanvasUI(owner, CanvasColumn([input]));
+      ui.layout(200, 100, () => ({ width: 40, height: 16 }));
+      const element = document.createElement("input");
+      nativeGeometry(element, input, ui, {
+        x: 0,
+        y: 0,
+        width: 200,
+        height: 100,
+      });
+      const result = {
+        token: game.element.style.getPropertyValue("--s-font"),
+        font: element.style.fontFamily,
+        position: element.style.position,
+        color: element.style.color,
+      };
+      owner.dispose();
+      game.dispose();
+      return result;
+    });
+  }, sdk);
+  for (const value of result) {
+    expect(value.token.length).toBeGreaterThan(0);
+    expect(value.font.length).toBeGreaterThan(0);
+    expect(value.position).toBe("absolute");
+    expect(value.color).not.toBe("");
+  }
+});

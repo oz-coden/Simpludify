@@ -1,6 +1,6 @@
 # Published SDK consumer patterns
 
-The public npm packages `@simpludify/core@0.1.2` and `@simpludify/web@0.1.2` are intended for independent projects. This page records integration patterns observed while migrating [Run To Exit](https://github.com/oz-coden/Run-To-Exit) from a vendored engine workspace to npm.
+The public npm packages `@simpludify/core@0.1.3` and `@simpludify/web@0.1.3` are intended for independent projects. This page records integration patterns observed while migrating [Run To Exit](https://github.com/oz-coden/Run-To-Exit) from a vendored engine workspace to npm.
 
 ## Installation and distribution
 
@@ -26,7 +26,7 @@ Published v0.1.1 consumers continue to use `setViewport` with their own scoped `
 
 ## Canvas and DOM focus integration
 
-Canvas controls can also compose instruction editors and paged event logs. Use Scroll for bounded forms, retain node identity during simulation updates, and restore logical focus after structural edits. The next SDK adds semantic CanvasLabel text; published 0.1.2 omits noninteractive text from its mirror, so complete Canvas migrations must account for that release boundary. Native document structure and live-region announcements still require separate consideration.
+Canvas controls can also compose instruction editors and paged event logs. Use Scroll for bounded forms, retain node identity during simulation updates, and restore logical focus after structural edits. SDK v0.1.3 mirrors CanvasLabel text, with optional heading levels and atomic status/alert regions. Published 0.1.2 omits noninteractive text from its mirror; full Canvas migrations require v0.1.3 or later. Actual screen-reader announcements require separate manual verification.
 
 - Give a keyboard-operable map region an accessible name, a visible focus state and a textual description of its selected cell. Use arrow keys only when **that region** has focus, so DOM text and number fields retain their key ownership.
 - When rebuilding DOM command rows after inserting, deleting or reordering, identify a surviving control to focus. Prefer logical row identity to a stale DOM element.
@@ -74,4 +74,4 @@ See [Tween and animation](tween.md) and the [Tween lab](../examples/tween/README
 
 The [SDK integration lab](../examples/sdk-integration/README.md) exercises Flex-owned world space, DOM/Canvas Tab traversal, display-only discrete Tween and Scene replacement. Its `Game.bindViewport` helper is published functionality in v0.1.2. The existing `setViewport` pattern above remains valid for 0.1.1.
 
-The [independent npm/Vite starter](../templates/npm-vite/README.md) uses published 0.1.2 APIs, including layout-bound viewports. It has a committed lockfile, `npm ci`, explicit CSS, Scene startup/disposal, Pages `--base`, and fail-on-missing production license generation. CI copies it outside the workspace and validates it on Windows and Linux. No CLI generator is necessary for this small, inspectable template.
+The [independent npm/Vite starter](../templates/npm-vite/README.md) uses published 0.1.3 APIs, including layout-bound viewports. It has a committed lockfile, `npm ci`, explicit CSS, Scene startup/disposal, Pages `--base`, and fail-on-missing production license generation. CI copies it outside the workspace and validates it on Windows and Linux. No CLI generator is necessary for this small, inspectable template.

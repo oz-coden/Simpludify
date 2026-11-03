@@ -25,3 +25,7 @@ Before long-running verification or integration, commit implementation and updat
 
 - [2026-11-02 v0.1.2 publication and registry adoption](2026-11-02-v0.1.2-publication.md)
 - [Canvas screen consumer integration](2026-11-02-canvas-consumer-ui.md)
+
+- [2026-11-03 v0.1.3 publication and Canvas adoption](2026-11-03-v0.1.3-publication.md)
+
+- [Security audit integration and regression validation](2026-11-03-security-integration.md)

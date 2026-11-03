@@ -277,7 +277,6 @@ it("rejects blank or CSS-injecting fontFamily values while accepting standard fo
     "sans-serif} body { display:none",
     "url(https://evil.example/font)",
     "sans-serif\ncolor:red",
-    "sans-serif\\20",
   ]) {
     expect(() => CanvasLabel("bad", { fontFamily: bad })).toThrow(
       expect.objectContaining({ code: "INVALID_UI" }),
@@ -287,4 +286,18 @@ it("rejects blank or CSS-injecting fontFamily values while accepting standard fo
     );
   }
   label.dispose();
+});
+
+it("accepts quoted punctuation and CSS escapes in font families", () => {
+  for (const fontFamily of [
+    '"Font;Name", sans-serif',
+    '"URL(Font)", serif',
+    "My\\ Font, sans-serif",
+    "sans-serif\\20",
+  ]) {
+    const label = CanvasLabel("font", { fontFamily });
+    expect(label.style.fontFamily).toBe(fontFamily);
+    label.setStyle({ fontFamily });
+    label.dispose();
+  }
 });

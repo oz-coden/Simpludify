@@ -13,9 +13,9 @@ npm run dev -- --example sdk-integration
 - **Scene / Return**: 古いScene・UI・Tween・Viewport連携を破棄し、新しいインスタンスを作ります。
 - DOMフォーム・Canvasボタン・Canvas日本語入力はTab/Shift+Tabで移動できます。フォーム保存では入力行を再構築しないため、フォーカスを保持します。
 
-## Layout-owned viewport (next SDK release)
+## Layout-owned viewport (since SDK v0.1.2)
 
-`game.bindViewport(ui, region)` is a Web-host API added after published npm v0.1.1. It does not exist in that immutable release. Use the repository source or a future SDK version containing this change.
+`game.bindViewport(ui, region)` is a Web-host API added after published npm v0.1.1. It does not exist in that immutable release. Use published SDK v0.1.2 or later.
 
 ```ts
 const region = CanvasPanel([], { grow: 1, minHeight: 100 });

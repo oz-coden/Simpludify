@@ -39,3 +39,7 @@
 ## Limitations
 
 - Passing static checks, unit tests, and browser smoke tests does not constitute a formal proof of complete security. Physical multi-device IME behavior, third-party browser/GPU driver vulnerabilities, and future unimplemented networking features remain outside the verified scope.
+
+## Integration review follow-up
+
+The [integration report](2026-11-03-security-integration.md) records further review against the latest main, corrections to path containment and legitimate input handling, external consumer validation and final merge/deployment evidence. The initial verification above applies to the original Argon commit; follow-up results are recorded separately.

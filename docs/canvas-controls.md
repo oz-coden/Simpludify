@@ -89,4 +89,4 @@ Web reuses the existing pointer-transparent native button mirrors with `role=che
 
 Scene/UI disposal cancels active edits and releases events, routing ownership, native mirrors, text metrics and graphics through the existing lifetimes. These ARIA mappings are not a claim of verified physical screen-reader support. Chromium automation, Canvas2D/WebGL and physical mobile/IME validation are separate evidence categories; see the [work report](work-reports/2026-10-31-canvas-controls.md) for actual results.
 
-For raw validated integer fields, the v0.1.3 candidate adds `CanvasTextInput({inputMode: "numeric"})`. This requests a numeric soft keyboard without clamping the accepted text; application validation remains explicit. See [text keyboard hints](text-input-design.md#numeric-text-keyboard-hint-v013-candidate).
+For raw validated integer fields, v0.1.3 adds `CanvasTextInput({inputMode: "numeric"})`. This requests a numeric soft keyboard without clamping the accepted text; application validation remains explicit. See [text keyboard hints](text-input-design.md#numeric-text-keyboard-hint-since-v013).

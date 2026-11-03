@@ -484,3 +484,16 @@ it("does not resolve Object.prototype properties as action bindings", () => {
   expect(controller.value(ProtoActions.valueOf)).toBe(0);
   engine.dispose();
 });
+
+it("treats optional own undefined bindings as unbound", () => {
+  const engine = new Engine();
+  expect(
+    () =>
+      new ActionController(Actions, {
+        scene: engine.scene,
+        input: engine.input,
+        bindings: { Fire: undefined, Move: undefined },
+      } as never),
+  ).not.toThrow();
+  engine.dispose();
+});

@@ -1,4 +1,4 @@
-import { dirname, isAbsolute, relative, resolve } from "node:path";
+import path from "node:path";
 
 // Runtime dependencies flow toward data/lifecycle modules. Scene's input ownership
 // identity is type-only; it must not instantiate Action or device implementations.
@@ -17,7 +17,9 @@ export function validateCoreDependency(
   file,
   specifier,
   typeOnly = false,
+  paths = path,
 ) {
+  const { dirname, isAbsolute, relative, resolve } = paths;
   const fail = () => {
     throw new Error(`CORE_BOUNDARY: ${file}: ${specifier}`);
   };
@@ -34,5 +36,6 @@ export function validateCoreDependency(
   if (target.length === 1) fail();
   if (from[0] === "interaction" && target[0] === "graphics" && typeOnly) return;
   if (from[0] === "scene" && target[0] === "interaction" && typeOnly) return;
-  if (!allowed[from[0]]?.includes(target[0])) fail();
+  if (!Object.hasOwn(allowed, from[0]) || !allowed[from[0]].includes(target[0]))
+    fail();
 }

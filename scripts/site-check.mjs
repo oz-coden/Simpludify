@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { isAbsolute, join, relative, resolve } from "node:path";
+import { join, relative, resolve } from "node:path";
+import { isPathInside } from "./path-boundary.mjs";
 import { checkSnippets } from "./site-snippets.mjs";
 
 const root = resolve("site-dist");
@@ -41,11 +42,7 @@ for (const file of documents) {
       decodeURIComponent(address.pathname.slice(manifest.base.length)),
     );
     if (address.pathname.endsWith("/")) target = join(target, "index.html");
-    const rel = relative(root, target);
-    assert(
-      rel && !rel.startsWith("..") && !isAbsolute(rel),
-      `Output escape: ${href}`,
-    );
+    assert(isPathInside(root, target), `Output escape: ${href}`);
     assert(existsSync(target), `Missing target: ${path}: ${href}`);
     if (address.hash && target.endsWith(".html"))
       assert(

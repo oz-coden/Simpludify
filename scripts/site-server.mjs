@@ -1,6 +1,7 @@
-import { readFile } from "node:fs/promises";
+import { readFile, realpath } from "node:fs/promises";
 import { createServer } from "node:http";
-import { isAbsolute, relative, resolve } from "node:path";
+import { resolve } from "node:path";
+import { isPathInside } from "./path-boundary.mjs";
 
 const mime = {
   ".html": "text/html; charset=utf-8",
@@ -12,7 +13,7 @@ const mime = {
   ".txt": "text/plain; charset=utf-8",
 };
 export async function serveSite({ base, port = 4177, dir = "site-dist" }) {
-  const root = resolve(dir);
+  const root = await realpath(resolve(dir));
   const server = createServer(async (request, response) => {
     try {
       const address = new URL(request.url, "http://localhost");
@@ -29,8 +30,10 @@ export async function serveSite({ base, port = 4177, dir = "site-dist" }) {
         root,
         path + (address.pathname.endsWith("/") ? "index.html" : ""),
       );
-      const rel = relative(root, file);
-      if (!rel || rel.startsWith("..") || isAbsolute(rel))
+      if (
+        !isPathInside(root, file) ||
+        !isPathInside(root, await realpath(file))
+      )
         throw new Error("outside output");
       const body = await readFile(file);
       response.writeHead(200, {
