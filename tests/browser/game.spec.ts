@@ -298,12 +298,21 @@ test("loads a local image sprite, rejects missing assets, and disposes real Pixi
     game.scene("missing", ({ add }) => {
       add(Character({ source: { kind: "image", url: "./not-found.png" } }));
     });
+    game.scene("unsafe" as never, ({ add }) => {
+      add(Character({ source: { kind: "image", url: "javascript:alert(1)" } }));
+    });
     await game.run("image");
     let failure = "";
     try {
       await game.goTo("missing");
     } catch (error) {
       failure = (error as { code: string }).code;
+    }
+    let unsafeFailure = "";
+    try {
+      await game.goTo("unsafe" as never);
+    } catch (error) {
+      unsafeFailure = (error as { code: string }).code;
     }
     for (let i = 0; i < 5; i++) await game.goTo("image");
     const scene = game.engine.scene.id,
@@ -312,6 +321,7 @@ test("loads a local image sprite, rejects missing assets, and disposes real Pixi
     return {
       scene,
       failure,
+      unsafeFailure,
       canvases,
       remaining: document.querySelectorAll("canvas").length,
       cleaned,
@@ -320,6 +330,7 @@ test("loads a local image sprite, rejects missing assets, and disposes real Pixi
   expect(result).toEqual({
     scene: "image",
     failure: "ASSET_LOAD_FAILED",
+    unsafeFailure: "ASSET_LOAD_FAILED",
     canvases: 1,
     remaining: 0,
     cleaned: 6,
@@ -395,4 +406,126 @@ test("runs the minimal default scene and clamps stalled frames with one owned fr
     sameReadiness: true,
     remainingFrames: 0,
   });
+});
+
+test("validates theme tokens while preserving quoted and escaped font families through CSSOM", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading")).toBeVisible();
+  const result = await page.evaluate(async (sdk) => {
+    const { Game, CanvasTextInput, CanvasColumn, CanvasUI, Lifetime } =
+      await import(sdk);
+    const { nativeGeometry } = await import(
+      `${sdk.replace("index.ts", "canvas-native.ts")}`
+    );
+    const fonts = [
+      '"Font;Name", sans-serif',
+      '"URL(Font)", serif',
+      "My\\ Font, sans-serif",
+      '"日本語フォント", system-ui',
+    ];
+    return fonts.map((font) => {
+      const game = new Game({
+        tokens: {
+          font,
+          accent: "hsl(210 50% 50%)",
+          surface: "rgba(0, 0, 0, 0.5)",
+        },
+      });
+      const owner = new Lifetime();
+      const input = CanvasTextInput(
+        { value: "safe" },
+        { width: 100, height: 32, fontFamily: font },
+      );
+      const ui = new CanvasUI(owner, CanvasColumn([input]));
+      ui.layout(200, 100, () => ({ width: 40, height: 16 }));
+      const element = document.createElement("input");
+      nativeGeometry(element, input, ui, {
+        x: 0,
+        y: 0,
+        width: 200,
+        height: 100,
+      });
+      const result = {
+        token: game.element.style.getPropertyValue("--s-font"),
+        font: element.style.fontFamily,
+        position: element.style.position,
+        width: element.style.width,
+        color: element.style.getPropertyValue("--s-native-color"),
+      };
+      owner.dispose();
+      game.dispose();
+      return result;
+    });
+  }, sdk);
+  for (const value of result) {
+    expect(value.token.length).toBeGreaterThan(0);
+    expect(value.font.length).toBeGreaterThan(0);
+    expect(value.position).toBe("");
+    expect(value.width).toBe("100px");
+    expect(value.color).not.toBe("");
+  }
+});
+
+test("rejects image-valued color tokens and prevents image loading through variable fallbacks", async ({
+  page,
+}) => {
+  const requests: string[] = [];
+  await page.route("https://token-probe.invalid/**", async (route) => {
+    requests.push(route.request().url());
+    await route.abort();
+  });
+  await page.goto("/");
+  await expect(page.getByRole("heading")).toBeVisible();
+  const result = await page.evaluate(async (sdk) => {
+    const { Game, Theme } = await import(sdk);
+    const rejected = [
+      'image-set("https://token-probe.invalid/image.png" 1x)',
+      "linear-gradient(red, blue)",
+      "not-a-color",
+    ].map((value) => {
+      try {
+        const game = new Game({ tokens: { background: value } });
+        game.dispose();
+        return "accepted";
+      } catch (error) {
+        return (error as { code: string }).code;
+      }
+    });
+    const colors = [
+      "#12345678",
+      "rgb(20 40 60 / 50%)",
+      "hsl(210 50% 50%)",
+      "color-mix(in srgb, red, blue)",
+      "currentColor",
+      "transparent",
+      "\\72 ed",
+    ];
+    const accepted = colors.map((background) => {
+      const game = new Game({ theme: Theme.Light, tokens: { background } });
+      const value = game.element.style.getPropertyValue("--s-background");
+      game.dispose();
+      return value;
+    });
+    const game = new Game({
+      tokens: {
+        background:
+          'var(--external-color, image-set("https://token-probe.invalid/fallback.png" 1x))',
+      },
+    });
+    document.body.append(game.element);
+    const image = getComputedStyle(game.element).backgroundImage;
+    game.dispose();
+    return { rejected, accepted, image };
+  }, sdk);
+  expect(result.rejected).toEqual([
+    "INVALID_THEME_TOKEN",
+    "INVALID_THEME_TOKEN",
+    "INVALID_THEME_TOKEN",
+  ]);
+  expect(result.accepted).toHaveLength(7);
+  expect(result.accepted.every((value) => value.length > 0)).toBe(true);
+  expect(result.image).toBe("none");
+  expect(requests).toEqual([]);
 });

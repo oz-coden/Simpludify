@@ -56,4 +56,11 @@ it("enforces data/UI dependency directions while permitting Scene's type-only in
       "../foundation/lifetime",
     ),
   ).not.toThrow();
+  expect(() =>
+    validateCoreDependency(
+      "C:\\repo\\core",
+      "C:\\repo\\core\\ui\\model.ts",
+      "..\\runtime\\engine",
+    ),
+  ).toThrow("CORE_BOUNDARY");
 });

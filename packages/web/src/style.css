@@ -5,7 +5,7 @@
   height: 100%;
   min-height: 20rem;
   overflow: hidden;
-  background: var(--s-background);
+  background-color: var(--s-background);
   color: var(--s-text);
   font-family: var(--s-font);
   outline-offset: -4px;
@@ -42,7 +42,7 @@
   padding: 1rem;
   max-width: min(100%, 30rem);
   min-width: 0;
-  background: var(--s-surface);
+  background-color: var(--s-surface);
   border: 1px solid color-mix(in srgb, var(--s-muted), transparent 65%);
   border-radius: 1rem;
   box-shadow: 0 0.5rem 2rem #0002;
@@ -78,7 +78,7 @@
   font: inherit;
   font-weight: 650;
   color: var(--s-background);
-  background: var(--s-accent);
+  background-color: var(--s-accent);
   border: 0;
   border-radius: 0.6rem;
   padding: 0.7rem 1rem;

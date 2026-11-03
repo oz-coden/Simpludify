@@ -9,6 +9,7 @@ import {
 } from "node:fs";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { isPathInside, physicalPath } from "./path-boundary.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const raw = process.argv.slice(2);
@@ -156,6 +157,12 @@ try {
       : resolve(process.cwd(), destination);
     if (existsSync(output))
       fail("DESTINATION_EXISTS", "Choose a directory that does not exist", 2);
+    if (isPathInside(physicalPath(root), physicalPath(output)))
+      fail(
+        "INVALID_ARGUMENT",
+        "Choose a destination outside the repository",
+        2,
+      );
     mkdirSync(output, { recursive: true });
     for (const path of [
       "site",

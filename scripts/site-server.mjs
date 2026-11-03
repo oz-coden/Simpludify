@@ -1,6 +1,7 @@
-import { readFile } from "node:fs/promises";
+import { readFile, realpath } from "node:fs/promises";
 import { createServer } from "node:http";
 import { resolve } from "node:path";
+import { isPathInside } from "./path-boundary.mjs";
 
 const mime = {
   ".html": "text/html; charset=utf-8",
@@ -11,8 +12,8 @@ const mime = {
   ".png": "image/png",
   ".txt": "text/plain; charset=utf-8",
 };
-export async function serveSite({ base, port = 4177 }) {
-  const root = resolve("site-dist");
+export async function serveSite({ base, port = 4177, dir = "site-dist" }) {
+  const root = await realpath(resolve(dir));
   const server = createServer(async (request, response) => {
     try {
       const address = new URL(request.url, "http://localhost");
@@ -23,16 +24,23 @@ export async function serveSite({ base, port = 4177 }) {
       }
       if (!address.pathname.startsWith(base)) throw new Error("outside base");
       const path = decodeURIComponent(address.pathname.slice(base.length));
+      if (path.startsWith("/") || path.includes("\\") || path.includes("\0"))
+        throw new Error("invalid path");
       const file = resolve(
         root,
         path + (address.pathname.endsWith("/") ? "index.html" : ""),
       );
-      if (!file.startsWith(`${root}/`)) throw new Error("outside output");
+      if (
+        !isPathInside(root, file) ||
+        !isPathInside(root, await realpath(file))
+      )
+        throw new Error("outside output");
       const body = await readFile(file);
       response.writeHead(200, {
         "Content-Type":
           mime[file.slice(file.lastIndexOf("."))] ?? "application/octet-stream",
         "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
       });
       response.end(body);
     } catch {

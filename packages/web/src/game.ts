@@ -179,8 +179,21 @@ export class Game<SceneId extends string = string> {
     });
     if (options.pixelRatio !== undefined)
       positive(options.pixelRatio, "pixelRatio");
-    const theme = Themes[options.theme ?? Theme.Dark];
-    if (!theme) throw new EngineError("INVALID_THEME", "Unknown theme");
+    const themeName = options.theme ?? Theme.Dark;
+    if (!Object.hasOwn(Themes, themeName))
+      throw new EngineError("INVALID_THEME", "Unknown theme");
+    const theme = Themes[themeName];
+    for (const [name, value] of Object.entries(options.tokens ?? {}))
+      if (
+        !Object.hasOwn(theme, name) ||
+        typeof value !== "string" ||
+        (name === "font"
+          ? !validFontFamily(value)
+          : !value.trim().length ||
+            /[;{}<>\r\n\0]|url\s*\(/i.test(value) ||
+            !CSS.supports("color", value))
+      )
+        throw new EngineError("INVALID_THEME_TOKEN", `Invalid token: ${name}`);
     const tokens = { ...theme, ...options.tokens };
     this.element = document.createElement("div");
     this.element.className = "simpludify";
@@ -881,4 +894,15 @@ export class Game<SceneId extends string = string> {
     this.scenes.clear();
     this.pendingScenes.clear();
   }
+}
+
+function validFontFamily(value: string): boolean {
+  const syntax = value
+    .replace(/"(?:\\[^\r\n]|[^"\\])*"|'(?:\\[^\r\n]|[^'\\])*'/g, "family")
+    .replace(/\\(?:[0-9a-f]{1,6}[ \t]?|[^\r\n])/gi, "x");
+  return (
+    value.trim().length > 0 &&
+    !/[\r\n\0]/.test(value) &&
+    !/[;{}<>\\"']|url\s*\(/i.test(syntax)
+  );
 }

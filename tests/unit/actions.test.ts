@@ -468,3 +468,32 @@ it("disposes a failed preparing controller without clearing the active Scene inp
   });
   engine.dispose();
 });
+
+it("does not resolve Object.prototype properties as action bindings", () => {
+  const engine = new Engine();
+  const ProtoActions = defineActions({
+    toString: Action.button(),
+    valueOf: Action.axis1D(),
+  });
+  const controller = new ActionController(ProtoActions, {
+    scene: engine.scene,
+    input: engine.input,
+    bindings: {},
+  });
+  expect(controller.value(ProtoActions.toString)).toBe(false);
+  expect(controller.value(ProtoActions.valueOf)).toBe(0);
+  engine.dispose();
+});
+
+it("treats optional own undefined bindings as unbound", () => {
+  const engine = new Engine();
+  expect(
+    () =>
+      new ActionController(Actions, {
+        scene: engine.scene,
+        input: engine.input,
+        bindings: { Fire: undefined, Move: undefined },
+      } as never),
+  ).not.toThrow();
+  engine.dispose();
+});

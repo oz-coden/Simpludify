@@ -265,3 +265,41 @@ it("focus traversal skips permanently clipped and pointer-transparent controls w
   expect(() => f.ui.focus(transparent)).toThrow();
   f.owner.dispose();
 });
+
+it("rejects blank or CSS-injecting fontFamily values while accepting standard font stacks", () => {
+  const label = CanvasLabel("safe", {
+    fontFamily: '"Trebuchet MS", system-ui, sans-serif',
+  });
+  expect(label.style.fontFamily).toBe('"Trebuchet MS", system-ui, sans-serif');
+  for (const bad of [
+    "   ",
+    "sans-serif; position:fixed; inset:0",
+    "sans-serif} body { display:none",
+    "url(https://evil.example/font)",
+    "sans-serif\ncolor:red",
+    '"safe"; position:fixed',
+    '"unterminated',
+  ]) {
+    expect(() => CanvasLabel("bad", { fontFamily: bad })).toThrow(
+      expect.objectContaining({ code: "INVALID_UI" }),
+    );
+    expect(() => label.setStyle({ fontFamily: bad })).toThrow(
+      expect.objectContaining({ code: "INVALID_UI" }),
+    );
+  }
+  label.dispose();
+});
+
+it("accepts quoted punctuation and CSS escapes in font families", () => {
+  for (const fontFamily of [
+    '"Font;Name", sans-serif',
+    '"URL(Font)", serif',
+    "My\\ Font, sans-serif",
+    "sans-serif\\20",
+  ]) {
+    const label = CanvasLabel("font", { fontFamily });
+    expect(label.style.fontFamily).toBe(fontFamily);
+    label.setStyle({ fontFamily });
+    label.dispose();
+  }
+});

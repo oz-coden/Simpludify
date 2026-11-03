@@ -200,7 +200,9 @@ function checkedStyle(value: CanvasStyle): ResolvedCanvasStyle {
       };
       if (
         typeof v !== "string" ||
-        (choices[key] ? !choices[key].includes(v) : !v.length)
+        (Object.hasOwn(choices, key)
+          ? !choices[key]?.includes(v)
+          : !validFontFamily(v))
       )
         throw new EngineError("INVALID_UI", `Invalid UI ${key}`);
     }
@@ -773,4 +775,15 @@ export function CanvasScroll(
     ...style,
     clip: true,
   });
+}
+
+function validFontFamily(value: string): boolean {
+  const syntax = value
+    .replace(/"(?:\\[^\r\n]|[^"\\])*"|'(?:\\[^\r\n]|[^'\\])*'/g, "family")
+    .replace(/\\(?:[0-9a-f]{1,6}[ \t]?|[^\r\n])/gi, "x");
+  return (
+    value.trim().length > 0 &&
+    !/[\r\n\0]/.test(value) &&
+    !/[;{}<>\\"']|url\s*\(/i.test(syntax)
+  );
 }
