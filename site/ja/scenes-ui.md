@@ -64,7 +64,7 @@ Signal Runの`Round`はHP・スコア・残り時間・勝敗をCoreだけで扱
 
 ## レイアウトと操作
 
-PanelはColumnが既定、`Layout.Row`は折り返し、Gridは自動配置します。`Placement.Top` / Center / Bottom、`Theme.Dark` / Light、部分的なtokensを選べます。DOM UIはCameraのzoomに影響されません。
+PanelはColumnが既定、`Layout.Row`は折り返し、Gridは自動配置します。`Placement.Top` / Center / Bottom、`Theme.Dark` / Light、部分的なtokensを選べます。DOM UIはCameraのzoomに影響されません。 tokensのbackground/surface/text/muted/accentはブラウザが受け付けるCSS色、fontは引用符・CSSエスケープを含むフォント名とフォールバック列です。背景画像関数は色として利用できません。不明なテーマ名は`INVALID_THEME`、不明なトークン名や空値、不正な色・危険なフォント構文は`INVALID_THEME_TOKEN`で拒否します。
 
 Buttonはネイティブ要素でTab・Enter/Spaceに対応します。同期handlerではフォーカスを保ちます。非同期handler実行中はaria-disabled／aria-busyと重複実行ガードで再操作を抑止し、Tab対象から外します。現在のフォーカスを不必要に失わず、WASD等の未消費ゲームキーを継続できます。失敗は診断へ渡します。handlerへ渡るAbortSignalはUI破棄で中断されます。固定CSS配置は独自にクリッピングを検証してください。
 

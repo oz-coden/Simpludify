@@ -189,7 +189,9 @@ export class Game<SceneId extends string = string> {
         typeof value !== "string" ||
         (name === "font"
           ? !validFontFamily(value)
-          : !value.trim().length || /[;{}<>\\\r\n\0]|url\s*\(/i.test(value))
+          : !value.trim().length ||
+            /[;{}<>\\\r\n\0]|url\s*\(/i.test(value) ||
+            !CSS.supports("color", value))
       )
         throw new EngineError("INVALID_THEME_TOKEN", `Invalid token: ${name}`);
     const tokens = { ...theme, ...options.tokens };

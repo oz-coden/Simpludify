@@ -44,3 +44,12 @@ PR head CI, merge commit, main CI and deployed documentation verification will b
 - The standard local Playwright browser download returned truncated ZIP archives. A temporary Chromium 153 installation outside the repository was used for a focused CSSOM test only; standard Playwright Chromium in CI remains authoritative for the full browser matrix.
 - The new CSSOM browser test initially expected an inline `position` value that belongs to the stylesheet. Its assertion was corrected to verify absence of injected positioning plus the actual geometry/custom color properties. The corrected test passed locally (1/1); no production behavior was changed for that assertion.
 - Candidate Canvas2D tests passed all 11 cases for desktop/320/390, and WebGL 320 passed all 11, with all 35 world tests in each disposable consumer. The 320px Canvas2D screenshot was inspected: controls/text stayed within the viewport and the log panel retained its focus outline. Remaining consumer projects are pending.
+
+
+## Color token bypass found during final review
+
+A real-browser probe reproduced an external image request from `tokens.background = 'image-set("https://example.invalid/token-probe.png" 1x)'`. The original `url(...)` denylist did not cover CSS image functions, and the stylesheet used the `background` shorthand. Color tokens now require `CSS.supports("color", value)` in the Web host. Token-based backgrounds use `background-color`, preventing an image-valued `var(...)` fallback from becoming a resource load. Valid hex/alpha, modern RGB/HSL, color-mix, currentColor, transparent and CSS variables remain supported. A real-browser regression checks both direct rejection and variable-fallback isolation with intercepted network requests. Full CI must be repeated for this production change.
+
+The preceding `db3a7c5c020dcba0246e790f7e593e281bc574ab` candidate passed all 66 consumer tests in push CI, but is superseded by this color-token correction and is not the final merge candidate.
+
+Local verification of the color correction: `npm run check` passed; the focused real-browser font/color tests passed 2/2, including no intercepted image request for a CSS variable fallback.

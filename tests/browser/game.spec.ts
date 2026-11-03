@@ -467,3 +467,64 @@ test("validates theme tokens while preserving quoted and escaped font families t
     expect(value.color).not.toBe("");
   }
 });
+
+test("rejects image-valued color tokens and prevents image loading through variable fallbacks", async ({
+  page,
+}) => {
+  const requests: string[] = [];
+  await page.route("https://token-probe.invalid/**", async (route) => {
+    requests.push(route.request().url());
+    await route.abort();
+  });
+  await page.goto("/");
+  await expect(page.getByRole("heading")).toBeVisible();
+  const result = await page.evaluate(async (sdk) => {
+    const { Game, Theme } = await import(sdk);
+    const rejected = [
+      'image-set("https://token-probe.invalid/image.png" 1x)',
+      "linear-gradient(red, blue)",
+      "not-a-color",
+    ].map((value) => {
+      try {
+        const game = new Game({ tokens: { background: value } });
+        game.dispose();
+        return "accepted";
+      } catch (error) {
+        return (error as { code: string }).code;
+      }
+    });
+    const colors = [
+      "#12345678",
+      "rgb(20 40 60 / 50%)",
+      "hsl(210 50% 50%)",
+      "color-mix(in srgb, red, blue)",
+      "currentColor",
+      "transparent",
+    ];
+    const accepted = colors.map((background) => {
+      const game = new Game({ theme: Theme.Light, tokens: { background } });
+      const value = game.element.style.getPropertyValue("--s-background");
+      game.dispose();
+      return value;
+    });
+    const game = new Game({
+      tokens: {
+        background:
+          'var(--external-color, image-set("https://token-probe.invalid/fallback.png" 1x))',
+      },
+    });
+    document.body.append(game.element);
+    const image = getComputedStyle(game.element).backgroundImage;
+    game.dispose();
+    return { rejected, accepted, image };
+  }, sdk);
+  expect(result.rejected).toEqual([
+    "INVALID_THEME_TOKEN",
+    "INVALID_THEME_TOKEN",
+    "INVALID_THEME_TOKEN",
+  ]);
+  expect(result.accepted).toHaveLength(6);
+  expect(result.accepted.every((value) => value.length > 0)).toBe(true);
+  expect(result.image).toBe("none");
+  expect(requests).toEqual([]);
+});
