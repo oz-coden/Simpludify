@@ -349,6 +349,7 @@ try {
         });
         await targetFrame.evaluate(() => {
           const game =
+            window.inputLab?.game ??
             window.integration?.game ??
             window.geometryDemo?.game ??
             window.tweenDemo?.game ??

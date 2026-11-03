@@ -10,6 +10,7 @@ Actor is an identity/owner, not a built-in behavior hierarchy. Add required Comp
 import {
   Actor,
   Component,
+  type ComponentType,
   defineComponent,
   Engine,
   Motion,

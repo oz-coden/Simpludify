@@ -253,5 +253,15 @@ game.scene("play", (context) => {
     for (const player of players) player.refresh();
   });
 });
+// Expose the live sample state for diagnostics and built-site acceptance checks.
+Object.assign(window, {
+  inputLab: {
+    game,
+    Actions,
+    get players() {
+      return players;
+    },
+  },
+});
 await startExample(game, "play");
 if (import.meta.hot) import.meta.hot.dispose(() => game.dispose());
