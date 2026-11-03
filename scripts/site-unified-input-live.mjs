@@ -130,7 +130,7 @@ try {
       });
       await page
         .getByRole("button", { name: "New Scene", exact: true })
-        .click();
+        .press("Enter");
       await page.waitForFunction(
         () =>
           window.inputLab.game.engine.scene.state === "active" &&

@@ -143,7 +143,7 @@ try {
         await page.keyboard.up("KeyD");
         await frame
           .getByRole("button", { name: "P1: Keyboard + pad", exact: true })
-          .click();
+          .press("Enter");
         await frame
           .getByRole("button", { name: "P1: Pad only", exact: true })
           .waitFor();
