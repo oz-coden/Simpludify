@@ -35,6 +35,7 @@ import {
   worldToScreen,
 } from "@simpludify/core";
 import type { CanvasPresentation } from "./canvas-visual";
+import { GamepadInput } from "./gamepads";
 import { BrowserInput } from "./input";
 import { BrowserPointer } from "./pointer";
 import { PixiRenderer } from "./renderer";
@@ -46,6 +47,7 @@ import {
   type ThemeTokens,
   type UINode,
 } from "./ui";
+import { blocksGameKeyboard } from "./ui-keyboard";
 
 export interface SceneContext {
   readonly scene: Scene;
@@ -86,6 +88,7 @@ export class Game<SceneId extends string = string> {
   readonly engine: Engine;
   readonly element: HTMLDivElement;
   readonly camera: Camera;
+  readonly gamepads: GamepadInput;
   private readonly renderer: RendererPort;
   private readonly keyboard: BrowserInput;
   private readonly pointers: BrowserPointer;
@@ -226,6 +229,13 @@ export class Game<SceneId extends string = string> {
       cancel: (handle) => cancelAnimationFrame(handle),
     };
     this.keyboard = new BrowserInput(this.element, this.engine.input);
+    this.gamepads = new GamepadInput(this.engine.input, {
+      active: () =>
+        !document.hidden &&
+        document.hasFocus() &&
+        this.element.contains(document.activeElement) &&
+        !blocksGameKeyboard(document.activeElement),
+    });
     this.pointers = new BrowserPointer(
       this.element,
       (event) => {
@@ -868,6 +878,7 @@ export class Game<SceneId extends string = string> {
       () => this.stopReplay(),
       () => this.staging?.dispose(),
       () => this.pointers.dispose(),
+      () => this.gamepads.dispose(),
       () => this.keyboard.dispose(),
       () => this.canvasPresentation?.dispose(),
       () => this.canvas?.dispose(),

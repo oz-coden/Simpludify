@@ -123,6 +123,8 @@ export class ActionController<A extends ActionSet>
     Map<ActionToken, Value>
   >();
   private readonly bus = new EventBus();
+  private keyboardAllowed = true;
+  private readonly blockedKeys = new Set<KeyCode>();
   private pending: ButtonTransition[] = [];
   private transitions: readonly ButtonTransition[] = [];
   constructor(
@@ -131,8 +133,15 @@ export class ActionController<A extends ActionSet>
       scene: Scene;
       input: InputSystem;
       bindings?: ActionBindings<A>;
+      keyboard?: boolean;
     },
   ) {
+    if (options.keyboard !== undefined && typeof options.keyboard !== "boolean")
+      throw new EngineError(
+        "INVALID_VALUE",
+        "Keyboard enabled must be boolean",
+      );
+    this.keyboardAllowed = options.keyboard ?? true;
     for (const action of Object.values(actions)) {
       const binding = checkedBinding(
         action,
@@ -175,6 +184,31 @@ export class ActionController<A extends ActionSet>
       this.options.scene.state === SceneState.Active &&
       this.options.scene.inputOwner === this.options.input
     );
+  }
+  get keyboardEnabled(): boolean {
+    return this.keyboardAllowed;
+  }
+  set keyboardEnabled(value: boolean) {
+    if (this.disposed)
+      throw new EngineError(
+        "OWNER_DISPOSED",
+        "Action controller has been disposed",
+      );
+    if (typeof value !== "boolean")
+      throw new EngineError(
+        "INVALID_VALUE",
+        "Keyboard enabled must be boolean",
+      );
+    if (value === this.keyboardAllowed) return;
+    this.keyboardAllowed = value;
+    this.blockedKeys.clear();
+    if (value) {
+      for (const entry of this.entries.values())
+        for (const list of keyLists(entry.binding))
+          for (const key of list.keys)
+            if (this.options.input.keyDown(key)) this.blockedKeys.add(key);
+    }
+    for (const action of this.entries.keys()) this.recompute(action);
   }
   get sourceCount(): number {
     return this.sources.size;
@@ -309,9 +343,12 @@ export class ActionController<A extends ActionSet>
     if (!this.disposed) for (const action of actions) this.recompute(action);
   }
   private keyboard(action: ActionToken): Value {
+    if (!this.keyboardAllowed) return neutral(action);
     const binding = this.entry(action).binding;
     const held = (keys: readonly KeyCode[] | undefined) =>
-      keys?.some((k) => this.options.input.keyDown(k)) ?? false;
+      keys?.some(
+        (k) => !this.blockedKeys.has(k) && this.options.input.keyDown(k),
+      ) ?? false;
     const axis = (b: Axis1DBinding | undefined) =>
       Number(held(b?.positive)) - Number(held(b?.negative));
     if (action.kind === "button") return held((binding as ButtonBinding).keys);
@@ -359,6 +396,8 @@ export class ActionController<A extends ActionSet>
     entry.value = value;
   }
   /** @internal */ keyChanged(): void {
+    for (const key of this.blockedKeys)
+      if (!this.options.input.keyDown(key)) this.blockedKeys.delete(key);
     // Only the Engine-owned default Scene can retain pre-activation physical taps.
     // Staged Scenes do not accumulate another Scene's keyboard history.
     if (
@@ -373,6 +412,7 @@ export class ActionController<A extends ActionSet>
   /** @internal */ accepts(code: KeyCode): boolean {
     return (
       this.active &&
+      this.keyboardAllowed &&
       [...this.entries.values()].some((e) =>
         keyLists(e.binding).some((list) => list.keys.includes(code)),
       )
@@ -432,6 +472,7 @@ export class ActionController<A extends ActionSet>
   }
   /** Clears held contributions and unconsumed edges; no synthetic button release. */
   reset(): void {
+    this.blockedKeys.clear();
     for (const values of this.sources.values()) values.clear();
     this.pending = [];
     for (const [action, entry] of this.entries) entry.value = neutral(action);

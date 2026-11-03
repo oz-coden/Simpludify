@@ -8,7 +8,7 @@ Pages is enabled with GitHub Actions. Deployment uses the existing hosting confi
 
 ## Build design
 
-`site/config.mjs` is the page/language/sample manifest. `site/ja/` contains Japanese onboarding, concepts, guides and project policies. `site/en.md` explains translation coverage. Existing `docs/api.md`, architecture, roadmap, performance and licensing are rendered directly into `/en/`; they are not copied into another maintained source.
+`site/config.mjs` is the page/language/sample manifest. `site/ja/` contains Japanese onboarding, concepts, guides and project policies. `site/en/` contains English onboarding and practical guides; `site/en.md` indexes current coverage. Explicit `languagePairs` in the manifest connect corresponding current guides without changing existing URLs. Unpaired engineering records and sample instructions link to the other language index. Existing `docs/api.md`, architecture, roadmap, performance and licensing are rendered directly into `/en/`; they are not copied into another maintained source.
 
 VitePress was considered. The available stable 1.6.4 adds a separate Vite 5/Vue/theme dependency graph to this Vite 8 workspace. The chosen generator uses existing Vite plus one exact development dependency, markdown-it 15.0.3 (seven lockfile additions including transitives). It emits static HTML; shared client code handles only theme, mobile navigation and the trusted sample iframe. No framework runtime, remote font, analytics, cloud API or server component is required. Code fences remain plain readable monospaced text rather than shipping a syntax-highlighter runtime.
 
@@ -71,6 +71,6 @@ Additional local Blockfall layout/cleanup checks passed at 320×568, 844×390 an
 
 ## Hosting and language limits
 
-Japanese guides cover the current public capabilities, while English pages retain the detailed technical contracts and measurements. Full translation, built-in search, generated symbol-level TypeDoc pages and translated sample UI are not included. Exact public signatures remain in source and the detailed English API; code examples must track them. The public website does not make experimental APIs stable.
+Japanese and English pages cover current onboarding, major guides and detailed API contracts. Historical engineering records remain in their original language; not every sample instruction is translated. Built-in search, generated symbol-level TypeDoc pages and fully translated sample UI are not included. Exact public signatures remain in source and the detailed English API; code examples must track them. The public website does not make experimental APIs stable.
 
 Validation targets Chromium/software WebGL on desktop and a narrow viewport with synthetic touch, not all mobile hardware or Safari/Firefox. WebGL context restoration and offline-installable PWA behavior remain unsupported. Static hosting still requires initial HTTP delivery; networking transport, simulation host and state authority remain future independent design choices.

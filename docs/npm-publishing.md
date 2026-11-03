@@ -4,13 +4,17 @@
 
 Core/Web v0.1.3 were published through [Trusted Publishing run 41502126387](https://github.com/oz-coden/Simpludify/actions/runs/41502126387), from source `1164b77c0bc037f7afc3b29a32b48d6a2d27e476` and tag `v0.1.3`. Core was published and its registry integrity verified before Web publication. The workflow's clean public-registry consumers passed; registry metadata includes SLSA v1 provenance. See [publication and registry adoption](work-reports/2026-11-03-v0.1.3-publication.md) for immutable archive integrities and final consumer CI. Earlier v0.1.0–v0.1.2 remain immutable historical releases.
 
+## v0.1.4 candidate
+
+The current source prepares Core/Web 0.1.4, including security PR #14, unified input/gamepads and paired consumer documentation. It has not been approved for npm publication. The independent starter and Run To Exit retain published registry 0.1.3; candidate validation installs local tarballs only into disposable consumers. Do not change the existing 0.1.3 tag/packages.
+
 ## Prepare and verify
 
 Use Node >=22.12 for development and Node 24 in CI. The publish job requires npm >=11.5.1 and Node >=22.14. From a clean work branch:
 
 ```sh
 npm ci
-npm run version:sdk -- 0.1.3
+npm run version:sdk -- 0.1.4
 npm run check
 npm test
 npx playwright install --with-deps chromium --only-shell
@@ -49,11 +53,11 @@ The [official Trusted Publishing guide](https://docs.npmjs.com/trusted-publisher
 
 1. Merge only a successful full-CI PR. Record the full main commit SHA and wait for that exact main push CI to pass. Freeze the candidate commit for release; subsequent main changes require revalidation and renewed selection.
 2. Generate and inspect the exact candidate archives. Record package names/versions, SHA512 integrity, exports, license, declarations, CSS and source SHA in the report. Check neither target version already exists. An existing version with different integrity must stop the release.
-3. Obtain explicit final approval naming `@simpludify/core@0.1.3` and `@simpludify/web@0.1.3`, the selected SHA and release tag. npm versions are immutable and cannot be reused after unpublishing.
-4. Create `v0.1.3` at that full SHA without moving any existing tag. The manual **Create approved SDK tag** workflow validates version, exact main SHA, confirmation (`create TAG at SHA`) and successful main push CI, and refuses to move an existing tag. Open Actions → Publish experimental npm SDK → Run workflow from `main`. Enter tag `v0.1.3` and exact confirmation `publish @simpludify/core@0.1.3 and @simpludify/web@0.1.3`.
+3. Obtain explicit final approval naming `@simpludify/core@0.1.4` and `@simpludify/web@0.1.4`, the selected SHA and release tag. npm versions are immutable and cannot be reused after unpublishing.
+4. Create `v0.1.4` at that full SHA without moving any existing tag. The manual **Create approved SDK tag** workflow validates version, exact main SHA, confirmation (`create TAG at SHA`) and successful main push CI, and refuses to move an existing tag. Open Actions → Publish experimental npm SDK → Run workflow from `main`. Enter tag `v0.1.4` and exact confirmation `publish @simpludify/core@0.1.4 and @simpludify/web@0.1.4`.
 5. Validation derives the version from manifests and verifies confirmation, tag, dispatched SHA, main ancestry and successful main push CI. It reruns checks/unit tests and external tarball consumers, records pack manifests and SHA256 checksums, then passes those exact archives to the publish job.
 6. The publish job verifies checksums, archive metadata against source manifests, package versions/integrities, tag/SHA and OIDC capability before any publication. Both target versions are checked before the first publish. **Core publishes first and its registry integrity is verified before Web publishes.** Already-published identical archives may be skipped; differing archives fail. `latest` is the intended dist-tag. After npm accepts a publish, the script allows up to six minutes for processing/visibility before reporting failure; this wait never republishes or skips registry integrity checks.
 7. `test:packages:registry` makes clean public-registry installations and repeats the full consumer fixture including `bindViewport`. Inspect `npm-sdk-validation`, `npm-sdk-publication` and the job summary. Record source SHA/tag, integrities, provenance and registry URLs. Do not mark a failed post-publication test as an unpublished state.
-8. After registry validation succeeds, update the independent starter and Run To Exit to exact v0.1.3, regenerate their lockfiles from npm, run checks/browser tests, merge successful PRs and verify Pages. Update public release status in the docs. Create a GitHub Experimental prerelease using the same tag if desired.
+8. After registry validation succeeds, update the independent starter and Run To Exit to exact v0.1.4, regenerate their lockfiles from npm, run checks/browser tests, merge successful PRs and verify Pages. Update public release status in the docs. Create a GitHub Experimental prerelease using the same tag if desired.
 
 If Core succeeds and Web fails, inspect registry metadata and saved archives before retrying the same tag. Never move a release tag, force-push main, unpublish, or silently substitute rebuilt content as a retry mechanism. A different archive requires a separately reviewed version.

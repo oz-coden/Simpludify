@@ -60,6 +60,26 @@ try {
       const response = await page.goto(site + item.route);
       assert.equal(response.status(), 200, item.route);
       await page.locator("article h1").waitFor();
+      const language = page.locator("[data-language-link]");
+      assert.equal(await language.count(), 1);
+      if (
+        item.route === "guides/gamepads.html" ||
+        item.route === "en/gamepads.html"
+      ) {
+        await language.click();
+        await page.waitForLoadState("load");
+        assert.equal(
+          new URL(page.url()).pathname,
+          new URL(site).pathname +
+            (item.lang === "ja" ? "en/gamepads.html" : "guides/gamepads.html"),
+        );
+        await page.locator("[data-language-link]").click();
+        await page.waitForLoadState("load");
+        assert.equal(
+          new URL(page.url()).pathname,
+          new URL(site).pathname + item.route,
+        );
+      }
       assert.equal(
         await page.evaluate(
           () => document.documentElement.scrollWidth <= innerWidth + 1,
@@ -69,9 +89,7 @@ try {
       );
       for (const theme of ["light", "dark"]) {
         if ((await page.locator("html").getAttribute("data-theme")) !== theme)
-          await page
-            .getByRole("button", { name: "テーマを切り替える" })
-            .click();
+          await page.locator("[data-theme-toggle]").click();
         assert.equal(
           await page.evaluate(
             () => document.documentElement.scrollWidth <= innerWidth + 1,
@@ -95,7 +113,7 @@ try {
         .click();
       await page.waitForURL("**/getting-started.html");
     }
-    await page.getByRole("button", { name: "テーマを切り替える" }).click();
+    await page.locator("[data-theme-toggle]").click();
     const selected = await page.evaluate(
       () => document.documentElement.dataset.theme,
     );
@@ -111,7 +129,27 @@ try {
       const element = await page.locator("iframe").elementHandle();
       const frame = await element.contentFrame();
       await frame.waitForSelector("canvas");
-      if (example.id === "sdk-integration") {
+      if (example.id === "unified-input") {
+        await frame
+          .getByRole("heading", { name: "Unified input · 2 players" })
+          .waitFor();
+        await frame.locator(".simpludify").focus();
+        const before = await frame
+          .locator("canvas")
+          .evaluate((canvas) => canvas.toDataURL());
+        await page.keyboard.down("KeyD");
+        await frame.waitForFunction(
+          (before) => document.querySelector("canvas").toDataURL() !== before,
+          before,
+        );
+        await page.keyboard.up("KeyD");
+        await frame
+          .getByRole("button", { name: "P1: Keyboard + pad", exact: true })
+          .press("Enter");
+        await frame
+          .getByRole("button", { name: "P1: Pad only", exact: true })
+          .waitFor();
+      } else if (example.id === "sdk-integration") {
         await testSDKIntegration(frame);
       } else if (example.id === "tile-geometry") {
         await frame.waitForFunction(
@@ -313,6 +351,7 @@ try {
         });
         await targetFrame.evaluate(() => {
           const game =
+            window.inputLab?.game ??
             window.integration?.game ??
             window.geometryDemo?.game ??
             window.tweenDemo?.game ??

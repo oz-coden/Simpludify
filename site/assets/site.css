@@ -442,7 +442,7 @@ footer {
   .site-header nav a {
     font-size: 0.74rem;
   }
-  .site-header nav a:first-child {
+  .site-header nav a:not([data-language-link]) {
     display: none;
   }
   .menu-toggle {

@@ -154,7 +154,7 @@ engine.dispose();
 
 ## Scope and migration
 
-Action controllers are not an input-context/priority stack, a gamepad adapter or a full replay/save system. Gamepad adapters may write analog values into their own source later. snapshot copies captured logical state; events/tokens and user component state are not a restorable save format. Reproducibility requires controlled seed, step sequence and inputs, including command order.
+Action controllers are not an input-context/priority stack or a full game-state save system. The Web [GamepadInput adapter](gamepads.md) now writes ordinary ActionSources; the logical controller remains device-independent. snapshot copies captured logical state; events/tokens and user component state are not a restorable save format. Reproducibility requires controlled seed, step sequence and inputs, including command order.
 
 InputState, InputSource, InputReader, KeyMap/KeyMaps, Movement and KeyboardController have been removed, along with UpdateContext.input and the implicit scripted-key writer. All six samples, headless entry points and maintained benchmarks use the unified path. Physical binding tests explicitly create a KeyboardSource. No Engine movement behavior depends on an Action name.
 
@@ -233,4 +233,13 @@ The integrated source checkpoint is [`1017c25`](https://github.com/oz-coden/Simp
 
 The 100-enemy/1000-shot contact/removal profile has step p95 about 3.68ms; it is not a steady 1101-Unit workload. Ten thousand shot Actor create/dispose operations take about 122.46ms. Forced-GC managed heap across the sixty rounds is about 19.60→19.70MB, including Vite/SSR/tooling. These are local observations, not a statistically established speed comparison or proof of leak freedom. No new hardware GPU or physical-device performance measurement is claimed.
 
-Remaining limits: no full gamepad adapter, input-context priority stack, replay/save format or fixed-step Web scheduler. Axis excursions completed between steps are continuous-state changes rather than queued commands. Browser/OS-reserved keys may not be delivered. Physical mobile devices, Safari/Firefox and cross-platform bitwise reproducibility remain unverified.
+Remaining limits: no input-context priority stack or arbitrary game-state save/restore. [Replay and fixed-step scheduling](replay.md) are implemented with their documented single-Scene and reproducibility limits. Axis excursions completed between steps are continuous-state changes rather than queued commands. Browser/OS-reserved keys may not be delivered. Physical mobile devices, Safari/Firefox and cross-platform bitwise reproducibility remain unverified.
+
+
+## Source gating and gamepads (v0.1.4)
+
+ActionSource.enabled and KeyboardSource.enabled default true. Setting false clears held contributions and records ordinary logical releases where needed; validated writes while disabled are ignored. Setting true restores no prior values. Controller.keyboardEnabled gates only its automatic keyboard contribution; re-enable blocks already-held keys until they are released and pressed again. The explicit constructor also accepts keyboard:false. Shared keys deliberately feed every enabled matching controller.
+
+Game.gamepads.bind(controller,{index,bindings}) creates a controller-owned GamepadSource with enabled/clear/dispose, assign and rebind. The [gamepad contract](gamepads.md) covers positional buttons, analog axes/triggers, device facts, display hints, explicit multiplayer assignment, neutral rearming and the existing pause/Replay boundary. [The two-player lab](../examples/unified-input/README.md) combines keyboard, pad, touch and program input without replacing its Actors.
+
+InputSystem.addAdapter accepts a DOM-free sample/reset/dispose port for Hosts. Sampling occurs before every controller captures; Replay excludes live adapters. Global clear/reset calls reset, and InputSystem.dispose owns adapter disposal. Ordinary game code needs only Actions, existing Sources and the Game helper.

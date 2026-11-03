@@ -6,7 +6,7 @@ Simpludifyは、TypeScriptを中心に2Dゲームをつくる実験的なゲー�
 
 <div class="actions"><a class="primary" href="getting-started.html">最初のゲームをつくる →</a><a href="examples.html">ブラウザで試す</a></div>
 
-> Experimental v0.1.0のnpm SDKを準備中です。[配布アーカイブ・npm導入ガイド](npm.md)で独立プロジェクトを構築できます。レジストリ公開は未確認です。APIは変更される可能性があります。Windows版やネットワーク機能は未実装です。
+> Experimental v0.1.3のnpm SDKを公開済みです。現在のソースはv0.1.4候補を準備しています。[配布アーカイブ・npm導入ガイド](npm.md)で独立プロジェクトを構築できます。新しい入力APIはv0.1.4のソース／候補tarballが対象で、公開には最終承認が必要です。APIは変更される可能性があります。Windows版やネットワーク機能は未実装です。
 
 <div class="feature-grid">
 <section class="feature"><h2>組み合わせてつくる</h2><p>Characterの既定値から始め、Transform・Renderable・Motionや独自Componentへ段階的に進めます。イベント駆動は必須ではありません。</p></section>
@@ -42,7 +42,9 @@ await game.run();
 
 ## 試してから、仕組みを読む
 
-[サンプルギャラリー](examples.md)では実行例を試せます。最小のCharacter、UI / Scenes、Beacon Field、30秒の収集ゲームSignal Run、落ち物パズルBlockfall、シューティングPrism Raid、画像アニメーションのSprite garden、地形配置のTile trail、Canvas UIと入力を統合したCanvas trail、数値・Actor・UI演出のTween lab、三角形・六角形のTile geometry labから選べます。Signal Run・Blockfall・Prism Raid・Canvas trailはスマートフォンのタッチ操作に対応します。
+[サンプルギャラリー](examples.md)では実行例を試せます。最小のCharacter、UI / Scenes、Beacon Field、30秒の収集ゲームSignal Run、落ち物パズルBlockfall、シューティングPrism Raid、画像アニメーションのSprite garden、地形配置のTile trail、Canvas UIと入力を統合したCanvas trail、数値・Actor・UI演出のTween lab、三角形・六角形のTile geometry lab、2人用のUnified input labから選べます。Signal Run・Blockfall・Prism Raid・Canvas trailはスマートフォンのタッチ操作に対応します。
+
+[2人用入力ラボ](unified-input.md)では同じActorを維持した入力元の切り替えを試せます。[ゲームパッド](gamepads.md)と[レイアウト](layout.md)にも対応する英語ガイドがあります。
 
 [基本概念](concepts.md) → [入力](input.md) → [SceneとUI](scenes-ui.md) → [衝突判定](collision.md)の順に読むと、サンプルを自分のゲームへ展開できます。
 

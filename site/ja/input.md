@@ -1,6 +1,6 @@
 # 入力とゲームループ
 
-ゲームの意味を表すActionと、キーボードの物理位置を表すKeyCodeを分離します。キーボード・タッチ・プログラム入力は同じActionを操作でき、CoreはDOMに依存しません。[英語の詳細契約](../../docs/action-input.md)には更新境界、合成、設定形式、移行上の制約をまとめています。
+ゲームの意味を表すActionと、キーボードの物理位置を表すKeyCodeを分離します。キーボード・ゲームパッド・タッチ・プログラム入力は同じActionを操作でき、CoreはDOMに依存しません。[英語の詳細契約](../../docs/action-input.md)には更新境界、合成、設定形式、移行上の制約をまとめています。
 
 ## 型安全なActionを定義する
 
@@ -110,7 +110,7 @@ Buttonは全キー・全sourceのORです。一つを解放しても別のsource
 
 source.clear/disposeは、そのsourceだけを解放します。Scene破棄はControllerと全sourceを破棄します。Engineのpause/resumeへの状態変更、Scene置換、InputSystem.clearは、保持と未消費イベントを全sourceから静かに破棄し、人工的な押下・解放イベントは作りません。ブラウザのキー自動リピートで再押下されないよう、新しい押下を必要とします。
 
-キーボードのfocusout/blurはその物理入力元だけを解放します。HoldButtonはタッチ・マウス・Enter/Spaceと、キャンセル・blur・UI破棄時の解放を扱います。ゲームパッドAdapterは未実装ですが、将来も独立sourceへアナログ値を書き込む方式を利用できます。
+キーボードのfocusout/blurはその物理入力元だけを解放します。HoldButtonはタッチ・マウス・Enter/Spaceと、キャンセル・blur・UI破棄時の解放を扱います。Game.gamepadsは独立したActionSourceへアナログ値を書き込むWeb Adapterです。[ゲームパッドガイド](gamepads.md)で割り当てと再接続条件を確認できます。
 
 ## 実行中のリバインドと保存
 
@@ -172,3 +172,14 @@ BrowserInputはネイティブ編集欄・contenteditable・IME変換中を除�
 Engine.stepは有限・非負の秒数を明示的に受け取ります。再現にはseed、step列、Action入力列、外部時刻・乱数を使わないゲームロジックを揃えます。controls.snapshot()は捕捉済みAction状態、Engine.snapshot()は汎用Actor状態等をコピーします。Componentの完全保存・復元やリプレイファイル形式は提供しません。
 
 WebはRAFの可変deltaで既定上限0.05秒です。固定ステップやCCDではありません。Timerはstep開始時の対象を捕捉し、実行中に登録したafter(0)は次stepから発火します。everyは1step最大1回で欠落分をまとめて実行せず、端数は保持します。
+
+
+## 入力元の有効化とゲームパッド（v0.1.4）
+
+ActionSource／KeyboardSourceのenabledは既定trueです。falseでその寄与を解放し、無効中のsetは検証後に無視します。trueへ戻しても以前の値は復元しません。clear・無効化・disposeによる最後のButton寄与の消失は通常の解放として次の境界で読めます。全体resetによる無音の破棄と区別します。
+
+Controller.keyboardEnabledはそのControllerだけのキーボード寄与を切り替えます。再有効化時に既に押されているキーは、一度離してから押してください。明示的なコンストラクターではkeyboard:falseも使えます。同じキーは、有効な全Controllerへ配信します。別プレイヤーへ分離したい場合はキーを分けるか、そのControllerのキーボードを無効化してください。
+
+Game.gamepads.bind(controller,{index,bindings})は、既存ActionSourceを使うゲームパッド接続を返します。物理位置名・アナログ軸・トリガー・機器情報と表示推定・複数台の割り当て・再接続条件は[ゲームパッドガイド](gamepads.md)、同じActorを切り替える実行例は[2人用ラボ](unified-input.md)で確認できます。
+
+他Host向けのInputSystem.addAdapterはsample/reset/disposeというDOM非依存の境界です。全Controllerの捕捉より前に読み取り、Replay中はlive Adapterを読みません。通常のゲームはこのHost用APIを初期化せず、Game.gamepadsと既存Sourceを使います。外部受信データの順序・tick・権限はアプリが検証してからSourceへ供給し、切断時はclear／無効化／disposeします。ネットワークやAI判断機能は実装していません。

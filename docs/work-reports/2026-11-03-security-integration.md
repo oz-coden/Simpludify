@@ -60,16 +60,16 @@ Local verification of the color correction: `npm run check` passed; the focused 
 
 The final security source is `5ec075ccdc6ee650b29a21a8f269bb4bf29dddb0`. The v0.1.3 source-to-main comparison contained only documentation and starter registry pins in examples/templates; Core/Web runtime files had no intervening main changes. The main merge was clean and preserved those updates.
 
-| Verification | Result |
-| --- | --- |
-| TypeScript, Biome, architecture/export/version/license checks | Passed; existing non-blocking Biome warnings remain |
-| Core/Web and example unit tests | 62 files / 827 tests passed |
-| Engine browser E2E | 392 passed across desktop/390px, WebGL and Canvas2D; includes composition, focus, scrolling, layout and paint/cache coverage |
-| Production examples | UI Scenes, Signal Run, Canvas UI and Tween build/browser smoke passed |
-| Documentation | Both / and /Simpludify/ builds, 73 pages / 5099 references and 65 typechecked snippets; site/browser and live fixture checks passed |
-| Windows/Linux distribution | npm tarball contents/integrities, Core-only Node/NodeNext, transitive Web install, public declarations and external development/production Vite consumers passed |
-| Published npm starter | Windows/Linux starter checks passed |
-| External Run To Exit candidate | 35 world tests, type check and production build in each isolated copy; all 66 E2E passed (11 cases × 6 renderer/viewport projects) |
+| Verification                                                  | Result                                                                                                                                                           |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| TypeScript, Biome, architecture/export/version/license checks | Passed; existing non-blocking Biome warnings remain                                                                                                              |
+| Core/Web and example unit tests                               | 62 files / 827 tests passed                                                                                                                                      |
+| Engine browser E2E                                            | 392 passed across desktop/390px, WebGL and Canvas2D; includes composition, focus, scrolling, layout and paint/cache coverage                                     |
+| Production examples                                           | UI Scenes, Signal Run, Canvas UI and Tween build/browser smoke passed                                                                                            |
+| Documentation                                                 | Both / and /Simpludify/ builds, 73 pages / 5099 references and 65 typechecked snippets; site/browser and live fixture checks passed                              |
+| Windows/Linux distribution                                    | npm tarball contents/integrities, Core-only Node/NodeNext, transitive Web install, public declarations and external development/production Vite consumers passed |
+| Published npm starter                                         | Windows/Linux starter checks passed                                                                                                                              |
+| External Run To Exit candidate                                | 35 world tests, type check and production build in each isolated copy; all 66 E2E passed (11 cases × 6 renderer/viewport projects)                               |
 
 The consumer matrix covers native numeric/text editing and validation (including Japanese input values), command reordering/removal, all 50 commands and bounded history, scroll/focus, keyboard/touch projection, original-stage clearance, Scene disposal and real-pixel paint after GPU cache reuse. Automated composition behavior is covered in the engine matrix; physical-device IME is not claimed.
 
@@ -87,10 +87,10 @@ Additional local checks passed: seven malformed documentation sample IDs were re
 
 ### Candidate integrity and immutable releases
 
-| Candidate archive | SHA512 integrity |
-| --- | --- |
-| Core | `sha512-z3oIlf/v7i1cf7LPWnpzMQ9+G1x9pp4IC3bQfzTA5P1SXjWAuwK92KzNC+Ydj4VrFjHQXJ2CtDfGU9bZ9bss1A==` |
-| Web | `sha512-+O9U2At17YoJ9LDhoq+sTst4WFgo4LR1DO86wKSK69azNjRAAGFYRL2e1rmK56an3rLQzAFTnNftkINyr0m2ww==` |
+| Candidate archive | SHA512 integrity                                                                                  |
+| ----------------- | ------------------------------------------------------------------------------------------------- |
+| Core              | `sha512-z3oIlf/v7i1cf7LPWnpzMQ9+G1x9pp4IC3bQfzTA5P1SXjWAuwK92KzNC+Ydj4VrFjHQXJ2CtDfGU9bZ9bss1A==` |
+| Web               | `sha512-+O9U2At17YoJ9LDhoq+sTst4WFgo4LR1DO86wKSK69azNjRAAGFYRL2e1rmK56an3rLQzAFTnNftkINyr0m2ww==` |
 
 Run To Exit remains at `e3c6f50ad837e2d2c598a1a1d01c47077b33d00c` with registry Core/Web 0.1.3. Its source package.json SHA256 is `a2e397bfe46b14f76903acf64ed47c636938f2e1ca1c5aab13552f3002060499`; package-lock.json is `9928b08d7ae7a93a19b85b1df833b01a8eea86f4e8e8125ee102d21e85b22094`. The working tree and dependency files were unchanged after candidate testing.
 

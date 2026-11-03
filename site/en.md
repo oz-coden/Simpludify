@@ -1,33 +1,33 @@
 # English documentation
 
-Simpludify is an experimental code-first TypeScript 2D engine. It provides a DOM-free simulation Core and a Web host for Pixi rendering, browser input, asynchronous scene preparation, and DOM UI. There is no published npm SDK yet; clone the source workspace to start.
+Simpludify is an experimental code-first TypeScript 2D engine with a DOM-free simulation Core and a Web host for Pixi rendering, browser input, asynchronous Scene preparation and DOM/Canvas UI. Core/Web **0.1.3 are published on npm**. The current source prepares **0.1.4** with source gating and gamepads; those additions require the candidate source/tarballs until publication.
+
+## Start here
+
+- [First game](en/getting-started.md) and [independent npm SDK setup](en/npm.md)
+- [Core concepts](en/concepts.md), [Scenes and UI](en/scenes-ui.md), [layout and viewport](en/layout.md)
+- [Actions and input boundaries](../docs/action-input.md), [gamepads](../docs/gamepads.md) and [two-player input lab](../examples/unified-input/README.md)
+- [Collision guide](en/collision.md), [build and hosting](en/hosting.md), [platform limits](en/limitations.md)
+- [API contracts](../docs/api.md), [Canvas UI](../docs/canvas-ui.md), [value controls](../docs/canvas-controls.md), [native editing](../docs/text-input-design.md) and [scrolling](../docs/scrolling.md)
+- [Grid](../docs/grid.md), [movement](../docs/movement.md), [rendering](../docs/rendering.md), [sprites](../docs/sprites.md), [Tilemap](../docs/tilemap.md), [tile geometry](../docs/tile-geometry.md), [Tween](../docs/tween.md) and [Replay](../docs/replay.md)
+- [SDK integration patterns](../docs/sdk-consumer-patterns.md), [architecture](../docs/architecture.md), [licensing](../docs/licensing.md)
+- [Interactive gallery (Japanese instructions; sample controls use English labels)](ja/examples.md)
 
 ## Language coverage
 
-The primary site currently provides Japanese onboarding, concepts, practical guides and sample instructions. This English section directly renders the existing detailed API, architecture, roadmap, performance and licensing documents from the repository. It is not a complete translation of every Japanese page.
+The maintained onboarding, current API and major user guides have Japanese and English routes. The header switches to the corresponding guide where a pair exists; unpaired sample instructions and engineering records link to the other language's index. Both language indexes stay available in navigation. Existing URLs are retained.
 
-- [API contracts and defaults](../docs/api.md)
-- [Fixed-size Grid data and examples](../docs/grid.md)
-- [Live rendering and image readiness](../docs/rendering.md)
-- [Architecture, lifecycle and ownership](../docs/architecture.md)
-- [Implemented scope and roadmap](../docs/roadmap.md)
-- [Performance methodology and limitations](../docs/performance.md)
-- [Licensing and dependency review](../docs/licensing.md)
-- [Interactive sample gallery (Japanese instructions)](ja/examples.md)
+Detailed English contracts are rendered directly from repository docs. Design proposals, historical implementation/validation reports and performance measurements are separate engineering records, not promises of current API behavior. Not every historical report or sample instruction is translated. The gallery instructions and game UI are not fully localized.
 
-## Quick start
+## Source examples
 
 ```sh
 git clone https://github.com/oz-coden/Simpludify.git
 cd Simpludify
 npm ci
-npm run dev -- --example character
+npm run dev -- --example unified-input
 ```
 
-Use Node.js 22.12+; CI uses Node 24. Open the printed localhost URL, focus the game area and use WASD. WebGL is the primary verified rendering path. The pinned Pixi can select a fallback; a no-WebGL Character Canvas2D startup is covered, not full fallback compatibility. Chromium is the automated browser target. The sample gallery launches each game in a separate iframe; Signal Run, Blockfall and Prism Raid also support touch controls. Blockfall demonstrates integer-grid puzzle rules, seeded bags, hold, ghost pieces and headless replay without Collider physics. Character and Beacon Field require a keyboard for movement.
+Use Node.js 22.12+ (CI: Node 24). Focus the game area with click/Tab. The input lab supports keyboard, touch and program operation without physical pads. The automated target is Chromium with WebGL/Canvas2D fixtures; physical pads, OS IME, mobile hardware and Safari/Firefox remain unverified.
 
-## Scope
-
-Trigger/Solid contacts and bounded inverse-mass position correction are implemented. This is not a force/impulse rigid-body engine or continuous collision detection. Audio, sprite animation, networking and Windows packaging are not implemented. API semantics may change before stabilization.
-
-Prism Raid uses the new upward Triangle shape with independent circle Triggers. See the [shooter API review and measurements](../docs/shooter-validation.md) for reproduction commands, supported rendering paths and measured limits.
+Trigger/Solid contacts, bounded inverse-mass position correction and sprite animation are implemented. Collision is discrete, without force/impulse rigid-body dynamics or continuous collision detection. Audio, networking and native desktop packaging remain unimplemented. APIs may change before stabilization. See [platform limits](en/limitations.md) and the [implemented roadmap](../docs/roadmap.md).
