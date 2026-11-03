@@ -108,12 +108,13 @@ try {
         "tilemap",
         "tile-geometry",
         "canvas-ui",
+        "unified-input",
         "tween",
       ].includes(example)
     )
       fail(
         "EXAMPLE_NOT_FOUND",
-        "Choose character, ui-scenes, composition, signal-run, blockfall, prism-raid, sprites, tilemap, tile-geometry, canvas-ui or tween",
+        "Choose character, ui-scenes, composition, signal-run, blockfall, prism-raid, sprites, tilemap, tile-geometry, canvas-ui, unified-input or tween",
         2,
       );
     if (!(base.startsWith("/") || base.startsWith("./")) || base.includes(".."))

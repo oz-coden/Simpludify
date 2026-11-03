@@ -456,3 +456,30 @@ it("records the composed frames and excludes live gamepad polling during Replay 
   f.engine.dispose();
   p.engine.dispose();
 });
+
+it("notifies device facts only when they change and scopes observers to their owner", () => {
+  const f = fixture(),
+    owner = new Scene("observer"),
+    changed = vi.fn();
+  f.gamepads.onChange(changed, owner);
+  f.engine.step(0);
+  expect(changed).not.toHaveBeenCalled();
+  f.first.id = "Unknown pad";
+  f.engine.step(0);
+  expect(changed).toHaveBeenCalledTimes(1);
+  expect(f.one.info?.inferredLayout).toBe("generic");
+  owner.dispose();
+  f.first.id = "Xbox again";
+  f.engine.step(0);
+  expect(changed).toHaveBeenCalledTimes(1);
+  f.engine.dispose();
+});
+it("keeps absent and malformed providers safe and neutral", () => {
+  const engine = new Engine(),
+    input = new GamepadInput(engine.input, { poll: () => null as never });
+  engine.step(0);
+  expect(input.available).toBe(false);
+  expect(input.devices).toEqual([]);
+  engine.dispose();
+  expect(input.disposed).toBe(true);
+});

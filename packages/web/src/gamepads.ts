@@ -2,10 +2,13 @@ import {
   type ActionController,
   type ActionSet,
   type ActionSource,
+  defineEvent,
   EngineError,
+  EventBus,
   type InputAdapter,
   type InputSystem,
   Lifetime,
+  type LifetimeOwner,
 } from "@simpludify/core";
 import {
   type CheckedGamepadBinding,
@@ -235,9 +238,12 @@ export class GamepadSource<A extends ActionSet> {
   }
 }
 
+const devicesChanged = defineEvent<void>("GamepadsChanged");
+
 /** One Web host adapter; multiple sources share a single snapshot per Engine input boundary. */
 export class GamepadInput implements InputAdapter {
   private readonly life = new Lifetime();
+  private readonly changes = new EventBus();
   private readonly sources = new Set<GamepadSource<ActionSet>>();
   private readonly disconnected = new Set<number>();
   private listed: readonly GamepadInfo[] = Object.freeze([]);
@@ -252,6 +258,7 @@ export class GamepadInput implements InputAdapter {
       readonly events?: EventTarget;
     } = {},
   ) {
+    this.life.onDispose(() => this.changes.dispose());
     this.poll =
       options.poll ??
       (() =>
@@ -272,11 +279,9 @@ export class GamepadInput implements InputAdapter {
       (event) => {
         const index = (event as GamepadEvent).gamepad.index;
         this.disconnected.add(index);
-        this.listed = Object.freeze(
-          this.listed.filter((d) => d.index !== index),
-        );
         for (const source of this.sources)
           if (source.index === index) source.clear();
+        this.publish(this.listed.filter((d) => d.index !== index));
       },
       { signal: abort.signal },
     );
@@ -300,6 +305,14 @@ export class GamepadInput implements InputAdapter {
   }
   get devices(): readonly GamepadInfo[] {
     return this.listed;
+  }
+  onChange(handler: () => void, owner?: LifetimeOwner): () => void {
+    return this.changes.on(devicesChanged, handler, owner);
+  }
+  private publish(devices: readonly GamepadInfo[], force = false): void {
+    const changed = JSON.stringify(this.listed) !== JSON.stringify(devices);
+    this.listed = Object.freeze(devices);
+    if (changed || force) this.changes.emit(devicesChanged, undefined);
   }
   /** @internal */ assertController(controller: object): void {
     if (!this.input.hasController(controller))
@@ -329,6 +342,7 @@ export class GamepadInput implements InputAdapter {
   }
   sample(): void {
     if (this.disposed) return;
+    const wasReadable = this.readable;
     let snapshots: readonly (GamepadState | null)[];
     try {
       snapshots = this.poll();
@@ -354,7 +368,7 @@ export class GamepadInput implements InputAdapter {
     for (const index of this.disconnected)
       if (!pads.has(index)) this.disconnected.delete(index);
     for (const index of this.disconnected) pads.delete(index);
-    this.listed = Object.freeze(
+    const listed = Object.freeze(
       [...pads.values()]
         .sort((a, b) => a.index - b.index)
         .map((p) =>
@@ -375,6 +389,7 @@ export class GamepadInput implements InputAdapter {
       if (source.disposed) this.sources.delete(source);
       else source.sample(pads.get(source.index), allowed);
     }
+    this.publish(listed, wasReadable !== this.readable);
   }
   reset(): void {
     for (const source of this.sources) source.clear();
