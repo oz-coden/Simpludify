@@ -107,7 +107,7 @@ for (const page of pages) {
         start: "Get started",
         samples: "Examples",
         theme: "Toggle theme",
-        menu: "Contents",
+        menu: "Menu",
         edit: "Edit this page on GitHub ↗",
         main: "Main",
         docs: "Documentation",
