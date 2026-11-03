@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
+import { languagePairs, pages } from "../site/config.mjs";
 import { isPathInside } from "./path-boundary.mjs";
 import { checkSnippets } from "./site-snippets.mjs";
 
@@ -25,6 +26,33 @@ const ids = new Map(
     ),
   ]),
 );
+assert.equal(
+  new Set(pages.map((p) => p.route)).size,
+  pages.length,
+  "Duplicate page route",
+);
+assert.equal(
+  new Set(pages.map((p) => p.source)).size,
+  pages.length,
+  "Duplicate page source",
+);
+const paired = new Set();
+for (const pair of languagePairs) {
+  assert.equal(pair.length, 2);
+  for (const [i, route] of pair.entries()) {
+    assert(!paired.has(route), `Duplicate language pair: ${route}`);
+    paired.add(route);
+    assert.equal(
+      pages.find((p) => p.route === route)?.lang,
+      i === 0 ? "ja" : "en",
+    );
+    const html = readFileSync(join(root, route), "utf8");
+    assert(
+      html.includes(`data-language-link href="${manifest.base}${pair[1 - i]}"`),
+      `Wrong language destination: ${route}`,
+    );
+  }
+}
 let references = 0;
 for (const file of documents) {
   const html = readFileSync(file, "utf8");

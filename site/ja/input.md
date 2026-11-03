@@ -110,7 +110,7 @@ Buttonは全キー・全sourceのORです。一つを解放しても別のsource
 
 source.clear/disposeは、そのsourceだけを解放します。Scene破棄はControllerと全sourceを破棄します。Engineのpause/resumeへの状態変更、Scene置換、InputSystem.clearは、保持と未消費イベントを全sourceから静かに破棄し、人工的な押下・解放イベントは作りません。ブラウザのキー自動リピートで再押下されないよう、新しい押下を必要とします。
 
-キーボードのfocusout/blurはその物理入力元だけを解放します。HoldButtonはタッチ・マウス・Enter/Spaceと、キャンセル・blur・UI破棄時の解放を扱います。ゲームパッドAdapterは未実装ですが、将来も独立sourceへアナログ値を書き込む方式を利用できます。
+キーボードのfocusout/blurはその物理入力元だけを解放します。HoldButtonはタッチ・マウス・Enter/Spaceと、キャンセル・blur・UI破棄時の解放を扱います。Game.gamepadsは独立したActionSourceへアナログ値を書き込むWeb Adapterです。[ゲームパッドガイド](gamepads.md)で割り当てと再接続条件を確認できます。
 
 ## 実行中のリバインドと保存
 

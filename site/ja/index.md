@@ -42,7 +42,9 @@ await game.run();
 
 ## 試してから、仕組みを読む
 
-[サンプルギャラリー](examples.md)では実行例を試せます。最小のCharacter、UI / Scenes、Beacon Field、30秒の収集ゲームSignal Run、落ち物パズルBlockfall、シューティングPrism Raid、画像アニメーションのSprite garden、地形配置のTile trail、Canvas UIと入力を統合したCanvas trail、数値・Actor・UI演出のTween lab、三角形・六角形のTile geometry labから選べます。Signal Run・Blockfall・Prism Raid・Canvas trailはスマートフォンのタッチ操作に対応します。
+[サンプルギャラリー](examples.md)では実行例を試せます。最小のCharacter、UI / Scenes、Beacon Field、30秒の収集ゲームSignal Run、落ち物パズルBlockfall、シューティングPrism Raid、画像アニメーションのSprite garden、地形配置のTile trail、Canvas UIと入力を統合したCanvas trail、数値・Actor・UI演出のTween lab、三角形・六角形のTile geometry lab、2人用のUnified input labから選べます。Signal Run・Blockfall・Prism Raid・Canvas trailはスマートフォンのタッチ操作に対応します。
+
+[2人用入力ラボ](unified-input.md)では同じActorを維持した入力元の切り替えを試せます。[ゲームパッド](gamepads.md)と[レイアウト](layout.md)にも対応する英語ガイドがあります。
 
 [基本概念](concepts.md) → [入力](input.md) → [SceneとUI](scenes-ui.md) → [衝突判定](collision.md)の順に読むと、サンプルを自分のゲームへ展開できます。
 

@@ -1,6 +1,14 @@
 export const repository = "https://github.com/oz-coden/Simpludify";
 export const examples = [
   {
+    id: "unified-input",
+    title: "Unified input lab",
+    summary: "2人のCharacterへキーボード・パッド・タッチ・プログラム入力",
+    controls:
+      "P1はWASD/F、P2はKeyboard + pad選択後に矢印/Slash。各プレイヤーの方向・Fireボタンはタッチ対応。Modeで入力元、Padで接続先、Labelsで表示名を切り替えます。",
+    guide: "guides/unified-input.html",
+  },
+  {
     id: "sdk-integration",
     title: "SDK integration lab",
     summary: "Flex連動Viewport・DOMフォーム・整数ステップの表示Tween",
@@ -22,7 +30,7 @@ export const examples = [
     summary: "汎用Tween・Easing・Actor/UI・Slider・2つの時計",
     controls:
       "Start/RestartでEasingを比較。WASDでSpriteのワールド位置とは独立した描画オフセットを確認。Pause game中もFade/Slide UIやHP表示を操作できます。Tween値のドラッグ、Sequence/Parallel、破棄・再生成も試せます。",
-    guide: "en/tween.html",
+    guide: "guides/tween.html",
   },
   {
     id: "character",
@@ -98,6 +106,68 @@ export const examples = [
   },
 ];
 export const pages = [
+  [
+    "en/getting-started.html",
+    "site/en/getting-started.md",
+    "First game",
+    "English",
+  ],
+  ["en/concepts.html", "site/en/concepts.md", "Core concepts", "English"],
+  ["en/scenes-ui.html", "site/en/scenes-ui.md", "Scenes and UI", "English"],
+  ["en/layout.html", "site/en/layout.md", "Layout and viewport", "English"],
+  ["en/collision.html", "site/en/collision.md", "Collision guide", "English"],
+  ["en/npm.html", "site/en/npm.md", "npm SDK setup", "English"],
+  ["en/hosting.html", "site/en/hosting.md", "Build and hosting", "English"],
+  [
+    "en/limitations.html",
+    "site/en/limitations.md",
+    "Platform limits",
+    "English",
+  ],
+  [
+    "en/gamepads.html",
+    "docs/gamepads.md",
+    "Gamepads and unified input",
+    "English",
+  ],
+  [
+    "en/unified-input.html",
+    "examples/unified-input/README.md",
+    "Two-player input lab",
+    "English",
+  ],
+  ["guides/layout.html", "site/ja/layout.md", "レイアウト・Viewport", "ガイド"],
+  [
+    "guides/canvas-controls.html",
+    "site/ja/canvas-controls.md",
+    "Canvas値コントロール",
+    "ガイド",
+  ],
+  ["guides/editing.html", "site/ja/editing.md", "ネイティブ文字編集", "ガイド"],
+  [
+    "guides/scrolling.html",
+    "site/ja/scrolling.md",
+    "Canvasスクロール",
+    "ガイド",
+  ],
+  [
+    "guides/sdk-patterns.html",
+    "site/ja/sdk-patterns.md",
+    "SDK利用パターン",
+    "ガイド",
+  ],
+  [
+    "guides/gamepads.html",
+    "site/ja/gamepads.md",
+    "ゲームパッド・入力元",
+    "ガイド",
+  ],
+  [
+    "guides/unified-input.html",
+    "site/ja/unified-input.md",
+    "2人用統一入力ラボ",
+    "サンプル",
+  ],
   [
     "guides/sdk-integration.html",
     "examples/sdk-integration/README.md",
@@ -346,3 +416,35 @@ export const pages = [
   section,
   lang: route.startsWith("en/") ? "en" : "ja",
 }));
+
+// Pair maintained user guides explicitly; technical records keep their existing URLs.
+export const languagePairs = [
+  ["index.html", "en/index.html"],
+  ["getting-started.html", "en/getting-started.html"],
+  ["concepts.html", "en/concepts.html"],
+  ["api.html", "en/api.html"],
+  ["architecture.html", "en/architecture.html"],
+  ["limitations.html", "en/limitations.html"],
+  ["hosting.html", "en/hosting.html"],
+  ["licensing.html", "en/licensing.html"],
+  ["guides/npm.html", "en/npm.html"],
+  ["guides/input.html", "en/actions.html"],
+  ["guides/gamepads.html", "en/gamepads.html"],
+  ["guides/unified-input.html", "en/unified-input.html"],
+  ["guides/scenes-ui.html", "en/scenes-ui.html"],
+  ["guides/layout.html", "en/layout.html"],
+  ["guides/collision.html", "en/collision.html"],
+  ["guides/canvas-ui.html", "en/canvas-ui.html"],
+  ["guides/canvas-controls.html", "en/canvas-controls.html"],
+  ["guides/editing.html", "en/text-input-design.html"],
+  ["guides/scrolling.html", "en/scrolling.html"],
+  ["guides/sdk-patterns.html", "en/sdk-consumer-patterns.html"],
+  ["guides/grid.html", "en/grid.html"],
+  ["guides/movement.html", "en/movement.html"],
+  ["guides/rendering.html", "en/rendering.html"],
+  ["guides/replay.html", "en/replay.html"],
+  ["guides/tween.html", "en/tween.html"],
+  ["guides/sprites.html", "en/sprites.html"],
+  ["guides/tilemap.html", "en/tilemap.html"],
+  ["guides/tile-geometry.html", "en/tile-geometry.html"],
+];

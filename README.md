@@ -203,6 +203,9 @@ This integrates documentation and all browser examples into `site-dist/`, indepe
 
 ## Documentation
 
+- [English onboarding and guide index](site/en.md) · [日本語ガイド](site/ja/index.md)
+- [Gamepad/source contracts](docs/gamepads.md) · [two-player unified input lab](examples/unified-input/README.md)
+
 - [Fixed-size Grid data and placement example](docs/grid.md)
 - [Live rendering, shared images and readiness](docs/rendering.md)
 - [Movement composition and sprint](docs/movement.md)
