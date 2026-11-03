@@ -1,6 +1,6 @@
 # API
 
-`@simpludify/core` is DOM-free. [Typed Action input](action-input.md) defines logical buttons/axes, key bindings, source composition and input boundaries. `@simpludify/web` re-exports Core and supplies Game, PixiRenderer, browser input, DOM UI and scoped default CSS. All mode objects export corresponding union types. The root workspace is private; Core/Web are publishable SDK packages. This source targets v0.1.4; published registry 0.1.3 remains immutable.
+`@simpludify/core` is DOM-free. [Typed Action input](action-input.md) defines logical buttons/axes, key bindings, source composition and input boundaries. `@simpludify/web` re-exports Core and supplies Game, PixiRenderer, browser input, DOM UI and scoped default CSS. All mode objects export corresponding union types. The root workspace is private; Core/Web are publishable SDK packages. The source and published registry SDK are v0.1.4; earlier versions remain immutable.
 
 ## Fixed-size two-dimensional data
 

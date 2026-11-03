@@ -2,11 +2,11 @@
 
 ## Release status
 
-Core/Web v0.1.3 were published through [Trusted Publishing run 41502126387](https://github.com/oz-coden/Simpludify/actions/runs/41502126387), from source `1164b77c0bc037f7afc3b29a32b48d6a2d27e476` and tag `v0.1.3`. Core was published and its registry integrity verified before Web publication. The workflow's clean public-registry consumers passed; registry metadata includes SLSA v1 provenance. See [publication and registry adoption](work-reports/2026-11-03-v0.1.3-publication.md) for immutable archive integrities and final consumer CI. Earlier v0.1.0–v0.1.2 remain immutable historical releases.
+Core/Web v0.1.4 were published through [Trusted Publishing run 41628371866](https://github.com/oz-coden/Simpludify/actions/runs/41628371866), from source `84a5f1b642cebccff2510b7965297970a6c30352` and tag `v0.1.4`. Core was published and its registry integrity verified before Web publication. Both packages include SLSA v1 provenance, and clean public-registry consumers passed. See [publication and registry verification](work-reports/2026-11-03-v0.1.4-publication.md) for timestamps, immutable archive integrities and verification evidence. Earlier releases remain immutable.
 
-## v0.1.4 candidate
+## v0.1.4 scope
 
-The current source prepares Core/Web 0.1.4, including security PR #14, unified input/gamepads and paired consumer documentation. It has not been approved for npm publication. The independent starter and Run To Exit retain published registry 0.1.3; candidate validation installs local tarballs only into disposable consumers. Do not change the existing 0.1.3 tag/packages.
+The release includes the integrated security fixes, unified input/gamepads and paired consumer documentation. The independent starter retains its published registry 0.1.3 lockfile; upgrades of independent consumers are separate changes.
 
 ## Prepare and verify
 
@@ -58,6 +58,6 @@ The [official Trusted Publishing guide](https://docs.npmjs.com/trusted-publisher
 5. Validation derives the version from manifests and verifies confirmation, tag, dispatched SHA, main ancestry and successful main push CI. It reruns checks/unit tests and external tarball consumers, records pack manifests and SHA256 checksums, then passes those exact archives to the publish job.
 6. The publish job verifies checksums, archive metadata against source manifests, package versions/integrities, tag/SHA and OIDC capability before any publication. Both target versions are checked before the first publish. **Core publishes first and its registry integrity is verified before Web publishes.** Already-published identical archives may be skipped; differing archives fail. `latest` is the intended dist-tag. After npm accepts a publish, the script allows up to six minutes for processing/visibility before reporting failure; this wait never republishes or skips registry integrity checks.
 7. `test:packages:registry` makes clean public-registry installations and repeats the full consumer fixture including `bindViewport`. Inspect `npm-sdk-validation`, `npm-sdk-publication` and the job summary. Record source SHA/tag, integrities, provenance and registry URLs. Do not mark a failed post-publication test as an unpublished state.
-8. After registry validation succeeds, update the independent starter and Run To Exit to exact v0.1.4, regenerate their lockfiles from npm, run checks/browser tests, merge successful PRs and verify Pages. Update public release status in the docs. Create a GitHub Experimental prerelease using the same tag if desired.
+8. After registry validation succeeds, update public release status and create or verify the GitHub Release for the same immutable tag. Treat independent consumer upgrades as separate changes: regenerate lockfiles from npm and require their own checks/browser tests and deployment verification.
 
 If Core succeeds and Web fails, inspect registry metadata and saved archives before retrying the same tag. Never move a release tag, force-push main, unpublish, or silently substitute rebuilt content as a retry mechanism. A different archive requires a separately reviewed version.

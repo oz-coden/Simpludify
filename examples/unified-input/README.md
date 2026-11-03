@@ -1,6 +1,6 @@
 # Unified input lab — two players
 
-Two Characters retain the same reader-driven movement components while keyboard, gamepad, Canvas touch and program contributions change. This example uses the prepared v0.1.4 source API; it does not require a physical pad for keyboard/touch/program operation.
+Two Characters retain the same reader-driven movement components while keyboard, gamepad, Canvas touch and program contributions change. This example uses the published v0.1.4 API; it does not require a physical pad for keyboard/touch/program operation.
 
 ```sh
 npm ci

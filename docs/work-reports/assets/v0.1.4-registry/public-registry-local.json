@@ -1,0 +1,14 @@
+{
+  "mode": "public-registry",
+  "temporary": "/tmp/simpludify-packed-XQ0HCm",
+  "checks": [
+    "Core-only tarball install, browser-free Node import/lifecycle and NodeNext public types",
+    "Web-only install resolves packed Core transitively, with physical external dependencies",
+    "Web consumer public declarations typecheck without workspace paths or skipLibCheck",
+    "external Vite production subpath build includes scoped CSS and app image asset",
+    "development: desktop/narrow rendering, automatic CSS, input, Canvas pointer/keyboard, scene replacement, idempotent cleanup",
+    "production subpath: desktop/narrow rendering, automatic CSS, input, Canvas pointer/keyboard, scene replacement, idempotent cleanup"
+  ],
+  "packages": [],
+  "ok": true
+}

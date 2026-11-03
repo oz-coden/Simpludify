@@ -1,6 +1,6 @@
 # Start an independent npm SDK project
 
-Core/Web 0.1.3 are published on npm. The current source prepares 0.1.4; publication still requires final approval. Existing versions/tags are immutable. Use exact versions and a lockfile. Internal source paths are not public package exports.
+Core/Web 0.1.4 are published on npm, including unified input and gamepads. Existing versions/tags are immutable. Use exact versions and a lockfile. Internal source paths are not public package exports.
 
 ## Published SDK
 
@@ -8,7 +8,7 @@ Core/Web 0.1.3 are published on npm. The current source prepares 0.1.4; publicat
 npm create vite@latest my-game -- --template vanilla-ts
 cd my-game
 npm install
-npm install --save-exact @simpludify/web@0.1.3
+npm install --save-exact @simpludify/web@0.1.4
 ```
 
 Use Node.js 22.12+ (CI: Node 24). Web installs its exact Core dependency and Pixi. The root Web import brings scoped CSS automatically; @simpludify/web/style.css is also an explicit stylesheet export. Core alone is suitable for headless simulation and has no DOM/Pixi dependency.
@@ -33,7 +33,7 @@ if (import.meta.hot) import.meta.hot.dispose(() => game.dispose());
 
 Set html/body height:100dvh and margin:0. Focus the game with click/Tab; it does not autofocus. Use npm run dev, and Vite's npm run build -- --base /my-game/ for a subpath. Serve dist over HTTP(S). Asset URLs should use new URL("./asset.png", import.meta.url).href; do not hardcode repository paths or CDN source imports.
 
-## v0.1.4 candidate validation
+## Local archive validation
 
 Build from a verified source checkout:
 
@@ -48,9 +48,9 @@ Install both generated archives in a disposable copy of the application:
 npm install --save-exact /absolute/simpludify-core-0.1.4.tgz /absolute/simpludify-web-0.1.4.tgz
 ```
 
-Run its types, units, production build and browser tests. Candidate file: dependencies belong only in that disposable copy; keep the application's committed registry pins/lockfile unchanged until the new release is actually published and registry installation passes. The new gamepad/source-gating APIs require this 0.1.4 candidate; published 0.1.3 does not gain APIs from a source update.
+Run its types, units, production build and browser tests. Candidate file: dependencies belong only in that disposable copy. Production applications should use matching published registry versions and verify a clean installation before committing a dependency upgrade.
 
-The independent [npm/Vite starter](https://github.com/oz-coden/Simpludify/tree/main/templates/npm-vite) pins published 0.1.3 and includes a lockfile, Page base configuration, cleanup and license notice generation. It deliberately keeps a usable registry dependency while 0.1.4 is pending. Do not invent registry URLs/integrities for unpublished versions.
+The independent [npm/Vite starter](https://github.com/oz-coden/Simpludify/tree/main/templates/npm-vite) pins published 0.1.3 and includes a lockfile, Page base configuration, cleanup and license notice generation. Its dependency upgrade is a separate change; this release does not alter its committed lockfile.
 
 ## Ownership, licenses and scope
 

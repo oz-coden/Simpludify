@@ -1,6 +1,6 @@
 # First game
 
-The registry SDK is published as Core/Web 0.1.3. The current source prepares 0.1.4; its new input APIs need the candidate source/tarballs until publication. For an independent application start with the [npm guide](npm.md). To edit the engine or run its current examples:
+The registry SDK is published as Core/Web 0.1.4, including unified input and gamepads. For an independent application start with the [npm guide](npm.md). To edit the engine or run its current examples:
 
 ```sh
 git clone https://github.com/oz-coden/Simpludify.git

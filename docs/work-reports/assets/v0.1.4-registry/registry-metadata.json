@@ -1,0 +1,101 @@
+[
+  {
+    "name": "@simpludify/core",
+    "version": "0.1.4",
+    "published": "2026-11-03T11:35:17.497Z",
+    "latest": "0.1.4",
+    "dependencies": {},
+    "dist": {
+      "shasum": "421753aa626cc535d368e46a800cc433ed0e97ba",
+      "tarball": "https://registry.npmjs.org/@simpludify/core/-/core-0.1.4.tgz",
+      "fileCount": 69,
+      "integrity": "sha512-nhYq1yYnHfb/A960g3N9ts5j6d6LZhycV37AtJhX9mVccT/yA+pmXbOAVGCSKkYozd9bu6bzCj6EJFqN+34vqQ==",
+      "signatures": [
+        {
+          "sig": "MEQCICabQdBrG2NaNmnxTlfQmtLQMBKtz/Peb4cS+/zpVWvtAiB68/BRIRc/lAyJhUVXs6NZxf+SCPqcgnMWfrMs6D+p6Q==",
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+        },
+        {
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+          "sig": "MEUCIBE2t2BaQ+0qR1HORV5YDR8JO+ok/mW9PT0G+08rJ7XKAiEAlJbAtfv8rM/KU4nUOYvgrkegaz74c0HgGpQ+apB66eI="
+        }
+      ],
+      "attestations": {
+        "url": "https://registry.npmjs.org/-/npm/v1/attestations/@simpludify%2fcore@0.1.4",
+        "provenance": {
+          "predicateType": "https://slsa.dev/provenance/v1"
+        }
+      },
+      "unpackedSize": 1009183
+    },
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js"
+      },
+      "./package.json": "./package.json"
+    },
+    "engines": {
+      "node": ">=22.12.0"
+    },
+    "license": "MIT",
+    "repository": {
+      "url": "git+https://github.com/oz-coden/Simpludify.git",
+      "type": "git",
+      "directory": "packages/core"
+    }
+  },
+  {
+    "name": "@simpludify/web",
+    "version": "0.1.4",
+    "published": "2026-11-03T11:37:31.309Z",
+    "latest": "0.1.4",
+    "dependencies": {
+      "pixi.js": "8.22.0",
+      "@simpludify/core": "0.1.4"
+    },
+    "dist": {
+      "shasum": "27dac5b2047134d0f6f6bb6c5f2f451c2c4bfd81",
+      "tarball": "https://registry.npmjs.org/@simpludify/web/-/web-0.1.4.tgz",
+      "fileCount": 28,
+      "integrity": "sha512-k8VLMh3YTGnpghH77OiktsJTqbFBWXCKLhoQrb9U/cGE8N2VJx2si1r9fi6/u2//NjVpB/Of+4MIIBR8QaqWLA==",
+      "signatures": [
+        {
+          "sig": "MEUCIQCLUEqZ9X3uNIrGyuiXrqdxHDPUBwcD4P0+sOQMzg/TggIgQpu2zzPbm18m8GKPtMf08POwfQnlYJdDr/YZQV3QRTM=",
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+        },
+        {
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+          "sig": "MEUCIFyeKZ3qviVXqPSEPa+dPUlf4viPMukSW227V0836q8sAiEAykRYa4sbNaNAJkmGkIW7NrWTDt1Bt4HaYf2HSTRaXYI="
+        }
+      ],
+      "attestations": {
+        "url": "https://registry.npmjs.org/-/npm/v1/attestations/@simpludify%2fweb@0.1.4",
+        "provenance": {
+          "predicateType": "https://slsa.dev/provenance/v1"
+        }
+      },
+      "unpackedSize": 394036
+    },
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js"
+      },
+      "./style.css": {
+        "types": "./dist/style.css.d.ts",
+        "default": "./dist/style.css"
+      },
+      "./package.json": "./package.json"
+    },
+    "engines": {
+      "node": ">=22.12.0"
+    },
+    "license": "MIT",
+    "repository": {
+      "url": "git+https://github.com/oz-coden/Simpludify.git",
+      "type": "git",
+      "directory": "packages/web"
+    }
+  }
+]

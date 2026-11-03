@@ -9,29 +9,29 @@
 
 [公式ドキュメント・サンプル](https://oz-coden.github.io/Simpludify/) · [日本語ガイドのソース](site/ja/index.md) · [English API](docs/api.md)
 
-コード主導・軽量・AIネイティブな、TypeScript製の実験的2Dコンテンツエンジンです。ゲームやインタラクティブコンテンツを、理解しやすい標準APIで構築します。理解しやすく、一貫性があり、保守しやすいAPIを優先します。Experimental v0.1.3のnpm SDKを公開済みです。独立プロジェクトからnpmで導入できます。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できるサンプルを公式サイトにまとめています。
+コード主導・軽量・AIネイティブな、TypeScript製の実験的2Dコンテンツエンジンです。ゲームやインタラクティブコンテンツを、理解しやすい標準APIで構築します。理解しやすく、一貫性があり、保守しやすいAPIを優先します。Experimental v0.1.4のnpm SDKを公開済みです。独立プロジェクトからnpmで導入できます。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できるサンプルを公式サイトにまとめています。
 
 A code-first TypeScript 2D game engine. Create a visible character, responsive UI, and scene navigation using ordinary code and browser tooling.
 
 [Core / Hostの責務と移植性](docs/host-boundary.md) · [作業報告・検証結果](docs/work-reports/README.md)
 
-**Status: experimental Web engine with a composition-based Core.** The API can change before a stable release. Electron/Tauri/Android packaging is pending. The Core and Web SDK packages are published on npm as v0.1.3.
+**Status: experimental Web engine with a composition-based Core.** The API can change before a stable release. Electron/Tauri/Android packaging is pending. The Core and Web SDK packages are published on npm as v0.1.4.
 
-## v0.1.4 source candidate
+## v0.1.4 release
 
-The source workspaces target **v0.1.4**: integrated security fixes, unified input/gamepads/local multiplayer and bilingual consumer documentation. Registry Core/Web **0.1.3 remain the published versions**. The new gamepad APIs require the candidate source/tarballs until final approval and publication. [Input/gamepad guide](docs/gamepads.md) · [Two-player lab](examples/unified-input/README.md) · [Release preparation report](docs/work-reports/2026-11-03-unified-input-v0.1.4.md).
+Core/Web **v0.1.4 are published on npm**, including integrated security fixes, unified input/gamepads/local multiplayer and bilingual consumer documentation. The gamepad and source-gating APIs are available from the registry packages. [Input/gamepad guide](docs/gamepads.md) · [Two-player lab](examples/unified-input/README.md) · [Publication and registry verification](docs/work-reports/2026-11-03-v0.1.4-publication.md).
 
 ```sh
 npm run dev -- --example unified-input
 ```
 
-## Experimental npm SDK v0.1.3
+## Experimental npm SDK v0.1.4
 
-`@simpludify/core@0.1.3` contains host-independent simulation and geometry; `@simpludify/web@0.1.3` adds browser rendering/input/UI and installs Core/PixiJS as dependencies. Both ship compiled ESM and TypeScript declarations. APIs may change between 0.x releases.
+`@simpludify/core@0.1.4` contains host-independent simulation and geometry; `@simpludify/web@0.1.4` adds browser rendering/input/UI and installs Core/PixiJS as dependencies. Both ship compiled ESM and TypeScript declarations. APIs may change between 0.x releases.
 
-**Registry status: published.** Browser projects can install with `npm install @simpludify/web@0.1.3`. The [complete npm/Vite guide](site/ja/npm.md) includes project setup, runnable game code, automatic/explicit CSS, production builds and known limits. For independent projects, use the published registry packages rather than copying engine source. [実際のゲーム開発で確認したSDK利用パターン](docs/sdk-consumer-patterns.md)に、HUDとViewport、Canvas/DOMのフォーカス、Tween、ライセンスの注意点をまとめています。 [Publishing and OIDC procedures](docs/npm-publishing.md) describe version checks, exact archives and the manual Trusted Publishing workflow. [v0.1.3 publication evidence](docs/work-reports/2026-11-03-v0.1.3-publication.md) records the immutable source revision and validation.
+**Registry status: published.** Browser projects can install with `npm install @simpludify/web@0.1.4`. The [complete npm/Vite guide](site/ja/npm.md) includes project setup, runnable game code, automatic/explicit CSS, production builds and known limits. For independent projects, use the published registry packages rather than copying engine source. [実際のゲーム開発で確認したSDK利用パターン](docs/sdk-consumer-patterns.md)に、HUDとViewport、Canvas/DOMのフォーカス、Tween、ライセンスの注意点をまとめています。 [Publishing and OIDC procedures](docs/npm-publishing.md) describe version checks, exact archives and the manual Trusted Publishing workflow. [v0.1.4 publication evidence](docs/work-reports/2026-11-03-v0.1.4-publication.md) records the immutable source revision and validation.
 
-The [independent npm/Vite starter](templates/npm-vite/README.md) includes a committed lockfile, Pages base support, Scene cleanup and dependency notice generation. The [SDK integration lab](examples/sdk-integration/README.md) demonstrates layout-owned viewports, IME focus ownership and display-only discrete Tween with the published v0.1.3 API.
+The [independent npm/Vite starter](templates/npm-vite/README.md) retains its published 0.1.3 lockfile and includes Pages base support, Scene cleanup and dependency notice generation. Its dependency upgrade is separate from this release. The [SDK integration lab](examples/sdk-integration/README.md) demonstrates layout-owned viewports, IME focus ownership and display-only discrete Tween with the published v0.1.3 API.
 
 ## Quick start
 

@@ -1,6 +1,6 @@
 # Gamepads and unified input
 
-This is the v0.1.4 source contract. The published registry SDK remains 0.1.3 until 0.1.4 is approved and published. Use the checked source workspace or candidate tarballs for these additions.
+These APIs are available in the published Core/Web v0.1.4 SDK. Install matching registry versions as described in the [npm guide](../site/en/npm.md).
 
 An Actor reads an ActionReader; it does not know whether a keyboard, pad, Canvas gesture or external program supplied the value. ActionController remains the single composition boundary. Game.gamepads supplies a Web adapter, not another gameplay Controller or player registry. Core has no navigator, DOM or Gamepad API dependency.
 

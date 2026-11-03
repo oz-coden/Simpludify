@@ -1,0 +1,22 @@
+{
+  "commit": "84a5f1b642cebccff2510b7965297970a6c30352",
+  "tag": "v0.1.4",
+  "publish": true,
+  "packages": [
+    {
+      "name": "@simpludify/core",
+      "version": "0.1.4",
+      "integrity": "sha512-nhYq1yYnHfb/A960g3N9ts5j6d6LZhycV37AtJhX9mVccT/yA+pmXbOAVGCSKkYozd9bu6bzCj6EJFqN+34vqQ==",
+      "path": "/home/runner/work/Simpludify/Simpludify/test-results/packages/simpludify-core-0.1.4.tgz",
+      "status": "published-verified"
+    },
+    {
+      "name": "@simpludify/web",
+      "version": "0.1.4",
+      "integrity": "sha512-k8VLMh3YTGnpghH77OiktsJTqbFBWXCKLhoQrb9U/cGE8N2VJx2si1r9fi6/u2//NjVpB/Of+4MIIBR8QaqWLA==",
+      "path": "/home/runner/work/Simpludify/Simpludify/test-results/packages/simpludify-web-0.1.4.tgz",
+      "status": "published-verified"
+    }
+  ],
+  "ok": true
+}

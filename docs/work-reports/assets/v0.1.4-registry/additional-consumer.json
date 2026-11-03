@@ -1,0 +1,55 @@
+{
+  "browser": "Chromium 153.0.8010.0 (supplemental npm-distributed binary)",
+  "source": "public npm registry",
+  "results": [
+    {
+      "width": 1280,
+      "moved": true,
+      "stopped": true,
+      "disposed": {
+        "host": 0,
+        "actors": 0
+      },
+      "x": 105.99778,
+      "results": [
+        "public gamepad value/type exports",
+        "mock polling and button edges",
+        "pad disable and cleanup",
+        "Game adapter and program-driven Character"
+      ]
+    },
+    {
+      "width": 390,
+      "moved": true,
+      "stopped": true,
+      "disposed": {
+        "host": 0,
+        "actors": 0
+      },
+      "x": 107.506,
+      "results": [
+        "public gamepad value/type exports",
+        "mock polling and button edges",
+        "pad disable and cleanup",
+        "Game adapter and program-driven Character"
+      ]
+    },
+    {
+      "width": 320,
+      "moved": true,
+      "stopped": true,
+      "disposed": {
+        "host": 0,
+        "actors": 0
+      },
+      "x": 106.00624,
+      "results": [
+        "public gamepad value/type exports",
+        "mock polling and button edges",
+        "pad disable and cleanup",
+        "Game adapter and program-driven Character"
+      ]
+    }
+  ],
+  "ok": true
+}

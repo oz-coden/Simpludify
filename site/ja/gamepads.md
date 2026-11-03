@@ -1,6 +1,6 @@
 # ゲームパッドと統一入力
 
-このページはv0.1.4ソースの契約です。npmの公開済みSDKは、v0.1.4の承認・公開までは0.1.3のままです。新APIは検証済みソースまたは候補tarballで試してください。
+このページのAPIは、npmで公開済みのCore/Web v0.1.4から利用できます。[npm導入ガイド](npm.md)に従い、同じバージョンを導入してください。
 
 ActorはActionReaderを読み、入力元を知りません。キーボード・ゲームパッド・Canvasのタッチ・プログラムは同じActionControllerへ値を供給します。Game.gamepadsはWeb用Adapterで、別のゲーム用Controllerやプレイヤー管理機構ではありません。CoreへDOM・navigator・Gamepad APIは持ち込みません。
 

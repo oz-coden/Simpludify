@@ -1,6 +1,6 @@
 # Platform limits and implemented scope
 
-The current source targets experimental SDK 0.1.4; public registry Core/Web remain 0.1.3 until approval/publication. Existing release tags/packages are immutable. APIs can change before stability; use package roots and exact versions/lockfiles.
+The current source and public registry Core/Web are experimental SDK 0.1.4. Existing release tags/packages are immutable. APIs can change before stability; use package roots and exact versions/lockfiles.
 
 | Area            | Implemented / verified scope                                                                                                      |
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------- |
