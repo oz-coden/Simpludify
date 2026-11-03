@@ -104,6 +104,7 @@ try {
           other: b.controls.value(Actions.Move),
         };
         game.pause();
+        game.engine.step(0);
         const reset = players.map((p) => p.controls.value(Actions.Move));
         return {
           pads,
@@ -124,11 +125,16 @@ try {
         { x: 0, y: 0 },
       ]);
       assert.equal(result.overflow, false);
+      await page.evaluate(() => {
+        window.retiredPlayers = window.inputLab.players.slice();
+      });
       await page
         .getByRole("button", { name: "New Scene", exact: true })
         .click();
       await page.waitForFunction(
-        () => window.inputLab.game.engine.scene.state === "active",
+        () =>
+          window.inputLab.game.engine.scene.state === "active" &&
+          window.retiredPlayers.every((p) => p.controls.disposed),
       );
       const cleanup = await page.evaluate(() => {
         const { game } = window.inputLab;

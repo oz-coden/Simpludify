@@ -34,7 +34,7 @@ export async function testSiteTheme(browser, site) {
     assert.equal(await read(page), colorScheme, "launch must not toggle theme");
     await page.locator("[data-stop]").click();
     assert.equal(await read(page), colorScheme, "stop must not toggle theme");
-    const toggle = page.getByRole("button", { name: "テーマを切り替える" });
+    const toggle = page.locator("[data-theme-toggle]");
     const other = colorScheme === "dark" ? "light" : "dark";
     await toggle.click();
     assert.equal(await read(page), other, "button toggles exactly once");
@@ -77,7 +77,7 @@ export async function testSiteTheme(browser, site) {
     "dark",
     "OS preference survives blocked storage",
   );
-  await page.getByRole("button", { name: "テーマを切り替える" }).click();
+  await page.locator("[data-theme-toggle]").click();
   assert.equal(await read(page), "light", "toggle works without storage");
   await context.close();
 }
