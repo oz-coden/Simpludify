@@ -1,5 +1,12 @@
 # Simpludify
 
+[![Core](https://img.shields.io/npm/v/@simpludify/core?label=core)](https://www.npmjs.com/package/@simpludify/core)
+[![Web](https://img.shields.io/npm/v/@simpludify/web?label=web)](https://www.npmjs.com/package/@simpludify/web)
+[![CI](https://github.com/oz-coden/Simpludify/actions/workflows/ci.yml/badge.svg)](https://github.com/oz-coden/Simpludify/actions/workflows/ci.yml)
+[![Downloads](https://img.shields.io/npm/dm/@simpludify/web?label=downloads%2Fmonth)](https://www.npmjs.com/package/@simpludify/web)
+[![License](https://img.shields.io/github/license/oz-coden/Simpludify)](https://github.com/oz-coden/Simpludify/blob/main/LICENSE)
+[![Stars](https://img.shields.io/github/stars/oz-coden/Simpludify)](https://github.com/oz-coden/Simpludify/stargazers)
+
 [公式ドキュメント・サンプル](https://oz-coden.github.io/Simpludify/) · [日本語ガイドのソース](site/ja/index.md) · [English API](docs/api.md)
 
 コード主導・軽量・AIネイティブな、TypeScript製の実験的2Dコンテンツエンジンです。ゲームやインタラクティブコンテンツを、理解しやすい標準APIで構築します。理解しやすく、一貫性があり、保守しやすいAPIを優先します。Experimental v0.1.3のnpm SDKを公開済みです。独立プロジェクトからnpmで導入できます。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できるサンプルを公式サイトにまとめています。
