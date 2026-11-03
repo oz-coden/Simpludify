@@ -451,7 +451,8 @@ test("validates theme tokens while preserving quoted and escaped font families t
         token: game.element.style.getPropertyValue("--s-font"),
         font: element.style.fontFamily,
         position: element.style.position,
-        color: element.style.color,
+        width: element.style.width,
+        color: element.style.getPropertyValue("--s-native-color"),
       };
       owner.dispose();
       game.dispose();
@@ -461,7 +462,8 @@ test("validates theme tokens while preserving quoted and escaped font families t
   for (const value of result) {
     expect(value.token.length).toBeGreaterThan(0);
     expect(value.font.length).toBeGreaterThan(0);
-    expect(value.position).toBe("absolute");
+    expect(value.position).toBe("");
+    expect(value.width).toBe("100px");
     expect(value.color).not.toBe("");
   }
 });

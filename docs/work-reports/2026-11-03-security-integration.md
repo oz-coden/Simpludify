@@ -34,3 +34,13 @@ CI builds local Core/Web tarballs from this checkout and applies them only in di
 ## Pending integration evidence
 
 PR head CI, merge commit, main CI and deployed documentation verification will be recorded after completion. Physical-device IME, assistive technology and non-Chromium browsers are outside the automated scope.
+
+## Intermediate execution evidence
+
+- Checkpoint source: `ae17f1bfe54ab742be51095a2fa780332189cf05` (includes main as a merge parent).
+- [Push CI 41577580277](https://github.com/oz-coden/Simpludify/actions/runs/41577580277) and [PR CI 41577585763](https://github.com/oz-coden/Simpludify/actions/runs/41577585763) both passed quality: 62 files / 827 unit tests, unchanged timeout limits. Windows/Linux filesystem boundary jobs succeeded. Remaining jobs were still running when this entry was written.
+- Local full unit runs (default workers, then two workers) each timed out in the pre-existing Prism Raid 100,000-step churn test. Running that unchanged suite alone passed all 20 tests in 4.20 seconds. These local failures are retained as failures; isolated CI provides the complete-suite result.
+- Both documentation bases passed local builds, 73-page / 5099-reference link checks and 65 standalone snippet checks.
+- The standard local Playwright browser download returned truncated ZIP archives. A temporary Chromium 153 installation outside the repository was used for a focused CSSOM test only; standard Playwright Chromium in CI remains authoritative for the full browser matrix.
+- The new CSSOM browser test initially expected an inline `position` value that belongs to the stylesheet. Its assertion was corrected to verify absence of injected positioning plus the actual geometry/custom color properties. The corrected test passed locally (1/1); no production behavior was changed for that assertion.
+- Candidate Canvas2D tests passed all 11 cases for desktop/320/390, and WebGL 320 passed all 11, with all 35 world tests in each disposable consumer. The 320px Canvas2D screenshot was inspected: controls/text stayed within the viewport and the log panel retained its focus outline. Remaining consumer projects are pending.

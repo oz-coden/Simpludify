@@ -79,6 +79,14 @@ it("restricts PixiRenderer image acquisition to safe asset URL protocols", async
   await expect(
     acquire.call(fake, "data:image/svg+xml,<svg/>", signal),
   ).resolves.toBe("data:image/svg+xml,<svg/>");
+  for (const href of [
+    "http://game.example/hero.png?version=1#frame",
+    "https://user:pass@game.example/hero.png",
+    "blob:https://game.example/1234",
+    "file:///game/assets/hero.png",
+  ]) {
+    await expect(acquire.call(fake, href, signal)).resolves.toBe(href);
+  }
   for (const unsafe of [
     "javascript:alert(1)",
     "vbscript:msgbox(1)",

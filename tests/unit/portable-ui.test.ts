@@ -277,6 +277,8 @@ it("rejects blank or CSS-injecting fontFamily values while accepting standard fo
     "sans-serif} body { display:none",
     "url(https://evil.example/font)",
     "sans-serif\ncolor:red",
+    '"safe"; position:fixed',
+    '"unterminated',
   ]) {
     expect(() => CanvasLabel("bad", { fontFamily: bad })).toThrow(
       expect.objectContaining({ code: "INVALID_UI" }),
