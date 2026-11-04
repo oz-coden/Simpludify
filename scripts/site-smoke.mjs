@@ -129,7 +129,30 @@ try {
       const element = await page.locator("iframe").elementHandle();
       const frame = await element.contentFrame();
       await frame.waitForSelector("canvas");
-      if (example.id === "unified-input") {
+      if (example.id === "virtual-input") {
+        await frame
+          .getByRole("heading", { name: "Virtual input · move + aim" })
+          .waitFor();
+        await frame.waitForFunction(
+          () => window.virtualLab?.game.engine.scene.state === "active",
+        );
+        await frame
+          .getByRole("button", { name: "Stick: fixed", exact: true })
+          .press("Enter");
+        await frame
+          .getByRole("button", { name: "Stick: floating", exact: true })
+          .waitFor();
+        await frame
+          .getByRole("button", { name: "Hide input UI", exact: true })
+          .press("Enter");
+        assert.equal(
+          await frame.evaluate(() => window.virtualLab.current.virtual.visible),
+          false,
+        );
+        await frame
+          .getByRole("button", { name: "Show input UI", exact: true })
+          .press("Enter");
+      } else if (example.id === "unified-input") {
         await frame
           .getByRole("heading", { name: "Unified input · 2 players" })
           .waitFor();
@@ -351,6 +374,7 @@ try {
         });
         await targetFrame.evaluate(() => {
           const game =
+            window.virtualLab?.game ??
             window.inputLab?.game ??
             window.integration?.game ??
             window.geometryDemo?.game ??

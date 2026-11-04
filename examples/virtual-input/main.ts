@@ -234,4 +234,15 @@ game.scene("play", (context) => {
   game.resume();
   current = createLab(context);
 });
-void startExample(game, "play");
+// Live diagnostics are also used by the built-site acceptance fixture.
+Object.assign(window, {
+  virtualLab: {
+    game,
+    Actions,
+    get current() {
+      return current;
+    },
+  },
+});
+await startExample(game, "play");
+if (import.meta.hot) import.meta.hot.dispose(() => game.dispose());

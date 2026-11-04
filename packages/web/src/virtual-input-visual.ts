@@ -23,6 +23,7 @@ export class VirtualInputVisual implements VirtualInputPresentation {
     private readonly release: (graphics: Graphics) => void,
   ) {
     this.display.eventMode = "none";
+    this.display.sortableChildren = true;
     this.display.zIndex = 0.5;
     this.off = input.onDispose(() => this.dispose());
   }
@@ -46,6 +47,7 @@ export class VirtualInputVisual implements VirtualInputPresentation {
       let entry = this.entries.get(control);
       if (!entry) {
         entry = { graphics: new Graphics(), signature: "" };
+        entry.graphics.zIndex = control.kind === "button" ? 1 : 0;
         this.entries.set(control, entry);
         this.display.addChild(entry.graphics);
       }

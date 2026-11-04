@@ -114,6 +114,9 @@ jobs:
       - run: node scripts/site-tilemap-live.mjs
         env:
           SITE_BASE: ${{ matrix.base }}
+      - run: node scripts/site-virtual-input-live.mjs
+        env:
+          SITE_BASE: ${{ matrix.base }}
       - run: node scripts/site-unified-input-live.mjs
         env:
           SITE_BASE: ${{ matrix.base }}
@@ -282,6 +285,9 @@ jobs:
       - run: node scripts/site-tile-geometry-live.mjs
         env:
           SITE_URL: https://github.oz-coden.com/Simpludify/
+      - run: node scripts/site-virtual-input-live.mjs
+        env:
+          SITE_URL: https://github.oz-coden.com/Simpludify/
       - run: node scripts/site-unified-input-live.mjs
         env:
           SITE_URL: https://github.oz-coden.com/Simpludify/
@@ -291,6 +297,7 @@ jobs:
           name: published-sample-validation
           path: |
             test-results/site/unified-input-live.json
+            test-results/site/virtual-input-live.json
             test-results/site/sdk-integration-live.json
             test-results/site/tween-live.json
             test-results/site/tilemap-live.json

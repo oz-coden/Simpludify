@@ -131,7 +131,7 @@ export class Game<SceneId extends string = string> {
         "Renderer does not support virtual input presentation",
       );
     const presentation = renderer.prepareVirtualInput(input);
-    scene.onDispose(() => presentation.dispose());
+    input.onDispose(() => presentation.dispose());
     return presentation;
   }
   private canvas: CanvasUI | undefined;
