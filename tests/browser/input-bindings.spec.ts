@@ -20,7 +20,7 @@ async function worldPoint(page: Page) {
   return page.evaluate(() => {
     const { game } = window.bindingLab,
       r = game.element.getBoundingClientRect(),
-      v = game.viewport;
+      v = game.view.clip;
     return {
       x: r.left + ((v.x + v.width * 0.55) * r.width) / game.element.clientWidth,
       y: r.top + ((v.y + v.height * 0.72) * r.height) / game.element.clientHeight,
