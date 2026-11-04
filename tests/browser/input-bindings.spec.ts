@@ -131,9 +131,13 @@ for (const fallback of [false, true])
       expect((await state(page)).jump).toBe(true);
       await page.mouse.up({ button: "right" });
       expect((await state(page)).jump).toBe(false);
-      await page
-        .getByRole("button", { name: "Canvas UI", exact: true })
-        .click();
+      const uiPoint = await page.evaluate(() => {
+        const { game, current: c } = window.bindingLab;
+        const b = c.canvasButton.bounds,
+          r = game.element.getBoundingClientRect();
+        return { x: r.left + b.x + b.width / 2, y: r.top + b.y + b.height / 2 };
+      });
+      await page.mouse.click(uiPoint.x, uiPoint.y);
       expect(await state(page)).toMatchObject({ clicks: 1, jump: false });
       // A mouse-owned virtual stick must not also trigger the mouse Button binding.
       const stick = await page.evaluate(() => {
@@ -288,9 +292,10 @@ for (const fallback of [false, true])
         "owner",
       ] as const) {
         await page.locator(".simpludify").focus();
-        const result = await page.evaluate(async (kind) => {
+        const result = await page.evaluate(async ({ kind, core }) => {
           const { game } = window.bindingLab;
-          const owner = new (await import("@simpludify/core")).Lifetime();
+          const { Lifetime } = await import(core);
+          const owner = new Lifetime();
           const capture = game.captureInput({ devices: ["keyboard"], owner });
           if (kind === "cancel") capture.cancel();
           if (kind === "blur") window.dispatchEvent(new Event("blur"));
@@ -305,7 +310,7 @@ for (const fallback of [false, true])
             result: await capture.result,
             live: game.engine.input.liveInput,
           };
-        }, kind);
+        }, { kind, core: `/@fs/${process.cwd()}/packages/core/src/index.ts` });
         expect(result).toEqual({
           state: "cancelled",
           result: undefined,

@@ -61,3 +61,12 @@ Portable Core InputCapture now provides arming/listening/completed/cancelled sta
 New input-bindings example uses existing DOM/Canvas controls, one Character/controller, common bindings, runtime capture/add, save/restore/reset and existing virtual controls. It introduces no settings widget. New browser cases cover five button masks/chording, UI/virtual ownership, keyboard/pad OR, runtime persistence, mouse/keyboard/pad capture, held opening gesture, modifiers/Escape and cancel/blur/pause/Scene/owner/final cleanup across both renderers/viewports. These browser cases are not yet run.
 
 Capture/common targeted unit tests pass 29/29. The initial capture fixture used nonexistent KeyCode.KeyE rather than the existing KeyCode.E name; corrected without changing the finite key table. Type checking caught sample misuse of assign(index) and unsupported absolute CanvasStyle fields; the sample now uses existing assignment and flex layout APIs. Full checks, browser regressions, consumer extensions, bilingual docs and final integration remain pending.
+
+
+## Browser checkpoint and host interruption
+
+Capture/session/sample checkpoint: `a7ec93df73ece6f49f1f16d2420074e009171532`. The first local desktop browser run passed 4/8: two cases attempted a pointer click on the keyboard-only Canvas accessibility mirror, and two used an unresolved bare module specifier from page.evaluate. Fixtures now click actual Canvas bounds and pass the Core module URL from process.cwd(); no ownership implementation or assertions were weakened. The corrected local run passed 8/8, both WebGL and Canvas2D, using supplemental Chromium 153.
+
+At 2026-11-05 00:10 JST the execution/browser environment became unavailable. This interrupted the next documentation checkpoint; draft documentation/consumer edits had not yet been pushed. No final local full-suite/consumer/site result is claimed. The saved GitHub branch remains the implementation baseline; corrected fixtures and subsequent documentation are being restored directly through repository APIs, with normal CI as the executable verification environment. A local static check before the interruption had passed 655 files with unchanged 16 warnings and 12 infos, architecture, SDK version and 116 dependency licenses; that result applies to the then-local candidate, not later remote edits.
+
+Pending: restore paired documentation and extended package consumers, verify full CI, inspect failures, integrate only after successful validation, and record final main CI. No v0.1.6 publication is authorized or performed.
