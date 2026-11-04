@@ -32,3 +32,5 @@ Before long-running verification or integration, commit implementation and updat
 - [Unified input, gamepads and bilingual documentation — v0.1.4](2026-11-03-unified-input-v0.1.4.md): PR #15 merged as aa7e5ba; 842 unit / 404 browser tests, Windows/Linux packages, six candidate consumers, main CI and Pages acceptance passed. npm publication is recorded in the separate v0.1.4 release report.
 
 - [v0.1.4 publication and public-registry verification](2026-11-03-v0.1.4-publication.md): Core/Web published through OIDC from 84a5f1b; exact registry archives, clean consumers, TypeScript, production build, program input and gamepad API checks passed.
+
+- [Virtual sticks and generic pointer input — v0.1.5](2026-11-04-virtual-input-v0.1.5.md): design checkpoint; implementation and verification in progress; no npm publication.
