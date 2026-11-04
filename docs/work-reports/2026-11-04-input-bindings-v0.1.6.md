@@ -80,3 +80,8 @@ Paired English/Japanese Binding guides, CLI/site sample registration and API/Act
 ## Consumer restoration checkpoint
 
 External candidate-archive validation now imports the public portable capture API without DOM/Node ambient types and exercises version-1 save/restore, actual keyboard/mouse input, keyboard+pad OR and capture-result rebinding in the installed Web consumer. Existing dev/production/subpath and 1280/390/320 viewport checks remain. Browser capture cleanup now also covers editing focus, explicit input reset and the Replay input lock. These restored checks await CI; the execution environment is still unavailable. Earlier six independent frozen consumer regressions remain unchanged.
+
+
+## CI follow-up
+
+Candidate `ffdc721a93615d81fb7e75ad62f965bef9bd3952` [CI 41855786767](https://github.com/oz-coden/Simpludify/actions/runs/41855786767) passed the extended Linux package consumer: Core-only Node/strict types, Web transitive dependency install, declarations, Vite subpath build and all six development/production viewport exercises including new bindings/capture. Static validation found one formatting error in the consumer script; short assertions are normalized. Site smoke exposed the new sample's DOM panel covering its generic fixed canvas click. The panel now uses the existing wrapping Row layout and the gallery's generic keyboard-motion check focuses this sample's host directly. This does not bypass pointer ownership tests, which use actual world/UI/stick coordinates in the dedicated suite. The remaining jobs were still running when these fixes were prepared.

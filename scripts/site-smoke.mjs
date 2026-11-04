@@ -350,7 +350,10 @@ try {
           await frame
             .getByRole("button", { name: "Add beacon", exact: true })
             .click();
-        await frame.locator("canvas").click({ position: { x: 50, y: 450 } });
+        if (example.id === "input-bindings")
+          await frame.locator(".simpludify").focus();
+        else
+          await frame.locator("canvas").click({ position: { x: 50, y: 450 } });
         const before = await frame.evaluate(() =>
           document.querySelector("canvas").toDataURL(),
         );

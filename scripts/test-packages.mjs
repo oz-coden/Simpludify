@@ -442,10 +442,7 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
         );
         await page.mouse.move(worldCenter.x, worldCenter.y);
         await page.mouse.down();
-        assert.equal(
-          await page.evaluate(() => window.packageProbe.jump),
-          true,
-        );
+        assert.equal(await page.evaluate(() => window.packageProbe.jump), true);
         await page.mouse.up();
         await page.keyboard.down("Space");
         await page.evaluate(() => {
@@ -453,10 +450,7 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
           window.packageProbe.game.engine.step(0);
         });
         await page.keyboard.up("Space");
-        assert.equal(
-          await page.evaluate(() => window.packageProbe.jump),
-          true,
-        );
+        assert.equal(await page.evaluate(() => window.packageProbe.jump), true);
         await page.evaluate(() => {
           window.consumerPad.buttons[0] = { value: 0, pressed: false };
           window.packageProbe.game.engine.step(0);
@@ -473,10 +467,7 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
         );
         await page.keyboard.up("Control");
         await page.keyboard.down("Control");
-        assert.equal(
-          await page.evaluate(() => window.packageProbe.jump),
-          true,
-        );
+        assert.equal(await page.evaluate(() => window.packageProbe.jump), true);
         await page.keyboard.up("Control");
         await page.keyboard.down("d");
         await page.waitForFunction(

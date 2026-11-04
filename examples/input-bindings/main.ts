@@ -13,6 +13,7 @@ import {
   KeyboardBindings,
   KeyCode,
   Label,
+  Layout,
   MouseButton,
   Panel,
 } from "@simpludify/web";
@@ -127,7 +128,7 @@ function createLab(context: Parameters<Parameters<typeof game.scene>[1]>[0]) {
           controls.resetBindings(Actions.Jump);
         }),
       ],
-      { title: "Input bindings" },
+      { title: "Input bindings", layout: Layout.Row },
     ),
   );
   const canvasButton = CanvasButton(
