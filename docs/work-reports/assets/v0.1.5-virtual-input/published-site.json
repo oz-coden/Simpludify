@@ -1,0 +1,170 @@
+{
+  "site": "https://github.oz-coden.com/Simpludify/",
+  "source": "ffde5129985c3027d74ca9bc3cbd28178e0c6dd4",
+  "cases": [
+    {
+      "width": 1440,
+      "renderer": "webgl",
+      "state": {
+        "ids": [2, 3],
+        "move": {
+          "x": 1,
+          "y": 0
+        },
+        "aim": {
+          "x": -1,
+          "y": 0
+        }
+      },
+      "neutral": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        false
+      ],
+      "handoff": {
+        "move": {
+          "x": 0.5,
+          "y": 0
+        },
+        "id": "player",
+        "sameActor": true
+      },
+      "cleanup": {
+        "disposed": true,
+        "sources": 0,
+        "hosts": 0,
+        "captures": 0
+      },
+      "errors": []
+    },
+    {
+      "width": 1440,
+      "renderer": "canvas2d",
+      "state": {
+        "ids": [2, 3],
+        "move": {
+          "x": 1,
+          "y": 0
+        },
+        "aim": {
+          "x": -1,
+          "y": 0
+        }
+      },
+      "neutral": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        false
+      ],
+      "handoff": {
+        "move": {
+          "x": 0.5,
+          "y": 0
+        },
+        "id": "player",
+        "sameActor": true
+      },
+      "cleanup": {
+        "disposed": true,
+        "sources": 0,
+        "hosts": 0,
+        "captures": 0
+      },
+      "errors": []
+    },
+    {
+      "width": 390,
+      "renderer": "webgl",
+      "state": {
+        "ids": [2, 3],
+        "move": {
+          "x": 1,
+          "y": 0
+        },
+        "aim": {
+          "x": -1,
+          "y": 0
+        }
+      },
+      "neutral": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        false
+      ],
+      "handoff": {
+        "move": {
+          "x": 0.5,
+          "y": 0
+        },
+        "id": "player",
+        "sameActor": true
+      },
+      "cleanup": {
+        "disposed": true,
+        "sources": 0,
+        "hosts": 0,
+        "captures": 0
+      },
+      "errors": []
+    },
+    {
+      "width": 390,
+      "renderer": "canvas2d",
+      "state": {
+        "ids": [2, 3],
+        "move": {
+          "x": 1,
+          "y": 0
+        },
+        "aim": {
+          "x": -1,
+          "y": 0
+        }
+      },
+      "neutral": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        false
+      ],
+      "handoff": {
+        "move": {
+          "x": 0.5,
+          "y": 0
+        },
+        "id": "player",
+        "sameActor": true
+      },
+      "cleanup": {
+        "disposed": true,
+        "sources": 0,
+        "hosts": 0,
+        "captures": 0
+      },
+      "errors": []
+    }
+  ]
+}

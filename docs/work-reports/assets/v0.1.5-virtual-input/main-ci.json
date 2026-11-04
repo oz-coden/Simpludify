@@ -1,0 +1,94 @@
+{
+  "sourceCommit": "ffde5129985c3027d74ca9bc3cbd28178e0c6dd4",
+  "workflow": "https://github.com/oz-coden/Simpludify/actions/runs/41820432088",
+  "conclusion": "success",
+  "units": 861,
+  "browserCases": 424,
+  "liveCases": 4,
+  "jobs": [
+    {
+      "name": "sdk-starter (windows-latest)",
+      "conclusion": "success"
+    },
+    {
+      "name": "browser (narrow, 2)",
+      "conclusion": "success"
+    },
+    {
+      "name": "packages (windows-latest)",
+      "conclusion": "success"
+    },
+    {
+      "name": "production",
+      "conclusion": "success"
+    },
+    {
+      "name": "browser (desktop, 2)",
+      "conclusion": "success"
+    },
+    {
+      "name": "browser (desktop, 1)",
+      "conclusion": "success"
+    },
+    {
+      "name": "sdk-consumer (narrow-canvas2d)",
+      "conclusion": "success"
+    },
+    {
+      "name": "site-bases (/, root)",
+      "conclusion": "success"
+    },
+    {
+      "name": "sdk-consumer (compact-canvas2d)",
+      "conclusion": "success"
+    },
+    {
+      "name": "packages (ubuntu-latest)",
+      "conclusion": "success"
+    },
+    {
+      "name": "sdk-starter (ubuntu-latest)",
+      "conclusion": "success"
+    },
+    {
+      "name": "browser (narrow, 1)",
+      "conclusion": "success"
+    },
+    {
+      "name": "tooling-paths (windows-latest)",
+      "conclusion": "success"
+    },
+    {
+      "name": "sdk-consumer (narrow)",
+      "conclusion": "success"
+    },
+    {
+      "name": "sdk-consumer (desktop-canvas2d)",
+      "conclusion": "success"
+    },
+    {
+      "name": "tooling-paths (ubuntu-latest)",
+      "conclusion": "success"
+    },
+    {
+      "name": "sdk-consumer (desktop)",
+      "conclusion": "success"
+    },
+    {
+      "name": "site-bases (/Simpludify/, project)",
+      "conclusion": "success"
+    },
+    {
+      "name": "sdk-consumer (compact)",
+      "conclusion": "success"
+    },
+    {
+      "name": "quality",
+      "conclusion": "success"
+    },
+    {
+      "name": "deploy",
+      "conclusion": "success"
+    }
+  ]
+}

@@ -1,5 +1,15 @@
 # Virtual sticks and generic pointer input — v0.1.5
 
+## Completion — 2026-11-04 20:40 JST
+
+Implementation is integrated on main. Verified/deployed source: [`ffde5129985c3027d74ca9bc3cbd28178e0c6dd4`](https://github.com/oz-coden/Simpludify/commit/ffde5129985c3027d74ca9bc3cbd28178e0c6dd4). [Final main CI 41820432088](https://github.com/oz-coden/Simpludify/actions/runs/41820432088) passed all 20 validation jobs plus Pages deployment and published acceptance: 861 unit / 424 browser cases, Windows/Linux SDK archives, six external consumer configurations and both site bases.
+
+The published virtual-input lab passed all four width/renderer combinations (1440/390 CSS pixels × WebGL/Canvas2D), with fixed pointer identity after crossing, independent third-pointer release, neutral cancellation, Actor-preserving program handoff and zero remaining sources/hosts/captures or page errors. [Persisted published result](assets/v0.1.5-virtual-input/published-site.json), [final main CI summary](assets/v0.1.5-virtual-input/main-ci.json). The original uploaded artifact is `published-sample-validation` (13316564827); the committed JSON remains recoverable after artifact expiry.
+
+Live HTTP checks returned 200 for the [sample](https://github.oz-coden.com/Simpludify/play/virtual-input/index.html), [Japanese guide](https://github.oz-coden.com/Simpludify/guides/virtual-input.html) and [English guide](https://github.oz-coden.com/Simpludify/en/virtual-input.html). Initial Pages API 500/502 failures below were followed by successful normal deployment in the final run; they did not require product/workflow changes.
+
+The concluding record/evidence-only commit uses `[skip ci]` to avoid recursively rerunning the complete runtime suite for its own result. Its Markdown/JSON formatting, static/version/architecture/license checks are verified locally. Runtime/build/workflow/manifests remain exactly those validated and deployed from ffde512; this report commit is not presented as a separately tested runtime revision. No v0.1.5 npm publication, Git tag or GitHub Release was created. Physical-device and non-Chromium limits below remain unverified.
+
 ## Baseline and scope
 
 - Baseline main: `02ac22b487912e1403163c92dc35384f9cc44aed`; [CI 41629951815](https://github.com/oz-coden/Simpludify/actions/runs/41629951815) passed all 20 validation jobs plus Pages deployment. Registry Core/Web remain published 0.1.4.
