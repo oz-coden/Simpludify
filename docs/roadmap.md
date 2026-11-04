@@ -4,6 +4,8 @@ Simpludify has an experimental Web runtime and a generic composition-based Core.
 
 ## Included
 
+- [Virtual sticks and pointer controls](virtual-input.md): fixed/floating/follow Axis2D sticks, optional-direction Button controls, explicit activation regions, fixed pointer-ID ownership and existing ActionSource composition; independent visibility/enablement and WebGL/Canvas2D presentation. Physical-device and non-Chromium verification remain outside automated coverage.
+
 - Generic numeric Tween, Scene simulation/display clocks, lifetime/channel ownership, sequence/parallel, Actor draw and Canvas/Slider adapters; [contracts and limitations](tween.md).
 
 - [Portable scroll input](scrolling.md): touch/mouse content arbitration, per-node momentum, overlay scrollbar controls, nested/multipointer ownership, keyboard commands and cached projection; [measurements](scroll-performance.md).

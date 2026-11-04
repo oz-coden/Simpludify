@@ -46,3 +46,49 @@ Checkpoint `add053021cbe013fb2eab40489b325854472f836` preserves the paired docs 
 The added actual-pixel/visibility/independent-provider lifecycle cases pass 4/4 across both renderers/viewports. A follow-up focused run of those and capture/focus/resize/Scene cases passes 8/8 after the final provider cleanup changes. Provider presentations are owned by the provider lifetime, avoiding retained Scene cleanup closures across explicit provider recreation. Virtual buttons paint above sticks regardless of creation order, consistent with input arbitration. No runtime dependency was added.
 
 The sample now exposes the same live diagnostics/HMR cleanup pattern as existing official labs. Gallery smoke explicitly switches its mode and visibility and verifies iframe stop/restart resource cleanup. A built/published-site acceptance script exercises actual CDP crossing, third-pointer release, neutral cancellation, Actor-preserving program handoff and Scene/final cleanup in four renderer/viewport combinations; it is included in both site-base jobs and post-Pages acceptance. Execution of this latest built-site script and final-head CI are pending. No npm release/tag/publication workflow has run.
+
+## Final validation and support record
+
+### Changed surface
+
+- Core: `interaction/virtual-regions.ts`, `virtual-control.ts`, `virtual-input.ts`, internal target port and existing PointerRouting/InputSystem integration; public barrel exports. No DOM, Node or new runtime dependency enters Core.
+- Web: Scene-context/Game access, browser focus/capture release and Pixi presentation/resource diagnostics, below ordinary Canvas UI. Existing ActionController/Character identities remain stable.
+- Executable documentation: `examples/virtual-input`, paired English/Japanese guides, API/architecture/Action references and gallery routes. Candidate manifests, lock and ENGINE_VERSION are 0.1.5; registry/starter pins stay 0.1.4.
+- Verification: dedicated unit/browser suites, external tarball consumers, gallery and built/live-site acceptance; the latter also runs after Pages deployment.
+
+### Local commands and evidence
+
+| Check                                                      | Result                                                                                                                                                                                      |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run check`                                            | Passed: 630 files; architecture/version/license validation; 116 reviewed dependencies. Existing 16 warnings / 12 informational diagnostics remain.                                          |
+| `npm test -- --maxWorkers=2`                               | 861/861 tests, including 19 virtual-input tests.                                                                                                                                            |
+| New browser suite and focused follow-up                    | All 20 added cases passed across both renderers and viewports; latest lifecycle/pixel rerun 8/8.                                                                                            |
+| `npm run test:packages`                                    | Passed external Core/Web archives, strict NodeNext/types, dependency/export checks and development/production browser consumers.                                                            |
+| `site:build` / `site:check`, both bases                    | Passed 94 HTML documents and 82 independent TypeScript examples; latest project-base check resolved 8,305 references.                                                                       |
+| `CHROMIUM_PATH=… npm run test:site`                        | Passed built project-base gallery/docs/playables, including mode/visibility and iframe stop/restart cleanup.                                                                                |
+| `CHROMIUM_PATH=… node scripts/site-virtual-input-live.mjs` | Passed four renderer/viewport combinations: actual CDP crossing, third-pointer release, neutral cancellation, visibility, same-Actor program handoff and complete disposal; no page errors. |
+
+Durable verification evidence: [successful feature CI summary](assets/v0.1.5-virtual-input/feature-ci.json); supplemental local evidence: [built-site acceptance](assets/v0.1.5-virtual-input/built-site-local.json), [gallery acceptance](assets/v0.1.5-virtual-input/gallery-local.json). These files identify source commit and local browser; their ephemeral localhost URLs are observation origins, not published endpoints. Desktop/narrow screenshots were also visually inspected for the built sample.
+
+The standard local Playwright Chromium 156 download returned truncated ZIP data. Local browser runs therefore used npm-distributed Chromium 153.0.8010.0 with SwiftShader via CHROMIUM_PATH, installed outside the repository; normal CI remains on its pinned Playwright browser. This does not change the lockfile or supported-browser claims.
+
+### Limits
+
+Physical phones/tablets/touch PCs, physical pens/gamepads, browser/OS gesture policies, Safari/Firefox, real GPU performance, pen pressure/tilt and assistive technologies were not hardware-certified. Synthetic CDP touch and emulated viewport tests establish pointer identity/lifecycle behavior, not vendor compatibility. Custom-region bounds are deliberately conservative: intersecting same-priority bounds are rejected even when predicates could be disjoint. Painted virtual buttons do not add separate native keyboard focus targets; provide keyboard/gamepad/Canvas alternatives through the existing Actions. Game-specific skill targeting, cooldowns and damage remain application code.
+
+No v0.1.5 npm package, Git tag or GitHub Release was published. Read-only registry checks during final validation still returned Core/Web latest 0.1.4.
+
+## Integration
+
+- Feature validation: [`daa984010c2718c40fe7cbb5f31c3cd4b4a8862d`](https://github.com/oz-coden/Simpludify/commit/daa984010c2718c40fe7cbb5f31c3cd4b4a8862d), [CI 41817718266](https://github.com/oz-coden/Simpludify/actions/runs/41817718266): all 20 validation jobs passed; branch deployment correctly skipped. The four browser shards passed 111 + 101 + 111 + 101 = 424 cases, with no retry.
+- Main fast-forward: `02ac22b487912e1403163c92dc35384f9cc44aed` → `daa984010c2718c40fe7cbb5f31c3cd4b4a8862d`, 2026-11-04 20:11 JST. The expected-head lease confirmed no intervening main change.
+- Integration main CI: [41819188872](https://github.com/oz-coden/Simpludify/actions/runs/41819188872); all 20 validation jobs passed. Initial Pages deployment failed before checkout/acceptance because the deployment API returned HTTP 500 (job 126539955988, request F01A:B0055:E21B1C:2EA4A78:6AEB14AC). Only that failed infrastructure job was retried; code, tests, timeouts and retry settings were unchanged. Attempt 2 failed with HTTP 502 before acceptance (job 126540587617, request 1432:1A5196:E9370B:2FFE479:6AEB14E1). Therefore this integration run has overall failure despite all 20 validation jobs passing; it is not evidence of successful Pages deployment or live acceptance.
+
+- At 20:20 JST the [official GitHub status summary](https://www.githubstatus.com/api/v2/summary.json) reported Actions degraded performance and Pages operational. The observed deployment API 500/502 responses are infrastructure errors; a causal connection to the announced incident is not established.
+- Final report/roadmap/evidence changes contain no runtime code. Their push uses the unchanged normal main workflow, including Pages and published virtual-input acceptance. [Main CI history](https://github.com/oz-coden/Simpludify/actions/workflows/ci.yml?query=branch%3Amain) identifies the latest report commit and its deployment result; the source validation above remains pinned to the implementation SHA.
+
+### Recovery and acceptance
+
+All implementation files and initial checkpoints are on main, with the complete feature branch retained. To resume after an infrastructure interruption, inspect the latest main workflow and Pages deployment first. When validation jobs are already successful and deployment alone failed with a transient service error, retry only that failed deploy job; do not publish npm, create a release/tag or alter tests to resolve deployment. Published acceptance must run against the deployed sample, not a local build. The CI artifact `published-sample-validation/virtual-input-live.json` records four live cases and exact source SHA after a successful deployment.
+
+Source and built-site implementation acceptance is complete: three stick modes, configurable geometry/dead zone, independent visibility/enablement, pointer identity/priority/lifecycle, optional-direction buttons/holds/release, existing ActionSource composition, resizing, sample and bilingual contracts. Deployment attempts and automated live results are available in main CI history. Physical/non-Chromium limits above remain open.

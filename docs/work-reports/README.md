@@ -33,4 +33,4 @@ Before long-running verification or integration, commit implementation and updat
 
 - [v0.1.4 publication and public-registry verification](2026-11-03-v0.1.4-publication.md): Core/Web published through OIDC from 84a5f1b; exact registry archives, clean consumers, TypeScript, production build, program input and gamepad API checks passed.
 
-- [Virtual sticks and generic pointer input — v0.1.5](2026-11-04-virtual-input-v0.1.5.md): Core/Web candidate implemented; 861 unit tests, 20 new browser cases, external archives and paired guides checked; final CI/built-site acceptance pending; no npm publication.
+- [Virtual sticks and generic pointer input — v0.1.5](2026-11-04-virtual-input-v0.1.5.md): Implemented and verified on main daa9840: 861 unit / 424 browser tests, external archives and paired guides; deployment history and main CI links in report; no npm publication.

@@ -1,0 +1,155 @@
+{
+  "sourceCommit": "daa984010c2718c40fe7cbb5f31c3cd4b4a8862d",
+  "environment": "Local Node 24.22.1; supplemental Chromium 153, SwiftShader; built /Simpludify/ site",
+  "result": {
+    "site": "http://127.0.0.1:42279/Simpludify/",
+    "served": "local",
+    "browser": "153.0.8010.0",
+    "sharedImages": [
+      {
+        "backend": "webgl",
+        "loads": 1,
+        "before": {
+          "presentations": 1,
+          "visuals": 43,
+          "textures": 0,
+          "imageReferences": 0,
+          "imageEntries": 0,
+          "pendingImages": 0
+        },
+        "shared": {
+          "presentations": 1,
+          "visuals": 143,
+          "textures": 1,
+          "imageReferences": 100,
+          "imageEntries": 1,
+          "pendingImages": 0
+        },
+        "red": [255, 0, 0],
+        "blue": [0, 0, 255],
+        "survivor": [0, 0, 255],
+        "afterOne": {
+          "presentations": 1,
+          "visuals": 142,
+          "textures": 1,
+          "imageReferences": 99,
+          "imageEntries": 1,
+          "pendingImages": 0
+        },
+        "afterLast": {
+          "presentations": 1,
+          "visuals": 43,
+          "textures": 0,
+          "imageReferences": 0,
+          "imageEntries": 0,
+          "pendingImages": 0
+        },
+        "disposed": {
+          "presentations": 0,
+          "visuals": 0,
+          "textures": 0,
+          "imageReferences": 0,
+          "imageEntries": 0,
+          "pendingImages": 0
+        }
+      },
+      {
+        "backend": "canvas2d",
+        "loads": 1,
+        "before": {
+          "presentations": 1,
+          "visuals": 43,
+          "textures": 0,
+          "imageReferences": 0,
+          "imageEntries": 0,
+          "pendingImages": 0
+        },
+        "shared": {
+          "presentations": 1,
+          "visuals": 143,
+          "textures": 1,
+          "imageReferences": 100,
+          "imageEntries": 1,
+          "pendingImages": 0
+        },
+        "red": [255, 0, 0],
+        "blue": [0, 0, 255],
+        "survivor": [0, 0, 255],
+        "afterOne": {
+          "presentations": 1,
+          "visuals": 142,
+          "textures": 1,
+          "imageReferences": 99,
+          "imageEntries": 1,
+          "pendingImages": 0
+        },
+        "afterLast": {
+          "presentations": 1,
+          "visuals": 43,
+          "textures": 0,
+          "imageReferences": 0,
+          "imageEntries": 0,
+          "pendingImages": 0
+        },
+        "disposed": {
+          "presentations": 0,
+          "visuals": 0,
+          "textures": 0,
+          "imageReferences": 0,
+          "imageEntries": 0,
+          "pendingImages": 0
+        }
+      }
+    ],
+    "results": [
+      {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "pages": 80,
+        "samples": 14,
+        "keyboard": true,
+        "syntheticTouch": true,
+        "theme": true,
+        "hostCleanupAll": true,
+        "inspectedEngineCleanup": [
+          "tile-geometry",
+          "tween",
+          "canvas-ui",
+          "tilemap",
+          "prism-raid",
+          "blockfall",
+          "ui-scenes",
+          "signal-run"
+        ],
+        "failures": []
+      },
+      {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "pages": 80,
+        "samples": 14,
+        "keyboard": true,
+        "syntheticTouch": true,
+        "theme": true,
+        "hostCleanupAll": true,
+        "inspectedEngineCleanup": [
+          "tile-geometry",
+          "tween",
+          "canvas-ui",
+          "tilemap",
+          "prism-raid",
+          "blockfall",
+          "ui-scenes",
+          "signal-run"
+        ],
+        "failures": []
+      }
+    ],
+    "startupFailureFallback": true,
+    "webglUnavailableCharacterCanvasFallback": true
+  }
+}

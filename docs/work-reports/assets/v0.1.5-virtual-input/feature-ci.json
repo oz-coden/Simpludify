@@ -1,0 +1,93 @@
+{
+  "sourceCommit": "daa984010c2718c40fe7cbb5f31c3cd4b4a8862d",
+  "workflow": "https://github.com/oz-coden/Simpludify/actions/runs/41817718266",
+  "conclusion": "success",
+  "units": 861,
+  "browserCases": 424,
+  "jobs": [
+    {
+      "name": "sdk-consumer (narrow)",
+      "conclusion": "success"
+    },
+    {
+      "name": "browser (narrow, 1)",
+      "conclusion": "success"
+    },
+    {
+      "name": "sdk-consumer (desktop)",
+      "conclusion": "success"
+    },
+    {
+      "name": "sdk-starter (windows-latest)",
+      "conclusion": "success"
+    },
+    {
+      "name": "packages (ubuntu-latest)",
+      "conclusion": "success"
+    },
+    {
+      "name": "sdk-consumer (narrow-canvas2d)",
+      "conclusion": "success"
+    },
+    {
+      "name": "site-bases (/, root)",
+      "conclusion": "success"
+    },
+    {
+      "name": "sdk-consumer (compact)",
+      "conclusion": "success"
+    },
+    {
+      "name": "production",
+      "conclusion": "success"
+    },
+    {
+      "name": "sdk-consumer (desktop-canvas2d)",
+      "conclusion": "success"
+    },
+    {
+      "name": "browser (desktop, 1)",
+      "conclusion": "success"
+    },
+    {
+      "name": "packages (windows-latest)",
+      "conclusion": "success"
+    },
+    {
+      "name": "site-bases (/Simpludify/, project)",
+      "conclusion": "success"
+    },
+    {
+      "name": "quality",
+      "conclusion": "success"
+    },
+    {
+      "name": "browser (narrow, 2)",
+      "conclusion": "success"
+    },
+    {
+      "name": "tooling-paths (windows-latest)",
+      "conclusion": "success"
+    },
+    {
+      "name": "browser (desktop, 2)",
+      "conclusion": "success"
+    },
+    {
+      "name": "tooling-paths (ubuntu-latest)",
+      "conclusion": "success"
+    },
+    {
+      "name": "sdk-consumer (compact-canvas2d)",
+      "conclusion": "success"
+    },
+    {
+      "name": "sdk-starter (ubuntu-latest)",
+      "conclusion": "success"
+    },
+    {
+      "name": "deploy",
+      "conclusion": "skipped"
+    }
+  ]
+}
