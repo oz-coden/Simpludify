@@ -1,0 +1,104 @@
+[
+  {
+    "package": "core",
+    "source": "ed3ccc65d7b4c5689dfc14a96ee0bf8e12ecfad3",
+    "statement": {
+      "_type": "https://in-toto.io/Statement/v1",
+      "subject": [
+        {
+          "name": "pkg:npm/%40simpludify/core@0.1.5",
+          "digest": {
+            "sha512": "ebb50aae72c9caac9f195128004c27de00510cf3a16fc8212551750ef8b56d2b3675277ac937cc128a41e6e182a8bb184c075a48822d91de1072acaba57983f7"
+          }
+        }
+      ],
+      "predicateType": "https://slsa.dev/provenance/v1",
+      "predicate": {
+        "buildDefinition": {
+          "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+          "externalParameters": {
+            "workflow": {
+              "ref": "refs/heads/main",
+              "repository": "https://github.com/oz-coden/Simpludify",
+              "path": ".github/workflows/npm-publish.yml"
+            }
+          },
+          "internalParameters": {
+            "github": {
+              "event_name": "workflow_dispatch",
+              "repository_id": "1434399805",
+              "repository_owner_id": "163804408"
+            }
+          },
+          "resolvedDependencies": [
+            {
+              "uri": "git+https://github.com/oz-coden/Simpludify@refs/heads/main",
+              "digest": {
+                "gitCommit": "ed3ccc65d7b4c5689dfc14a96ee0bf8e12ecfad3"
+              }
+            }
+          ]
+        },
+        "runDetails": {
+          "builder": {
+            "id": "https://github.com/actions/runner/github-hosted"
+          },
+          "metadata": {
+            "invocationId": "https://github.com/oz-coden/Simpludify/actions/runs/41842910464/attempts/1"
+          }
+        }
+      }
+    }
+  },
+  {
+    "package": "web",
+    "source": "ed3ccc65d7b4c5689dfc14a96ee0bf8e12ecfad3",
+    "statement": {
+      "_type": "https://in-toto.io/Statement/v1",
+      "subject": [
+        {
+          "name": "pkg:npm/%40simpludify/web@0.1.5",
+          "digest": {
+            "sha512": "b32bf6b085adb5c4103d39b40a34fecc99c73992d4d42fad98758ea65b9524bcbf050803b4e2136e056cea606239897475c6ca3e813af26b5651530aa1136911"
+          }
+        }
+      ],
+      "predicateType": "https://slsa.dev/provenance/v1",
+      "predicate": {
+        "buildDefinition": {
+          "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+          "externalParameters": {
+            "workflow": {
+              "ref": "refs/heads/main",
+              "repository": "https://github.com/oz-coden/Simpludify",
+              "path": ".github/workflows/npm-publish.yml"
+            }
+          },
+          "internalParameters": {
+            "github": {
+              "event_name": "workflow_dispatch",
+              "repository_id": "1434399805",
+              "repository_owner_id": "163804408"
+            }
+          },
+          "resolvedDependencies": [
+            {
+              "uri": "git+https://github.com/oz-coden/Simpludify@refs/heads/main",
+              "digest": {
+                "gitCommit": "ed3ccc65d7b4c5689dfc14a96ee0bf8e12ecfad3"
+              }
+            }
+          ]
+        },
+        "runDetails": {
+          "builder": {
+            "id": "https://github.com/actions/runner/github-hosted"
+          },
+          "metadata": {
+            "invocationId": "https://github.com/oz-coden/Simpludify/actions/runs/41842910464/attempts/1"
+          }
+        }
+      }
+    }
+  }
+]

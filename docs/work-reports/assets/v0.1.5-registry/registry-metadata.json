@@ -1,0 +1,94 @@
+{
+  "checkedAt": "2026-11-04T14:05:29.048Z",
+  "source": "ed3ccc65d7b4c5689dfc14a96ee0bf8e12ecfad3",
+  "packages": [
+    {
+      "name": "@simpludify/core",
+      "status": 200,
+      "version": "0.1.5",
+      "publishedAt": "2026-11-04T14:02:41.995Z",
+      "latest": "0.1.5",
+      "dist": {
+        "shasum": "2e67ac73954fbc90386bb7f37d29e5bd536fb60d",
+        "tarball": "https://registry.npmjs.org/@simpludify/core/-/core-0.1.5.tgz",
+        "fileCount": 73,
+        "integrity": "sha512-67UKrnLJyqyfGVEoAEwn3gBRDPOhb8ghJVF1Dvi1bSs2dSd6yTfMEopB5uGCqLsYTAdaSIItkd4QcqyrpXmD9w==",
+        "signatures": [
+          {
+            "sig": "MEUCIQCpV3GCLtGxTkZ1mERR6ajRHo/x4jHTaE5vEvFqFjAuNAIgOXkNX1lwDBV/Dqd48yHJ3jCjFMmMTUEyddzkTOGt//Y=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+            "sig": "MEQCIB+uhrxSY7kvxwT9gnTLXYACtQ524/PYGdxdTNorZPIRAiBL3J17SyLUlrzsYikqRTqrB6uIF44jC5+aa0ZQziIPZA=="
+          }
+        ],
+        "attestations": {
+          "url": "https://registry.npmjs.org/-/npm/v1/attestations/@simpludify%2fcore@0.1.5",
+          "provenance": {
+            "predicateType": "https://slsa.dev/provenance/v1"
+          }
+        },
+        "unpackedSize": 1103295
+      },
+      "exports": {
+        ".": {
+          "types": "./dist/index.d.ts",
+          "import": "./dist/index.js"
+        },
+        "./package.json": "./package.json"
+      },
+      "engines": {
+        "node": ">=22.12.0"
+      }
+    },
+    {
+      "name": "@simpludify/web",
+      "status": 200,
+      "version": "0.1.5",
+      "publishedAt": "2026-11-04T14:04:25.641Z",
+      "latest": "0.1.5",
+      "dist": {
+        "shasum": "090295a984012df3932dbe51e30a5fe9b2ad0cb1",
+        "tarball": "https://registry.npmjs.org/@simpludify/web/-/web-0.1.5.tgz",
+        "fileCount": 29,
+        "integrity": "sha512-syv2sIWttcQQPTm0CjT+zJnHOZLU1C+tmHWOpluVJLy/BQgDtOITbgVs6mBiOYl0dcbKPoE68mtWUVMKoRNpEQ==",
+        "signatures": [
+          {
+            "sig": "MEUCIGTweft12mIkWtaZAM7JT4ZOBcj9v3DSSEiS74ksuchuAiEAmnlcLMb4mcOFEx3/xPjmVHCP10rF+fvYaMLGmDPXglA=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+            "sig": "MEUCIFg0nlYhYlrPZmgU3qG5pMXRMvlhiEm3WQe/jxesVpazAiEAs1/BDH2apQHPb3YibDZptdGT/uyEfklvmdwvkvvUDBU="
+          }
+        ],
+        "attestations": {
+          "url": "https://registry.npmjs.org/-/npm/v1/attestations/@simpludify%2fweb@0.1.5",
+          "provenance": {
+            "predicateType": "https://slsa.dev/provenance/v1"
+          }
+        },
+        "unpackedSize": 414429
+      },
+      "dependencies": {
+        "pixi.js": "8.22.0",
+        "@simpludify/core": "0.1.5"
+      },
+      "exports": {
+        ".": {
+          "types": "./dist/index.d.ts",
+          "import": "./dist/index.js"
+        },
+        "./style.css": {
+          "types": "./dist/style.css.d.ts",
+          "default": "./dist/style.css"
+        },
+        "./package.json": "./package.json"
+      },
+      "engines": {
+        "node": ">=22.12.0"
+      }
+    }
+  ]
+}
