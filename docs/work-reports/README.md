@@ -1,5 +1,7 @@
 # Work reports
 
+- [v0.1.5 publication and registry verification](2026-11-04-v0.1.5-publication.md): release preparation; exact candidate CI/publication/registry validation pending. v0.1.6 development is separate.
+
 Implementation checkpoints and final verification records live here so repository history is sufficient to resume interrupted work. Each report distinguishes completed checks from plans and records the source revision, branch, changes, verification, limitations and integration status. Keep older reports; add a uniquely named file per task.
 
 | Date (JST) | Task                                                                          | Status                                                                                                                                          |
