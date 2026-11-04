@@ -17,6 +17,14 @@ A code-first TypeScript 2D game engine. Create a visible character, responsive U
 
 **Status: experimental Web engine with a composition-based Core.** The API can change before a stable release. Electron/Tauri/Android packaging is pending. The Core and Web SDK packages are published on npm as v0.1.4.
 
+## v0.1.5 source candidate
+
+The source workspaces prepare **v0.1.5** with fixed/floating/follow virtual sticks, optional-direction pointer buttons, explicit activation regions and fixed pointer-ID ownership through the existing Action/Canvas routing. **Registry Core/Web remain 0.1.4.** Use the checked source or candidate tarballs for these additions; npm publication requires a separate release. [Virtual input guide](docs/virtual-input.md) · [Virtual input lab](examples/virtual-input/README.md) · [Implementation and validation record](docs/work-reports/2026-11-04-virtual-input-v0.1.5.md).
+
+```sh
+npm run dev -- --example virtual-input
+```
+
 ## v0.1.4 release
 
 Core/Web **v0.1.4 are published on npm**, including integrated security fixes, unified input/gamepads/local multiplayer and bilingual consumer documentation. The gamepad and source-gating APIs are available from the registry packages. [Input/gamepad guide](docs/gamepads.md) · [Two-player lab](examples/unified-input/README.md) · [Publication and registry verification](docs/work-reports/2026-11-03-v0.1.4-publication.md).

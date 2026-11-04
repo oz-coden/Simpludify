@@ -11,6 +11,8 @@ import {
   defineActions,
   Game,
   KeyboardBindings,
+  VirtualRegions,
+  VirtualStickMode,
 } from "@simpludify/web";
 
 // Explicit CSS is optional: the Web entry also includes it automatically.
@@ -24,8 +26,9 @@ let disposals = 0;
 let player = Character();
 let button = CanvasButton("Next scene", () => {});
 let ui: ReturnType<typeof CanvasColumn>;
+let virtualDisposed = () => false;
 for (const id of ["first", "second"] as const) {
-  game.scene(id, ({ scene, add, canvasUI }) => {
+  game.scene(id, ({ scene, add, canvasUI, virtualInput }) => {
     scene.onDispose(() => {
       disposals++;
     });
@@ -34,6 +37,13 @@ for (const id of ["first", "second"] as const) {
       input: game.engine.input,
       bindings: { Move: KeyboardBindings.WASD },
     });
+    const stick = virtualInput.stick(controls, actions.Move, {
+      region: VirtualRegions.Right,
+      mode: VirtualStickMode.Floating,
+      enabled: false,
+      visible: false,
+    });
+    virtualDisposed = () => stick.disposed;
     player = add(
       Character({
         x: 100,
@@ -89,6 +99,9 @@ const probe = {
   },
   get uiDisposed() {
     return ui.disposed;
+  },
+  get virtualDisposed() {
+    return virtualDisposed();
   },
   dispose() {
     game.dispose();

@@ -24,7 +24,18 @@ export type { InputAdapter } from "./interaction/input";
 export { InputSystem, KeyboardSource } from "./interaction/input";
 export * from "./interaction/key-code";
 export * from "./interaction/pointer-routing";
-export * from "./interaction/virtual-control";
+export type {
+  VirtualButtonOptions,
+  VirtualControlOptions,
+  VirtualGesture,
+  VirtualStickOptions,
+} from "./interaction/virtual-control";
+export {
+  VirtualButton,
+  VirtualControl,
+  VirtualStick,
+  VirtualStickMode,
+} from "./interaction/virtual-control";
 export * from "./interaction/virtual-input";
 export type {
   VirtualCircleRegion,

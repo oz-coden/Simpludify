@@ -11,6 +11,8 @@ import {
   PointerDown,
   type PointerInfo,
   PointerRouting,
+  ReplayPlayer,
+  ReplayRecorder,
   Scene,
   ScenePointer,
   screenPoint,
@@ -43,8 +45,8 @@ const info = (
   world: worldPoint(x, y),
   inside: true,
 });
-function fixture() {
-  const engine = new Engine();
+function fixture(start = true) {
+  const engine = new Engine({ seed: 17 });
   const controls = new ActionController(Actions, {
     scene: engine.scene,
     input: engine.input,
@@ -56,7 +58,7 @@ function fixture() {
   const release = vi.fn(),
     routing = new PointerRouting(release);
   routing.setScene(pointer);
-  engine.step(0);
+  if (start) engine.step(0);
   return {
     engine,
     controls,
@@ -69,6 +71,40 @@ function fixture() {
 }
 
 describe("virtual gestures through the existing PointerRouting and ActionSource", () => {
+  it("records composed virtual input and rejects live virtual gestures during playback", () => {
+    const f = fixture(false);
+    f.virtual.stick(f.controls, Actions.Move, {
+      region: left,
+      mode: VirtualStickMode.Floating,
+      deadZone: 0,
+    });
+    f.virtual.button(f.controls, Actions.Fire, { region: right });
+    const recorder = new ReplayRecorder(f.engine, {
+      controllers: { player: f.controls },
+    });
+    f.engine.step(0);
+    f.routing.down(info(1, 100, 100));
+    f.routing.move(info(1, 200, 100));
+    f.routing.down(info(2, 700, 100));
+    f.engine.step(0.1);
+    f.routing.up(info(2, 700, 100));
+    f.engine.step(0.1);
+    const data = recorder.finish();
+    const p = fixture(false);
+    const stick = p.virtual.stick(p.controls, Actions.Move, { region: left });
+    const player = new ReplayPlayer(p.engine, data, {
+      controllers: { player: p.controls },
+    });
+    p.routing.down(info(1, 200, 200));
+    expect(stick.pressed).toBe(false);
+    while (!player.done) player.step();
+    expect(p.controls.frame()).toEqual(f.controls.frame());
+    player.dispose();
+    p.step();
+    expect(p.controls.value(Actions.Move)).toEqual({ x: 0, y: 0 });
+    f.engine.dispose();
+    p.engine.dispose();
+  });
   it("keeps two crossing pointers assigned to their starting sticks", () => {
     const f = fixture();
     const move = f.virtual.stick(f.controls, Actions.Move, {

@@ -23,3 +23,4 @@ export { GamepadInput, GamepadSource } from "./gamepads";
 export { BrowserInput } from "./input";
 export { PixiRenderer } from "./renderer";
 export * from "./ui";
+export type { VirtualInputPresentation } from "./virtual-input-visual";

@@ -243,3 +243,7 @@ ActionSource.enabled and KeyboardSource.enabled default true. Setting false clea
 Game.gamepads.bind(controller,{index,bindings}) creates a controller-owned GamepadSource with enabled/clear/dispose, assign and rebind. The [gamepad contract](gamepads.md) covers positional buttons, analog axes/triggers, device facts, display hints, explicit multiplayer assignment, neutral rearming and the existing pause/Replay boundary. [The two-player lab](../examples/unified-input/README.md) combines keyboard, pad, touch and program input without replacing its Actors.
 
 InputSystem.addAdapter accepts a DOM-free sample/reset/dispose port for Hosts. Sampling occurs before every controller captures; Replay excludes live adapters. Global clear/reset calls reset, and InputSystem.dispose owns adapter disposal. Ordinary game code needs only Actions, existing Sources and the Game helper.
+
+## Virtual pointer sources (v0.1.5 source)
+
+[Virtual sticks and pointer controls](virtual-input.md) provide Axis2D sticks and Button presses/holds with optional drag confirmation, using the same ActionController/ActionSource/ActionReader. They do not synthesize keyboard codes or replace the Character. Existing additive axes, OR buttons and captured input boundaries apply. The independent provider lifecycle resets on pause, Replay, focus loss and Scene disposal.

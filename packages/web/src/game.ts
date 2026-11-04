@@ -107,6 +107,15 @@ export class Game<SceneId extends string = string> {
     if (!input) {
       input = new VirtualInput(this.channelFor(scene), this.engine.input);
       this.virtualInputs.set(scene, input);
+      const owned = input;
+      input.onDispose(() => {
+        if (this.virtualInputs.get(scene) === owned)
+          this.virtualInputs.delete(scene);
+        if (this.engine.scene === scene) {
+          this.virtualPresentation?.dispose();
+          this.virtualPresentation = undefined;
+        }
+      });
     }
     return input;
   }
@@ -880,6 +889,7 @@ export class Game<SceneId extends string = string> {
             ? 0
             : Math.max(0, (time - this.previousTime) / 1000);
         this.previousTime = time;
+        if (this.virtualInputs.has(this.engine.scene)) this.updateProjection();
         if (this.playback)
           this.playback.advance(elapsed, this.options.fixedStep?.maxSteps ?? 8);
         else if (this.fixed) this.fixed.advance(elapsed);

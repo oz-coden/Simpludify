@@ -1,6 +1,6 @@
 # API
 
-`@simpludify/core` is DOM-free. [Typed Action input](action-input.md) defines logical buttons/axes, key bindings, source composition and input boundaries. `@simpludify/web` re-exports Core and supplies Game, PixiRenderer, browser input, DOM UI and scoped default CSS. All mode objects export corresponding union types. The root workspace is private; Core/Web are publishable SDK packages. The source and published registry SDK are v0.1.4; earlier versions remain immutable.
+`@simpludify/core` is DOM-free. [Typed Action input](action-input.md) defines logical buttons/axes, key bindings, source composition and input boundaries. `@simpludify/web` re-exports Core and supplies Game, PixiRenderer, browser input, DOM UI and scoped default CSS. All mode objects export corresponding union types. The root workspace is private; Core/Web are publishable SDK packages. The source prepares v0.1.5; the published registry SDK is v0.1.4. Virtual pointer controls require the source/candidate archives until a separate release.
 
 ## Fixed-size two-dimensional data
 
@@ -346,3 +346,7 @@ Tilemap also provides `tileBounds(x,y)` for a fresh world-space cell rectangle. 
 [Tile geometry](tile-geometry.md) documents TileGeometry.square/triangle/hex, finite GeometryTilemap RGB/null layers, deterministic polygon selection, neighbors/ranges and Actor Shape.Hexagon. Existing square image Tilemap and circle/box Collision remain unchanged; polygon images and physics are not included.
 
 CanvasLabel accepts a string or CanvasLabelOptions with `text` and optional `role: "status" | "alert"`, or `role: "heading"` with `level: 1..6`. These creation-time text semantics add no focus/pointer ownership; Web supplies heading or atomic live-region semantics. See [semantic label text](canvas-ui.md#semantic-label-text-since-v013).
+
+## Virtual pointer controls (v0.1.5 source)
+
+`context.virtualInput` / `game.virtualInput` creates Scene-owned VirtualStick and VirtualButton controls using existing ActionSources. [Virtual input contracts](virtual-input.md) define fixed/floating/follow modes, relative/screen/custom activation regions, radial normalization, independent visibility/enablement, optional drag direction, hold/end/cancel callbacks and arbitration. The same PointerRouting owns Canvas UI, virtual and world gestures. Canvas UI wins first; virtual buttons override sticks; ambiguous same-priority virtual regions are rejected. Physical pointer identity never transfers when fingers cross.

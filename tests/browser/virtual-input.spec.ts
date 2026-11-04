@@ -119,9 +119,10 @@ for (const fallback of [false, true])
       expect((await values(page)).fire).toBe(true);
       await cdp.send("Input.dispatchTouchEvent", {
         type: "touchEnd",
-        touchPoints: crossed,
+        touchPoints: [{ id: 30, ...p.fire }],
       });
-      expect((await values(page)).commits).toBe(1);
+      await expect.poll(async () => (await values(page)).commits).toBe(1);
+      expect((await values(page)).ids).toEqual(before.ids);
       await cdp.send("Input.dispatchTouchEvent", {
         type: "touchCancel",
         touchPoints: [],
@@ -132,6 +133,93 @@ for (const fallback of [false, true])
       expect(end.fire).toBe(false);
       expect(end.pressed).toEqual([false, false, false]);
       await cdp.detach();
+    });
+    test("paints virtual controls, hides only their paint, and releases independently disposed presentations", async ({
+      page,
+    }) => {
+      const result = await page.evaluate(() => {
+        const { game, current: c, Actions: a } = window.virtualLab;
+        game.pause();
+        const readPixel = () => {
+          game.setViewport();
+          const canvas = game.element.querySelector("canvas");
+          if (!canvas) throw Error("Missing canvas");
+          const copy = document.createElement("canvas");
+          copy.width = canvas.width;
+          copy.height = canvas.height;
+          const context = copy.getContext("2d");
+          if (!context) throw Error("Missing readback");
+          context.drawImage(canvas, 0, 0);
+          const center = c.move.center,
+            ratio = canvas.width / game.element.clientWidth;
+          return [
+            ...context.getImageData(
+              Math.round((center.x + 2) * ratio),
+              Math.round((center.y + 2) * ratio),
+              1,
+              1,
+            ).data,
+          ];
+        };
+        const shown = readPixel();
+        c.virtual.visible = false;
+        const hidden = readPixel();
+        c.virtual.visible = true;
+        const initial = game.engine.input.sourceCount;
+        const renderer = (
+          game as unknown as {
+            renderer: {
+              virtualInputDiagnostics: {
+                presentations: number;
+                controls: number;
+              };
+            };
+          }
+        ).renderer;
+        c.virtual.dispose();
+        const without = game.engine.input.sourceCount;
+        let input = game.virtualInput;
+        for (let i = 0; i < 4; i++) {
+          input.stick(c.controls, a.Move, {
+            region: { kind: "rect", x: 0, y: 0, width: 0.5, height: 1 },
+            visible: false,
+          });
+          input.button(c.controls, a.Fire, {
+            region: { kind: "rect", x: 0.5, y: 0, width: 0.5, height: 1 },
+            visible: false,
+          });
+          game.setViewport();
+          if (
+            renderer.virtualInputDiagnostics.presentations !== 1 ||
+            renderer.virtualInputDiagnostics.controls !== 2
+          )
+            throw Error("Virtual presentation retained");
+          input.dispose();
+          input = game.virtualInput;
+        }
+        game.setViewport();
+        return {
+          shown,
+          hidden,
+          initial,
+          without,
+          after: game.engine.input.sourceCount,
+          oldDisposed: c.move.disposed,
+          alive: !game.engine.disposed,
+          diagnostics: renderer.virtualInputDiagnostics,
+        };
+      });
+      expect(result.shown).not.toEqual(result.hidden);
+      expect(result.oldDisposed).toBe(true);
+      expect(result.alive).toBe(true);
+      expect(result.without).toBe(result.initial - 4);
+      expect(result.after).toBe(result.without);
+      expect(result.diagnostics).toEqual({
+        presentations: 0,
+        controls: 0,
+        visible: 0,
+      });
+      await page.evaluate(() => window.virtualLab.game.dispose());
     });
     test("mouse modes, hidden input, disable and program handoff keep the same Actor", async ({
       page,
@@ -242,7 +330,11 @@ for (const fallback of [false, true])
         const id = c.move.pointerId;
         if (id !== undefined) game.element.releasePointerCapture(id);
       });
-      expect((await values(page)).move).toEqual({ x: 0, y: 0 });
+      // Pending capture changes dispatch lostpointercapture before the next pointer event.
+      await page.mouse.move(p.move.x + p.radius + 1, p.move.y);
+      await expect
+        .poll(async () => (await values(page)).move)
+        .toEqual({ x: 0, y: 0 });
       await page.mouse.up();
       p = await points(page);
       await page.mouse.move(p.move.x, p.move.y);

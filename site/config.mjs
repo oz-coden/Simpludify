@@ -1,6 +1,14 @@
 export const repository = "https://github.com/oz-coden/Simpludify";
 export const examples = [
   {
+    id: "virtual-input",
+    title: "Virtual input lab",
+    summary: "左右スティック・中央の空白・マルチタッチ・方向付きボタン",
+    controls:
+      "左44%で移動、右44%で照準。指が交差しても担当は固定。青は方向なし長押し、赤はドラッグして確定。マウス、固定・浮動・追従、表示・入力の切り替え、Program、リサイズを試せます。",
+    guide: "guides/virtual-input.html",
+  },
+  {
     id: "unified-input",
     title: "Unified input lab",
     summary: "2人のCharacterへキーボード・パッド・タッチ・プログラム入力",
@@ -106,6 +114,18 @@ export const examples = [
   },
 ];
 export const pages = [
+  [
+    "guides/virtual-input.html",
+    "site/ja/virtual-input.md",
+    "仮想スティック・ポインター",
+    "ガイド",
+  ],
+  [
+    "en/virtual-input.html",
+    "docs/virtual-input.md",
+    "Virtual sticks and pointer controls",
+    "English",
+  ],
   [
     "en/getting-started.html",
     "site/en/getting-started.md",
@@ -419,6 +439,7 @@ export const pages = [
 
 // Pair maintained user guides explicitly; technical records keep their existing URLs.
 export const languagePairs = [
+  ["guides/virtual-input.html", "en/virtual-input.html"],
   ["index.html", "en/index.html"],
   ["getting-started.html", "en/getting-started.html"],
   ["concepts.html", "en/concepts.html"],

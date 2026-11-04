@@ -160,9 +160,18 @@ try {
   );
   assert(!existsSync(join(core, "node_modules/@simpludify/web")));
   assert(!existsSync(join(core, "node_modules/pixi.js")));
-  const coreProgram = `import {Engine, Actor, Transform, Grid, TileGeometry, Tween, ENGINE_VERSION} from '@simpludify/core';
+  const coreProgram = `import {Engine, Actor, Transform, Grid, TileGeometry, Tween, ENGINE_VERSION, Action, ActionController, defineActions, ScenePointer, VirtualInput, VirtualRegions, PointerRouting, screenPoint, worldPoint} from '@simpludify/core';
 if (ENGINE_VERSION !== '${sdkVersion}') throw new Error('Wrong packed engine version');
-const engine = new Engine(); const actor = new Actor(); actor.add(new Transform()); engine.scene.add(actor); engine.step(1/60); engine.dispose();
+const engine = new Engine(); const actor = new Actor(); actor.add(new Transform()); engine.scene.add(actor);
+const A = defineActions({Move:Action.axis2D()}); const controls = new ActionController(A,{scene:engine.scene,input:engine.input});
+const pointer = new ScenePointer(engine.scene), virtual = new VirtualInput(pointer,engine.input), routing = new PointerRouting();
+const stick = virtual.stick(controls,A.Move,{region:VirtualRegions.Left,position:{space:'screen',x:10,y:10},radius:10,deadZone:0});
+routing.setScene(pointer);engine.step(0);
+const down = {pointerId:1,pointerType:'mouse',button:0,buttons:1,screen:screenPoint(10,10),world:worldPoint(10,10),inside:true};
+routing.down(down);routing.move({...down,screen:screenPoint(20,10)});engine.step(1/60);
+if(controls.value(A.Move).x !== 1) throw new Error('Packed virtual Action not sampled');
+routing.cancel(1,false);engine.step(0);if(controls.value(A.Move).x !== 0) throw new Error('Packed virtual input retained');
+engine.dispose();if(!stick.disposed || !virtual.disposed) throw new Error('Packed virtual lifetime retained');
 if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Missing API');\n`;
   writeFileSync(join(core, "main.mjs"), coreProgram);
   writeFileSync(join(core, "main.ts"), coreProgram);
@@ -450,6 +459,7 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
           return {
             disposals: probe.disposals,
             uiDisposed: probe.uiDisposed,
+            virtualDisposed: probe.virtualDisposed,
             actors: probe.game.engine.scene.actors.length,
             host: document.querySelectorAll(".simpludify").length,
             renderer: probe.game.renderer.diagnostics,
@@ -457,6 +467,7 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
         });
         assert.equal(state.disposals, 3);
         assert.equal(state.uiDisposed, true);
+        assert.equal(state.virtualDisposed, true);
         assert.equal(state.actors, 0);
         assert.equal(state.host, 0);
         assert.equal(state.renderer.visuals, 0);
