@@ -20,10 +20,12 @@ async function worldPoint(page: Page) {
   return page.evaluate(() => {
     const { game } = window.bindingLab,
       r = game.element.getBoundingClientRect(),
-      v = game.view.clip;
+      v = game.view.clip,
+      sx = r.width / game.element.clientWidth,
+      sy = r.height / game.element.clientHeight;
     return {
-      x: r.left + ((v.x + v.width * 0.55) * r.width) / game.element.clientWidth,
-      y: r.top + ((v.y + v.height * 0.72) * r.height) / game.element.clientHeight,
+      x: r.left + (v.x + v.width * 0.55) * sx,
+      y: r.top + (v.y + v.height * 0.72) * sy,
     };
   });
 }
@@ -148,10 +150,12 @@ for (const fallback of [false, true])
       const stick = await page.evaluate(() => {
         const { game } = window.bindingLab,
           r = game.element.getBoundingClientRect(),
-          v = game.viewport;
+          v = game.viewport,
+          sx = r.width / game.element.clientWidth,
+          sy = r.height / game.element.clientHeight;
         return {
-          x: r.left + ((v.x + v.width * 0.18) * r.width) / game.element.clientWidth,
-          y: r.top + ((v.y + v.height * 0.78) * r.height) / game.element.clientHeight,
+          x: r.left + (v.x + v.width * 0.18) * sx,
+          y: r.top + (v.y + v.height * 0.78) * sy,
         };
       });
       await page.mouse.move(stick.x, stick.y);
@@ -240,8 +244,7 @@ for (const fallback of [false, true])
     test("captures mouse/pad after neutral baselines, with explicit cancellation and Scene/blur/pause cleanup", async ({
       page,
     }) => {
-      const p = await worldPoint(page),
-        cdp = await page.context().newCDPSession(page);
+      const cdp = await page.context().newCDPSession(page);
       await page
         .getByRole("button", { name: "Capture Jump input", exact: true })
         .click();
@@ -253,6 +256,16 @@ for (const fallback of [false, true])
       await expect
         .poll(async () => (await state(page)).capture)
         .toBe("listening");
+      const p = await page.evaluate(() => {
+        const r = window.bindingLab.game.element.getBoundingClientRect();
+        return { x: r.right - 12, y: r.bottom - 12 };
+      });
+      expect(
+        await page.evaluate(
+          ({ x, y }) => document.elementFromPoint(x, y)?.tagName,
+          p,
+        ),
+      ).toBe("CANVAS");
       await cdp.send("Input.dispatchMouseEvent", {
         type: "mousePressed",
         ...p,
@@ -260,6 +273,9 @@ for (const fallback of [false, true])
         buttons: 16,
         clickCount: 1,
       });
+      await expect
+        .poll(async () => (await state(page)).capture)
+        .toBe("completed");
       expect(
         await page.evaluate(async () => await window.bindingCapture.result),
       ).toMatchObject({ device: "mouse", button: 4 });
