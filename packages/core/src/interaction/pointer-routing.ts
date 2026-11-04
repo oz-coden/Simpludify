@@ -378,6 +378,17 @@ export class PointerRouting {
   owns(id: number): boolean {
     return this.gestures.has(id) || this.suppressed.has(id);
   }
+  /** @internal Mouse bindings observe world ownership without claiming a second gesture. */
+  worldOwns(id: number): boolean {
+    const gesture = this.gestures.get(id);
+    return Boolean(
+      gesture &&
+        !gesture.node &&
+        !gesture.target &&
+        !gesture.scroll &&
+        !gesture.candidates.length,
+    );
+  }
   move(data: PointerInfo): void {
     this.validate(data);
     if (this.suppressed.has(data.pointerId)) return;

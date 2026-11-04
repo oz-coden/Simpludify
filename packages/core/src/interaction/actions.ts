@@ -7,7 +7,9 @@ import {
   type ButtonBinding,
   checkedBinding,
   editBinding,
+  gamepadControls,
   keyLists,
+  mouseLists,
 } from "./action-bindings";
 import {
   type ActionFrame,
@@ -56,11 +58,35 @@ import { type Scene, SceneState } from "../scene/scene";
 import type { ActionInputPort, InputSystem } from "./input";
 import { OwnedInputSource } from "./input-source";
 import type { KeyCode } from "./key-code";
+import type { MouseButton } from "./physical-input";
 
 type Token<A extends ActionSet> = A[keyof A];
 type ButtonToken<A extends ActionSet> = Extract<Token<A>, { kind: "button" }>;
 type Value = boolean | number | Axis2DValue | Axis3DValue;
 type Binding = ButtonBinding | Axis1DBinding | Axis2DBinding | Axis3DBinding;
+type BindingUse<A extends ActionSet> = {
+  readonly action: Token<A>;
+  readonly path: string;
+};
+export interface KeyboardBindingConflict<A extends ActionSet> {
+  readonly key: KeyCode;
+  readonly bindings: readonly BindingUse<A>[];
+}
+export interface MouseBindingConflict<A extends ActionSet> {
+  readonly device: "mouse";
+  readonly button: MouseButton;
+  readonly bindings: readonly BindingUse<A>[];
+}
+export interface GamepadBindingConflict<A extends ActionSet> {
+  readonly device: "gamepad";
+  readonly kind: "button" | "axis";
+  readonly index: number;
+  readonly bindings: readonly BindingUse<A>[];
+}
+export type BindingConflict<A extends ActionSet> =
+  | (KeyboardBindingConflict<A> & { readonly device: "keyboard" })
+  | MouseBindingConflict<A>
+  | GamepadBindingConflict<A>;
 export interface ButtonState {
   readonly held: boolean;
   readonly pressed: boolean;
@@ -125,6 +151,9 @@ export class ActionController<A extends ActionSet>
   private readonly bus = new EventBus();
   private keyboardAllowed = true;
   private readonly blockedKeys = new Set<KeyCode>();
+  private mouseAllowed = true;
+  private readonly blockedMouse = new Set<MouseButton>();
+  private bindingGeneration = 0;
   private pending: ButtonTransition[] = [];
   private transitions: readonly ButtonTransition[] = [];
   constructor(
@@ -134,6 +163,7 @@ export class ActionController<A extends ActionSet>
       input: InputSystem;
       bindings?: ActionBindings<A>;
       keyboard?: boolean;
+      mouse?: boolean;
     },
   ) {
     if (options.keyboard !== undefined && typeof options.keyboard !== "boolean")
@@ -142,6 +172,9 @@ export class ActionController<A extends ActionSet>
         "Keyboard enabled must be boolean",
       );
     this.keyboardAllowed = options.keyboard ?? true;
+    if (options.mouse !== undefined && typeof options.mouse !== "boolean")
+      throw new EngineError("INVALID_VALUE", "Mouse enabled must be boolean");
+    this.mouseAllowed = options.mouse ?? true;
     for (const action of Object.values(actions)) {
       const binding = checkedBinding(
         action,
@@ -212,6 +245,32 @@ export class ActionController<A extends ActionSet>
   }
   get sourceCount(): number {
     return this.sources.size;
+  }
+  get mouseEnabled(): boolean {
+    return this.mouseAllowed;
+  }
+  set mouseEnabled(value: boolean) {
+    if (this.disposed)
+      throw new EngineError(
+        "OWNER_DISPOSED",
+        "Action controller has been disposed",
+      );
+    if (typeof value !== "boolean")
+      throw new EngineError("INVALID_VALUE", "Mouse enabled must be boolean");
+    if (value === this.mouseAllowed) return;
+    this.mouseAllowed = value;
+    this.blockedMouse.clear();
+    if (value)
+      for (const entry of this.entries.values())
+        for (const list of mouseLists(entry.binding))
+          for (const button of list.buttons)
+            if (this.options.input.mouseDown(button))
+              this.blockedMouse.add(button);
+    for (const action of this.entries.keys()) this.recompute(action);
+  }
+  /** @internal Used by existing host adapters to follow common binding settings. */
+  get bindingRevision(): number {
+    return this.bindingGeneration;
   }
   onDispose(callback: () => void): () => void {
     return this.lifetime.onDispose(callback);
@@ -343,15 +402,27 @@ export class ActionController<A extends ActionSet>
     if (!this.disposed) for (const action of actions) this.recompute(action);
   }
   private keyboard(action: ActionToken): Value {
-    if (!this.keyboardAllowed) return neutral(action);
     const binding = this.entry(action).binding;
     const held = (keys: readonly KeyCode[] | undefined) =>
-      keys?.some(
+      this.keyboardAllowed &&
+      (keys?.some(
         (k) => !this.blockedKeys.has(k) && this.options.input.keyDown(k),
-      ) ?? false;
+      ) ??
+        false);
+    const mouse = (buttons: readonly MouseButton[] | undefined) =>
+      this.mouseAllowed &&
+      (buttons?.some(
+        (b) => !this.blockedMouse.has(b) && this.options.input.mouseDown(b),
+      ) ??
+        false);
     const axis = (b: Axis1DBinding | undefined) =>
-      Number(held(b?.positive)) - Number(held(b?.negative));
-    if (action.kind === "button") return held((binding as ButtonBinding).keys);
+      Number(held(b?.positive) || mouse(b?.mousePositive)) -
+      Number(held(b?.negative) || mouse(b?.mouseNegative));
+    if (action.kind === "button")
+      return (
+        held((binding as ButtonBinding).keys) ||
+        mouse((binding as ButtonBinding).mouse)
+      );
     if (action.kind === "axis1d") return axis(binding as Axis1DBinding);
     const b = binding as Axis3DBinding;
     return action.kind === "axis2d"
@@ -398,6 +469,9 @@ export class ActionController<A extends ActionSet>
   /** @internal */ keyChanged(): void {
     for (const key of this.blockedKeys)
       if (!this.options.input.keyDown(key)) this.blockedKeys.delete(key);
+    for (const button of this.blockedMouse)
+      if (!this.options.input.mouseDown(button))
+        this.blockedMouse.delete(button);
     // Only the Engine-owned default Scene can retain pre-activation physical taps.
     // Staged Scenes do not accumulate another Scene's keyboard history.
     if (
@@ -415,6 +489,15 @@ export class ActionController<A extends ActionSet>
       this.keyboardAllowed &&
       [...this.entries.values()].some((e) =>
         keyLists(e.binding).some((list) => list.keys.includes(code)),
+      )
+    );
+  }
+  /** @internal */ acceptsMouse(button: MouseButton): boolean {
+    return (
+      this.active &&
+      this.mouseAllowed &&
+      [...this.entries.values()].some((e) =>
+        mouseLists(e.binding).some((list) => list.buttons.includes(button)),
       )
     );
   }
@@ -473,9 +556,17 @@ export class ActionController<A extends ActionSet>
   /** Clears held contributions and unconsumed edges; no synthetic button release. */
   reset(): void {
     this.blockedKeys.clear();
+    this.blockedMouse.clear();
     for (const values of this.sources.values()) values.clear();
     this.pending = [];
     for (const [action, entry] of this.entries) entry.value = neutral(action);
+  }
+  /** @internal Flush device transitions without destroying explicit program values. */
+  resetPhysical(): void {
+    this.blockedKeys.clear();
+    this.blockedMouse.clear();
+    this.pending = [];
+    for (const action of this.entries.keys()) this.recompute(action, false);
   }
   getBinding<T extends Token<A>>(action: T): ActionBinding<T["kind"]> {
     return this.entry(action).binding as ActionBinding<T["kind"]>;
@@ -487,6 +578,7 @@ export class ActionController<A extends ActionSet>
     const checked = checkedBinding(action, binding),
       entry = this.entry(action);
     entry.binding = checked;
+    this.bindingGeneration++;
     this.pending = this.pending.filter((event) => event.action !== action);
     this.recompute(action, false);
   }
@@ -523,13 +615,16 @@ export class ActionController<A extends ActionSet>
         this.entry(token).defaults as ActionBinding<Token<A>["kind"]>,
       );
   }
-  conflicts(): ReadonlyArray<{
-    readonly key: KeyCode;
-    readonly bindings: ReadonlyArray<{
-      readonly action: Token<A>;
-      readonly path: string;
-    }>;
-  }> {
+  conflicts(): readonly KeyboardBindingConflict<A>[];
+  conflicts(device: "keyboard"): readonly KeyboardBindingConflict<A>[];
+  conflicts(device: "mouse"): readonly MouseBindingConflict<A>[];
+  conflicts(device: "gamepad"): readonly GamepadBindingConflict<A>[];
+  conflicts(device: "all"): readonly BindingConflict<A>[];
+  conflicts(
+    device: "keyboard" | "mouse" | "gamepad" | "all" = "keyboard",
+  ): readonly (KeyboardBindingConflict<A> | BindingConflict<A>)[] {
+    if (!["keyboard", "mouse", "gamepad", "all"].includes(device))
+      throw new EngineError("INVALID_BINDING", "Unknown conflict device");
     const keys = new Map<KeyCode, Array<{ action: Token<A>; path: string }>>();
     for (const [action, entry] of this.entries)
       for (const list of keyLists(entry.binding))
@@ -538,9 +633,61 @@ export class ActionController<A extends ActionSet>
           group.push({ action: action as Token<A>, path: list.path });
           keys.set(key, group);
         }
-    return [...keys]
+    const keyboard = [...keys]
       .filter(([, bindings]) => bindings.length > 1)
       .map(([key, bindings]) => ({ key, bindings }));
+    if (device === "keyboard") return keyboard;
+    const mice = new Map<MouseButton, BindingUse<A>[]>();
+    const pads = new Map<
+      string,
+      { kind: "button" | "axis"; index: number; bindings: BindingUse<A>[] }
+    >();
+    for (const [action, entry] of this.entries) {
+      for (const list of mouseLists(entry.binding))
+        for (const button of list.buttons) {
+          const uses = mice.get(button) ?? [];
+          uses.push({ action: action as Token<A>, path: list.path });
+          mice.set(button, uses);
+        }
+      const pad = (entry.binding as ActionBinding<ActionKind>).gamepad;
+      if (pad)
+        for (const input of gamepadControls(pad)) {
+          const key = `${input.kind}:${input.index}`;
+          const group = pads.get(key) ?? {
+            kind: input.kind,
+            index: input.index,
+            bindings: [],
+          };
+          group.bindings.push({ action: action as Token<A>, path: input.path });
+          pads.set(key, group);
+        }
+    }
+    const mouse = [...mice]
+      .filter(([, uses]) => uses.length > 1)
+      .map(
+        ([button, bindings]): MouseBindingConflict<A> => ({
+          device: "mouse",
+          button,
+          bindings,
+        }),
+      );
+    const gamepad = [...pads.values()]
+      .filter((group) => group.bindings.length > 1)
+      .map(
+        (group): GamepadBindingConflict<A> => ({ device: "gamepad", ...group }),
+      );
+    return device === "mouse"
+      ? mouse
+      : device === "gamepad"
+        ? gamepad
+        : [
+            ...keyboard.map((group) => ({
+              device: "keyboard" as const,
+              ...group,
+            })),
+            ...mouse,
+            ...gamepad,
+          ];
   }
   exportBindings(): { version: 1; bindings: ActionBindings<A> } {
     return {

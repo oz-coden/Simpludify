@@ -294,6 +294,7 @@ export class Game<SceneId extends string = string> {
       },
       this.report,
       () => this.updateProjection(),
+      this.engine.input,
     );
     document.addEventListener(
       "visibilitychange",
