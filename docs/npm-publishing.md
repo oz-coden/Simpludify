@@ -2,11 +2,11 @@
 
 ## Release status
 
-Core/Web v0.1.4 were published through [Trusted Publishing run 41628371866](https://github.com/oz-coden/Simpludify/actions/runs/41628371866), from source `84a5f1b642cebccff2510b7965297970a6c30352` and tag `v0.1.4`. Core was published and its registry integrity verified before Web publication. Both packages include SLSA v1 provenance, and clean public-registry consumers passed. See [publication and registry verification](work-reports/2026-11-03-v0.1.4-publication.md) for timestamps, immutable archive integrities and verification evidence. Earlier releases remain immutable.
+Core/Web v0.1.5 were published through [Trusted Publishing run 41842910464](https://github.com/oz-coden/Simpludify/actions/runs/41842910464), from source `ed3ccc65d7b4c5689dfc14a96ee0bf8e12ecfad3` and tag `v0.1.5`. Core was published and its registry integrity verified before Web publication. Both packages include SLSA v1 provenance, and clean public-registry consumers passed. See [publication and registry verification](work-reports/2026-11-04-v0.1.5-publication.md) for timestamps, immutable archive integrities and verification evidence. Earlier releases remain immutable.
 
-## v0.1.4 scope
+## v0.1.5 scope
 
-The release includes the integrated security fixes, unified input/gamepads and paired consumer documentation. The independent starter retains its published registry 0.1.3 lockfile; upgrades of independent consumers are separate changes.
+The release adds fixed/floating/follow virtual sticks, optional-direction buttons, explicit activation regions and fixed pointer ownership to the existing unified input/gamepad system, with paired consumer documentation. The independent starter retains its published registry 0.1.3 lockfile; upgrades of independent consumers are separate changes.
 
 ## Prepare and verify
 
@@ -14,7 +14,7 @@ Use Node >=22.12 for development and Node 24 in CI. The publish job requires npm
 
 ```sh
 npm ci
-npm run version:sdk -- 0.1.4
+npm run version:sdk -- 0.1.5
 npm run check
 npm test
 npx playwright install --with-deps chromium --only-shell
@@ -51,10 +51,10 @@ The [official Trusted Publishing guide](https://docs.npmjs.com/trusted-publisher
 
 ## Final approval and manual release
 
-1. Merge only a successful full-CI PR. Record the full main commit SHA and wait for that exact main push CI to pass. Freeze the candidate commit for release; subsequent main changes require revalidation and renewed selection.
+1. Integrate only changes with successful full CI (a PR or an authorized direct main update). Record the full main commit SHA and wait for that exact main push CI to pass. Freeze the candidate commit for release; subsequent main changes require revalidation and renewed selection.
 2. Generate and inspect the exact candidate archives. Record package names/versions, SHA512 integrity, exports, license, declarations, CSS and source SHA in the report. Check neither target version already exists. An existing version with different integrity must stop the release.
-3. Obtain explicit final approval naming `@simpludify/core@0.1.4` and `@simpludify/web@0.1.4`, the selected SHA and release tag. npm versions are immutable and cannot be reused after unpublishing.
-4. Create `v0.1.4` at that full SHA without moving any existing tag. The manual **Create approved SDK tag** workflow validates version, exact main SHA, confirmation (`create TAG at SHA`) and successful main push CI, and refuses to move an existing tag. Open Actions → Publish experimental npm SDK → Run workflow from `main`. Enter tag `v0.1.4` and exact confirmation `publish @simpludify/core@0.1.4 and @simpludify/web@0.1.4`.
+3. Obtain explicit final approval naming `@simpludify/core@0.1.5` and `@simpludify/web@0.1.5`, the selected SHA and release tag. npm versions are immutable and cannot be reused after unpublishing.
+4. Create `v0.1.5` at that full SHA without moving any existing tag. The manual **Create approved SDK tag** workflow validates version, exact main SHA, confirmation (`create TAG at SHA`) and successful main push CI, and refuses to move an existing tag. Open Actions → Publish experimental npm SDK → Run workflow from `main`. Enter tag `v0.1.5` and exact confirmation `publish @simpludify/core@0.1.5 and @simpludify/web@0.1.5`.
 5. Validation derives the version from manifests and verifies confirmation, tag, dispatched SHA, main ancestry and successful main push CI. It reruns checks/unit tests and external tarball consumers, records pack manifests and SHA256 checksums, then passes those exact archives to the publish job.
 6. The publish job verifies checksums, archive metadata against source manifests, package versions/integrities, tag/SHA and OIDC capability before any publication. Both target versions are checked before the first publish. **Core publishes first and its registry integrity is verified before Web publishes.** Already-published identical archives may be skipped; differing archives fail. `latest` is the intended dist-tag. After npm accepts a publish, the script allows up to six minutes for processing/visibility before reporting failure; this wait never republishes or skips registry integrity checks.
 7. `test:packages:registry` makes clean public-registry installations and repeats the full consumer fixture including `bindViewport`. Inspect `npm-sdk-validation`, `npm-sdk-publication` and the job summary. Record source SHA/tag, integrities, provenance and registry URLs. Do not mark a failed post-publication test as an unpublished state.

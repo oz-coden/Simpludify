@@ -1,6 +1,6 @@
 # Virtual sticks and pointer controls
 
-These APIs target the **0.1.5 source/candidate archives**. Published registry Core/Web remain 0.1.4 until a separate release. The same controls accept mouse, touch and pen Pointer Events; no mobile-device detection enables or hides them automatically.
+These APIs are available from **published Core/Web 0.1.5 registry packages**. The same controls accept mouse, touch and pen Pointer Events; no mobile-device detection enables or hides them automatically.
 
 ## One controller, ordinary sources
 

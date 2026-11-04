@@ -174,7 +174,7 @@ A Web `Game.bindViewport(ui, node)` binding connects a dedicated resolved Canvas
 
 Web GamepadInput registers a DOM-free InputAdapter port with InputSystem. Each live input boundary samples devices before freezing all Action frames; Replay skips live adapters. Adapter reset joins the existing silent pause/resume/Scene clear, while individual Source gating preserves ordinary release edges. Gamepad bindings contribute through existing ActionSources; no player/Controller hierarchy or transport enters Core.
 
-## Virtual pointer devices (v0.1.5 source)
+## Virtual pointer devices (published v0.1.5)
 
 A ScenePointer may own one VirtualInput target provider. It supplies portable VirtualStick/VirtualButton models behind Canvas UI and before world routing. PointerRouting remains the single capture map: UI targets retain their existing scroll/control semantics, while virtual targets keep their down-time identity until release/cancel. Models use controller-owned ActionSources and register the existing InputAdapter reset port. There is no second gameplay Controller or DOM event layer.
 

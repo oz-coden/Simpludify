@@ -1,0 +1,30 @@
+{
+  "source": "ed3ccc65d7b4c5689dfc14a96ee0bf8e12ecfad3",
+  "tag": "v0.1.5",
+  "sourceCI": {
+    "id": 41835284219,
+    "conclusion": "success",
+    "validationJobs": 20,
+    "units": 861,
+    "browserCases": 424,
+    "pages": "success"
+  },
+  "tagWorkflow": {
+    "id": 41837726244,
+    "conclusion": "success"
+  },
+  "publishWorkflow": {
+    "id": 41842910464,
+    "conclusion": "success",
+    "core": "published-verified",
+    "web": "published-verified",
+    "registryConsumers": "passed"
+  },
+  "release": {
+    "id": 434014213,
+    "url": "https://github.com/oz-coden/Simpludify/releases/tag/v0.1.5",
+    "publishedAt": "2026-11-04T14:13:20Z",
+    "draft": false,
+    "prerelease": false
+  }
+}

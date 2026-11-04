@@ -1,0 +1,194 @@
+{
+  "mode": "public-registry-virtual-consumer",
+  "consumer": "/tmp/simpludify-registry-virtual-pe7cLE",
+  "packages": [
+    {
+      "name": "@simpludify/core",
+      "version": "0.1.5",
+      "resolved": "https://registry.npmjs.org/@simpludify/core/-/core-0.1.5.tgz",
+      "integrity": "sha512-67UKrnLJyqyfGVEoAEwn3gBRDPOhb8ghJVF1Dvi1bSs2dSd6yTfMEopB5uGCqLsYTAdaSIItkd4QcqyrpXmD9w=="
+    },
+    {
+      "name": "@simpludify/web",
+      "version": "0.1.5",
+      "resolved": "https://registry.npmjs.org/@simpludify/web/-/web-0.1.5.tgz",
+      "integrity": "sha512-syv2sIWttcQQPTm0CjT+zJnHOZLU1C+tmHWOpluVJLy/BQgDtOITbgVs6mBiOYl0dcbKPoE68mtWUVMKoRNpEQ=="
+    }
+  ],
+  "checks": [
+    "Strict public declarations; no workspace aliases or engine source imports",
+    "Production subpath build from public Core/Web 0.1.5",
+    "WebGL/Canvas2D × 1440/390px: CDP crossing, third-button release, neutral cancel, same Actor program handoff, Scene/final cleanup"
+  ],
+  "result": {
+    "site": "http://127.0.0.1:35135/verify/",
+    "source": "npm:@simpludify/core@0.1.5+@simpludify/web@0.1.5",
+    "cases": [
+      {
+        "width": 1440,
+        "renderer": "webgl",
+        "state": {
+          "ids": [2, 3],
+          "move": {
+            "x": 1,
+            "y": 0
+          },
+          "aim": {
+            "x": -1,
+            "y": 0
+          }
+        },
+        "neutral": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0,
+            "y": 0
+          },
+          false
+        ],
+        "handoff": {
+          "move": {
+            "x": 0.5,
+            "y": 0
+          },
+          "id": "player",
+          "sameActor": true
+        },
+        "cleanup": {
+          "disposed": true,
+          "sources": 0,
+          "hosts": 0,
+          "captures": 0
+        },
+        "errors": []
+      },
+      {
+        "width": 1440,
+        "renderer": "canvas2d",
+        "state": {
+          "ids": [2, 3],
+          "move": {
+            "x": 1,
+            "y": 0
+          },
+          "aim": {
+            "x": -1,
+            "y": 0
+          }
+        },
+        "neutral": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0,
+            "y": 0
+          },
+          false
+        ],
+        "handoff": {
+          "move": {
+            "x": 0.5,
+            "y": 0
+          },
+          "id": "player",
+          "sameActor": true
+        },
+        "cleanup": {
+          "disposed": true,
+          "sources": 0,
+          "hosts": 0,
+          "captures": 0
+        },
+        "errors": []
+      },
+      {
+        "width": 390,
+        "renderer": "webgl",
+        "state": {
+          "ids": [2, 3],
+          "move": {
+            "x": 1,
+            "y": 0
+          },
+          "aim": {
+            "x": -1,
+            "y": 0
+          }
+        },
+        "neutral": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0,
+            "y": 0
+          },
+          false
+        ],
+        "handoff": {
+          "move": {
+            "x": 0.5,
+            "y": 0
+          },
+          "id": "player",
+          "sameActor": true
+        },
+        "cleanup": {
+          "disposed": true,
+          "sources": 0,
+          "hosts": 0,
+          "captures": 0
+        },
+        "errors": []
+      },
+      {
+        "width": 390,
+        "renderer": "canvas2d",
+        "state": {
+          "ids": [2, 3],
+          "move": {
+            "x": 1,
+            "y": 0
+          },
+          "aim": {
+            "x": -1,
+            "y": 0
+          }
+        },
+        "neutral": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0,
+            "y": 0
+          },
+          false
+        ],
+        "handoff": {
+          "move": {
+            "x": 0.5,
+            "y": 0
+          },
+          "id": "player",
+          "sameActor": true
+        },
+        "cleanup": {
+          "disposed": true,
+          "sources": 0,
+          "hosts": 0,
+          "captures": 0
+        },
+        "errors": []
+      }
+    ]
+  },
+  "ok": true
+}

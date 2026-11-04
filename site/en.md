@@ -1,8 +1,8 @@
 # English documentation
 
-Simpludify is an experimental code-first TypeScript 2D engine with a DOM-free simulation Core and a Web host for Pixi rendering, browser input, asynchronous Scene preparation and DOM/Canvas UI. Core/Web **0.1.4 are published on npm**, including source gating and gamepads. Use matching versions and a lockfile for independent applications.
+Simpludify is an experimental code-first TypeScript 2D engine with a DOM-free simulation Core and a Web host for Pixi rendering, browser input, asynchronous Scene preparation and DOM/Canvas UI. Core/Web **0.1.5 are published on npm**, including source gating and gamepads. Use matching versions and a lockfile for independent applications.
 
-The v0.1.5 source candidate adds [virtual sticks and pointer controls](../docs/virtual-input.md). The published registry SDK remains 0.1.4.
+Published v0.1.5 includes [virtual sticks and pointer controls](../docs/virtual-input.md).
 
 ## Start here
 

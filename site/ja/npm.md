@@ -1,11 +1,11 @@
 # npm SDKからゲームを始める
 
-SimpludifyのExperimental v0.1.4は、`@simpludify/core`と`@simpludify/web`に分かれたESM SDKです。0.xではAPIが変更される可能性があります。内部ファイルの直接importは公開APIではありません。
+SimpludifyのExperimental v0.1.5は、`@simpludify/core`と`@simpludify/web`に分かれたESM SDKです。0.xではAPIが変更される可能性があります。内部ファイルの直接importは公開APIではありません。
 
-**公開状態：`@simpludify/core@0.1.4`と`@simpludify/web@0.1.4`はnpmレジストリで公開済みです。** 以下の手順で独立したプロジェクトにインストールできます。
+**公開状態：`@simpludify/core@0.1.5`と`@simpludify/web@0.1.5`はnpmレジストリで公開済みです。** 以下の手順で独立したプロジェクトにインストールできます。
 
 
-ゲームパッド・Source有効化APIは公開済みv0.1.4で利用できます。独立スターターはレジストリ0.1.3のlockfileを維持しており、依存更新は別の変更として扱います。
+ゲームパッド・Source有効化APIは公開済みv0.1.5で利用できます。独立スターターはレジストリ0.1.3のlockfileを維持しており、依存更新は別の変更として扱います。
 
 ## 1. 必要な環境とパッケージ
 
@@ -32,7 +32,7 @@ cd my-game
 npm init -y
 npm pkg set type=module
 npm pkg set scripts.dev=vite scripts.build="tsc --noEmit && vite build" scripts.preview="vite preview"
-npm install --save-exact @simpludify/web@0.1.4
+npm install --save-exact @simpludify/web@0.1.5
 npm install --save-dev vite@8.3.5 typescript@7.0.2
 ```
 
@@ -146,17 +146,17 @@ npm run preview
 リポジトリ管理者は`npm ci`、`npm run pack:packages`で2つの`.tgz`を生成できます。独立したゲームプロジェクトには、エンジンのソースコピーをせずにアーカイブを導入できます。
 
 ```sh
-npm install /path/to/simpludify-core-0.1.4.tgz
-npm install /path/to/simpludify-web-0.1.4.tgz
+npm install /path/to/simpludify-core-0.1.5.tgz
+npm install /path/to/simpludify-web-0.1.5.tgz
 ```
 
-公開前はCoreを先に導入します。Webの依存宣言は正式な`@simpludify/core@0.1.4`なので、Coreが未導入・未公開だとレジストリ解決に失敗します。公開後はWebだけの導入で依存が自動解決されます。
+公開前はCoreを先に導入します。Webの依存宣言は正式な`@simpludify/core@0.1.5`なので、Coreが未導入・未公開だとレジストリ解決に失敗します。公開後はWebだけの導入で依存が自動解決されます。
 
 ## 6. 互換性と制約
 
 - ESMとTypeScript型定義を配布します。`dist`内部パスへの直接importやCJSの`require()`はサポートしません。
 - JavaScript source mapには元ソースを埋め込んでいます。型定義mapは配布しません。
-- Core/Webは同じ0.1.4を使用します。WebがCoreを再exportするため、通常はWebからまとめてimportできます。
+- Core/Webは同じ0.1.5を使用します。WebがCoreを再exportするため、通常はWebからまとめてimportできます。
 - Coreの公開型はDOM/Node ambient型なしでも検証します。WebはブラウザのDOM型と実行環境が必要です。
 - 対応範囲の詳細は[制約](limitations.md)、[API](../../docs/api.md)、[Core/Host境界](../../docs/host-boundary.md)を参照してください。
 

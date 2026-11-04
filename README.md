@@ -9,17 +9,17 @@
 
 [公式ドキュメント・サンプル](https://oz-coden.github.io/Simpludify/) · [日本語ガイドのソース](site/ja/index.md) · [English API](docs/api.md)
 
-コード主導・軽量・AIネイティブな、TypeScript製の実験的2Dコンテンツエンジンです。ゲームやインタラクティブコンテンツを、理解しやすい標準APIで構築します。理解しやすく、一貫性があり、保守しやすいAPIを優先します。Experimental v0.1.4のnpm SDKを公開済みです。独立プロジェクトからnpmで導入できます。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できるサンプルを公式サイトにまとめています。
+コード主導・軽量・AIネイティブな、TypeScript製の実験的2Dコンテンツエンジンです。ゲームやインタラクティブコンテンツを、理解しやすい標準APIで構築します。理解しやすく、一貫性があり、保守しやすいAPIを優先します。Experimental v0.1.5のnpm SDKを公開済みです。独立プロジェクトからnpmで導入できます。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できるサンプルを公式サイトにまとめています。
 
 A code-first TypeScript 2D game engine. Create a visible character, responsive UI, and scene navigation using ordinary code and browser tooling.
 
 [Core / Hostの責務と移植性](docs/host-boundary.md) · [作業報告・検証結果](docs/work-reports/README.md)
 
-**Status: experimental Web engine with a composition-based Core.** The API can change before a stable release. Electron/Tauri/Android packaging is pending. The Core and Web SDK packages are published on npm as v0.1.4.
+**Status: experimental Web engine with a composition-based Core.** The API can change before a stable release. Electron/Tauri/Android packaging is pending. The Core and Web SDK packages are published on npm as v0.1.5.
 
-## v0.1.5 source candidate
+## v0.1.5 release
 
-The source workspaces prepare **v0.1.5** with fixed/floating/follow virtual sticks, optional-direction pointer buttons, explicit activation regions and fixed pointer-ID ownership through the existing Action/Canvas routing. **Registry Core/Web remain 0.1.4.** Use the checked source or candidate tarballs for these additions; npm publication requires a separate release. [Virtual input guide](docs/virtual-input.md) · [Virtual input lab](examples/virtual-input/README.md) · [Implementation and validation record](docs/work-reports/2026-11-04-virtual-input-v0.1.5.md).
+Core/Web **v0.1.5 are published on npm** with fixed/floating/follow virtual sticks, optional-direction pointer buttons, explicit activation regions and fixed pointer-ID ownership through the existing Action/Canvas routing. Public-registry consumers passed strict TypeScript, production builds and virtual-input browser acceptance. [Publication and registry verification](docs/work-reports/2026-11-04-v0.1.5-publication.md). [Virtual input guide](docs/virtual-input.md) · [Virtual input lab](examples/virtual-input/README.md) · [Implementation and validation record](docs/work-reports/2026-11-04-virtual-input-v0.1.5.md).
 
 ```sh
 npm run dev -- --example virtual-input
@@ -33,11 +33,11 @@ Core/Web **v0.1.4 are published on npm**, including integrated security fixes, u
 npm run dev -- --example unified-input
 ```
 
-## Experimental npm SDK v0.1.4
+## Experimental npm SDK v0.1.5
 
-`@simpludify/core@0.1.4` contains host-independent simulation and geometry; `@simpludify/web@0.1.4` adds browser rendering/input/UI and installs Core/PixiJS as dependencies. Both ship compiled ESM and TypeScript declarations. APIs may change between 0.x releases.
+`@simpludify/core@0.1.5` contains host-independent simulation and geometry; `@simpludify/web@0.1.5` adds browser rendering/input/UI and installs Core/PixiJS as dependencies. Both ship compiled ESM and TypeScript declarations. APIs may change between 0.x releases.
 
-**Registry status: published.** Browser projects can install with `npm install @simpludify/web@0.1.4`. The [complete npm/Vite guide](site/ja/npm.md) includes project setup, runnable game code, automatic/explicit CSS, production builds and known limits. For independent projects, use the published registry packages rather than copying engine source. [実際のゲーム開発で確認したSDK利用パターン](docs/sdk-consumer-patterns.md)に、HUDとViewport、Canvas/DOMのフォーカス、Tween、ライセンスの注意点をまとめています。 [Publishing and OIDC procedures](docs/npm-publishing.md) describe version checks, exact archives and the manual Trusted Publishing workflow. [v0.1.4 publication evidence](docs/work-reports/2026-11-03-v0.1.4-publication.md) records the immutable source revision and validation.
+**Registry status: published.** Browser projects can install with `npm install @simpludify/web@0.1.5`. The [complete npm/Vite guide](site/ja/npm.md) includes project setup, runnable game code, automatic/explicit CSS, production builds and known limits. For independent projects, use the published registry packages rather than copying engine source. [実際のゲーム開発で確認したSDK利用パターン](docs/sdk-consumer-patterns.md)に、HUDとViewport、Canvas/DOMのフォーカス、Tween、ライセンスの注意点をまとめています。 [Publishing and OIDC procedures](docs/npm-publishing.md) describe version checks, exact archives and the manual Trusted Publishing workflow. [v0.1.5 publication evidence](docs/work-reports/2026-11-04-v0.1.5-publication.md) records the immutable source revision and validation.
 
 The [independent npm/Vite starter](templates/npm-vite/README.md) retains its published 0.1.3 lockfile and includes Pages base support, Scene cleanup and dependency notice generation. Its dependency upgrade is separate from this release. The [SDK integration lab](examples/sdk-integration/README.md) demonstrates layout-owned viewports, IME focus ownership and display-only discrete Tween with the published v0.1.3 API.
 

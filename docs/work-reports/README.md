@@ -1,6 +1,6 @@
 # Work reports
 
-- [v0.1.5 publication and registry verification](2026-11-04-v0.1.5-publication.md): release preparation; exact candidate CI/publication/registry validation pending. v0.1.6 development is separate.
+- [v0.1.5 publication and registry verification](2026-11-04-v0.1.5-publication.md): Complete: Core/Web 0.1.5 published from ed3ccc6 through OIDC; immutable tag/Release, exact registry archives, clean consumers and four production virtual-input cases passed.
 
 Implementation checkpoints and final verification records live here so repository history is sufficient to resume interrupted work. Each report distinguishes completed checks from plans and records the source revision, branch, changes, verification, limitations and integration status. Keep older reports; add a uniquely named file per task.
 

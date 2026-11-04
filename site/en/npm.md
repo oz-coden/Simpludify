@@ -1,6 +1,6 @@
 # Start an independent npm SDK project
 
-Core/Web 0.1.4 are published on npm, including unified input and gamepads. Existing versions/tags are immutable. Use exact versions and a lockfile. Internal source paths are not public package exports.
+Core/Web 0.1.5 are published on npm, including unified input and gamepads. Existing versions/tags are immutable. Use exact versions and a lockfile. Internal source paths are not public package exports.
 
 ## Published SDK
 
@@ -8,7 +8,7 @@ Core/Web 0.1.4 are published on npm, including unified input and gamepads. Exist
 npm create vite@latest my-game -- --template vanilla-ts
 cd my-game
 npm install
-npm install --save-exact @simpludify/web@0.1.4
+npm install --save-exact @simpludify/web@0.1.5
 ```
 
 Use Node.js 22.12+ (CI: Node 24). Web installs its exact Core dependency and Pixi. The root Web import brings scoped CSS automatically; @simpludify/web/style.css is also an explicit stylesheet export. Core alone is suitable for headless simulation and has no DOM/Pixi dependency.
@@ -45,7 +45,7 @@ npm run pack:packages
 Install both generated archives in a disposable copy of the application:
 
 ```sh
-npm install --save-exact /absolute/simpludify-core-0.1.4.tgz /absolute/simpludify-web-0.1.4.tgz
+npm install --save-exact /absolute/simpludify-core-0.1.5.tgz /absolute/simpludify-web-0.1.5.tgz
 ```
 
 Run its types, units, production build and browser tests. Candidate file: dependencies belong only in that disposable copy. Production applications should use matching published registry versions and verify a clean installation before committing a dependency upgrade.
