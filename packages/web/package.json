@@ -1,6 +1,6 @@
 {
   "name": "@simpludify/web",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "type": "module",
   "exports": {
     ".": {
@@ -14,7 +14,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@simpludify/core": "0.1.5",
+    "@simpludify/core": "0.1.6",
     "pixi.js": "8.22.0"
   },
   "description": "Browser host, PixiJS rendering and input for the experimental Simpludify 2D engine.",

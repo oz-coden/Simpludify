@@ -1,0 +1,41 @@
+# Input bindings and single-input capture — v0.1.6
+
+## Baseline and scope
+
+- Baseline main: `b3e69dd3f2223431ac480fa1686182cbe7bca974`, the separate completed [v0.1.5 publication record](2026-11-04-v0.1.5-publication.md). Immutable release source/tag is `ed3ccc65d7b4c5689dfc14a96ee0bf8e12ecfad3` / `v0.1.5`; Core/Web are published and clean registry consumers passed before this implementation begins. [Publishing CI 41842910464](https://github.com/oz-coden/Simpludify/actions/runs/41842910464) succeeded.
+- Work branch: `feat/input-bindings-v0.1.6`. Source manifests/lock/ENGINE_VERSION/package READMEs are prepared as 0.1.6. Public registry and independent starter pins are not upgraded by the candidate version change.
+- Scope: keyboard/mouse bindings, controller-managed gamepad settings, one physical key/mouse/gamepad button capture, runtime configuration, save/restore, sample, paired documentation and distribution/regression verification. No npm publication/tag/Release for 0.1.6.
+- Excluded: chords, sequences, double taps/hold pattern recognition, Action priority/exclusion, game modes, a standard settings widget, input DSL or replacement Controller architecture. Existing virtual-button hold behavior is unchanged.
+
+## Existing structure reviewed
+
+Core ActionController already owns validated ActionBinding data and get/rebind/add/remove/reset/conflicts/export/import. KeyboardSource is a typed physical contribution; ActionSource is the logical composition path. Button OR and clamped/normalized axis addition, short taps, frozen frames, reset/gating and Scene lifetime are implemented. Binding conflicts are diagnostic rather than prohibitions. Existing persisted data is version 1 and imports validate all entries before applying any change.
+
+Web BrowserInput respects focus, native editing, UI-consumed keys, IME and autorepeat. GamepadInput samples once per Engine boundary and publishes separate device facts; controller-owned GamepadSource has explicit player/device assignment, source gating, mapping/dead-zone policy and neutral rearming. Its binding specification/validation is pure data although currently in Web. BrowserPointer and Core PointerRouting remain the only pointer ownership/capture boundary. Canvas UI precedes virtual controls, which precede world; captured ownership stays fixed until release/cancel.
+
+Reviewed files include README/API/architecture/Action/gamepad/virtual contracts, interaction/actions/action-bindings/input/input-source/pointer-routing, Web input/pointer/gamepads/gamepad-bindings/Game, existing unit/browser/package fixtures and site validation.
+
+## Planned implementation and compatibility
+
+1. Add portable standard MouseButton data and MouseSource to Core. Extend existing ButtonBinding with mouse buttons and digital axis direction bindings with mouseNegative/mousePositive; retain existing keyboard arrays/presets and all controller configuration methods. Per-controller mouseEnabled is separate from keyboardEnabled. Preserve legacy keyboard-only JSON shape when new fields are absent.
+2. Move the existing pure gamepad binding data/checker to Core, retaining Web re-exports and existing explicit GamepadSource bindings. Add optional root-level gamepad data to ActionBinding. Omitting GamepadOptions.bindings opts a source into the controller's common settings; explicitly supplied bindings preserve existing independent-source behavior. Device index/mapping/dead-zone assignment remains explicit on the existing source. Rebinding one managed Action must not release another held Action.
+3. Preserve conflicts()'s legacy keyboard result; optional device/all diagnostics cover added settings without rejecting duplicates. Keep version 1 import/export and document the additive optional mouse/gamepad fields: old keyboard configurations remain readable, while older SDKs reject extended fields instead of silently discarding them. Reuse checked binding/edit paths for atomic import and copied/frozen defaults. Keep per-device polling outside the Controller.
+4. Feed mouse buttons through the existing BrowserPointer/PointerRouting world-owned gesture and physical source; observe buttons on move as well as down/up, because additional pressed mouse buttons do not emit overlapping Pointer Events downs/ups. Canvas UI and virtual ownership suppress their own mouse gameplay contribution. World pointer events keep their current delivery and ownership. Auxiliary defaults are prevented only for an accepted game binding/capture.
+5. Add Game.captureInput() returning an owned InputCapture session with state/result/cancel. CapturedInput identifies keyboard code, mouse button or gamepad index/id/mapping/button and contains a ready-to-use Button ActionBinding. Escape/modifiers are ordinary assignable keys; cancellation is explicit. Capture starts arming from held inputs and ignores the initiating pointer/key; it listens after neutral state and accepts a fresh single input. Analog-axis capture is deferred to avoid drift/threshold complexity; existing manual axes remain available.
+6. Web owns raw capture listeners. A small internal InputSystem live-input gate flushes only physical contributions/queued physical transitions and resets device adapters, preserving explicitly supplied program sources. Capture suppresses gameplay keyboard/mouse/gamepad/virtual input, releases existing pointer ownership, and blocks the captured hold until release/neutral before gameplay resumes. It uses GamepadInput's existing sampled snapshot through an internal host observer, never a second navigator poll. Blur/outside/editor focus, hidden document, pause/reset/Replay, Scene/owner/Game disposal cancel safely. One active capture per Game/InputSystem; session cleanup removes ownership callbacks and Game disposal removes listeners.
+
+These are design targets, not claims of implemented behavior. Names may be refined while preserving the stated compatibility and scope.
+
+## Verification plan and risks
+
+- Core/unit: all Action kinds, keyboard/mouse and managed/explicit gamepad settings, OR/multiple Actions, add/remove/reset, copied defaults, malformed/atomic persistence, held rebind and source/lifetime/reset/Replay behavior.
+- Browser: real key/pointer/button-mask events, all five standard mouse buttons, Canvas/world/virtual arbitration, simultaneous buttons, capture opener exclusion and modifier/Escape capture, repeats, blur/editing/Scene/pause cancellation, neutral rearming, device composition, both renderers/viewports and final resource counts.
+- Consumers: genuine external candidate archives, Core without DOM/Node ambient dependencies, strict public types and runnable rebinding/capture/save examples; normal full CI and both site bases. Registry 0.1.5 verification stays pinned separately.
+- Material risks: pointer buttons use a different bit mask order than button indices; captured/opening held state must never leak into resumed gameplay; gamepad synchronization must preserve unchanged Action contributions; parser/serialization extensions must not reinterpret old fields; capture must not introduce Core host imports or another pointer owner.
+- Physical devices, pen/vendor behavior, Safari/Firefox, hardware GPU and assistive technologies require separate real-device coverage. Local standard Chromium 156 download is unavailable; supplemental npm Chromium 153 may be used with results labelled, while CI retains its pinned standard browser.
+
+## Checkpoint status
+
+Investigation/design and source version preparation only. Feature implementation, feature tests, final documentation and integration are pending. No new feature test is claimed successful at this checkpoint. Release-only main documentation CI is [41845804834](https://github.com/oz-coden/Simpludify/actions/runs/41845804834); its result will be recorded independently.
+
+Initial candidate `npm run check` passed (643 files; unchanged 16 warnings / 12 informational diagnostics; version 0.1.6 consistent; architecture and 116-dependency license checks passed). This is static baseline evidence, not feature acceptance. The plan/version checkpoint skips duplicate runtime CI; normal full feature CI remains required.
