@@ -1,4 +1,4 @@
-import type { CanvasUI, PointerRouting } from "@simpludify/core";
+import type { CanvasUI, PointerRouting, VirtualInput } from "@simpludify/core";
 import {
   type Actor,
   cleanupAll,
@@ -35,6 +35,10 @@ import {
   SharedImages,
 } from "./shared-images";
 import { TilemapVisual } from "./tilemap-visual";
+import {
+  type VirtualInputPresentation,
+  VirtualInputVisual,
+} from "./virtual-input-visual";
 
 interface Visual {
   actor: Actor;
@@ -64,6 +68,44 @@ export class PixiRenderer implements RendererPort {
   private readonly app = new Application();
   private readonly pendingUITextKeys = new Set<string>();
   private readonly canvasPresentations = new Set<CanvasVisual>();
+  private readonly virtualPresentations = new Set<VirtualInputVisual>();
+  get virtualInputDiagnostics() {
+    let controls = 0,
+      visible = 0;
+    for (const visual of this.virtualPresentations) {
+      controls += visual.diagnostics.controls;
+      visible += visual.diagnostics.visible;
+    }
+    return { presentations: this.virtualPresentations.size, controls, visible };
+  }
+  prepareVirtualInput(input: VirtualInput): VirtualInputPresentation {
+    if (!this.ready || this.dead)
+      throw new EngineError("RENDERER_NOT_READY", "Renderer is not available");
+    const visual = new VirtualInputVisual(input, (graphics) => {
+      const context = graphics.context.uid;
+      graphics.destroy({ context: true });
+      releaseUIGraphics(this.app.renderer, graphics, context);
+    });
+    this.virtualPresentations.add(visual);
+    const off = input.onDispose(() => {
+      this.virtualPresentations.delete(visual);
+    });
+    let disposed = false;
+    return {
+      update: () => {
+        if (disposed || input.disposed) return;
+        if (!visual.display.parent) this.app.stage.addChild(visual.display);
+        visual.update();
+      },
+      dispose: () => {
+        if (disposed) return;
+        disposed = true;
+        off();
+        this.virtualPresentations.delete(visual);
+        visual.dispose();
+      },
+    };
+  }
   get canvasDiagnostics() {
     let nodes = 0,
       visibleNodes = 0,
@@ -863,6 +905,10 @@ export class PixiRenderer implements RendererPort {
     cleanupAll(
       [
         ...scenes.map((scene) => scene.dispose),
+        ...[...this.virtualPresentations].map((p) => () => {
+          this.virtualPresentations.delete(p);
+          p.dispose();
+        }),
         ...[...this.canvasPresentations].map((p) => () => {
           this.canvasPresentations.delete(p);
           p.dispose();

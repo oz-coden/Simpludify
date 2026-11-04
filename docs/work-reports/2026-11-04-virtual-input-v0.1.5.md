@@ -18,3 +18,13 @@ Built-in viewport-relative/screen-space rectangles and circles receive exact ove
 Input reset, pause/replay transitions, blur, pointer cancellation, controller/Scene disposal and explicit disable release the affected source and cancel the captured gesture. Long holds use an explicitly advanced presentation clock; release confirmation contains the final optional direction while the source itself becomes neutral.
 
 Implementation and all feature-specific checks are pending at this checkpoint. Physical hardware, vendor/driver behavior, physical mobile browsers/IME and non-Chromium support must not be inferred from synthetic pointers or emulated viewports.
+
+## Implementation checkpoint 1
+
+Core VirtualInput/VirtualStick/VirtualButton, activation geometry and the existing PointerRouting target port are implemented. The Web Game lazily owns one provider per Scene; Pixi paints the controls beneath Canvas UI with no extra event adapter. Pointer Capture, virtual-only focus interruption, model visibility/enablement, relative viewport updates and cleanup reuse existing lifetime/input boundaries. Source manifests/lock/ENGINE_VERSION are prepared as 0.1.5; public registry/starter pins remain unchanged.
+
+The new unit suite passes 18 tests; targeted Action/pointer regressions pass 42 tests across three files. Initial fixtures incorrectly omitted the Canvas layout measurement callback and used KeyCode.KeyD rather than KeyCode.D; correcting those fixture calls produced the pass. TypeScript passed after implementation/sample corrections. An existing architecture validation pass is recorded when complete below. Four browser behaviors for both WebGL/Canvas2D and both standard viewports are added but not yet executed. Standard Playwright Chromium download failed with truncated ZIP data; a supplemental npm-distributed Chromium is being prepared.
+
+The sample includes separate movement/aim sticks, a central 12% gap, a directionless hold button and directional release button, ordinary Canvas UI precedence, all stick modes, explicit visibility/enablement, program handoff, pause and Scene restart. Browser acceptance, comprehensive units, packaging, bilingual documentation and full CI remain pending.
+
+Core boundary validation initially rejected the interaction module importing the runtime graphics coordinate factory. The portable control now constructs its validated screen-point data locally and imports only coordinate types; architecture and required-file validation pass without relaxing the dependency policy.

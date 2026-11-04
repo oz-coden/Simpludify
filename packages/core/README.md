@@ -1,11 +1,11 @@
 # @simpludify/core
 
-Experimental v0.1.4 of Simpludify, a code-first TypeScript 2D engine. APIs may change between 0.x releases. This package contains host-independent Scene/Actor/Component, collision, geometry, tilemaps, tween/animation, input and Canvas UI models. It has no browser or Node runtime dependencies.
+Experimental v0.1.5 of Simpludify, a code-first TypeScript 2D engine. APIs may change between 0.x releases. This package contains host-independent Scene/Actor/Component, collision, geometry, tilemaps, tween/animation, input and Canvas UI models. It has no browser or Node runtime dependencies.
 
-Registry installation (check availability with `npm view @simpludify/core@0.1.4 version`):
+Registry installation (check availability with `npm view @simpludify/core@0.1.5 version`):
 
 ```sh
-npm install @simpludify/core@0.1.4
+npm install @simpludify/core@0.1.5
 ```
 
 ```js

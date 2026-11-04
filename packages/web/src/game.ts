@@ -31,6 +31,7 @@ import {
   type TweenScheduler,
   type Viewport,
   type ViewTransform,
+  VirtualInput,
   type WorldPoint,
   worldToScreen,
 } from "@simpludify/core";
@@ -48,6 +49,7 @@ import {
   type UINode,
 } from "./ui";
 import { blocksGameKeyboard } from "./ui-keyboard";
+import type { VirtualInputPresentation } from "./virtual-input-visual";
 
 export interface SceneContext {
   readonly scene: Scene;
@@ -58,6 +60,7 @@ export interface SceneContext {
   ui(...nodes: UINode[]): void;
   canvasUI(root: CanvasNode, options?: CanvasUIOptions): CanvasUI;
   readonly pointer: ScenePointer;
+  readonly virtualInput: VirtualInput;
   actions<A extends ActionSet>(
     actions: A,
     bindings?: ActionBindings<A>,
@@ -93,6 +96,35 @@ export class Game<SceneId extends string = string> {
   private readonly keyboard: BrowserInput;
   private readonly pointers: BrowserPointer;
   private readonly pointerChannels = new WeakMap<Scene, ScenePointer>();
+  private readonly virtualInputs = new WeakMap<Scene, VirtualInput>();
+  private virtualPresentation: VirtualInputPresentation | undefined;
+  get virtualInput(): VirtualInput {
+    this.assertAlive();
+    return this.virtualFor(this.engine.scene);
+  }
+  private virtualFor(scene: Scene): VirtualInput {
+    let input = this.virtualInputs.get(scene);
+    if (!input) {
+      input = new VirtualInput(this.channelFor(scene), this.engine.input);
+      this.virtualInputs.set(scene, input);
+    }
+    return input;
+  }
+  private prepareVirtual(scene: Scene): VirtualInputPresentation | undefined {
+    const input = this.virtualInputs.get(scene);
+    if (!input || input.controls.length === 0) return;
+    const renderer = this.renderer as RendererPort & {
+      prepareVirtualInput?: (input: VirtualInput) => VirtualInputPresentation;
+    };
+    if (!renderer.prepareVirtualInput)
+      throw new EngineError(
+        "RENDERER_CAPABILITY",
+        "Renderer does not support virtual input presentation",
+      );
+    const presentation = renderer.prepareVirtualInput(input);
+    scene.onDispose(() => presentation.dispose());
+    return presentation;
+  }
   private canvas: CanvasUI | undefined;
   private canvasPresentation: CanvasPresentation | undefined;
   private defaultCanvas: CanvasUI | undefined;
@@ -252,7 +284,7 @@ export class Game<SceneId extends string = string> {
         return { screen, world: this.screenToWorld(screen), view: this.view };
       },
       this.report,
-      () => this.canvasPresentation?.update(this.width, this.height),
+      () => this.updateProjection(),
     );
     document.addEventListener(
       "visibilitychange",
@@ -467,6 +499,7 @@ export class Game<SceneId extends string = string> {
           controller = new AbortController();
         let canvas: CanvasUI | undefined;
         const pointer = this.channelFor(scene);
+        const virtualFor = () => this.virtualFor(scene);
         this.staging = scene;
         scene.onDispose(() => controller.abort());
         try {
@@ -484,6 +517,9 @@ export class Game<SceneId extends string = string> {
                 add: (actor) => scene.add(actor),
                 ui: (...items) => nodes.push(...items),
                 pointer,
+                get virtualInput() {
+                  return virtualFor();
+                },
                 canvasUI: (root, options) => {
                   if (canvas)
                     throw new EngineError(
@@ -536,6 +572,7 @@ export class Game<SceneId extends string = string> {
       ui: MountedUI | undefined,
       committed = false;
     let canvasPresentation: CanvasPresentation | undefined;
+    let virtualPresentation: VirtualInputPresentation | undefined;
     try {
       const preparing = this.renderer.prepare(scene);
       void preparing.then(
@@ -573,6 +610,7 @@ export class Game<SceneId extends string = string> {
         );
         scene.onDispose(() => canvasPresentation?.dispose());
       }
+      virtualPresentation = this.prepareVirtual(scene);
       scene.markReady();
       this.errorBox.hidden = true;
       try {
@@ -586,11 +624,13 @@ export class Game<SceneId extends string = string> {
       this.assertAlive();
       const oldPrepared = this.prepared,
         oldUI = this.ui,
-        oldCanvas = this.canvasPresentation;
+        oldCanvas = this.canvasPresentation,
+        oldVirtual = this.virtualPresentation;
       this.prepared = prepared;
       this.ui = ui;
       this.canvas = canvas;
       this.canvasPresentation = canvasPresentation;
+      this.virtualPresentation = virtualPresentation;
       this.pointers.routing.setScene(this.channelFor(scene), canvas);
       committed = true;
       this.element.append(ui.element);
@@ -598,6 +638,7 @@ export class Game<SceneId extends string = string> {
         () => oldPrepared?.dispose(),
         () => oldUI?.dispose(),
         () => oldCanvas?.dispose(),
+        () => oldVirtual?.dispose(),
       ]) {
         try {
           cleanup();
@@ -617,6 +658,7 @@ export class Game<SceneId extends string = string> {
           () => prepared?.dispose(),
           () => ui?.dispose(),
           () => canvasPresentation?.dispose(),
+          () => virtualPresentation?.dispose(),
         ]) {
           try {
             cleanup();
@@ -763,6 +805,7 @@ export class Game<SceneId extends string = string> {
       width: this.width,
       height: this.height,
     };
+    this.virtualInputs.get(this.engine.scene)?.refresh(viewport);
     const previous = this.projection.viewport;
     const c = this.camera;
     if (
@@ -819,6 +862,8 @@ export class Game<SceneId extends string = string> {
   }
   private render(): void {
     this.updateProjection();
+    this.virtualPresentation ??= this.prepareVirtual(this.engine.scene);
+    this.virtualPresentation?.update();
     this.prepared?.render(this.projection);
   }
   private readonly tick = (time: number): void => {
@@ -845,6 +890,9 @@ export class Game<SceneId extends string = string> {
           );
         if (this.engine.paused) this.canvas?.stopMotion();
         else this.canvas?.advance(elapsed);
+        this.virtualInputs
+          .get(this.engine.scene)
+          ?.advance(Math.min(this.maxDelta, elapsed));
         if (
           this.ratio !==
           (this.options.pixelRatio ?? Math.min(window.devicePixelRatio || 1, 2))
@@ -881,6 +929,7 @@ export class Game<SceneId extends string = string> {
       () => this.gamepads.dispose(),
       () => this.keyboard.dispose(),
       () => this.canvasPresentation?.dispose(),
+      () => this.virtualPresentation?.dispose(),
       () => this.canvas?.dispose(),
       () => this.observer.disconnect(),
       () => this.ui?.dispose(),
@@ -900,6 +949,7 @@ export class Game<SceneId extends string = string> {
     this.staging = undefined;
     this.canvas = undefined;
     this.canvasPresentation = undefined;
+    this.virtualPresentation = undefined;
     this.defaultCanvas = undefined;
     this.defaultUI.length = 0;
     this.scenes.clear();

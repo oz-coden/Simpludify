@@ -44,6 +44,10 @@ export class InputSystem {
   private dead = false;
   private playback = false;
   private frames: ReadonlyMap<object, ActionFrame> | undefined;
+  /** @internal Device hosts may reject live gestures during Replay playback. */
+  get liveInput(): boolean {
+    return !this.dead && !this.playback;
+  }
   get sourceCount(): number {
     let count = this.keyboards.size;
     for (const actions of this.actions) count += actions.sourceCount;

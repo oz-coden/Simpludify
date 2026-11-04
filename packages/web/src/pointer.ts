@@ -6,7 +6,7 @@ import {
   type ViewTransform,
   type WorldPoint,
 } from "@simpludify/core";
-import { focusGameSurface } from "./ui-keyboard";
+import { blocksGameKeyboard, focusGameSurface } from "./ui-keyboard";
 /** One DOM capture-phase adapter per Game; Pixi federated events never route these widgets. */
 export class BrowserPointer {
   readonly routing: PointerRouting;
@@ -119,6 +119,19 @@ export class BrowserPointer {
       (event) => {
         if (event.target === window) this.release();
       },
+      options,
+    );
+    host.addEventListener(
+      "focusout",
+      (event) =>
+        this.guard(() => {
+          if (
+            !(event.relatedTarget instanceof Node) ||
+            !host.contains(event.relatedTarget) ||
+            blocksGameKeyboard(event.relatedTarget)
+          )
+            this.routing.releaseVirtual();
+        }),
       options,
     );
     document.addEventListener(

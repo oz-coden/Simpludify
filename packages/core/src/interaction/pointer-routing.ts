@@ -14,6 +14,7 @@ import {
   canvasScrollbars,
   scrollbarContains,
 } from "../ui/scrollbar";
+import type { PointerTarget, PointerTargetProvider } from "./pointer-target";
 /** Snapshot coordinates at DOM delivery. Screen is host CSS units; world includes the current Camera. */
 export interface PointerInfo {
   readonly pointerId: number;
@@ -39,6 +40,22 @@ export class ScenePointer implements LifetimeOwner {
   private readonly lifetime = new Lifetime();
   readonly events = new EventBus();
   private readonly removeScene: () => void;
+  private targets: PointerTargetProvider | undefined;
+  /** @internal Exactly one Scene virtual-input provider shares the existing router. */
+  attachTargets(provider: PointerTargetProvider): () => void {
+    if (this.disposed || this.targets)
+      throw new EngineError(
+        "INVALID_VIRTUAL_INPUT",
+        "Scene already has virtual input or is disposed",
+      );
+    this.targets = provider;
+    return () => {
+      if (this.targets === provider) this.targets = undefined;
+    };
+  }
+  /** @internal */ pickTarget(data: PointerInfo): PointerTarget | undefined {
+    return this.targets?.disposed ? undefined : this.targets?.pick(data);
+  }
   constructor(readonly scene: Scene) {
     this.removeScene = scene.onDispose(() => this.dispose());
   }
@@ -63,6 +80,8 @@ export class ScenePointer implements LifetimeOwner {
 interface Gesture {
   channel: ScenePointer;
   node?: CanvasNode;
+  target?: PointerTarget;
+  targetRevision?: number;
   ui?: CanvasUI;
   last: PointerInfo;
   primary: boolean;
@@ -83,6 +102,7 @@ interface Gesture {
 }
 /** @internal Device-independent routing state; DOM is only an adapter. */
 export class PointerRouting {
+  private readonly targetOwners = new Map<PointerTarget, number>();
   private readonly controlOwners = new Map<CanvasNode, number>();
   private readonly scrollOwners = new Map<CanvasNode, number>();
   private readonly suppressed = new Set<number>();
@@ -109,6 +129,7 @@ export class PointerRouting {
       deliveries: this.deliveries,
       scrollDrags: this.scrollOwners.size,
       controlDrags: this.controlOwners.size,
+      virtualDrags: this.targetOwners.size,
     };
   }
   setScene(channel: ScenePointer, ui?: CanvasUI): void {
@@ -138,6 +159,23 @@ export class PointerRouting {
     type: typeof PointerDown,
     info: PointerInfo,
   ): void {
+    if (gesture.target) {
+      const phase =
+        type === PointerDown
+          ? "down"
+          : type === PointerMove
+            ? "move"
+            : type === PointerUp
+              ? "up"
+              : type === PointerCancel
+                ? "cancel"
+                : undefined;
+      if (phase) {
+        this.deliveries++;
+        gesture.target.deliver(phase, info);
+      }
+      return;
+    }
     if (gesture.channel.disposed || gesture.node?.disposed) return;
     this.deliveries++;
     (gesture.node?.events ?? gesture.channel.events).emit(type, info);
@@ -145,8 +183,9 @@ export class PointerRouting {
   private inside(g: Gesture, data: PointerInfo): PointerInfo {
     return Object.freeze({
       ...data,
-      inside:
-        g.scroll && g.ui
+      inside: g.target
+        ? g.target.contains(data)
+        : g.scroll && g.ui
           ? g.ui.containsNode(
               g.scroll,
               data.screen.x / g.ui.scale,
@@ -171,6 +210,12 @@ export class PointerRouting {
     );
     const node = pick?.node,
       bar = pick?.bar;
+    const target =
+      !node && data.button === 0 ? this.channel.pickTarget(data) : undefined;
+    if (target && this.targetOwners.has(target)) {
+      this.suppressed.add(data.pointerId);
+      return;
+    }
     if (
       bar &&
       data.button === 0 &&
@@ -183,22 +228,24 @@ export class PointerRouting {
       this.suppressed.add(data.pointerId);
       return node;
     }
-    if (!node && !data.inside) return;
+    if (!node && !target && !data.inside) return;
     const g: Gesture = {
       channel: this.channel,
       last: data,
       primary: data.button === 0,
       start: data,
       scale: this.ui?.scale ?? 1,
-      candidates:
-        this.ui?.scrollTargets(
-          data.screen.x / this.ui.scale,
-          data.screen.y / this.ui.scale,
-        ) ?? [],
+      candidates: !target
+        ? (this.ui?.scrollTargets(
+            data.screen.x / this.ui.scale,
+            data.screen.y / this.ui.scale,
+          ) ?? [])
+        : [],
       candidateRevisions: [],
       vx: 0,
       vy: 0,
       ...(node ? { node, ui: this.ui as CanvasUI } : {}),
+      ...(target ? { target, targetRevision: target.revision } : {}),
     };
     g.candidateRevisions = g.candidates.map((n) => n.scrollRevision);
     for (const candidate of g.candidates) candidate.stopScroll();
@@ -230,6 +277,18 @@ export class PointerRouting {
     if (node?.control) g.controlRevision = node.control.revision;
     this.gestures.set(data.pointerId, g);
     if (node) g.off = node.onDispose(() => this.cancel(data.pointerId));
+    if (target) {
+      this.targetOwners.set(target, data.pointerId);
+      const off = target.subscribe(() => {
+        if (!target.available || target.revision !== g.targetRevision)
+          this.cancel(data.pointerId);
+      });
+      const disposed = target.onDispose(() => this.cancel(data.pointerId));
+      g.off = () => {
+        off();
+        disposed();
+      };
+    }
     cleanupAll(
       [
         () => {
@@ -330,7 +389,8 @@ export class PointerRouting {
         if (dx >= g.control.style.dragThreshold && dx > dy)
           g.controlLocked = true;
       }
-      if (!g.scroll && g.primary && !g.controlLocked) this.claimScroll(g, data);
+      if (!g.target && !g.scroll && g.primary && !g.controlLocked)
+        this.claimScroll(g, data);
       if (this.gestures.get(data.pointerId) !== g) return;
       if (g.bar && g.scroll && g.ui) {
         const bar = canvasScrollbars(g.scroll).find(
@@ -526,6 +586,7 @@ export class PointerRouting {
     g = this.gestures.get(data.pointerId);
     if (!g) return;
     this.gestures.delete(data.pointerId);
+    if (g.target) this.targetOwners.delete(g.target);
     if (g.control) this.controlOwners.delete(g.control);
     if (g.scroll) {
       this.scrollOwners.delete(g.scroll);
@@ -551,6 +612,7 @@ export class PointerRouting {
         },
         () => {
           if (
+            !g.target &&
             !g.scroll &&
             g.primary &&
             info.inside &&
@@ -571,6 +633,7 @@ export class PointerRouting {
     const g = this.gestures.get(id);
     if (!g) return;
     this.gestures.delete(id);
+    if (g.target) this.targetOwners.delete(g.target);
     if (g.control) this.controlOwners.delete(g.control);
     if (g.scroll) {
       this.scrollOwners.delete(g.scroll);
@@ -703,6 +766,19 @@ export class PointerRouting {
         ...[...this.keys.keys()].map((n) => () => this.releaseKeys(n)),
       ],
       "Pointer release failed",
+    );
+  }
+  /** @internal Host focus changes interrupt virtual devices without changing Canvas editing rules. */
+  releaseVirtual(): void {
+    cleanupAll(
+      [...this.gestures]
+        .filter(([, g]) => g.target)
+        .map(
+          ([id]) =>
+            () =>
+              this.cancel(id),
+        ),
+      "Virtual pointer release failed",
     );
   }
   dispose(): void {

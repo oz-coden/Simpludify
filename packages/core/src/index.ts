@@ -24,6 +24,17 @@ export type { InputAdapter } from "./interaction/input";
 export { InputSystem, KeyboardSource } from "./interaction/input";
 export * from "./interaction/key-code";
 export * from "./interaction/pointer-routing";
+export * from "./interaction/virtual-control";
+export * from "./interaction/virtual-input";
+export type {
+  VirtualCircleRegion,
+  VirtualCustomRegion,
+  VirtualPosition,
+  VirtualRectRegion,
+  VirtualRegion,
+  VirtualSpace,
+} from "./interaction/virtual-regions";
+export { VirtualRegions } from "./interaction/virtual-regions";
 export * from "./runtime/engine";
 export * from "./runtime/fixed-step";
 export * from "./runtime/ports";
