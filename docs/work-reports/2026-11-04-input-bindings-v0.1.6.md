@@ -70,3 +70,8 @@ Capture/session/sample checkpoint: `a7ec93df73ece6f49f1f16d2420074e009171532`. T
 At 2026-11-05 00:10 JST the execution/browser environment became unavailable. This interrupted the next documentation checkpoint; draft documentation/consumer edits had not yet been pushed. No final local full-suite/consumer/site result is claimed. The saved GitHub branch remains the implementation baseline; corrected fixtures and subsequent documentation are being restored directly through repository APIs, with normal CI as the executable verification environment. A local static check before the interruption had passed 655 files with unchanged 16 warnings and 12 infos, architecture, SDK version and 116 dependency licenses; that result applies to the then-local candidate, not later remote edits.
 
 Pending: restore paired documentation and extended package consumers, verify full CI, inspect failures, integrate only after successful validation, and record final main CI. No v0.1.6 publication is authorized or performed.
+
+
+## Restored documentation checkpoint
+
+Paired English/Japanese Binding guides, CLI/site sample registration and API/Action/gamepad/architecture entry points were restored after the host interruption. They specify device settings, neutral arming, ownership, cancellation, program-source behavior, version-1 compatibility and unverified real hardware. Public code samples are included in site snippet compilation. Extended package consumer restoration and final CI remain pending.

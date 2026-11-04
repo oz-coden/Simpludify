@@ -1,5 +1,7 @@
 # API
 
+Source v0.1.6 adds mouse/gamepad ActionBinding fields, MouseSource, mouseEnabled, device conflict diagnostics and Game.captureInput. See [contracts, examples and compatibility](input-bindings.md).
+
 `@simpludify/core` is DOM-free. [Typed Action input](action-input.md) defines logical buttons/axes, key bindings, source composition and input boundaries. `@simpludify/web` re-exports Core and supplies Game, PixiRenderer, browser input, DOM UI and scoped default CSS. All mode objects export corresponding union types. The root workspace is private; Core/Web are publishable SDK packages. The published registry SDK is v0.1.5, including virtual pointer controls.
 
 ## Fixed-size two-dimensional data

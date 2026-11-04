@@ -1,5 +1,7 @@
 # Simpludify
 
+Source v0.1.6 adds [physical bindings and single-input capture](docs/input-bindings.md); npm remains v0.1.5. The [input-bindings lab](examples/input-bindings/README.md) demonstrates runtime configuration.
+
 [![Core](https://img.shields.io/npm/v/@simpludify/core?label=core)](https://www.npmjs.com/package/@simpludify/core)
 [![Web](https://img.shields.io/npm/v/@simpludify/web?label=web)](https://www.npmjs.com/package/@simpludify/web)
 [![CI](https://github.com/oz-coden/Simpludify/actions/workflows/ci.yml/badge.svg)](https://github.com/oz-coden/Simpludify/actions/workflows/ci.yml)
