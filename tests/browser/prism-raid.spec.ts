@@ -88,7 +88,7 @@ test("flies and fires with simultaneous keys, releases focus, pauses and restart
   expect(await page.evaluate(() => window.prismRaid.round)).toBeUndefined();
   expect(
     await page.evaluate(() => window.prismRaid.game.engine.input.sourceCount),
-  ).toBe(1);
+  ).toBe(2);
   expect(errors).toEqual([]);
 });
 test("composes movement and fire from real simultaneous touch points", async ({
@@ -244,7 +244,8 @@ test("restarts repeatedly without accumulating input sources or presentations", 
   for (const row of results) {
     expect(row.units).toBe(0);
     expect(row.world).toBe(true);
-    expect(row.sources).toBe(3);
+    // Two host physical sources plus two Scene touch sources.
+    expect(row.sources).toBe(4);
     expect(row.render).toEqual({
       presentations: 1,
       visuals: 43,

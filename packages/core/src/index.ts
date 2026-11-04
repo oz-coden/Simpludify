@@ -23,6 +23,7 @@ export * from "./interaction/actions";
 export * from "./interaction/gamepad-bindings";
 export type { InputAdapter } from "./interaction/input";
 export { InputSystem, KeyboardSource, MouseSource } from "./interaction/input";
+export * from "./interaction/input-capture";
 export * from "./interaction/key-code";
 export * from "./interaction/physical-input";
 export * from "./interaction/pointer-routing";

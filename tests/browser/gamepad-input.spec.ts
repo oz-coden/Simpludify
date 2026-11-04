@@ -205,7 +205,8 @@ for (const fallback of [false, true])
       expect(result.resumed).toEqual({ x: 0, y: 0 });
       expect(result.oldDisposed).toBe(true);
       expect(result.newSources).toBe(true);
-      expect(result.sources).toBe(15);
+      // Game owns one keyboard and one mouse source outside the Scene.
+      expect(result.sources).toBe(16);
     });
     test("Canvas touch writes the same Actions and native editing suppresses physical gamepad/keyboard input", async ({
       page,
