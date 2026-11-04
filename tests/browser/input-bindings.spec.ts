@@ -18,8 +18,13 @@ declare global {
 }
 async function worldPoint(page: Page) {
   return page.evaluate(() => {
-    const r = window.bindingLab.game.element.getBoundingClientRect();
-    return { x: r.left + r.width * 0.55, y: r.top + r.height * 0.72 };
+    const { game } = window.bindingLab,
+      r = game.element.getBoundingClientRect(),
+      v = game.viewport;
+    return {
+      x: r.left + ((v.x + v.width * 0.55) * r.width) / game.element.clientWidth,
+      y: r.top + ((v.y + v.height * 0.72) * r.height) / game.element.clientHeight,
+    };
   });
 }
 async function state(page: Page) {
@@ -142,8 +147,12 @@ for (const fallback of [false, true])
       // A mouse-owned virtual stick must not also trigger the mouse Button binding.
       const stick = await page.evaluate(() => {
         const { game } = window.bindingLab,
-          r = game.element.getBoundingClientRect();
-        return { x: r.left + r.width * 0.18, y: r.top + r.height * 0.78 };
+          r = game.element.getBoundingClientRect(),
+          v = game.viewport;
+        return {
+          x: r.left + ((v.x + v.width * 0.18) * r.width) / game.element.clientWidth,
+          y: r.top + ((v.y + v.height * 0.78) * r.height) / game.element.clientHeight,
+        };
       });
       await page.mouse.move(stick.x, stick.y);
       await page.mouse.down();
