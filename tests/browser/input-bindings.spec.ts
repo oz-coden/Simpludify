@@ -290,27 +290,44 @@ for (const fallback of [false, true])
         "pause",
         "scene",
         "owner",
+        "editing",
+        "reset",
+        "replay",
       ] as const) {
         await page.locator(".simpludify").focus();
-        const result = await page.evaluate(async ({ kind, core }) => {
-          const { game } = window.bindingLab;
-          const { Lifetime } = await import(core);
-          const owner = new Lifetime();
-          const capture = game.captureInput({ devices: ["keyboard"], owner });
-          if (kind === "cancel") capture.cancel();
-          if (kind === "blur") window.dispatchEvent(new Event("blur"));
-          if (kind === "pause") {
-            game.pause();
-            game.resume();
-          }
-          if (kind === "scene") await game.goTo("play");
-          if (kind === "owner") owner.dispose();
-          return {
-            state: capture.state,
-            result: await capture.result,
-            live: game.engine.input.liveInput,
-          };
-        }, { kind, core: `/@fs/${process.cwd()}/packages/core/src/index.ts` });
+        const result = await page.evaluate(
+          async ({ kind, core }) => {
+            const { game } = window.bindingLab;
+            const { Lifetime } = await import(core);
+            const owner = new Lifetime();
+            const capture = game.captureInput({ devices: ["keyboard"], owner });
+            if (kind === "cancel") capture.cancel();
+            if (kind === "blur") window.dispatchEvent(new Event("blur"));
+            if (kind === "pause") {
+              game.pause();
+              game.resume();
+            }
+            if (kind === "scene") await game.goTo("play");
+            if (kind === "owner") owner.dispose();
+            if (kind === "editing") {
+              const field = document.createElement("input");
+              game.element.append(field);
+              field.focus();
+              field.remove();
+            }
+            if (kind === "reset") game.engine.input.clear();
+            if (kind === "replay") {
+              game.engine.input.lockPlayback();
+              game.engine.input.unlockPlayback();
+            }
+            return {
+              state: capture.state,
+              result: await capture.result,
+              live: game.engine.input.liveInput,
+            };
+          },
+          { kind, core: `/@fs/${process.cwd()}/packages/core/src/index.ts` },
+        );
         expect(result).toEqual({
           state: "cancelled",
           result: undefined,

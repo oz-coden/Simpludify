@@ -10,7 +10,11 @@ import {
   Character,
   defineActions,
   Game,
+  GamepadButton,
+  type InputCapture,
   KeyboardBindings,
+  KeyCode,
+  MouseButton,
   VirtualRegions,
   VirtualStickMode,
 } from "@simpludify/web";
@@ -19,7 +23,9 @@ import {
 const game = new Game<"first" | "second">({
   parent: document.querySelector<HTMLElement>("#app") ?? document.body,
 });
-const actions = defineActions({ Move: Action.axis2D() });
+const actions = defineActions({ Move: Action.axis2D(), Jump: Action.button() });
+let currentControls: ActionController<typeof actions>;
+let capture: InputCapture | undefined;
 const image = new URL("./sprite.svg", import.meta.url).href;
 let clicks = 0;
 let disposals = 0;
@@ -35,8 +41,17 @@ for (const id of ["first", "second"] as const) {
     const controls = new ActionController(actions, {
       scene,
       input: game.engine.input,
-      bindings: { Move: KeyboardBindings.WASD },
+      bindings: {
+        Move: KeyboardBindings.WASD,
+        Jump: {
+          keys: [KeyCode.Space],
+          mouse: [MouseButton.Left],
+          gamepad: { buttons: [GamepadButton.South] },
+        },
+      },
     });
+    currentControls = controls;
+    game.gamepads.bind(controls, { index: 0 });
     const stick = virtualInput.stick(controls, actions.Move, {
       region: VirtualRegions.Right,
       mode: VirtualStickMode.Floating,
@@ -85,6 +100,29 @@ await game.run("first");
 if (!(game.engine instanceof Engine)) throw new Error("Duplicate Core runtime");
 const probe = {
   game,
+  get jump() {
+    game.engine.step(0);
+    return currentControls.value(actions.Jump);
+  },
+  roundTrip() {
+    const actor = player;
+    const saved = currentControls.exportBindings();
+    currentControls.rebind(actions.Jump, {});
+    currentControls.importBindings(saved);
+    return (
+      actor === player &&
+      JSON.stringify(saved) === JSON.stringify(currentControls.exportBindings())
+    );
+  },
+  beginCapture() {
+    capture = game.captureInput({ devices: ["keyboard"] });
+    return capture.state;
+  },
+  async readCapture() {
+    const input = await capture?.result;
+    if (input) currentControls.addBindings(actions.Jump, input.binding);
+    return input;
+  },
   get x() {
     return player.x;
   },

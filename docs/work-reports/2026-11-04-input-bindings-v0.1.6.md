@@ -75,3 +75,8 @@ Pending: restore paired documentation and extended package consumers, verify ful
 ## Restored documentation checkpoint
 
 Paired English/Japanese Binding guides, CLI/site sample registration and API/Action/gamepad/architecture entry points were restored after the host interruption. They specify device settings, neutral arming, ownership, cancellation, program-source behavior, version-1 compatibility and unverified real hardware. Public code samples are included in site snippet compilation. Extended package consumer restoration and final CI remain pending.
+
+
+## Consumer restoration checkpoint
+
+External candidate-archive validation now imports the public portable capture API without DOM/Node ambient types and exercises version-1 save/restore, actual keyboard/mouse input, keyboard+pad OR and capture-result rebinding in the installed Web consumer. Existing dev/production/subpath and 1280/390/320 viewport checks remain. Browser capture cleanup now also covers editing focus, explicit input reset and the Replay input lock. These restored checks await CI; the execution environment is still unavailable. Earlier six independent frozen consumer regressions remain unchanged.
