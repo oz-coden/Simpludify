@@ -1,5 +1,7 @@
 # Input bindings v0.1.6 — final review and integration
 
+**Complete — 2026-11-05:** integrated as [`3914f15`](https://github.com/oz-coden/Simpludify/commit/3914f15fe2ed6965ad4d454425f08b093f7193ff); [main CI 42011806604](https://github.com/oz-coden/Simpludify/actions/runs/42011806604) passed all 20 validation jobs and Pages. npm remains 0.1.5. Detailed retry evidence and unverified environments are retained below.
+
 ## Recovery baseline
 
 - Repository: `oz-coden/Simpludify`; branch `feat/input-bindings-v0.1.6`.
@@ -65,3 +67,23 @@ Registry reads confirmed Core/Web remain 0.1.5. npm publication/tag workflows ar
 The final native-opener and mouse-focus regressions passed in both viewport sizes and both renderers. Previously completed implementation/consumer/paired-documentation checkpoints have been reused. Current source changes after the validated runtime are documentation only (historical record restoration, source/publication status and these results); local static checks and both site-base reference/snippet checks passed as recorded above. Original implementation history is preserved intact.
 
 Final review is complete. Main integration and its separate CI remain pending at this checkpoint. No 0.1.6 publication/tag/Release has been created.
+
+
+## Main integration and final verification — 2026-11-05
+
+- Main was rechecked immediately before integration and remained `b3e69dd3f2223431ac480fa1686182cbe7bca974`. No unrelated main changes were overwritten; the update used an expected-head lease and no force push.
+- Feature acceptance/documentation checkpoint: `881e786176cc1c23ab0716c9ab4ba4b9f949135b`. Its runtime/packages/examples/tests/workflows are identical to the feature CI candidate; subsequent edits were documentation only.
+- Main integration: **`3914f15fe2ed6965ad4d454425f08b093f7193ff`**, with the previous main and feature checkpoint retained as parents.
+- [Main CI 42011806604](https://github.com/oz-coden/Simpludify/actions/runs/42011806604), attempt 1: **completed successfully, all 20 validation jobs plus Pages deployment/live verification (21 successful jobs)**. This is independent main verification, not a reused feature-branch run.
+- Main logs confirm **66 unit files / 891 unit cases** and **448 engine browser cases** (117 + 107 for each desktop/narrow project), without engine test retries. TypeScript/Core boundary/static checks, both OS packages/starters/tooling, production builds and both site bases passed. Existing static diagnostics remain 16 warnings / 12 infos.
+- The independent game consumer completed all **66 E2E cases** across six configurations: **65 first-pass successes and one desktop WebGL case successful on the fixture's existing retry**. All six candidate checkouts also passed 35 headless cases each and retained dependency files unchanged. The retried main case was command reordering, not the earlier feature-branch 320px resize case. Its trace shows a plain command-text `page.evaluate` remaining unanswered for about 15 seconds until test teardown; it did not return a failing logical value. Its unchanged retry and the other five configurations passed. [Failure/trace artifact](https://github.com/oz-coden/Simpludify/actions/runs/42011806604/artifacts/13406624769). No assertion, timeout or retry setting was relaxed. The intermittent desktop browser responsiveness remains a recorded automation limitation; its root cause is not established.
+- Pages deployment and live SDK integration, Tween, Tilemap, tile-geometry, virtual-input and unified-input checks passed at `https://github.oz-coden.com/Simpludify/`.
+- Registry reads confirmed Core/Web 0.1.5; remote tags and GitHub Releases contain no v0.1.6. No publication, tag workflow or Release creation was performed.
+
+The final follow-up commit only records these results in this report, the preserved implementation report and their index. Runtime, manifests, examples, tests, workflows and site content remain byte-identical to the validated integration commit. Static validation is required for this record; duplicate runtime CI is skipped for the documentation-only successor. The validated source commit and successful main run above remain the runtime acceptance evidence.
+
+## Remaining limits and follow-up
+
+No reproducible functional regression remains from this review. Intermittent desktop WebGL/frozen-clock responsiveness was observed as described above; successful retries do not establish its underlying cause. The earlier local base-switch generated-output anomaly also remains historical evidence, with independent root rebuild and both isolated main CI base jobs successful.
+
+Physical gamepads and real-device reconnect behavior, pen/vendor buttons, actual touch/OS variations, Safari/Firefox, hardware GPU and assistive technologies remain unverified. OS/browser-reserved gestures may remain unavailable. Capture remains single digital input; analog capture, chords, sequences, pattern recognition and a standard settings widget are deferred. Existing analog bindings remain available. Version-1 keyboard-only persistence and older explicit gamepad mappings remain compatible; older SDKs reject the extended optional device fields.
