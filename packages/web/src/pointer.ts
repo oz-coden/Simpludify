@@ -172,8 +172,10 @@ export class BrowserPointer {
             !(event.relatedTarget instanceof Node) ||
             !host.contains(event.relatedTarget) ||
             blocksGameKeyboard(event.relatedTarget)
-          )
+          ) {
+            this.resetMouse();
             this.routing.releaseVirtual();
+          }
         }),
       options,
     );

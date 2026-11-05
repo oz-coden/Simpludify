@@ -165,6 +165,39 @@ for (const fallback of [false, true])
       expect((await state(page)).jump).toBe(false);
       await page.mouse.up();
     });
+    test("editing and outside focus release mouse gameplay and require a fresh gesture", async ({
+      page,
+    }) => {
+      const p = await worldPoint(page);
+      await page.evaluate(() => {
+        const { current: c, Actions: a } = window.bindingLab;
+        c.program.set(a.Jump, true);
+      });
+      for (const outside of [false, true]) {
+        await page.mouse.move(p.x, p.y);
+        await page.mouse.down();
+        expect((await state(page)).attack).toBe(true);
+        await page.evaluate((outside) => {
+          const field = document.createElement("input");
+          field.id = "binding-focus-probe";
+          (outside ? document.body : window.bindingLab.game.element).append(
+            field,
+          );
+          field.focus();
+        }, outside);
+        expect(await state(page)).toMatchObject({ attack: false, jump: true });
+        await page.locator(".simpludify").focus();
+        await page.mouse.move(p.x + 1, p.y);
+        expect((await state(page)).attack).toBe(false);
+        await page.mouse.up();
+        await page.mouse.down();
+        expect((await state(page)).attack).toBe(true);
+        await page.mouse.up();
+        await page.locator("#binding-focus-probe").evaluate((field) => {
+          field.remove();
+        });
+      }
+    });
     test("keyboard, mouse and pad OR, runtime edits and version-1 persistence retain the same Actor", async ({
       page,
     }) => {
