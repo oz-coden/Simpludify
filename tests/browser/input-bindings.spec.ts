@@ -241,6 +241,28 @@ for (const fallback of [false, true])
         await page.evaluate(async () => await window.bindingCapture.result),
       ).toMatchObject({ code: "Escape" });
     });
+    test("keyboard activation of a native capture button waits for the opening hold", async ({
+      page,
+    }) => {
+      await page
+        .getByRole("button", { name: "Capture Jump input", exact: true })
+        .focus();
+      await page.keyboard.down("Enter");
+      await page.evaluate(() => {
+        const capture = window.bindingLab.capture;
+        if (!capture) throw new Error("Missing keyboard-opened capture");
+        window.bindingCapture = capture;
+      });
+      expect((await state(page)).capture).toBe("arming");
+      await page.keyboard.press("r");
+      expect((await state(page)).capture).toBe("arming");
+      await page.keyboard.up("Enter");
+      expect((await state(page)).capture).toBe("listening");
+      await page.keyboard.press("Alt");
+      expect(
+        await page.evaluate(async () => await window.bindingCapture.result),
+      ).toMatchObject({ device: "keyboard", code: "AltLeft" });
+    });
     test("captures mouse/pad after neutral baselines, with explicit cancellation and Scene/blur/pause cleanup", async ({
       page,
     }) => {

@@ -202,20 +202,17 @@ export class InputCaptureManager {
     capture.arm();
   }
   private keyDown(event: KeyboardEvent): void {
+    if (event.isComposing || event.keyCode === 229 || !isKeyCode(event.code))
+      return;
+    // Observe preheld keys even on native openers; only game targets are consumed.
+    const previous = this.keys.has(event.code);
+    this.keys.add(event.code);
     if (!(event.target instanceof Node) || !this.host.contains(event.target))
       return;
-    if (
-      event.isComposing ||
-      event.keyCode === 229 ||
-      blocksGameKeyboard(event.target)
-    )
-      return;
+    if (blocksGameKeyboard(event.target)) return;
     // Native settings buttons can still invoke an explicit cancel API.
     if (event.target instanceof HTMLElement && event.target.closest("button"))
       return;
-    if (!isKeyCode(event.code)) return;
-    const previous = this.keys.has(event.code);
-    this.keys.add(event.code);
     const capture = this.current;
     if (!capture && !this.blockedKeys.has(event.code)) return;
     this.blockedKeys.add(event.code);

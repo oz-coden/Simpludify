@@ -255,6 +255,27 @@ it("does not adopt an already-held newly assigned gamepad button until neutral",
   expect(f.c.pressed(A.Jump)).toBe(true);
   f.engine.dispose();
 });
+it("silently resets a changed managed pad binding without releasing another Action", () => {
+  const f = fixture();
+  f.button(0, true);
+  f.engine.step(0);
+  f.c.rebind(A.Jump, { gamepad: { buttons: [1] } });
+  f.engine.step(0);
+  expect(f.c.button(A.Jump)).toMatchObject({
+    held: false,
+    pressCount: 0,
+    releaseCount: 0,
+  });
+  expect(f.c.button(A.Attack)).toMatchObject({
+    held: true,
+    pressCount: 0,
+    releaseCount: 0,
+  });
+  f.button(1, true);
+  f.engine.step(0);
+  expect(f.c.pressed(A.Jump)).toBe(true);
+  f.engine.dispose();
+});
 it("keeps explicit legacy gamepad mappings independent and can opt back into common settings", () => {
   const f = fixture();
   f.source.rebind({ Jump: { buttons: [1] } });

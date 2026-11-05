@@ -223,16 +223,7 @@ export class GamepadSource<A extends ActionSet> {
         JSON.stringify(before.get(action)) === JSON.stringify(after.get(action))
       )
         continue;
-      this.source.set(
-        action as A[keyof A],
-        (action.kind === "button"
-          ? false
-          : action.kind === "axis1d"
-            ? 0
-            : action.kind === "axis2d"
-              ? { x: 0, y: 0 }
-              : { x: 0, y: 0, z: 0 }) as never,
-      );
+      this.source.resetBinding(action as A[keyof A]);
       if (after.has(action)) this.waiting.add(action);
       else this.waiting.delete(action);
     }

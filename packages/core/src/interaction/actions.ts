@@ -381,6 +381,7 @@ export class ActionController<A extends ActionSet>
     source: ActionSource<A>,
     action: ActionToken,
     value: Value,
+    edges = true,
   ): void {
     this.options.input.assertWrite(isNeutral(value));
     this.entry(action);
@@ -391,7 +392,7 @@ export class ActionController<A extends ActionSet>
         "Action source has been disposed",
       );
     values.set(action, value);
-    this.recompute(action);
+    this.recompute(action, edges);
   }
   /** @internal */ clearSource(source: ActionSource<A>, remove: boolean): void {
     const values = this.sources.get(source);
@@ -772,6 +773,11 @@ export class ActionSource<A extends ActionSet> extends OwnedInputSource {
     const checked = checkedActionValue(action, value);
     if (this.writable(isNeutral(checked)))
       this.controller.write(this, action, checked);
+  }
+  /** @internal Reset one device binding without synthesizing logical edges. */
+  resetBinding(action: Token<A>): void {
+    if (this.writable(true))
+      this.controller.write(this, action, neutral(action), false);
   }
   protected release(remove: boolean): void {
     this.controller.clearSource(this, remove);
