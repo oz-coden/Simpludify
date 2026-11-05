@@ -46,3 +46,22 @@ The frozen external consumer's desktop WebGL job failed its 320px production res
 Local documentation changes passed static checks and project-base site build/check (97 HTML documents, 8686 references, 88 standalone TypeScript examples). The first sequential root-base build/check found a stale project-base SDK-integration HTML reference; an independent rebuild of the generated root output passed the same reference/snippet checks. Both isolated CI base jobs also passed with 8683 references for the earlier documentation revision. No product rule or site assertion was changed in response; the local anomaly is recorded rather than reported as an uninterrupted pass.
 
 Registry reads confirmed Core/Web remain 0.1.5. npm publication/tag workflows are manual; neither has been dispatched. The roadmap and Japanese/English home pages now distinguish source-only 0.1.6 from published 0.1.5. Historical report content has been verified byte-for-byte against the original saved commit as an unchanged prefix.
+
+
+## Final feature acceptance — 2026-11-05
+
+[CI 42008438325, attempt 2](https://github.com/oz-coden/Simpludify/actions/runs/42008438325/attempts/2) completed successfully for runtime candidate `dc8060e2ed6967c513fa67f12d00e3de6a64ee69`: **20/20 validation jobs passed**, with deploy skipped on the feature branch. Successful first-attempt jobs were reused; only the failed desktop consumer job was rerun. That clean job passed its 35 headless cases and all 11 E2E cases, including the unchanged 320px production resize assertion. The initial timeout did not reproduce; its root cause is not established, and no product/fixture/timeout change was made to obtain the successful result.
+
+| Validation                | Final result                                                                                                                                                                       |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Quality                   | 66 unit files / 891 cases; TypeScript, DOM-free Core, static/boundary/version/license checks passed; existing 16 warnings / 12 infos                                               |
+| Engine browsers           | 448 cases: desktop 117 + 107, narrow 117 + 107; WebGL and Canvas2D regressions included                                                                                            |
+| Core/Web packages         | Ubuntu and Windows clean external archives, Core-only Node/strict declarations, Web transitive Core installation, Vite subpath and development/production at 1280/390/320px passed |
+| Independent game consumer | Six renderer/viewport configurations; 66 E2E cases total and 35 headless cases per clean candidate checkout passed; dependency files unchanged                                     |
+| Starter and tooling       | Ubuntu/Windows starter and CLI/path/Core-boundary jobs passed                                                                                                                      |
+| Production examples       | Existing development/browser samples and production UI/scenes, Signal Run, Canvas UI and Tween smoke jobs passed                                                                   |
+| Site                      | Both isolated root/project-base build/reference checks, 88 standalone TypeScript snippets, gallery and live SDK/tile/virtual/unified regressions passed                            |
+
+The final native-opener and mouse-focus regressions passed in both viewport sizes and both renderers. Previously completed implementation/consumer/paired-documentation checkpoints have been reused. Current source changes after the validated runtime are documentation only (historical record restoration, source/publication status and these results); local static checks and both site-base reference/snippet checks passed as recorded above. Original implementation history is preserved intact.
+
+Final review is complete. Main integration and its separate CI remain pending at this checkpoint. No 0.1.6 publication/tag/Release has been created.

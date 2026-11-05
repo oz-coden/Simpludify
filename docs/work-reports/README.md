@@ -1,8 +1,8 @@
 # Work reports
 
-- [Input bindings v0.1.6 final review and integration](2026-11-05-input-bindings-final-review-v0.1.6.md): recovered saved implementation; bounded input fixes and final verification in progress.
+- [Input bindings v0.1.6 final review and integration](2026-11-05-input-bindings-final-review-v0.1.6.md): final review complete; 891 unit / 448 browser / 66 consumer E2E cases and all 20 feature CI jobs passed; main integration pending.
 
-- [Input bindings and single-input capture — v0.1.6](2026-11-04-input-bindings-v0.1.6.md): implemented and baseline CI passed; final review/integration in progress; no npm publication.
+- [Input bindings and single-input capture — v0.1.6](2026-11-04-input-bindings-v0.1.6.md): implementation and final feature CI complete; main integration tracked in the final review record; no npm publication.
 
 - [v0.1.5 publication and registry verification](2026-11-04-v0.1.5-publication.md): Complete: Core/Web 0.1.5 published from ed3ccc6 through OIDC; immutable tag/Release, exact registry archives, clean consumers and four production virtual-input cases passed.
 
