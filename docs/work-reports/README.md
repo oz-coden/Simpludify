@@ -1,5 +1,7 @@
 # Work reports
 
+- [v0.1.6 publication and registry verification](2026-11-05-v0.1.6-publication.md): release preparation; exact main push CI, approved tag, OIDC publication and registry acceptance pending.
+
 - [Input bindings v0.1.6 final review and integration](2026-11-05-input-bindings-final-review-v0.1.6.md): Complete: main 3914f15; 891 unit / 448 browser / 66 eventual consumer E2E successes (one existing retry); main CI 20 validations and Pages passed; no npm publication.
 
 - [Input bindings and single-input capture — v0.1.6](2026-11-04-input-bindings-v0.1.6.md): Complete: implementation, final review and main integration; see the final review record for main CI, retry evidence and unverified hardware; no npm publication.
