@@ -1,0 +1,49 @@
+{
+  "source": "a137594945087ca5608f963f28baef28893d9d45",
+  "registryState": "both target versions HTTP 404 before publication",
+  "packages": [
+    {
+      "name": "@simpludify/core",
+      "version": "0.1.6",
+      "filename": "simpludify-core-0.1.6.tgz",
+      "integrity": "sha512-TKdourKJ4RaY1xiuGL2h17ZWYHoJLI9DOQQvBUa2eUyIinsFxqpQeAiv42e1PQcXnbzJai7L0r6iUFPwRcAsTg==",
+      "shasum": "e7712755a2e09691cc801a1866e5f82bc73e364f",
+      "size": 270530,
+      "unpackedSize": 1171952,
+      "fileCount": 76,
+      "exports": {
+        ".": {
+          "types": "./dist/index.d.ts",
+          "import": "./dist/index.js"
+        },
+        "./package.json": "./package.json"
+      },
+      "dependencies": {}
+    },
+    {
+      "name": "@simpludify/web",
+      "version": "0.1.6",
+      "filename": "simpludify-web-0.1.6.tgz",
+      "integrity": "sha512-POeRu7NV20bmXVDxhqj9nRtOK2LUg5lQO8LRYCWjbMcv2ekXRw3tOw4X2enodU1jPmROgOB2PDOQ5ioLuQdaNQ==",
+      "shasum": "3eb96feeba153e503417218fd4f73df3f2cf82d7",
+      "size": 101923,
+      "unpackedSize": 440004,
+      "fileCount": 30,
+      "exports": {
+        ".": {
+          "types": "./dist/index.d.ts",
+          "import": "./dist/index.js"
+        },
+        "./style.css": {
+          "types": "./dist/style.css.d.ts",
+          "default": "./dist/style.css"
+        },
+        "./package.json": "./package.json"
+      },
+      "dependencies": {
+        "@simpludify/core": "0.1.6",
+        "pixi.js": "8.22.0"
+      }
+    }
+  ]
+}
