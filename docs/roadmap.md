@@ -4,6 +4,8 @@ Simpludify has an experimental Web runtime and a generic composition-based Core.
 
 ## Included
 
+- Source v0.1.6 [physical bindings and single-input capture](input-bindings.md): common keyboard/mouse/gamepad settings, runtime edits and version-1 persistence, per-device diagnostics, neutral capture and existing input ownership/composition. npm remains v0.1.5.
+
 - [Virtual sticks and pointer controls](virtual-input.md): fixed/floating/follow Axis2D sticks, optional-direction Button controls, explicit activation regions, fixed pointer-ID ownership and existing ActionSource composition; independent visibility/enablement and WebGL/Canvas2D presentation. Physical-device and non-Chromium verification remain outside automated coverage.
 
 - Generic numeric Tween, Scene simulation/display clocks, lifetime/channel ownership, sequence/parallel, Actor draw and Canvas/Slider adapters; [contracts and limitations](tween.md).
@@ -35,7 +37,7 @@ Simpludify has an experimental Web runtime and a generic composition-based Core.
 
 ## Pending and limits
 
-Windows/Electron packaging and Windows executable smoke tests are pending. There is no portable executable guarantee or cross-language SDK. Compiled ESM/type SDK packages and external tarball validation are implemented; public npm publication and automated vendored-engine upgrades remain pending. See [npm distribution and publishing](npm-publishing.md).
+Windows/Electron packaging and Windows executable smoke tests are pending. There is no portable executable guarantee or cross-language SDK. Compiled ESM/type SDK packages and external tarball validation are implemented; Core/Web v0.1.5 are published on npm. Source v0.1.6 is not published. Automated vendored-engine upgrades remain pending. See [npm distribution and publishing](npm-publishing.md).
 
 No impulse/angular rigid-body simulation or continuous collision detection, multiple cameras/viewports, infinite maps, audio, save-game format, networking, generic ECS, asset manifest/font manager or visual editor is implemented. Actors/components are destroyed on removal; reusable pooling and scene reactivation are not implicit features. Dynamic images load asynchronously and can fail independently of logical Actors.
 
