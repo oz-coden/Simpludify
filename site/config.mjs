@@ -1,6 +1,14 @@
 export const repository = "https://github.com/oz-coden/Simpludify";
 export const examples = [
   {
+    id: "input-bindings",
+    title: "Input bindings lab",
+    summary: "キー・マウス・パッドの割り当て、入力取得、保存と復元",
+    controls:
+      "WASDか左スティックで移動。Space・マウス戻る・パッドSouthでJump。Capture後は押下を解放して1入力を取得し、Cancelで中止。Save/Restore/Resetで設定を確認できます。",
+    guide: "guides/input-bindings.html",
+  },
+  {
     id: "virtual-input",
     title: "Virtual input lab",
     summary: "左右スティック・中央の空白・マルチタッチ・方向付きボタン",
@@ -114,6 +122,18 @@ export const examples = [
   },
 ];
 export const pages = [
+  [
+    "guides/input-bindings.html",
+    "site/ja/input-bindings.md",
+    "入力Binding・キャプチャ",
+    "ガイド",
+  ],
+  [
+    "en/input-bindings.html",
+    "docs/input-bindings.md",
+    "Physical bindings and capture",
+    "English",
+  ],
   [
     "guides/virtual-input.html",
     "site/ja/virtual-input.md",
@@ -439,6 +459,7 @@ export const pages = [
 
 // Pair maintained user guides explicitly; technical records keep their existing URLs.
 export const languagePairs = [
+  ["guides/input-bindings.html", "en/input-bindings.html"],
   ["guides/virtual-input.html", "en/virtual-input.html"],
   ["index.html", "en/index.html"],
   ["getting-started.html", "en/getting-started.html"],

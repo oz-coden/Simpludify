@@ -1,5 +1,7 @@
 # APIリファレンス
 
+ソースv0.1.6ではmouse/gamepad Binding、MouseSource、mouseEnabled、デバイス別競合診断、Game.captureInputを追加します。[入力Binding・キャプチャ](input-bindings.md)で使用例と互換性を説明します。
+
 現行のAPI・既定値・寿命・入力境界を日本語で整理します。対応する[英語API](../en/api.html)と各分野の詳細ガイドも参照できます。現在のソースと公開済みSDKはv0.1.4です。
 
 ## パッケージと対応範囲

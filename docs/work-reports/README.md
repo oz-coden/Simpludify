@@ -1,5 +1,9 @@
 # Work reports
 
+- [Input bindings v0.1.6 final review and integration](2026-11-05-input-bindings-final-review-v0.1.6.md): final review complete; 891 unit / 448 browser / 66 consumer E2E cases and all 20 feature CI jobs passed; main integration pending.
+
+- [Input bindings and single-input capture — v0.1.6](2026-11-04-input-bindings-v0.1.6.md): implementation and final feature CI complete; main integration tracked in the final review record; no npm publication.
+
 - [v0.1.5 publication and registry verification](2026-11-04-v0.1.5-publication.md): Complete: Core/Web 0.1.5 published from ed3ccc6 through OIDC; immutable tag/Release, exact registry archives, clean consumers and four production virtual-input cases passed.
 
 Implementation checkpoints and final verification records live here so repository history is sufficient to resume interrupted work. Each report distinguishes completed checks from plans and records the source revision, branch, changes, verification, limitations and integration status. Keep older reports; add a uniquely named file per task.

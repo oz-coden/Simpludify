@@ -2,6 +2,7 @@ import {
   type ActionController,
   type ActionSet,
   type ActionSource,
+  type ActionToken,
   defineEvent,
   EngineError,
   EventBus,
@@ -37,7 +38,8 @@ export interface GamepadState {
 export type GamepadPoll = () => readonly (GamepadState | null)[];
 export interface GamepadOptions<A extends ActionSet> {
   readonly index: number;
-  readonly bindings: GamepadBindings<A>;
+  /** Omit to follow ActionController's common gamepad settings. */
+  readonly bindings?: GamepadBindings<A>;
   readonly deadZone?: number;
   /** Positional constants require standard mapping; raw is an explicit opt-in. */
   readonly mapping?: "standard" | "raw";
@@ -125,6 +127,9 @@ export class GamepadSource<A extends ActionSet> {
   private signature: string | undefined;
   private readonly zone: number;
   private readonly mapping: "standard" | "raw";
+  private following: boolean;
+  private bindingRevision: number;
+  private readonly waiting = new Set<ActionToken>();
   constructor(
     private readonly input: GamepadInput,
     private readonly controller: ActionController<A>,
@@ -139,10 +144,11 @@ export class GamepadSource<A extends ActionSet> {
         "INVALID_GAMEPAD_BINDING",
         "Unknown gamepad mapping policy",
       );
-    this.bindings = checkedGamepadBindings(
-      controller.actions,
-      options.bindings,
-    );
+    this.following = options.bindings === undefined;
+    this.bindingRevision = controller.bindingRevision;
+    this.bindings = this.following
+      ? this.commonBindings()
+      : checkedGamepadBindings(controller.actions, options.bindings);
     this.source = controller.createSource();
     this.life.onDispose(() => this.source.dispose());
     this.life.onDispose(controller.onDispose(() => this.dispose()));
@@ -182,15 +188,52 @@ export class GamepadSource<A extends ActionSet> {
     this.signature = undefined;
     this.assigned = checked;
   }
-  rebind(bindings: GamepadBindings<A>): void {
+  rebind(bindings?: GamepadBindings<A>): void {
     this.alive();
-    const checked = checkedGamepadBindings(this.controller.actions, bindings);
+    const checked =
+      bindings === undefined
+        ? this.commonBindings()
+        : checkedGamepadBindings(this.controller.actions, bindings);
     this.clear();
     this.bindings = checked;
+    this.following = bindings === undefined;
+    this.bindingRevision = this.controller.bindingRevision;
+  }
+  private commonBindings(): readonly CheckedGamepadBinding[] {
+    return Object.freeze(
+      Object.values(this.controller.actions).flatMap((action) => {
+        const binding = this.controller.getBinding(
+          action as A[keyof A],
+        ).gamepad;
+        return binding ? [Object.freeze([action, binding] as const)] : [];
+      }),
+    );
+  }
+  private syncBindings(): void {
+    if (
+      !this.following ||
+      this.bindingRevision === this.controller.bindingRevision
+    )
+      return;
+    const next = this.commonBindings();
+    const before = new Map(this.bindings),
+      after = new Map(next);
+    for (const action of new Set([...before.keys(), ...after.keys()])) {
+      if (
+        JSON.stringify(before.get(action)) === JSON.stringify(after.get(action))
+      )
+        continue;
+      this.source.resetBinding(action as A[keyof A]);
+      if (after.has(action)) this.waiting.add(action);
+      else this.waiting.delete(action);
+    }
+    this.bindings = next;
+    this.bindingRevision = this.controller.bindingRevision;
   }
   clear(): void {
     this.source.clear();
     this.armed = false;
+    this.waiting.clear();
   }
   private alive(): void {
     if (this.disposed)
@@ -204,6 +247,7 @@ export class GamepadSource<A extends ActionSet> {
     allowed: boolean,
   ): void {
     if (this.disposed) return;
+    this.syncBindings();
     if (
       !allowed ||
       !this.enabled ||
@@ -230,8 +274,13 @@ export class GamepadSource<A extends ActionSet> {
       if (next.every(([, value]) => neutral(value))) this.armed = true;
       return;
     }
-    for (const [action, value] of next)
+    for (const [action, value] of next) {
+      if (this.waiting.has(action)) {
+        if (!neutral(value)) continue;
+        this.waiting.delete(action);
+      }
       this.source.set(action as A[keyof A], value as never);
+    }
   }
   /** @internal */ onDispose(callback: () => void): () => void {
     return this.life.onDispose(callback);
@@ -253,12 +302,17 @@ export class GamepadInput implements InputAdapter {
   private readable = false;
   private readonly poll: GamepadPoll;
   private readonly active: () => boolean;
+  private readonly observe:
+    | ((pads: ReadonlyMap<number, GamepadState>) => void)
+    | undefined;
   constructor(
     private readonly input: InputSystem,
     options: {
       readonly poll?: GamepadPoll;
       readonly active?: () => boolean;
       readonly events?: EventTarget;
+      /** @internal Host capture observes the same poll before any device contribution. */
+      readonly observe?: (pads: ReadonlyMap<number, GamepadState>) => void;
     } = {},
   ) {
     this.life.onDispose(() => this.changes.dispose());
@@ -272,6 +326,7 @@ export class GamepadInput implements InputAdapter {
               throw new Error("Gamepad API unavailable");
             })());
     this.active = options.active ?? (() => true);
+    this.observe = options.observe;
     this.life.onDispose(input.addAdapter(this));
     const events =
         options.events ?? (typeof window === "undefined" ? undefined : window),
@@ -387,7 +442,8 @@ export class GamepadInput implements InputAdapter {
           }),
         ),
     );
-    const allowed = this.active();
+    this.observe?.(pads);
+    const allowed = this.active() && this.input.liveInput;
     for (const source of this.sources) {
       if (source.disposed) this.sources.delete(source);
       else source.sample(pads.get(source.index), allowed);

@@ -3,6 +3,7 @@ import { cleanupAll, type LifetimeOwner } from "../foundation/lifetime";
 import type { ActionFrame } from "./action-frame";
 import { OwnedInputSource } from "./input-source";
 import { type KeyCode, parseKeyCode } from "./key-code";
+import { type MouseButton, parseMouseButton } from "./physical-input";
 /** Host device adapter. Sampled before all Action frames; reset flushes held device state. */
 export interface InputAdapter {
   sample(): void;
@@ -14,10 +15,12 @@ export interface ActionInputPort {
   readonly active: boolean;
   readonly sourceCount: number;
   accepts(code: KeyCode): boolean;
+  acceptsMouse(button: MouseButton): boolean;
   keyChanged(): void;
   capture(frame?: ActionFrame): void;
   dispatch(): void;
   reset(): void;
+  resetPhysical(): void;
   dispose(): void;
 }
 /** A keyboard device contribution, not a game-facing state reader.
@@ -36,20 +39,37 @@ export class KeyboardSource extends OwnedInputSource {
     this.input.releaseKeyboard(this, remove);
   }
 }
+/** Physical mouse contribution; game state is read through ActionController. */
+export class MouseSource extends OwnedInputSource {
+  /** @internal */ constructor(private readonly input: InputSystem) {
+    super();
+  }
+  set(button: MouseButton, pressed: boolean): void {
+    parseMouseButton(button);
+    if (typeof pressed !== "boolean")
+      throw new EngineError("INVALID_VALUE", "Mouse state must be boolean");
+    if (this.writable(!pressed)) this.input.writeMouse(this, button, pressed);
+  }
+  protected release(remove: boolean): void {
+    this.input.releaseMouse(this, remove);
+  }
+}
 /** Engine-owned routing and update boundary. No raw game-state/alternate movement API. */
 export class InputSystem {
   private readonly actions = new Set<ActionInputPort>();
   private readonly adapters = new Set<InputAdapter>();
   private readonly keyboards = new Map<KeyboardSource, Set<KeyCode>>();
+  private readonly mice = new Map<MouseSource, Set<MouseButton>>();
+  private captureCancel: (() => void) | undefined;
   private dead = false;
   private playback = false;
   private frames: ReadonlyMap<object, ActionFrame> | undefined;
   /** @internal Device hosts may reject live gestures during Replay playback. */
   get liveInput(): boolean {
-    return !this.dead && !this.playback;
+    return !this.dead && !this.playback && !this.captureCancel;
   }
   get sourceCount(): number {
-    let count = this.keyboards.size;
+    let count = this.keyboards.size + this.mice.size;
     for (const actions of this.actions) count += actions.sourceCount;
     return count;
   }
@@ -71,8 +91,19 @@ export class InputSystem {
     };
   }
   acceptsKey(code: KeyCode): boolean {
-    if (this.playback) return false;
+    if (!this.liveInput) return false;
     for (const actions of this.actions) if (actions.accepts(code)) return true;
+    return false;
+  }
+  acceptsMouse(button: MouseButton): boolean {
+    if (!this.liveInput) return false;
+    for (const actions of this.actions)
+      if (actions.acceptsMouse(button)) return true;
+    return false;
+  }
+  /** @internal */ mouseDown(button: MouseButton): boolean {
+    for (const buttons of this.mice.values())
+      if (buttons.has(button)) return true;
     return false;
   }
   private notify(): void {
@@ -121,6 +152,43 @@ export class InputSystem {
     }
     return source;
   }
+  createMouseSource(owner?: LifetimeOwner): MouseSource {
+    if (this.dead || owner?.disposed)
+      throw new EngineError("OWNER_DISPOSED", "Input owner has been disposed");
+    const source = new MouseSource(this);
+    this.mice.set(source, new Set());
+    try {
+      if (owner) source.own(owner);
+    } catch (error) {
+      source.dispose();
+      throw error;
+    }
+    return source;
+  }
+  /** @internal */ writeMouse(
+    source: MouseSource,
+    button: MouseButton,
+    pressed: boolean,
+  ): void {
+    this.assertWrite(!pressed);
+    const buttons = this.mice.get(source);
+    if (!buttons || this.dead)
+      throw new EngineError("OWNER_DISPOSED", "Input has been disposed");
+    if (this.captureCancel && pressed) return;
+    if (buttons.has(button) === pressed) return;
+    const before = this.mouseDown(button);
+    if (pressed) buttons.add(button);
+    else buttons.delete(button);
+    if (before !== this.mouseDown(button)) this.notify();
+  }
+  /** @internal */ releaseMouse(source: MouseSource, remove: boolean): void {
+    const buttons = this.mice.get(source);
+    if (!buttons) return;
+    const changed = buttons.size > 0;
+    buttons.clear();
+    if (remove) this.mice.delete(source);
+    if (changed && !this.dead) this.notify();
+  }
   /** @internal */ writeKey(
     source: KeyboardSource,
     code: KeyCode,
@@ -130,6 +198,7 @@ export class InputSystem {
     const keys = this.keyboards.get(source);
     if (!keys || this.dead)
       throw new EngineError("OWNER_DISPOSED", "Input has been disposed");
+    if (this.captureCancel && pressed) return;
     if (keys.has(code) === pressed) return;
     const before = this.keyDown(code);
     if (pressed) keys.add(code);
@@ -189,10 +258,47 @@ export class InputSystem {
     this.playback = false;
     this.clear();
   }
-  clear(): void {
+  /** @internal Host capture gate. Program ActionSource values remain explicit. */
+  suspendLiveInput(cancel: () => void): () => void {
+    if (!this.liveInput)
+      throw new EngineError(
+        "INPUT_CAPTURE_UNAVAILABLE",
+        "Live input is unavailable or another capture is active",
+      );
+    this.captureCancel = cancel;
+    try {
+      this.resetPhysical();
+    } catch (error) {
+      this.captureCancel = undefined;
+      throw error;
+    }
+    return () => {
+      if (this.captureCancel !== cancel) return;
+      this.captureCancel = undefined;
+      this.resetPhysical();
+    };
+  }
+  private resetPhysical(): void {
     for (const keys of this.keyboards.values()) keys.clear();
+    for (const buttons of this.mice.values()) buttons.clear();
     cleanupAll(
       [
+        ...[...this.adapters].map((adapter) => () => {
+          if (this.adapters.has(adapter)) adapter.reset();
+        }),
+        ...[...this.actions].map((actions) => () => actions.resetPhysical()),
+      ],
+      "Physical input reset failed",
+    );
+  }
+  clear(): void {
+    const cancel = this.captureCancel;
+    this.captureCancel = undefined;
+    for (const keys of this.keyboards.values()) keys.clear();
+    for (const buttons of this.mice.values()) buttons.clear();
+    cleanupAll(
+      [
+        () => cancel?.(),
         ...[...this.actions].map((actions) => () => actions.reset()),
         ...[...this.adapters].map((adapter) => () => {
           if (this.adapters.has(adapter)) adapter.reset();
@@ -211,12 +317,16 @@ export class InputSystem {
   dispose(): void {
     if (this.dead) return;
     this.dead = true;
+    const cancel = this.captureCancel;
+    this.captureCancel = undefined;
     try {
       cleanupAll(
         [
+          () => cancel?.(),
           ...[...this.adapters].map((a) => () => a.dispose()),
           ...[...this.actions].map((a) => () => a.dispose()),
           ...[...this.keyboards.keys()].map((s) => () => s.dispose()),
+          ...[...this.mice.keys()].map((s) => () => s.dispose()),
         ],
         "Input cleanup failed",
       );
@@ -224,6 +334,7 @@ export class InputSystem {
       this.adapters.clear();
       this.actions.clear();
       this.keyboards.clear();
+      this.mice.clear();
     }
   }
 }

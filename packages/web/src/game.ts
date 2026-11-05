@@ -14,6 +14,8 @@ import {
   type FixedStepOptions,
   FixedStepRunner,
   type FrameDriver,
+  type InputCapture,
+  type InputCaptureOptions,
   type JsonValue,
   type LogicalResolution,
   type PointerRouting,
@@ -38,6 +40,7 @@ import {
 import type { CanvasPresentation } from "./canvas-visual";
 import { GamepadInput } from "./gamepads";
 import { BrowserInput } from "./input";
+import { InputCaptureManager } from "./input-capture";
 import { BrowserPointer } from "./pointer";
 import { PixiRenderer } from "./renderer";
 import {
@@ -94,6 +97,11 @@ export class Game<SceneId extends string = string> {
   readonly gamepads: GamepadInput;
   private readonly renderer: RendererPort;
   private readonly keyboard: BrowserInput;
+  private readonly captures: InputCaptureManager;
+  captureInput(options: InputCaptureOptions = {}): InputCapture {
+    this.assertAlive();
+    return this.captures.start(options);
+  }
   private readonly pointers: BrowserPointer;
   private readonly pointerChannels = new WeakMap<Scene, ScenePointer>();
   private readonly virtualInputs = new WeakMap<Scene, VirtualInput>();
@@ -269,8 +277,16 @@ export class Game<SceneId extends string = string> {
       request: (callback) => requestAnimationFrame(callback),
       cancel: (handle) => cancelAnimationFrame(handle),
     };
+    this.captures = new InputCaptureManager(
+      this.element,
+      this.engine.input,
+      () => this.engine.scene,
+      () => this.pointers.release(),
+      this.report,
+    );
     this.keyboard = new BrowserInput(this.element, this.engine.input);
     this.gamepads = new GamepadInput(this.engine.input, {
+      observe: (pads) => this.captures.sample(pads),
       active: () =>
         !document.hidden &&
         document.hasFocus() &&
@@ -294,6 +310,7 @@ export class Game<SceneId extends string = string> {
       },
       this.report,
       () => this.updateProjection(),
+      this.engine.input,
     );
     document.addEventListener(
       "visibilitychange",
@@ -935,6 +952,7 @@ export class Game<SceneId extends string = string> {
     for (const cleanup of [
       () => this.stopReplay(),
       () => this.staging?.dispose(),
+      () => this.captures.dispose(),
       () => this.pointers.dispose(),
       () => this.gamepads.dispose(),
       () => this.keyboard.dispose(),

@@ -160,7 +160,7 @@ try {
   );
   assert(!existsSync(join(core, "node_modules/@simpludify/web")));
   assert(!existsSync(join(core, "node_modules/pixi.js")));
-  const coreProgram = `import {Engine, Actor, Transform, Grid, TileGeometry, Tween, ENGINE_VERSION, Action, ActionController, defineActions, ScenePointer, VirtualInput, VirtualRegions, PointerRouting, screenPoint, worldPoint} from '@simpludify/core';
+  const coreProgram = `import {Engine, Actor, Transform, Grid, TileGeometry, Tween, ENGINE_VERSION, Action, ActionController, defineActions, ScenePointer, VirtualInput, VirtualRegions, PointerRouting, screenPoint, worldPoint, InputCapture, InputCaptureState, InputDevice, MouseButton} from '@simpludify/core';
 if (ENGINE_VERSION !== '${sdkVersion}') throw new Error('Wrong packed engine version');
 const engine = new Engine(); const actor = new Actor(); actor.add(new Transform()); engine.scene.add(actor);
 const A = defineActions({Move:Action.axis2D()}); const controls = new ActionController(A,{scene:engine.scene,input:engine.input});
@@ -172,6 +172,8 @@ routing.down(down);routing.move({...down,screen:screenPoint(20,10)});engine.step
 if(controls.value(A.Move).x !== 1) throw new Error('Packed virtual Action not sampled');
 routing.cancel(1,false);engine.step(0);if(controls.value(A.Move).x !== 0) throw new Error('Packed virtual input retained');
 engine.dispose();if(!stick.disposed || !virtual.disposed) throw new Error('Packed virtual lifetime retained');
+const capture = new InputCapture({devices:[InputDevice.Mouse]});capture.arm();capture.accept({device:InputDevice.Mouse,button:MouseButton.Back});const captured = await capture.result;
+if(capture.state !== InputCaptureState.Completed || captured?.binding.mouse?.[0] !== 3) throw new Error('Packed capture missing');
 if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Missing API');\n`;
   writeFileSync(join(core, "main.mjs"), coreProgram);
   writeFileSync(join(core, "main.ts"), coreProgram);
@@ -386,6 +388,19 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
         const page = await browser.newPage({ viewport });
         const errors = [];
         page.on("pageerror", (error) => errors.push(error.message));
+        await page.addInitScript(() => {
+          window.consumerPad = {
+            index: 0,
+            id: "Consumer pad",
+            connected: true,
+            mapping: "standard",
+            axes: [0, 0],
+            buttons: [{ value: 0, pressed: false }],
+          };
+          Object.defineProperty(navigator, "getGamepads", {
+            value: () => [window.consumerPad],
+          });
+        });
         await page.goto(server.resolvedUrls.local[0]);
         await page.waitForFunction(() => window.packageProbe);
         assert.equal(
@@ -421,6 +436,39 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
           return { x: v.x + v.width / 2, y: v.y + v.height / 2 };
         });
         await page.locator(".simpludify").click({ position: worldCenter });
+        assert.equal(
+          await page.evaluate(() => window.packageProbe.roundTrip()),
+          true,
+        );
+        await page.mouse.move(worldCenter.x, worldCenter.y);
+        await page.mouse.down();
+        assert.equal(await page.evaluate(() => window.packageProbe.jump), true);
+        await page.mouse.up();
+        await page.keyboard.down("Space");
+        await page.evaluate(() => {
+          window.consumerPad.buttons[0] = { value: 1, pressed: true };
+          window.packageProbe.game.engine.step(0);
+        });
+        await page.keyboard.up("Space");
+        assert.equal(await page.evaluate(() => window.packageProbe.jump), true);
+        await page.evaluate(() => {
+          window.consumerPad.buttons[0] = { value: 0, pressed: false };
+          window.packageProbe.game.engine.step(0);
+        });
+        await page.evaluate(() => window.packageProbe.beginCapture());
+        await page.keyboard.down("Control");
+        assert.equal(
+          (await page.evaluate(() => window.packageProbe.readCapture())).code,
+          "ControlLeft",
+        );
+        assert.equal(
+          await page.evaluate(() => window.packageProbe.jump),
+          false,
+        );
+        await page.keyboard.up("Control");
+        await page.keyboard.down("Control");
+        assert.equal(await page.evaluate(() => window.packageProbe.jump), true);
+        await page.keyboard.up("Control");
         await page.keyboard.down("d");
         await page.waitForFunction(
           (x) => window.packageProbe.x > x + 5,

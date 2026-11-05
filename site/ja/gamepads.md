@@ -1,5 +1,7 @@
 # ゲームパッドと統一入力
 
+ソースv0.1.6ではbindings省略でControllerのgamepad設定へ追従します。明示的なbindingsは従来どおり独立します。[共通設定とキャプチャ](input-bindings.md)も参照してください。
+
 このページのAPIは、npmで公開済みのCore/Web v0.1.4から利用できます。[npm導入ガイド](npm.md)に従い、同じバージョンを導入してください。
 
 ActorはActionReaderを読み、入力元を知りません。キーボード・ゲームパッド・Canvasのタッチ・プログラムは同じActionControllerへ値を供給します。Game.gamepadsはWeb用Adapterで、別のゲーム用Controllerやプレイヤー管理機構ではありません。CoreへDOM・navigator・Gamepad APIは持ち込みません。
