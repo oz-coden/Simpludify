@@ -1,5 +1,7 @@
 # Implementation status
 
+English | [日本語](roadmap.ja.md)
+
 Simpludify is an experimental, code-first, 2D-focused TypeScript engine. This document separates shipped capabilities, intended future work, and explicit non-goals. Priorities express product direction, not committed release dates or final API names. Concrete APIs, performance budgets, migration behavior, and target support must be validated in dedicated designs and sample games before implementation.
 
 ## Product direction and planning rules
