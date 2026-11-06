@@ -46,6 +46,17 @@ This sequence turns the priority table into incremental work. **It does not comm
 
 Audio/Assets are the initial feature priority; CI, onboarding and desktop feasibility investigations can proceed in parallel. Keep existing particle, camera and networking plans and revisit order based on actual game needs.
 
+### Next CI and SDK consumer validation cleanup (pending)
+
+The next maintenance task must **separate current SDK candidate validation from historical published-package tests**.
+
+- **Identify test targets:** `packages` and `sdk-consumer` validate freshly built Core/Web tarballs, while `sdk-starter`'s `templates/npm-vite` and the pinned Run To Exit checkout still reference the older `0.1.3` release. Document whether each job verifies the current candidate, a published release, or historical regression behavior.
+- **Keep the starter current:** update the distributable Vite starter to the current SDK/API. In regular CI, install candidate tarballs into a fresh independent project for typechecking, production build and browser acceptance. Verify real dependency resolution and lockfiles without workspace aliases or symlink shortcuts.
+- **Separate registry acceptance:** after approved publication, validate the exact released version through clean public-registry installs. Keep old version-pinned checks only for an explicit purpose; preserve meaningful external consumer coverage.
+- **Investigate npm downloads:** compare daily Core/Web download counts with Actions jobs and actual npm fetches, caches, retries and local test registries. State assumptions and limitations when estimating CI-origin requests; downloads are not unique users.
+- **Improve speed and reliability:** measure redundant Playwright OS dependency setup and duplicate tests; fix flaky deployed-site virtual-stick E2E assertions at the root cause. Preserve essential Windows/Linux, browser, Canvas2D, external consumer and public-site acceptance.
+- **Acceptance:** candidate and registry validation are distinct, the starter uses current APIs, CI passes, and the work report records version coverage and download estimates. CI-only changes do not require an npm version bump.
+
 ### High-priority workstreams
 
 #### Audio and asset infrastructure
