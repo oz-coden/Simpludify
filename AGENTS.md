@@ -1,6 +1,6 @@
 # Contributor instructions
 
-Simpludify is an experimental code-first TypeScript 2D engine. Read `README.md`, `docs/en/architecture.md` and `docs/en/api.md` before changing lifecycle or public APIs. `SPEC.md` describes broader goals; `docs/en/roadmap.md` records implemented scope.
+Simpludify is an experimental code-first TypeScript 2D engine. Read `README.md`, `docs/en/architecture.md` and `docs/en/api.md` before changing lifecycle or public APIs. `docs/archive/initial-spec.md` records initial design proposals; `docs/en/roadmap.md` records implemented scope.
 
 ## Boundaries
 

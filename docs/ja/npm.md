@@ -32,9 +32,11 @@ cd my-game
 npm init -y
 npm pkg set type=module
 npm pkg set scripts.dev=vite scripts.build="tsc --noEmit && vite build" scripts.preview="vite preview"
-npm install --save-exact @simpludify/web@0.1.6
-npm install --save-dev vite@8.3.5 typescript@7.0.2
+npm install @simpludify/web
+npm install --save-dev vite typescript
 ```
+
+> **バージョンの固定について**: 0.xの実験的フェーズにおいて特定のバージョンに固定して導入したい場合は、`npm install --save-exact @simpludify/web` を使用してください。
 
 `index.html`を作成します。親要素の高さはアプリケーション側で指定します。
 

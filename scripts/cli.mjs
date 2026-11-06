@@ -168,10 +168,8 @@ try {
       );
     mkdirSync(output, { recursive: true });
     for (const path of [
-      "site",
       "third-party",
       "benchmarks",
-      "SPEC.md",
       "packages",
       "scripts",
       "examples",

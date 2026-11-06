@@ -27,9 +27,11 @@ cd my-game
 npm init -y
 npm pkg set type=module
 npm pkg set scripts.dev=vite scripts.build="tsc --noEmit && vite build" scripts.preview="vite preview"
-npm install --save-exact @simpludify/web@0.1.6
-npm install --save-dev vite@8.3.5 typescript@7.0.2
+npm install @simpludify/web
+npm install --save-dev vite typescript
 ```
+
+> **Note on version pinning**: During the 0.x experimental phase, you can optionally pin an exact release with `npm install --save-exact @simpludify/web`.
 
 Create `index.html`:
 

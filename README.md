@@ -9,47 +9,39 @@ Core/Web **v0.1.6 are published on npm**, adding [physical bindings and single-i
 [![License](https://img.shields.io/github/license/oz-coden/Simpludify)](https://github.com/oz-coden/Simpludify/blob/main/LICENSE)
 [![Stars](https://img.shields.io/github/stars/oz-coden/Simpludify)](https://github.com/oz-coden/Simpludify/stargazers)
 
-[公式ドキュメント・サンプル](https://oz-coden.github.io/Simpludify/) · [日本語ガイドのソース](docs/ja/index.md) · [English API](docs/en/api.md)
+[公式ドキュメント・サンプル](https://oz-coden.github.io/Simpludify/) · [日本語ガイド](docs/ja/index.md) · [English Guide](docs/en/index.md) · [API](docs/en/api.md) · [CHANGELOG](CHANGELOG.md)
 
 コード主導・軽量・AIネイティブな、TypeScript製の実験的2Dコンテンツエンジンです。ゲームやインタラクティブコンテンツを、理解しやすい標準APIで構築します。理解しやすく、一貫性があり、保守しやすいAPIを優先します。Experimental v0.1.6のnpm SDKを公開済みです。独立プロジェクトからnpmで導入できます。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できるサンプルを公式サイトにまとめています。
 
 A code-first TypeScript 2D game engine. Create a visible character, responsive UI, and scene navigation using ordinary code and browser tooling.
 
-[Core / Hostの責務と移植性](docs/ja/host-boundary.md) · [作業報告・検証結果](docs/work-reports/README.md)
+[Core / Hostの責務と移植性](docs/ja/host-boundary.md) · [作業報告・検証結果](docs/work-reports/README.md) · [変更履歴](CHANGELOG.md)
 
 **Status: experimental Web engine with a composition-based Core.** The API can change before a stable release. Electron/Tauri/Android packaging is pending. The Core and Web SDK packages are published on npm as v0.1.6. Next development milestone is v0.1.7.
 
-## v0.1.6 release
+## Latest release (v0.1.6)
 
-Core/Web **v0.1.6 are published on npm** with physical key/mouse/gamepad bindings, runtime reconfiguration, single-input capture and JSON serialization. Public-registry consumers passed strict TypeScript, production builds and input-bindings browser acceptance. [Publication and registry verification](docs/work-reports/2026-11-05-v0.1.6-publication.md). [Input bindings guide](docs/en/specs/input-bindings.md) · [Input bindings lab](examples/input-bindings/README.md) · [Implementation and final review](docs/work-reports/2026-11-05-input-bindings-final-review-v0.1.6.md).
+Core/Web **v0.1.6 are published on npm**, adding physical key/mouse/gamepad bindings, runtime reconfiguration, single-input capture (`captureNextInput`), and JSON binding serialization. Full release history from v0.1.0 to present is documented in **[CHANGELOG.md](CHANGELOG.md)**. See also the [v0.1.6 publication evidence](docs/work-reports/2026-11-05-v0.1.6-publication.md), [input bindings guide](docs/en/specs/input-bindings.md), and [implementation review](docs/work-reports/2026-11-05-input-bindings-final-review-v0.1.6.md).
 
 ```sh
 npm run dev -- --example input-bindings
 ```
 
-## v0.1.5 release
+## Installation & npm SDK
 
-Core/Web **v0.1.5 are published on npm** with fixed/floating/follow virtual sticks, optional-direction pointer buttons, explicit activation regions and fixed pointer-ID ownership through the existing Action/Canvas routing. Public-registry consumers passed strict TypeScript, production builds and virtual-input browser acceptance. [Publication and registry verification](docs/work-reports/2026-11-04-v0.1.5-publication.md). [Virtual input guide](docs/en/specs/virtual-input.md) · [Virtual input lab](examples/virtual-input/README.md) · [Implementation and validation record](docs/work-reports/2026-11-04-virtual-input-v0.1.5.md).
-
-```sh
-npm run dev -- --example virtual-input
-```
-
-## v0.1.4 release
-
-Core/Web **v0.1.4 are published on npm**, including integrated security fixes, unified input/gamepads/local multiplayer and bilingual consumer documentation. The gamepad and source-gating APIs are available from the registry packages. [Input/gamepad guide](docs/en/specs/gamepads.md) · [Two-player lab](examples/unified-input/README.md) · [Publication and registry verification](docs/work-reports/2026-11-03-v0.1.4-publication.md).
+Install the Web SDK into an existing or new Vite/browser project:
 
 ```sh
-npm run dev -- --example unified-input
+npm install @simpludify/web
 ```
 
-## Experimental npm SDK v0.1.6
+`@simpludify/core` contains host-independent simulation, math, and geometry; `@simpludify/web` adds browser rendering (PixiJS), input routing, DOM overlays, and Canvas UI, installing Core automatically. Both ship compiled ESM and TypeScript declarations.
 
-`@simpludify/core@0.1.6` contains host-independent simulation and geometry; `@simpludify/web@0.1.6` adds browser rendering/input/UI and installs Core/PixiJS as dependencies. Both ship compiled ESM and TypeScript declarations. APIs may change between 0.x releases.
-
-**Registry status: published.** Browser projects can install with `npm install @simpludify/web@0.1.6`. The [complete npm/Vite guide](docs/en/npm.md) includes project setup, runnable game code, automatic/explicit CSS, production builds and known limits. For independent projects, use the published registry packages rather than copying engine source. [実際のゲーム開発で確認したSDK利用パターン](./docs/ja/specs/sdk-consumer-patterns.md)に、HUDとViewport、Canvas/DOMのフォーカス、Tween、ライセンスの注意点をまとめています。 [Publishing and OIDC procedures](./docs/en/npm-publishing.md) describe version checks, exact archives and the manual Trusted Publishing workflow. [v0.1.6 publication evidence](docs/work-reports/2026-11-05-v0.1.6-publication.md) records the immutable source revision and validation.
-
-The [independent npm/Vite starter](templates/npm-vite/README.md) retains its published 0.1.3 lockfile and includes Pages base support, Scene cleanup and dependency notice generation. Its dependency upgrade is separate from this release. The [SDK integration lab](examples/sdk-integration/README.md) demonstrates layout-owned viewports, IME focus ownership and display-only discrete Tween with the published v0.1.3 API.
+For independent projects:
+- [Complete npm / Vite guide](docs/en/npm.md) · [npm導入ガイド（日本語）](docs/ja/npm.md)
+- [SDK integration patterns](docs/ja/specs/sdk-consumer-patterns.md)
+- [Independent npm/Vite starter template](templates/npm-vite/README.md)
+- [Publishing and Trusted Publishing procedures](docs/en/npm-publishing.md)
 
 ## Quick start
 
@@ -103,7 +95,7 @@ Game objects are generic Actors composed from reusable Components. Transform, Re
 npm run dev -- --example composition
 ```
 
-**Beacon field** demonstrates custom Components, WASD collection, typed events, runtime spawning/removal, simulation timers, pointer-to-world conversion and zoom. The same collection logic also runs in a headless test. See [API and migration notes](docs/api.md) for low-level extension APIs and changes to the experimental storage/renderer contracts.
+**Beacon field** demonstrates custom Components, WASD collection, typed events, runtime spawning/removal, simulation timers, pointer-to-world conversion and zoom. The same collection logic also runs in a headless test. See [API and migration notes](docs/en/api.md) · [APIリファレンス](docs/ja/api.md) for low-level extension APIs and changes to the experimental storage/renderer contracts.
 
 ```sh
 npm run dev -- --example signal-run
@@ -236,10 +228,11 @@ This integrates documentation and all browser examples into `site-dist/`, indepe
 - [Performance methodology and recorded limitations](./docs/benchmarks/performance.md)
 - [Roadmap (English)](docs/en/roadmap.md) · [開発ロードマップ（日本語）](docs/ja/roadmap.md)
 - [Practical game validation](./docs/archive/practical-validation.md)
-- [Licensing and dependency policy](docs/en/licensing.md)
-- [Original design specification](SPEC.md)
+- [Licensing and dependency policy](docs/en/licensing.md) · [ライセンス規約](docs/ja/licensing.md)
+- [初期仕様書（アーカイブ） / Initial specification (archive)](docs/archive/initial-spec.md)
+- [CHANGELOG / リリース変更履歴](CHANGELOG.md)
 - [Contributor and coding-agent instructions](AGENTS.md)
 
 ## License
 
-Original engine code and included example assets are [MIT licensed](LICENSE). Games' original code and assets do not have to use MIT. Bundled dependencies retain their own licenses; see [licensing](docs/licensing.md).
+Original engine code and included example assets are [MIT licensed](LICENSE). Games' original code and assets do not have to use MIT. Bundled dependencies retain their own licenses; see [licensing](docs/en/licensing.md) · [ライセンス詳細](docs/ja/licensing.md).

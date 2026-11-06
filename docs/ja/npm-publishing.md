@@ -14,7 +14,7 @@ Core/Web **v0.1.6 はnpmレジストリに公開済み** です。物理Binding�
 
 ```sh
 npm ci
-npm run version:sdk -- 0.1.6
+npm run version:sdk -- <version> # 例: 0.1.7
 npm run check
 npm test
 npx playwright install --with-deps chromium --only-shell
@@ -50,9 +50,9 @@ npmのパッケージ設定（Settings → Trusted publishing）は両パッケ�
 
 1. すべてのCIテストが通過したコミットのみを対象とします。`main` ブランチのコミットSHAを確定し、CIが成功していることを確認します。
 2. 候補アーカイブ（`.tgz`）を生成・検査し、SHA512チェックサム、エクスポート一覧、ライセンス表記、型定義を確認します。
-3. リリース管理者の承認を得て、タグ名（例: `v0.1.6`）を確定します。
+3. リリース管理者の承認を得て、タグ名（例: `v<version>`、次回リリースは `v0.1.7`）を確定します。
 4. GitHub Actionsの **Publish experimental npm SDK** ワークフローを手動実行（`workflow_dispatch`）します。
-   - タグ名と確認文字列を入力して実行します。
+   - タグ名（`v<version>`）と確認文字列（`publish @simpludify/core@<version> and @simpludify/web@<version>`）を入力して実行します。
 5. 公開ジョブは、**まず `@simpludify/core` を公開し、レジストリでの存在が確認されてから `@simpludify/web` を公開** します。
 6. `test:packages:registry` を実行し、公開されたレジストリから実際にインストールして最終検証を行います。
 

@@ -1,9 +1,17 @@
-# Code-First 2D Game Engine — Specification (Draft v0.2)
+# Code-First 2D Game Engine — Specification (Draft v0.2, Archived)
 
-Status: Evolving design requirements; implementation status is tracked in docs/roadmap.md
-Date: 2026-10-26
+> [!NOTE]
+> **歴史的資料としてのアーカイブ / Historical Archive Notice**
+> このドキュメントは、Simpludify開発初期（2026年10月時点）に作成された設計草案の歴史的記録です。開発初期に構想されたマルチパッケージ構成（`packages/renderer-pixi`, `packages/ui-dom` 等）などの記述が含まれますが、実際のエンジン実装は `packages/core` と `packages/web` の2層構成に統合されました。
+> 
+> 現在の実装仕様および最新の設計方針については、以下の現行ドキュメント（正本）を参照してください：
+> - **設計思想とアーキテクチャ**: [Architecture (English)](../en/architecture.md) / [アーキテクチャ設計 (日本語)](../ja/architecture.md)
+> - **公開API仕様**: [API Specification (English)](../en/api.md) / [APIリファレンス (日本語)](../ja/api.md)
+> - **開発ロードマップと実装状況**: [Roadmap (English)](../en/roadmap.md) / [開発ロードマップ (日本語)](../ja/roadmap.md)
+> - **Core/Host境界と責務**: [Core / Host Boundary (English)](../en/host-boundary.md) / [CoreとHostの責務境界 (日本語)](../ja/host-boundary.md)
 
-> This document specifies a general-purpose, code-first 2D game development framework. Long-term API examples illustrate design goals; implemented APIs and defaults are documented in docs/api.md.
+Status: Archived historical design draft (Date: 2026-10-26)
+
 
 ## 1. Product goals
 
