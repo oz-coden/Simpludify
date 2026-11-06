@@ -71,12 +71,35 @@ for (const page of pages) {
       html.includes(`data-language-link href="${expectedDest}"`),
       `Wrong fallback language destination on ${page.route}`,
     );
+    if (page.lang === "en") {
+      assert(
+        html.includes("この技術資料は英語版のみ提供されています"),
+        `Missing fallback message on English page: ${page.route}`,
+      );
+    }
   } else {
     assert(
       !html.includes('class="language-fallback-banner"'),
       `Paired page must not show fallback banner: ${page.route}`,
     );
   }
+
+  // Check language continuity on brand and header links
+  const expectedBrand = `${manifest.base}${page.lang === "en" ? "en/index.html" : "index.html"}`;
+  assert(
+    html.includes(`class="brand" href="${expectedBrand}"`),
+    `Wrong brand link on ${page.route}`,
+  );
+  const expectedStart = `${manifest.base}${page.lang === "en" ? "en/getting-started.html" : "getting-started.html"}`;
+  const expectedExamples = `${manifest.base}${page.lang === "en" ? "en/examples.html" : "examples.html"}`;
+  assert(
+    html.includes(`href="${expectedStart}"`),
+    `Wrong getting-started header link on ${page.route}`,
+  );
+  assert(
+    html.includes(`href="${expectedExamples}"`),
+    `Wrong examples header link on ${page.route}`,
+  );
 
   // Check navigation separation in sidebar
   const sidebarMatch = html.match(
@@ -95,6 +118,24 @@ for (const page of pages) {
       ),
       `Japanese sidebar leaked English getting-started: ${page.route}`,
     );
+    assert(
+      !sidebarContent.includes(`href="${manifest.base}en/architecture.html"`),
+      `Japanese sidebar leaked English architecture: ${page.route}`,
+    );
+    assert(
+      sidebarContent.includes("技術資料 (英語)"),
+      `Japanese sidebar missing fallback technical section: ${page.route}`,
+    );
+    assert(
+      sidebarContent.includes(
+        `href="${manifest.base}en/scroll-performance.html"`,
+      ),
+      `Japanese sidebar missing fallback record link: ${page.route}`,
+    );
+    assert(
+      sidebarContent.includes('class="lang-tag"'),
+      `Japanese sidebar missing lang tag: ${page.route}`,
+    );
   } else {
     assert(
       !sidebarContent.includes(`href="${manifest.base}api.html"`),
@@ -104,6 +145,30 @@ for (const page of pages) {
       !sidebarContent.includes(`href="${manifest.base}getting-started.html"`),
       `English sidebar leaked Japanese getting-started: ${page.route}`,
     );
+    assert(
+      !sidebarContent.includes(`href="${manifest.base}architecture.html"`),
+      `English sidebar leaked Japanese architecture: ${page.route}`,
+    );
+    assert(
+      !sidebarContent.includes("はじめに"),
+      `English sidebar leaked Japanese section title: ${page.route}`,
+    );
+    assert(
+      !sidebarContent.includes("ガイド"),
+      `English sidebar leaked Japanese section title: ${page.route}`,
+    );
+    assert(
+      sidebarContent.includes("Getting started"),
+      `English sidebar missing Getting started section: ${page.route}`,
+    );
+    assert(
+      sidebarContent.includes("Guides"),
+      `English sidebar missing Guides section: ${page.route}`,
+    );
+    assert(
+      sidebarContent.includes("Engineering records"),
+      `English sidebar missing Engineering records section: ${page.route}`,
+    );
   }
 }
 
@@ -112,8 +177,16 @@ const sampleCodePage = readFileSync(join(root, "getting-started.html"), "utf8");
 assert(sampleCodePage.includes('class="shiki'), "Shiki code blocks missing");
 assert(sampleCodePage.includes("data-copy-code"), "Copy button missing");
 assert(
+  sampleCodePage.includes('class="code-block"'),
+  "Code block container missing",
+);
+assert(
   sampleCodePage.includes("--shiki-light"),
-  "Shiki theme variables missing",
+  "Shiki light theme variable missing",
+);
+assert(
+  sampleCodePage.includes("--shiki-dark"),
+  "Shiki dark theme variable missing",
 );
 
 let references = 0;
