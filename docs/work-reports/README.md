@@ -1,5 +1,7 @@
 # Work reports
 
+- [Documentation reorganization and cleanup — 2026-11-06](2026-11-06-docs-reorganization.md): In progress: removed CODEX-START.md, aligned v0.1.6 published / v0.1.7 upcoming references across docs and site, verified site build/references, proposed directory categorization.
+
 - [v0.1.6 publication and registry verification](2026-11-05-v0.1.6-publication.md): release preparation; exact main push CI, approved tag, OIDC publication and registry acceptance pending.
 
 - [Input bindings v0.1.6 final review and integration](2026-11-05-input-bindings-final-review-v0.1.6.md): Complete: main 3914f15; 891 unit / 448 browser / 66 eventual consumer E2E successes (one existing retry); main CI 20 validations and Pages passed; no npm publication.

@@ -1,6 +1,6 @@
 # Physical bindings and single-input capture
 
-Source v0.1.6 extends the existing ActionController. The npm release remains v0.1.5; these additions require a source build. Actions describe game meaning and bindings describe physical positions. Readers and Characters stay alive during runtime changes.
+Core/Web v0.1.6 extends the existing ActionController and is published on npm. Actions describe game meaning and bindings describe physical positions. Readers and Characters stay alive during runtime changes.
 
 ## Several devices, one configuration
 

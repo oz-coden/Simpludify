@@ -246,6 +246,6 @@ Game.gamepads.bind(controller,{index,bindings}) creates a controller-owned Gamep
 
 InputSystem.addAdapter accepts a DOM-free sample/reset/dispose port for Hosts. Sampling occurs before every controller captures; Replay excludes live adapters. Global clear/reset calls reset, and InputSystem.dispose owns adapter disposal. Ordinary game code needs only Actions, existing Sources and the Game helper.
 
-## Virtual pointer sources (v0.1.5 source)
+## Virtual pointer sources
 
 [Virtual sticks and pointer controls](virtual-input.md) provide Axis2D sticks and Button presses/holds with optional drag confirmation, using the same ActionController/ActionSource/ActionReader. They do not synthesize keyboard codes or replace the Character. Existing additive axes, OR buttons and captured input boundaries apply. The independent provider lifecycle resets on pause, Replay, focus loss and Scene disposal.

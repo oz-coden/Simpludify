@@ -6,7 +6,7 @@ Simpludifyは、TypeScriptを中心に2Dゲームをつくる実験的なゲー�
 
 <div class="actions"><a class="primary" href="getting-started.html">最初のゲームをつくる →</a><a href="examples.html">ブラウザで試す</a></div>
 
-> Experimental v0.1.5のnpm SDKを公開済みです。[配布アーカイブ・npm導入ガイド](npm.md)で独立プロジェクトを構築できます。統一入力・ゲームパッドAPIもnpmから利用できます。APIは変更される可能性があります。Windows版やネットワーク機能は未実装です。
+> Experimental v0.1.6のnpm SDKを公開済みです。[配布アーカイブ・npm導入ガイド](npm.md)で独立プロジェクトを構築できます。統一入力・ゲームパッドAPIや入力Binding・仮想入力もnpmから利用できます。次回開発マイルストーンはv0.1.7の予定です。APIは変更される可能性があります。Windows版やネットワーク機能は未実装です。
 
 <div class="feature-grid">
 <section class="feature"><h2>組み合わせてつくる</h2><p>Characterの既定値から始め、Transform・Renderable・Motionや独自Componentへ段階的に進めます。イベント駆動は必須ではありません。</p></section>
@@ -15,9 +15,9 @@ Simpludifyは、TypeScriptを中心に2Dゲームをつくる実験的なゲー�
 <section class="feature"><h2>静的ファイルで配信する</h2><p>シングルプレイのサンプルはゲームサーバーなしで動作します。サブパス配信と独自ドメイン用のビルドに対応します。</p></section>
 </div>
 
-> ソースv0.1.6では[入力Binding・単一入力キャプチャ](input-bindings.md)を追加しています。キーボード・マウス・ゲームパッドの共通設定、実行中の変更、設定保存・復元を扱えます。npm公開版はv0.1.5です。
+> 公開済みv0.1.6では[入力Binding・単一入力キャプチャ](input-bindings.md)を追加しています。キーボード・マウス・ゲームパッドの共通設定、実行中の変更、設定保存・復元を扱えます。
 
-> npm公開済みv0.1.5では[仮想スティック・ポインター入力](virtual-input.md)を追加しています。固定・浮動・追従、左右領域、マルチタッチ、方向あり／なしボタンを利用できます。
+> 公開済みv0.1.5以降では[仮想スティック・ポインター入力](virtual-input.md)を利用できます。固定・浮動・追従、左右領域、マルチタッチ、方向あり／なしボタンに対応しています。
 
 ## 小さく始める
 

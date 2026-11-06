@@ -1,17 +1,17 @@
 # Platform limits and implemented scope
 
-The current source and public registry Core/Web are experimental SDK 0.1.4. Existing release tags/packages are immutable. APIs can change before stability; use package roots and exact versions/lockfiles.
+The current source and public registry Core/Web are experimental SDK 0.1.6. Next development milestone is v0.1.7. Existing release tags/packages are immutable. APIs can change before stability; use package roots and exact versions/lockfiles.
 
-| Area            | Implemented / verified scope                                                                                                      |
-| --------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Core            | Synchronous ES2022 simulation/data/Actions, DOM/Node/Pixi-free declarations; headless Node consumer                               |
-| Web             | Pixi presentation, browser keyboard/pointer/gamepad adapters, DOM/Canvas UI, native editing, async Scene readiness                |
-| Rendering       | Chromium automated WebGL and Canvas2D fixtures; software GPU results are not a hardware performance guarantee                     |
-| Gamepads        | Standard positional mapping, explicit raw bindings, multiple devices, analog/dead zones, lifecycle/focus gating and display hints |
-| Distribution    | ESM/declarations/CSS npm SDK; external Vite/NodeNext consumers on Windows/Linux                                                   |
-| Hosting         | Static dist and subpath/root builds; Pages deployment after successful CI                                                         |
-| Native apps     | Electron/Tauri/Android packaging is not implemented; Windows SDK tests are not native executable tests                            |
-| Networking / AI | External programs may feed validated ActionSources; no transport, rollback, authority or AI decision framework                    |
+| Area             | Implemented / verified scope                                                                                                       |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Core             | Synchronous ES2022 simulation/data/Actions, DOM/Node/Pixi-free declarations; headless Node consumer                                |
+| Web              | Pixi presentation, browser keyboard/pointer/gamepad adapters, DOM/Canvas UI, native editing, async Scene readiness                 |
+| Rendering        | Chromium automated WebGL and Canvas2D fixtures; software GPU results are not a hardware performance guarantee                      |
+| Gamepads / Input | Standard positional mapping, raw bindings, multiple devices, analog/dead zones, virtual pointer controls, physical binding capture |
+| Distribution     | ESM/declarations/CSS npm SDK; external Vite/NodeNext consumers on Windows/Linux                                                    |
+| Hosting          | Static dist and subpath/root builds; Pages deployment after successful CI                                                          |
+| Native apps      | Electron/Tauri/Android packaging is not implemented; Windows SDK tests are not native executable tests                             |
+| Networking / AI  | External programs may feed validated ActionSources; no transport, rollback, authority or AI decision framework                     |
 
 Browsers can require HTTPS/localhost, an allowed gamepad Permissions Policy and a physical pad gesture. Device IDs/indices are not persistent identity, and layout hints are uncertain. Automated Gamepad snapshots do not certify real hardware, OS drivers, rumble, vendor layouts, mobile devices or all browser implementations. Safari/Firefox, actual OS IME and physical screen readers remain unverified.
 

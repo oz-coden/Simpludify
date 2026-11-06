@@ -1,6 +1,6 @@
 # Input bindings lab
 
-This v0.1.6 source example retains one Character and ActionController during runtime assignment changes. The npm release remains v0.1.5.
+This v0.1.6 example retains one Character and ActionController during runtime assignment changes. Core/Web 0.1.6 are published on npm. Next development milestone is v0.1.7.
 
 ```sh
 npm ci

@@ -1,6 +1,6 @@
 # Virtual input lab
 
-This sample uses the v0.1.5 source/candidate SDK. Published npm Core/Web remain 0.1.4 until a separate release.
+This sample demonstrates virtual sticks and pointer controls. Core/Web 0.1.6 are published on npm. Next development milestone is v0.1.7.
 
 ```sh
 npm ci

@@ -2,11 +2,11 @@
 
 ## Release status
 
-Core/Web v0.1.5 were published through [Trusted Publishing run 41842910464](https://github.com/oz-coden/Simpludify/actions/runs/41842910464), from source `ed3ccc65d7b4c5689dfc14a96ee0bf8e12ecfad3` and tag `v0.1.5`. Core was published and its registry integrity verified before Web publication. Both packages include SLSA v1 provenance, and clean public-registry consumers passed. See [publication and registry verification](work-reports/2026-11-04-v0.1.5-publication.md) for timestamps, immutable archive integrities and verification evidence. Earlier releases remain immutable.
+Core/Web v0.1.6 are published on npm, adding physical bindings and single-input capture. Next development milestone is v0.1.7. See [publication and registry verification](work-reports/2026-11-05-v0.1.6-publication.md). Earlier releases (including v0.1.5 through [Trusted Publishing run 41842910464](https://github.com/oz-coden/Simpludify/actions/runs/41842910464)) remain immutable.
 
-## v0.1.5 scope
+## v0.1.6 scope
 
-The release adds fixed/floating/follow virtual sticks, optional-direction buttons, explicit activation regions and fixed pointer ownership to the existing unified input/gamepad system, with paired consumer documentation. The independent starter retains its published registry 0.1.3 lockfile; upgrades of independent consumers are separate changes.
+The release adds physical bindings for keyboard, mouse and gamepad, single-input capture, runtime reconfiguration, and JSON persistence to the existing unified input/gamepad system.
 
 ## Prepare and verify
 

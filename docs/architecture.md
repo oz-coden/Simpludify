@@ -181,6 +181,6 @@ A ScenePointer may own one VirtualInput target provider. It supplies portable Vi
 Activation geometry resolves in host CSS-pixel viewport space; built-in overlap checks and conservative custom bounds reject same-priority ambiguity before committing a new layout. Core holds values/elapsed presentation time and declares screen-space paint state. Web Game resolves layout-bound viewports, advances holds on its presentation clock and owns a Pixi virtual-input presentation below Canvas UI. Visibility does not gate source writes. Input/lifetime interruption clears contributions and suppresses old physical IDs. Custom RendererPorts can implement the optional prepareVirtualInput presentation capability; Core lifecycle and renderer ports remain host independent.
 
 
-## Common bindings and capture (source v0.1.6)
+## Common bindings and capture (published v0.1.6)
 
 ActionController retains the configuration/composition path. Optional mouse/gamepad data extends ActionBinding; Web gamepad sources follow it or retain explicit legacy bindings. Existing PointerRouting owns mouse gestures; bindings observe world masks only. Portable InputCapture owns session state, result and lifetime. The Game-owned observer neutral-arms keys/buttons, shares the pad poll and gates live adapters. Scene/input reset cancels sessions; explicit program Source values remain available. See [contracts](input-bindings.md).
