@@ -30,8 +30,21 @@ Priority labels reflect importance, not necessarily development order. Work in t
 | Medium            | **Advanced state machines**                     | Typed, reusable hierarchical states/transitions, guards, actions, and lifecycle hooks for gameplay and AI                                                    | Integration with Scene/Component lifetime, timed/async transitions and testability; do not impose on simple games                     |
 | Medium / research | **Physics extension**                           | Keep existing lightweight Trigger/Solid position correction; evaluate external 2D rigid-body libraries for gravity, forces, joints, friction and restitution | Optional adapter rather than mandatory rewrite; coordinate/scale conversion, ownership, collision events, fast-body CCD and licensing |
 | Deferred          | **Input configuration UI and complex bindings** | Eventually offer reusable rebind screens, key chords, sequences and advanced capture                                                                         | Defer until existing binding/capture semantics, conflict policy, and UI interaction are mature; avoid premature parallel abstractions |
-| Deferred          | **Desktop and mobile targets**                  | Electron and Tauri adapters/packaging; investigate Android/iOS alongside host expansion                                                                      | Secure sandboxing, offline bundles, signed builds, device/input/IME testing, startup/memory and distribution rules                    |
+| High / staged     | **Desktop packaging (Electron / Tauri)**       | Package an existing Web game as a desktop app, then progress incrementally toward supported distribution                                | Sandbox, CSP, permissions, input/IME, shutdown, binary size, memory and startup time                                  |
+| Deferred          | **Native mobile packaging**                     | Investigate Android/iOS packaging and device acceptance separately from desktop                                                          | Touch, IME, app lifecycle, signing and store requirements                                                        |
 | Evaluate later    | **Virtualized UI lists**                        | Add virtualization only if large-list workloads justify it                                                                                                   | Focus, scroll state, stable identity and accessibility contracts                                                                      |
+
+### Near-term execution sequence (proposed)
+
+This sequence turns the priority table into incremental work. **It does not commit features to specific version numbers or release dates.** Each deliverable requires tests and representative game acceptance before release.
+
+1. **Improve CI reliability and throughput:** preserve Windows/Linux, external consumer, browser and published-site checks while measuring Playwright dependency setup and investigating flaky live virtual-input assertions. Do not use retries as a substitute for fixing a root cause.
+2. **Deliver a small Audio and Assets vertical slice:** demonstrate basic music/sound playback and preload of required audio/images in a working game. Avoid committing to a large asset framework prematurely.
+3. **Validate Save/Load, retained scenes and Canvas UI together:** exercise versioned game progress, pause/resume, settings and confirmation dialogs in concrete gameplay.
+4. **Prototype desktop packaging:** build the same Web game with Electron and Tauri in small, separately evaluated prototypes; verify clean startup/shutdown and compare distribution size, memory and startup performance before promising supported targets.
+5. **Validate first-time developer adoption:** test onboarding from published npm packages and guides, and consider an opt-in showcase for games made with Simpludify. Do not introduce undisclosed usage telemetry.
+
+Audio/Assets are the initial feature priority; CI, onboarding and desktop feasibility investigations can proceed in parallel. Keep existing particle, camera and networking plans and revisit order based on actual game needs.
 
 ### High-priority workstreams
 
