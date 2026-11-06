@@ -101,7 +101,7 @@ Blockfallは10×20の二重配列を維持します。行単位のfilter・splic
 
 ## 性能・所有権・Tilemap
 
-get/set/inBoundsはO(1)、生成・fill・全走査はO(幅×高さ)、矩形走査はO(矩形の面積)です。行ごとの配列は不要ですが、get/setの数値・範囲検証やcallback走査には直接配列より追加コストがあります。generateは実装を簡潔に保つため、非公開Arrayを初期化後に生成結果で上書きします。[測定条件・生データ・メモリの制約](../../docs/grid-performance.md)を参照してください。
+get/set/inBoundsはO(1)、生成・fill・全走査はO(幅×高さ)、矩形走査はO(矩形の面積)です。行ごとの配列は不要ですが、get/setの数値・範囲検証やcallback走査には直接配列より追加コストがあります。generateは実装を簡潔に保つため、非公開Arrayを初期化後に生成結果で上書きします。[測定条件・生データ・メモリの制約](../../docs/benchmarks/grid-performance.md)を参照してください。
 
 Gridは格納したオブジェクトを自動破棄せず、制御権・排他権も取得しません。Grid自体のdisposeやSceneへの登録も不要です。汎用制御権システムの正式導入は見送っています。
 

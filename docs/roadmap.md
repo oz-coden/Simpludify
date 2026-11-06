@@ -92,21 +92,21 @@ Priority labels reflect importance, not necessarily development order. Work in t
 
 ## Included
 
-- v0.1.6 [physical bindings and single-input capture](input-bindings.md): common keyboard/mouse/gamepad settings, runtime edits and version-1 persistence, per-device diagnostics, neutral capture and existing input ownership/composition. Core/Web v0.1.6 are published on npm; see the [release record](work-reports/2026-11-05-v0.1.6-publication.md).
+- v0.1.6 [physical bindings and single-input capture](./specs/input-bindings.md): common keyboard/mouse/gamepad settings, runtime edits and version-1 persistence, per-device diagnostics, neutral capture and existing input ownership/composition. Core/Web v0.1.6 are published on npm; see the [release record](work-reports/2026-11-05-v0.1.6-publication.md).
 
-- [Virtual sticks and pointer controls](virtual-input.md): fixed/floating/follow Axis2D sticks, optional-direction Button controls, explicit activation regions, fixed pointer-ID ownership and existing ActionSource composition; independent visibility/enablement and WebGL/Canvas2D presentation. Physical-device and non-Chromium verification remain outside automated coverage.
+- [Virtual sticks and pointer controls](./specs/virtual-input.md): fixed/floating/follow Axis2D sticks, optional-direction Button controls, explicit activation regions, fixed pointer-ID ownership and existing ActionSource composition; independent visibility/enablement and WebGL/Canvas2D presentation. Physical-device and non-Chromium verification remain outside automated coverage.
 
-- Generic numeric Tween, Scene simulation/display clocks, lifetime/channel ownership, sequence/parallel, Actor draw and Canvas/Slider adapters; [contracts and limitations](tween.md).
+- Generic numeric Tween, Scene simulation/display clocks, lifetime/channel ownership, sequence/parallel, Actor draw and Canvas/Slider adapters; [contracts and limitations](./specs/tween.md).
 
-- [Portable scroll input](scrolling.md): touch/mouse content arbitration, per-node momentum, overlay scrollbar controls, nested/multipointer ownership, keyboard commands and cached projection; [measurements](scroll-performance.md).
+- [Portable scroll input](./specs/scrolling.md): touch/mouse content arbitration, per-node momentum, overlay scrollbar controls, nested/multipointer ownership, keyboard commands and cached projection; [measurements](./benchmarks/scroll-performance.md).
 
-- Host-independent Core Canvas UI tree/Flex/text policy/pointer routing, dynamic ordering, clipped scrolling and logical focus; Web supplies Pixi/metrics/native focus adapters. [Module and Host boundaries](host-boundary.md), [Canvas API](canvas-ui.md) and [portable screen](../examples/canvas-ui/portable-screen.ts).
+- Host-independent Core Canvas UI tree/Flex/text policy/pointer routing, dynamic ordering, clipped scrolling and logical focus; Web supplies Pixi/metrics/native focus adapters. [Module and Host boundaries](host-boundary.md), [Canvas API](./specs/canvas-ui.md) and [portable screen](../examples/canvas-ui/portable-screen.ts).
 
-- Finite Tilemap placements from copied Grid/rows, typed SpriteSheet IDs, camera culling and incremental edits; [API](tilemap.md), [measurements](tilemap-performance.md), and [optional terrain collision](tilemap-collision.md).
+- Finite Tilemap placements from copied Grid/rows, typed SpriteSheet IDs, camera culling and incremental edits; [API](./specs/tilemap.md), [measurements](./benchmarks/tilemap-performance.md), and [optional terrain collision](./specs/tilemap-collision.md).
 
-- SpriteSheet grid/named/rectangle frames, shared cropped image textures and Actor-owned SpriteAnimation with simulation-time playback; [contracts and sample](sprites.md).
+- SpriteSheet grid/named/rectangle frames, shared cropped image textures and Actor-owned SpriteAnimation with simulation-time playback; [contracts and sample](./specs/sprites.md).
 
-- Independent fixed-size dense Grid with strict coordinates, shared/factory initialization and full/rectangle traversal; [contracts and data-only example](grid.md).
+- Independent fixed-size dense Grid with strict coordinates, shared/factory initialization and full/rectangle traversal; [contracts and data-only example](./specs/grid.md).
 - DOM-free Engine stepping, frozen frame input, managed seeded randomness and generic snapshots.
 - Synchronous Scene states, exclusive ownership, lifecycle hooks and aggregate cleanup.
 - Dynamic Actors/Components with deterministic membership and update rules, dependency diagnostics and enable flags.
@@ -125,7 +125,7 @@ Priority labels reflect importance, not necessarily development order. Work in t
 
 ## Pending and limits
 
-Windows/Electron packaging and Windows executable smoke tests are pending. There is no portable executable guarantee or cross-language SDK. Compiled ESM/type SDK packages and external tarball validation are implemented; Core/Web v0.1.6 are published on npm. Automated vendored-engine upgrades remain pending. See [npm distribution and publishing](npm-publishing.md).
+Windows/Electron packaging and Windows executable smoke tests are pending. There is no portable executable guarantee or cross-language SDK. Compiled ESM/type SDK packages and external tarball validation are implemented; Core/Web v0.1.6 are published on npm. Automated vendored-engine upgrades remain pending. See [npm distribution and publishing](./specs/npm-publishing.md).
 
 No impulse/angular rigid-body simulation or continuous collision detection, multiple cameras/viewports, infinite maps, audio, save-game format, networking, generic ECS, asset manifest/font manager or visual editor is implemented. Actors/components are destroyed on removal; reusable pooling and scene reactivation are not implicit features. Dynamic images load asynchronously and can fail independently of logical Actors.
 
@@ -147,26 +147,26 @@ Before comparative performance claims, implement equivalent Godot/Phaser workloa
 
 ## Controlled execution
 
-Implemented: standalone RandomManager, cached named streams, actual automatic seeds, opt-in JSON Action Replay from a fresh Engine/one Scene, auxiliary observations, and optional bounded fixed stepping. Deferred: seek/rewind, arbitrary state restoration, cross-Scene replay, compression, render interpolation and network determinism. See [contracts and validation](replay.md).
+Implemented: standalone RandomManager, cached named streams, actual automatic seeds, opt-in JSON Action Replay from a fresh Engine/one Scene, auxiliary observations, and optional bounded fixed stepping. Deferred: seek/rewind, arbitrary state restoration, cross-Scene replay, compression, render interpolation and network determinism. See [contracts and validation](./specs/replay.md).
 
-[Live rendering](rendering.md) preserves Component identity and separates pending image requests from owned display resources. Renderer-local image sharing now coalesces pending loads and holds independently cancellable consumer leases across Visuals and overlapping Scenes. URL sources remain the public reference; TextureRef/Material, idle retention, preloading remain deferred.
+[Live rendering](./specs/rendering.md) preserves Component identity and separates pending image requests from owned display resources. Renderer-local image sharing now coalesces pending loads and holds independently cancellable consumer leases across Visuals and overlapping Scenes. URL sources remain the public reference; TextureRef/Material, idle retention, preloading remain deferred.
 
 
 ## Optional Tilemap collision
 
-The finite Tilemap now supports copied ID policies, sparse cell overrides and dedicated TileContactEnter/Stay/Exit through the existing CollisionWorld. Actor Contact stays unchanged. Local candidate queries, optional lazy 16×16 chunk rectangle candidate search, equal-policy exposed-feature response and one shared iteration budget are implemented. Cell events retain their identity across chunk rebuilds. `tileBounds` complements the existing tile/world point conversions. See [API and limits](tilemap-collision.md). CCD, rigid-body response, streaming, slopes and general deep-embedding recovery remain outside scope.
+The finite Tilemap now supports copied ID policies, sparse cell overrides and dedicated TileContactEnter/Stay/Exit through the existing CollisionWorld. Actor Contact stays unchanged. Local candidate queries, optional lazy 16×16 chunk rectangle candidate search, equal-policy exposed-feature response and one shared iteration budget are implemented. Cell events retain their identity across chunk rebuilds. `tileBounds` complements the existing tile/world point conversions. See [API and limits](./specs/tilemap-collision.md). CCD, rigid-body response, streaming, slopes and general deep-embedding recovery remain outside scope.
 
 ## Canvas UI and Pointer input
 
-Implemented: Scene-owned Web Canvas nodes, Pixi screen presentation, dirty Flex with min/max freeze/reallocation and width-aware grapheme-safe text wrapping, fixed-owner multi-pointer routing, existing ActionSource integration, native keyboard button mirrors, and Canvas trail integration. Existing DOM UI and Core Action contracts remain. See [API and scope](canvas-ui.md), [validation](canvas-ui-implementation.md) and [measurements](canvas-ui-performance.md). Native Canvas editing and label semantics are implemented with their documented limits. v0.1.4 adds the Web gamepad adapter and source gating. Full CSS layout, general document semantics, OS/device accessibility verification and hardware GPU profiling remain separate work.
+Implemented: Scene-owned Web Canvas nodes, Pixi screen presentation, dirty Flex with min/max freeze/reallocation and width-aware grapheme-safe text wrapping, fixed-owner multi-pointer routing, existing ActionSource integration, native keyboard button mirrors, and Canvas trail integration. Existing DOM UI and Core Action contracts remain. See [API and scope](./specs/canvas-ui.md), [validation](./archive/canvas-ui-implementation.md) and [measurements](./benchmarks/canvas-ui-performance.md). Native Canvas editing and label semantics are implemented with their documented limits. v0.1.4 adds the Web gamepad adapter and source gating. Full CSS layout, general document semantics, OS/device accessibility verification and hardware GPU profiling remain separate work.
 
 ## Scene API and UI follow-up notes
 
 The retained-Scene and overlay requirements above supersede the earlier generic deferral of suspend/resume. A clearer `changeScene` name and directly constructed dynamic Scenes remain possible API refinements, subject to compatibility and lifecycle review. UI virtualization remains conditional on demonstrated workload needs; current layout and hit testing still visit visible model nodes.
 
-- Standard Canvas Checkbox and horizontal Slider provide typed values/events, read-only state and shared pointer/keyboard/focus/lifetime behavior; Canvas trail Settings lab uses Core-only definitions. [Control contracts](canvas-controls.md).
-- Canvas Select/TextInput/NumberInput provide typed selection, accepted values versus text drafts, generation-checked native Host editing, finite numeric validation and shared focus/lifetime. [Native editing contracts](text-input-design.md) distinguish automated browser/synthetic composition tests from unverified real OS Japanese IME and physical mobile keyboards.
+- Standard Canvas Checkbox and horizontal Slider provide typed values/events, read-only state and shared pointer/keyboard/focus/lifetime behavior; Canvas trail Settings lab uses Core-only definitions. [Control contracts](./specs/canvas-controls.md).
+- Canvas Select/TextInput/NumberInput provide typed selection, accepted values versus text drafts, generation-checked native Host editing, finite numeric validation and shared focus/lifetime. [Native editing contracts](./specs/text-input-design.md) distinguish automated browser/synthetic composition tests from unverified real OS Japanese IME and physical mobile keyboards.
 
 ## Tile geometry
 
-Square/triangle/pointy-hex/flat-hex coordinate geometry, finite color layers, picking, edge neighbors, hex distance/disks, local dynamic updates and Actor Hexagon are implemented. See [contracts and validation limits](tile-geometry.md). Polygon image UV/masks, polygon Colliders and automatic polygon terrain physics are deferred.
+Square/triangle/pointy-hex/flat-hex coordinate geometry, finite color layers, picking, edge neighbors, hex distance/disks, local dynamic updates and Actor Hexagon are implemented. See [contracts and validation limits](./specs/tile-geometry.md). Polygon image UV/masks, polygon Colliders and automatic polygon terrain physics are deferred.

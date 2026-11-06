@@ -1,6 +1,6 @@
 # Scenes, state and UI
 
-Game registers typed Scene factories; each visit creates a new owned Scene. The game defines menu/play state and rules. Use [Canvas UI](../../docs/canvas-ui.md) for controls drawn with the game, or native DOM UI for document layout and richer browser semantics.
+Game registers typed Scene factories; each visit creates a new owned Scene. The game defines menu/play state and rules. Use [Canvas UI](../../docs/specs/canvas-ui.md) for controls drawn with the game, or native DOM UI for document layout and richer browser semantics.
 
 ```ts verify
 import {
@@ -34,4 +34,4 @@ Label.setText updates subscribed DOM text. Store semantic game state in a normal
 
 Theme.Dark/Light and partial background/surface/text/muted/accent/font tokens customize appearance. Color tokens are validated CSS colors and applied to color-only properties; font names may use quotes/escapes and fallback stacks. Unknown themes/tokens and unsafe values throw INVALID_THEME/INVALID_THEME_TOKEN. Maintain contrast and keyboard accessibility when overriding tokens.
 
-Native buttons use Tab, Enter and Space. Engine buttons may pass unrelated gameplay keys; native editors/selects/contenteditable and IME own their keys. Empty UI overlay space does not capture world pointer input. Gamepad gameplay follows focused-host/editor eligibility and does not automatically navigate UI. Use [Actions](../../docs/action-input.md) and [gamepads](../../docs/gamepads.md) for input ownership.
+Native buttons use Tab, Enter and Space. Engine buttons may pass unrelated gameplay keys; native editors/selects/contenteditable and IME own their keys. Empty UI overlay space does not capture world pointer input. Gamepad gameplay follows focused-host/editor eligibility and does not automatically navigate UI. Use [Actions](../../docs/specs/action-input.md) and [gamepads](../../docs/specs/gamepads.md) for input ownership.

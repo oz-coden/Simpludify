@@ -85,7 +85,7 @@ An unregistered package cannot be created by this unconfigured OIDC identity. Ac
 
 ## Trusted Publishing workflow and required owner actions
 
-See [the complete release runbook](../npm-publishing.md) and [standalone SDK/Vite guide](../../site/ja/npm.md).
+See [the complete release runbook](../specs/npm-publishing.md) and [standalone SDK/Vite guide](../../site/ja/npm.md).
 
 `.github/workflows/npm-publish.yml` runs only through manual dispatch from main with an exact confirmation naming both versions. It checks a v0.1.0 tag matching the dispatched source SHA and a successful main push CI. A read-only validation job rebuilds/checks/tests actual archives; a separate OIDC job publishes those exact archives Core first, verifying visibility/integrity before Web. Existing identical versions are skipped; mismatched existing versions, network errors and authentication failures stop the run. Checksums, publication state and post-publication clean-install results are archived. Tags/Releases are not created automatically. The actual OIDC publish path remains unexecuted and its npm authorization/provenance is not claimed verified.
 

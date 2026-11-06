@@ -54,7 +54,7 @@ await game.run();
 - `neighbors(x,y)`：辺を共有する隣接セル。マップ外を除外。
 - `tilesInBounds(bounds)`：外接矩形がワールド範囲に触れるセル候補。
 
-四角形の境界は従来どおり左・上を含み、右・下を含みません。三角形・六角形の共有辺・頂点は、行/rが小さい方、その次に列/qが小さい方へ割り当てます。有限マップの外周も無限のタイル配置で所有セルを決めてから範囲確認するため、外側の隣接セルに属する境界ではundefinedになります。浮動小数点の誤差を安定させる微小許容値の詳細は[英語契約](../../docs/tile-geometry.md)を参照してください。
+四角形の境界は従来どおり左・上を含み、右・下を含みません。三角形・六角形の共有辺・頂点は、行/rが小さい方、その次に列/qが小さい方へ割り当てます。有限マップの外周も無限のタイル配置で所有セルを決めてから範囲確認するため、外側の隣接セルに属する境界ではundefinedになります。浮動小数点の誤差を安定させる微小許容値の詳細は[英語契約](../../docs/specs/tile-geometry.md)を参照してください。
 
 生のGeometryは負の整数座標も扱えます。`geometry.center/vertices/bounds/neighbors/worldToTile`はローカル座標です。六角形では`distance(a,b)`と`withinRadius(q,r,radius)`も利用できます。範囲列挙は遅延評価ですが、巨大な範囲を指定すると列挙数も増えます。
 
@@ -72,4 +72,4 @@ npm run dev -- --example tile-geometry
 
 [サンプルギャラリー](examples.html)のTile geometry labで形状切り替え・タップ選択・色変更・隣接強調・表示切り替え・カメラ操作・Scene再生成を確認できます。スマートフォン幅でもPan・Zoomボタンを利用できます。Desktop/Narrowは自動ブラウザ検証の画面幅を示し、実機スマートフォン全般の動作保証ではありません。
 
-詳しいAPI・画像対応の制約・寿命・カリングは[Tile geometry契約](../../docs/tile-geometry.md)、検証と測定は[作業報告](../../docs/work-reports/2026-11-01-tilemap-geometry.md)に記録しています。
+詳しいAPI・画像対応の制約・寿命・カリングは[Tile geometry契約](../../docs/specs/tile-geometry.md)、検証と測定は[作業報告](../../docs/work-reports/2026-11-01-tilemap-geometry.md)に記録しています。

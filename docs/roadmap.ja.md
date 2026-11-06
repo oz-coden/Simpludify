@@ -94,17 +94,17 @@ Simpludifyは、コード主導・2D特化の実験的なTypeScript製ゲーム�
 
 以下は主にv0.1.6時点の機能です。機能ごとの正確な利用方法と制約はリンク先の英語技術資料を参照してください。
 
-- **入力：** [物理Bindingと単一入力Capture](input-bindings.md)、キーボード・マウス・ゲームパッド設定、再割り当て、競合診断、JSON入出力。複合キーや標準キー設定UIは未実装。
-- **仮想入力：** [仮想スティック・ボタン](virtual-input.md)（固定・浮動・追従）、有効範囲とPointer所有権、既存ActionSourceとの合成。
-- **Tween：** [数値Tween](tween.md)、SceneのSimulation/Display Clock、順次・並列、Actor描画・UI値への適用、所有者による解放。
-- **Canvas UI：** [Core側のUIツリーとFlex/テキスト/Pointerルーティング](canvas-ui.md)、フォーカス、ネイティブ編集、Checkbox/Slider/Select/TextInput/NumberInput。[スクロール](scrolling.md)はドラッグ、慣性、重なったスクロール領域、スクロールバーに対応。
-- **Grid・Tilemap：** [固定サイズGrid](grid.md)、[有限Tilemap](tilemap.md)、レイヤー、SpriteSheetフレーム、カリング、セル編集、[任意の地形衝突](tilemap-collision.md)。
-- **Sprite:** [SpriteSheetとSpriteAnimation](sprites.md)。グリッド・名前付き・矩形フレーム、画像共有、Actor単位の再生。
+- **入力：** [物理Bindingと単一入力Capture](./specs/input-bindings.md)、キーボード・マウス・ゲームパッド設定、再割り当て、競合診断、JSON入出力。複合キーや標準キー設定UIは未実装。
+- **仮想入力：** [仮想スティック・ボタン](./specs/virtual-input.md)（固定・浮動・追従）、有効範囲とPointer所有権、既存ActionSourceとの合成。
+- **Tween：** [数値Tween](./specs/tween.md)、SceneのSimulation/Display Clock、順次・並列、Actor描画・UI値への適用、所有者による解放。
+- **Canvas UI：** [Core側のUIツリーとFlex/テキスト/Pointerルーティング](./specs/canvas-ui.md)、フォーカス、ネイティブ編集、Checkbox/Slider/Select/TextInput/NumberInput。[スクロール](./specs/scrolling.md)はドラッグ、慣性、重なったスクロール領域、スクロールバーに対応。
+- **Grid・Tilemap：** [固定サイズGrid](./specs/grid.md)、[有限Tilemap](./specs/tilemap.md)、レイヤー、SpriteSheetフレーム、カリング、セル編集、[任意の地形衝突](./specs/tilemap-collision.md)。
+- **Sprite:** [SpriteSheetとSpriteAnimation](./specs/sprites.md)。グリッド・名前付き・矩形フレーム、画像共有、Actor単位の再生。
 - **ゲーム基盤：** DOM非依存Engine、Sceneライフサイクル、Actor/Component、Transform/Renderable/Motion/ActionMovement、Character、型付きイベント、Simulation Timer、Seed付き乱数、Snapshot。
 - **描画・Camera：** Pixiの図形・画像描画、描画順・透明度・表示制御、単一Camera/Viewport、World/Screen座標変換、CameraFollow、画像の非同期ロードとリース。
 - **衝突：** 円・回転矩形のTrigger/Solid、レイヤー/マスク、Enter/Stay/Exit、CollisionBodyによる質量比に基づく位置補正。
 - **シーン遷移：** 非同期準備、リクエストのキュー・統合、準備失敗時の旧シーン保持、破棄中のキャンセル。破棄しないSceneの保持・再開は未実装。
-- **再現性：** [Random、Replay、固定ステップ](replay.md)。初期条件からAction列を再生できるが、任意時点でのSave/Loadや巻き戻しではありません。
+- **再現性：** [Random、Replay、固定ステップ](./specs/replay.md)。初期条件からAction列を再生できるが、任意時点でのSave/Loadや巻き戻しではありません。
 - **サンプル：** Character、UI/Scene、Beacon Field、Signal Run、Blockfall、Prism Raid、Sprite Garden、Tile Trail、幾何タイル、Canvas UI、仮想入力など。
 - **開発・配布：** dev/check/test/build/doctor CLI、JSON診断、単体・ブラウザ・ビルドテスト、性能計測、依存ライセンス通知、静的サイトとGitHub Pages。
 - **SDK:** `@simpludify/core@0.1.6` と `@simpludify/web@0.1.6` はnpmで公開済みです。[公開記録](work-reports/2026-11-05-v0.1.6-publication.md)。
@@ -113,8 +113,8 @@ Simpludifyは、コード主導・2D特化の実験的なTypeScript製ゲーム�
 
 - 高度な剛体物理（衝撃・角速度・摩擦・Joint）、CCD、複数Camera/Viewport、無限Map、Audio、Save/Load、Networking、統一Asset Manifest/Font Manager、GUIエディタは未実装です。
 - Actor/Componentは削除時に破棄されます。暗黙的なPoolingやScene再有効化はありません。画像読み込みはゲームロジックと独立して失敗する場合があります。
-- [Tilemap衝突](tilemap-collision.md)はCell接触、Solid/Trigger、必要に応じた16×16チャンク候補探索に対応していますが、斜面や一般多角形の物理応答は対象外です。
-- [タイル幾何](tile-geometry.md)は正方形・三角形・六角形（2方向）、セル特定、近傍・距離、色付きポリゴン表示に対応します。多角形Collider、画像UV/マスク、一般地形物理は未対応です。
+- [Tilemap衝突](./specs/tilemap-collision.md)はCell接触、Solid/Trigger、必要に応じた16×16チャンク候補探索に対応していますが、斜面や一般多角形の物理応答は対象外です。
+- [タイル幾何](./specs/tile-geometry.md)は正方形・三角形・六角形（2方向）、セル特定、近傍・距離、色付きポリゴン表示に対応します。多角形Collider、画像UV/マスク、一般地形物理は未対応です。
 - Web描画とCanvas UIの自動テストは主としてChromiumです。Safari/Firefox、実機のタッチ・IME・スクリーンリーダー、各種GPU、WebGLコンテキスト復旧の網羅的な検証は未完了です。
 - ネイティブなWindows/macOS/Linux配布、Electron/Tauri、Android/iOSの正式対応は未実装・未検証です。ESM SDKの公開とWebでの動作を、ネイティブ配布済みという意味に解釈しないでください。
 
@@ -132,8 +132,8 @@ GodotやPhaserとの性能優位性を主張する場合は、同じ負荷と制
 
 - [APIリファレンス](api.md)
 - [Core/Hostの境界](host-boundary.md)
-- [Canvas UI](canvas-ui.md)・[標準コントロール](canvas-controls.md)・[ネイティブ編集](text-input-design.md)
-- [入力](action-input.md)・[ゲームパッド](gamepads.md)・[Binding/Capture](input-bindings.md)
-- [Sprite/Animation](sprites.md)・[Tween](tween.md)・[Tilemap](tilemap.md)
-- [Replayと固定ステップ](replay.md)・[性能測定](performance.md)
+- [Canvas UI](./specs/canvas-ui.md)・[標準コントロール](./specs/canvas-controls.md)・[ネイティブ編集](./specs/text-input-design.md)
+- [入力](./specs/action-input.md)・[ゲームパッド](./specs/gamepads.md)・[Binding/Capture](./specs/input-bindings.md)
+- [Sprite/Animation](./specs/sprites.md)・[Tween](./specs/tween.md)・[Tilemap](./specs/tilemap.md)
+- [Replayと固定ステップ](./specs/replay.md)・[性能測定](./benchmarks/performance.md)
 - [v0.1.6の公開・検証記録](work-reports/2026-11-05-v0.1.6-publication.md)

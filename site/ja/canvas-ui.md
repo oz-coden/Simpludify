@@ -120,7 +120,7 @@ Tab／Shift-TabはRow・Column・入れ子Panelを含むツリーの宣言順／
 
 補助DOMはボタンの名前・状態・キーボード操作を提供する範囲です。Canvas Label全体を文書として読み上げたり、Canvas文書全体の完全なスクリーンリーダー対応を提供したりはしません。文字入力のネイティブIME連携は標準TextInputが提供しますが、実OSでの適合性は別途検証が必要です。実機・Safari・Firefox・OS IMEの適合性は未検証です。
 
-[Canvas trail](../../examples/canvas-ui/README.md)はSpriteAnimation・Tilemap・Collision・HUD・タッチ・Pause・Scene往復を組み合わせた実行例です。[詳細仕様](../../docs/canvas-ui.md)・[測定結果](../../docs/canvas-ui-performance.md)・[検証記録](../../docs/canvas-ui-implementation.md)も参照してください。
+[Canvas trail](../../examples/canvas-ui/README.md)はSpriteAnimation・Tilemap・Collision・HUD・タッチ・Pause・Scene往復を組み合わせた実行例です。[詳細仕様](../../docs/specs/canvas-ui.md)・[測定結果](../../docs/benchmarks/canvas-ui-performance.md)・[検証記録](../../docs/archive/canvas-ui-implementation.md)も参照してください。
 
 ## Core共通UIと動的リスト
 
@@ -136,7 +136,7 @@ Canvas trailの **UI list lab** は、Core APIだけで構築した同じ画面�
 
 ボタン上から8画面単位以上の有効軸ドラッグになると、元の入力をキャンセルしてスクロール領域が引き継ぎます。HoldButtonは従来どおり押下時に開始し、ドラッグ移行時にその指の寄与を解除します。親子では操作開始時に最も内側の移動可能な領域を選び、指を離すまで固定します。端から親へ移るときは、一度離して次の操作を始めます。複数の領域は別々の指で操作できます。
 
-位置だけの変更ではFlexと文字計測を繰り返しません。Webは既存のフレームから経過秒をCoreへ渡し、慣性を更新します。一時停止・フォーカス喪失・非表示・破棄では解除します。[詳細な仕様・キャンセル規則](../../docs/scrolling.md)と[性能計測の範囲](../../docs/scroll-performance.md)を参照してください。CDPタッチ模擬と実機確認は別で、Android/iOS実機は未検証です。
+位置だけの変更ではFlexと文字計測を繰り返しません。Webは既存のフレームから経過秒をCoreへ渡し、慣性を更新します。一時停止・フォーカス喪失・非表示・破棄では解除します。[詳細な仕様・キャンセル規則](../../docs/specs/scrolling.md)と[性能計測の範囲](../../docs/benchmarks/scroll-performance.md)を参照してください。CDPタッチ模擬と実機確認は別で、Android/iOS実機は未検証です。
 
 ## 標準入力コンポーネント
 

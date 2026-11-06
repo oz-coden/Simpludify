@@ -9,4 +9,4 @@ A small color-layer comparison of square, alternating triangle, axial pointy hex
 
 Triangle and Hexagon Actors rotate independently through existing presentation Tweens. A Canvas label shares the normal UI routing. Controls outside the game reflow on narrow screens; no drag gesture is needed to access Camera controls.
 
-`GeometryTilemap` copies Grid data and handles geometry, culling, picking and changed-cell drawing. The sample keeps only selection/highlight state and colors. These layers do not create physics. Image tiles clipped into polygons, arbitrary polygon colliders and pathfinding are outside this sample. See [full contracts](../../docs/tile-geometry.md).
+`GeometryTilemap` copies Grid data and handles geometry, culling, picking and changed-cell drawing. The sample keeps only selection/highlight state and colors. These layers do not create physics. Image tiles clipped into polygons, arbitrary polygon colliders and pathfinding are outside this sample. See [full contracts](../../docs/specs/tile-geometry.md).

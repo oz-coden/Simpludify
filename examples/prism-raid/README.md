@@ -89,11 +89,11 @@ npm run test:site
 
 同じseed・入力列・時間刻みでゲーム状態を再現できます。ヘッドレス検証と自動プレイヤーは実時間を待たずに進めます。Webの可変フレームやGPU出力を含む全環境でのビット一致は保証しません。大きなステップはタイマーの欠落回数や接触経路を変えるため、高速検証でも小さな固定刻みを使います。
 
-[APIの使い勝手・性能・検証記録](../../docs/shooter-validation.md)を参照してください。自動ブラウザ検証はChromiumと合成タッチが対象であり、実機Safari／Firefoxや任意のGPUでの保証とは分けています。
+[APIの使い勝手・性能・検証記録](../../docs/archive/shooter-validation.md)を参照してください。自動ブラウザ検証はChromiumと合成タッチが対象であり、実機Safari／Firefoxや任意のGPUでの保証とは分けています。
 
 ## Action入力とリバインド
 
-RaidActions.MoveはAxis2D、Fire・Sprint・PauseはButtonです。new Raid(scene, engine.input, random)で構成し、移動Componentと戦闘ルールは物理キーを参照しません。キーボードはcontrolsのbindings、タッチは独立ActionSource、自動プレイヤーはround.inputへMove/Fireを設定します。controls.rebindで物理キーを変更しても、タッチ・自動プレイや戦闘ロジックは変わりません。pause/resumeは停止中も捕捉するonPressedを利用します。[詳細な入力契約](../../docs/action-input.md)には所有権・合成・設定保存をまとめています。
+RaidActions.MoveはAxis2D、Fire・Sprint・PauseはButtonです。new Raid(scene, engine.input, random)で構成し、移動Componentと戦闘ルールは物理キーを参照しません。キーボードはcontrolsのbindings、タッチは独立ActionSource、自動プレイヤーはround.inputへMove/Fireを設定します。controls.rebindで物理キーを変更しても、タッチ・自動プレイや戦闘ロジックは変わりません。pause/resumeは停止中も捕捉するonPressedを利用します。[詳細な入力契約](../../docs/specs/action-input.md)には所有権・合成・設定保存をまとめています。
 
 移動は標準ActionMovementが担当し、Inputフェーズのゲーム固有SprintScaleがscaleを1／2へ設定します。Motion.speedは基準速度220で、ダッシュ倍率とは別の責務です。移動後のクランプ・射撃・寿命判定はLateUpdateで接触判定より前に行います。
 
@@ -106,4 +106,4 @@ npm run replay:demo
 npm run replay:demo -- --out mission.json
 ```
 
-ファイル保存はCLI側の処理で、CoreのReplayはメモリ上のJSON互換データだけを扱います。ゲームバージョンはサンプル自身が指定します。[Random・Replay・固定ステップ](../../docs/replay.md)に手順と制約をまとめています。
+ファイル保存はCLI側の処理で、CoreのReplayはメモリ上のJSON互換データだけを扱います。ゲームバージョンはサンプル自身が指定します。[Random・Replay・固定ステップ](../../docs/specs/replay.md)に手順と制約をまとめています。

@@ -54,7 +54,7 @@ for (const file of [
   "examples/signal-run/index.html",
   "examples/signal-run/logic.ts",
   "examples/signal-run/main.ts",
-  "docs/practical-validation.md",
+  "docs/archive/practical-validation.md",
   "LICENSE",
   "docs/api.md",
   "docs/architecture.md",

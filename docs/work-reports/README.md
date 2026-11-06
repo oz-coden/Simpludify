@@ -1,6 +1,6 @@
 # Work reports
 
-- [Documentation reorganization and cleanup — 2026-11-06](2026-11-06-docs-reorganization.md): In progress: removed CODEX-START.md, aligned v0.1.6 published / v0.1.7 upcoming references across docs and site, verified site build/references, proposed directory categorization.
+- [Documentation reorganization and cleanup — 2026-11-06](2026-11-06-docs-reorganization.md): Complete: removed CODEX-START.md, aligned v0.1.6 published / v0.1.7 upcoming references across docs and site, categorized docs into specs/benchmarks/archive, fixed 387 relative links, verified site build and references.
 
 - [v0.1.6 publication and registry verification](2026-11-05-v0.1.6-publication.md): release preparation; exact main push CI, approved tag, OIDC publication and registry acceptance pending.
 

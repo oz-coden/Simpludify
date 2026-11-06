@@ -19,6 +19,6 @@ Each directional touch gesture owns an independent Source; combining gestures us
 
 Browsers may expose no pad until a user gesture, require HTTPS/localhost, deny gamepad permissions or provide nonstandard mapping. The sample shows this state and continues with other input methods. IDs and indices are not persistent physical identities.
 
-[Gamepad API and lifecycle contracts](../../docs/gamepads.md) · [Japanese lab guide](../../site/ja/unified-input.md)
+[Gamepad API and lifecycle contracts](../../docs/specs/gamepads.md) · [Japanese lab guide](../../site/ja/unified-input.md)
 
 Automated fixtures simulate Gamepad API snapshots and verify independent players, actor-preserving handoff, disconnect/reconnect, pause, focus, CDP touch and Scene cleanup in WebGL/Canvas2D. These checks do not certify a physical device, vendor layout or OS driver.

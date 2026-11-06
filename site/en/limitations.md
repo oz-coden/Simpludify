@@ -19,4 +19,4 @@ Collision uses discrete circle/rotated-box geometry and bounded position correct
 
 Canvas UI implements a bounded Flex subset, not CSS layout or a general document editor. Changes can relayout the root; hit testing scales with visible nodes. Scroll paint culling/cache does not virtualize the logical list. Native editor composition semantics are tested synthetically; application validation remains explicit. Label heading/status/alert mirrors do not certify assistive technology. Use DOM UI where richer document semantics are needed.
 
-See [API](../../docs/api.md), [gamepads](../../docs/gamepads.md), [Canvas](../../docs/canvas-ui.md), [collision](collision.md), [hosting](hosting.md), and Engineering records for measured scope. Do not treat proposals or historical work reports as current API contracts.
+See [API](../../docs/api.md), [gamepads](../../docs/specs/gamepads.md), [Canvas](../../docs/specs/canvas-ui.md), [collision](collision.md), [hosting](hosting.md), and Engineering records for measured scope. Do not treat proposals or historical work reports as current API contracts.

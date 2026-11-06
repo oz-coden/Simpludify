@@ -49,4 +49,4 @@ Pause stops simulation phases while Action controls and browser presentation con
 
 Keep score, health, puzzle state, AI policy and network authority in game-owned code. ActionReader is a read-only dependency, so changing keyboard/pad/program sources does not replace the Actor. Events are optional typed notifications, not a mandatory store. Grid models finite 2D data without requiring Actors/Colliders.
 
-[API reference](../../docs/api.md) · [Scene/UI guide](scenes-ui.md) · [movement](../../docs/movement.md) · [Replay](../../docs/replay.md). Implementation graphs and measurements are available separately under Engineering.
+[API reference](../../docs/api.md) · [Scene/UI guide](scenes-ui.md) · [movement](../../docs/specs/movement.md) · [Replay](../../docs/specs/replay.md). Implementation graphs and measurements are available separately under Engineering.

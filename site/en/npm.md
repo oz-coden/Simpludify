@@ -54,8 +54,8 @@ The independent [npm/Vite starter](https://github.com/oz-coden/Simpludify/tree/m
 
 ## Ownership, licenses and scope
 
-Create Scene-owned controls/resources inside factories, await run/goTo readiness and dispose Game on application/HMR teardown. Use bindViewport for a Canvas layout-owned world region; native editing/IME remains host-owned. [SDK integration patterns](../../docs/sdk-consumer-patterns.md) explain focus, projection, clocks and notices.
+Create Scene-owned controls/resources inside factories, await run/goTo readiness and dispose Game on application/HMR teardown. Use bindViewport for a Canvas layout-owned world region; native editing/IME remains host-owned. [SDK integration patterns](../../docs/specs/sdk-consumer-patterns.md) explain focus, projection, clocks and notices.
 
 Distribute the SDK MIT license and locked dependencies' notices with your application. The starter demonstrates THIRD-PARTY-NOTICES generation; engine package notices do not automatically cover every application dependency. Source maps contain embedded source. Review your own assets/fonts licenses.
 
-Windows/Linux CI verifies ESM/declarations, NodeNext Core-only import, exact transitive Web installation, Vite development/production and 320/390px behavior. It does not create a native Windows/Linux executable. [Platform limits](limitations.md) and the [release procedure](../../docs/npm-publishing.md) separate current support from future targets.
+Windows/Linux CI verifies ESM/declarations, NodeNext Core-only import, exact transitive Web installation, Vite development/production and 320/390px behavior. It does not create a native Windows/Linux executable. [Platform limits](limitations.md) and the [release procedure](../../docs/specs/npm-publishing.md) separate current support from future targets.

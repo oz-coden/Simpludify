@@ -1,6 +1,6 @@
 # Simpludify
 
-Core/Web **v0.1.6 are published on npm**, adding [physical bindings and single-input capture](docs/input-bindings.md). Next development milestone is v0.1.7. The [input-bindings lab](examples/input-bindings/README.md) demonstrates runtime configuration.
+Core/Web **v0.1.6 are published on npm**, adding [physical bindings and single-input capture](./docs/specs/input-bindings.md). Next development milestone is v0.1.7. The [input-bindings lab](examples/input-bindings/README.md) demonstrates runtime configuration.
 
 [![Core](https://img.shields.io/npm/v/@simpludify/core?label=core)](https://www.npmjs.com/package/@simpludify/core)
 [![Web](https://img.shields.io/npm/v/@simpludify/web?label=web)](https://www.npmjs.com/package/@simpludify/web)
@@ -21,7 +21,7 @@ A code-first TypeScript 2D game engine. Create a visible character, responsive U
 
 ## v0.1.6 release
 
-Core/Web **v0.1.6 are published on npm** with physical key/mouse/gamepad bindings, runtime reconfiguration, single-input capture and JSON serialization. Public-registry consumers passed strict TypeScript, production builds and input-bindings browser acceptance. [Publication and registry verification](docs/work-reports/2026-11-05-v0.1.6-publication.md). [Input bindings guide](docs/input-bindings.md) · [Input bindings lab](examples/input-bindings/README.md) · [Implementation and final review](docs/work-reports/2026-11-05-input-bindings-final-review-v0.1.6.md).
+Core/Web **v0.1.6 are published on npm** with physical key/mouse/gamepad bindings, runtime reconfiguration, single-input capture and JSON serialization. Public-registry consumers passed strict TypeScript, production builds and input-bindings browser acceptance. [Publication and registry verification](docs/work-reports/2026-11-05-v0.1.6-publication.md). [Input bindings guide](./docs/specs/input-bindings.md) · [Input bindings lab](examples/input-bindings/README.md) · [Implementation and final review](docs/work-reports/2026-11-05-input-bindings-final-review-v0.1.6.md).
 
 ```sh
 npm run dev -- --example input-bindings
@@ -29,7 +29,7 @@ npm run dev -- --example input-bindings
 
 ## v0.1.5 release
 
-Core/Web **v0.1.5 are published on npm** with fixed/floating/follow virtual sticks, optional-direction pointer buttons, explicit activation regions and fixed pointer-ID ownership through the existing Action/Canvas routing. Public-registry consumers passed strict TypeScript, production builds and virtual-input browser acceptance. [Publication and registry verification](docs/work-reports/2026-11-04-v0.1.5-publication.md). [Virtual input guide](docs/virtual-input.md) · [Virtual input lab](examples/virtual-input/README.md) · [Implementation and validation record](docs/work-reports/2026-11-04-virtual-input-v0.1.5.md).
+Core/Web **v0.1.5 are published on npm** with fixed/floating/follow virtual sticks, optional-direction pointer buttons, explicit activation regions and fixed pointer-ID ownership through the existing Action/Canvas routing. Public-registry consumers passed strict TypeScript, production builds and virtual-input browser acceptance. [Publication and registry verification](docs/work-reports/2026-11-04-v0.1.5-publication.md). [Virtual input guide](./docs/specs/virtual-input.md) · [Virtual input lab](examples/virtual-input/README.md) · [Implementation and validation record](docs/work-reports/2026-11-04-virtual-input-v0.1.5.md).
 
 ```sh
 npm run dev -- --example virtual-input
@@ -37,7 +37,7 @@ npm run dev -- --example virtual-input
 
 ## v0.1.4 release
 
-Core/Web **v0.1.4 are published on npm**, including integrated security fixes, unified input/gamepads/local multiplayer and bilingual consumer documentation. The gamepad and source-gating APIs are available from the registry packages. [Input/gamepad guide](docs/gamepads.md) · [Two-player lab](examples/unified-input/README.md) · [Publication and registry verification](docs/work-reports/2026-11-03-v0.1.4-publication.md).
+Core/Web **v0.1.4 are published on npm**, including integrated security fixes, unified input/gamepads/local multiplayer and bilingual consumer documentation. The gamepad and source-gating APIs are available from the registry packages. [Input/gamepad guide](./docs/specs/gamepads.md) · [Two-player lab](examples/unified-input/README.md) · [Publication and registry verification](docs/work-reports/2026-11-03-v0.1.4-publication.md).
 
 ```sh
 npm run dev -- --example unified-input
@@ -47,7 +47,7 @@ npm run dev -- --example unified-input
 
 `@simpludify/core@0.1.6` contains host-independent simulation and geometry; `@simpludify/web@0.1.6` adds browser rendering/input/UI and installs Core/PixiJS as dependencies. Both ship compiled ESM and TypeScript declarations. APIs may change between 0.x releases.
 
-**Registry status: published.** Browser projects can install with `npm install @simpludify/web@0.1.6`. The [complete npm/Vite guide](site/ja/npm.md) includes project setup, runnable game code, automatic/explicit CSS, production builds and known limits. For independent projects, use the published registry packages rather than copying engine source. [実際のゲーム開発で確認したSDK利用パターン](docs/sdk-consumer-patterns.md)に、HUDとViewport、Canvas/DOMのフォーカス、Tween、ライセンスの注意点をまとめています。 [Publishing and OIDC procedures](docs/npm-publishing.md) describe version checks, exact archives and the manual Trusted Publishing workflow. [v0.1.6 publication evidence](docs/work-reports/2026-11-05-v0.1.6-publication.md) records the immutable source revision and validation.
+**Registry status: published.** Browser projects can install with `npm install @simpludify/web@0.1.6`. The [complete npm/Vite guide](site/ja/npm.md) includes project setup, runnable game code, automatic/explicit CSS, production builds and known limits. For independent projects, use the published registry packages rather than copying engine source. [実際のゲーム開発で確認したSDK利用パターン](./docs/specs/sdk-consumer-patterns.md)に、HUDとViewport、Canvas/DOMのフォーカス、Tween、ライセンスの注意点をまとめています。 [Publishing and OIDC procedures](./docs/specs/npm-publishing.md) describe version checks, exact archives and the manual Trusted Publishing workflow. [v0.1.6 publication evidence](docs/work-reports/2026-11-05-v0.1.6-publication.md) records the immutable source revision and validation.
 
 The [independent npm/Vite starter](templates/npm-vite/README.md) retains its published 0.1.3 lockfile and includes Pages base support, Scene cleanup and dependency notice generation. Its dependency upgrade is separate from this release. The [SDK integration lab](examples/sdk-integration/README.md) demonstrates layout-owned viewports, IME focus ownership and display-only discrete Tween with the published v0.1.3 API.
 
@@ -97,7 +97,7 @@ The browser entry imports the default stylesheet automatically. With no parent s
 
 ## Actors, Components and the sample game
 
-Game objects are generic Actors composed from reusable Components. Transform, Renderable, Motion and an explicitly injected ActionMovement implement the Character preset. Typed events and simulation timers can be scoped to Scenes, Actors or Components. [Typed Action input](docs/action-input.md) separates game controls from keyboard bindings, combines touch/program sources, retains short presses and supports runtime rebinding. Camera, Viewport, logical resolution and physical pixels are separate concepts.
+Game objects are generic Actors composed from reusable Components. Transform, Renderable, Motion and an explicitly injected ActionMovement implement the Character preset. Typed events and simulation timers can be scoped to Scenes, Actors or Components. [Typed Action input](./docs/specs/action-input.md) separates game controls from keyboard bindings, combines touch/program sources, retains short presses and supports runtime rebinding. Camera, Viewport, logical resolution and physical pixels are separate concepts.
 
 ```sh
 npm run dev -- --example composition
@@ -121,7 +121,7 @@ npm run dev -- --example blockfall
 npm run dev -- --example prism-raid
 ```
 
-**[Prism Raid](examples/prism-raid/README.md)** uses Triangle ships, circle Trigger approximations, twin shots and three enemy waves. It supports keyboard/touch movement and continuous fire, HP/invulnerability, pause, restart and an input-only autopilot. Game rules run headlessly; [API usability and validation](docs/shooter-validation.md) records concrete findings and measurement limits.
+**[Prism Raid](examples/prism-raid/README.md)** uses Triangle ships, circle Trigger approximations, twin shots and three enemy waves. It supports keyboard/touch movement and continuous fire, HP/invulnerability, pause, restart and an input-only autopilot. Game rules run headlessly; [API usability and validation](./docs/archive/shooter-validation.md) records concrete findings and measurement limits.
 
 ## Sprite sheets and animation
 
@@ -129,7 +129,7 @@ npm run dev -- --example prism-raid
 npm run dev -- --example sprites
 ```
 
-[Sprite garden](examples/sprites/README.md) demonstrates SpriteSheet frames, typed SpriteAnimation clips, WASD idle/walk switching, shared images and independent playback. See [the sprite API contracts](docs/sprites.md).
+[Sprite garden](examples/sprites/README.md) demonstrates SpriteSheet frames, typed SpriteAnimation clips, WASD idle/walk switching, shared images and independent playback. See [the sprite API contracts](./docs/specs/sprites.md).
 
 ## Tilemap terrain
 
@@ -137,7 +137,7 @@ npm run dev -- --example sprites
 npm run dev -- --example tilemap
 ```
 
-[Tile trail](examples/tilemap/README.md) places copied Grid/row data with SpriteSheet frames, independent layers, camera follow and live cell edits. [Tilemap contracts](docs/tilemap.md) and [measured limits](docs/tilemap-performance.md) describe the finite-map foundation. Optional [Tilemap collision](docs/tilemap-collision.md) adds typed cell contacts, Solid walls and Trigger terrain through the same CollisionWorld.
+[Tile trail](examples/tilemap/README.md) places copied Grid/row data with SpriteSheet frames, independent layers, camera follow and live cell edits. [Tilemap contracts](./docs/specs/tilemap.md) and [measured limits](./docs/benchmarks/tilemap-performance.md) describe the finite-map foundation. Optional [Tilemap collision](./docs/specs/tilemap-collision.md) adds typed cell contacts, Solid walls and Trigger terrain through the same CollisionWorld.
 
 ## Tile geometry
 
@@ -145,7 +145,7 @@ npm run dev -- --example tilemap
 npm run dev -- --example tile-geometry
 ```
 
-[Tile geometry lab](examples/tile-geometry/README.md) compares square, triangle and both axial hex orientations, with pointer painting, neighbor highlights and Camera controls. [GeometryTilemap](docs/tile-geometry.md) draws real polygon color fills and supports local cell updates; `Shape.Hexagon` is also available for ordinary Actors. Polygon image masks and polygon Colliders are not included.
+[Tile geometry lab](examples/tile-geometry/README.md) compares square, triangle and both axial hex orientations, with pointer painting, neighbor highlights and Camera controls. [GeometryTilemap](./docs/specs/tile-geometry.md) draws real polygon color fills and supports local cell updates; `Shape.Hexagon` is also available for ordinary Actors. Polygon image masks and polygon Colliders are not included.
 
 ## Canvas UI and Pointer input
 
@@ -153,11 +153,11 @@ npm run dev -- --example tile-geometry
 npm run dev -- --example canvas-ui
 ```
 
-The **Settings lab** builds sound/grid checkboxes, volume/speed sliders, difficulty Select, player-name TextInput, synchronized volume NumberInput and Apply/Reset using [standard Canvas value controls](docs/canvas-controls.md). [Native editing contracts](docs/text-input-design.md) explain draft/commit behavior and unverified OS IME/mobile targets.
+The **Settings lab** builds sound/grid checkboxes, volume/speed sliders, difficulty Select, player-name TextInput, synchronized volume NumberInput and Apply/Reset using [standard Canvas value controls](./docs/specs/canvas-controls.md). [Native editing contracts](./docs/specs/text-input-design.md) explain draft/commit behavior and unverified OS IME/mobile targets.
 
-The **UI list lab** in Canvas trail builds dynamic lists entirely from Core APIs, including touch/mouse dragging, per-viewport inertia, draggable overlay bars, nested content and live policy switches. It is shared with headless tests; [scroll contracts](docs/scrolling.md) define ownership and limits.
+The **UI list lab** in Canvas trail builds dynamic lists entirely from Core APIs, including touch/mouse dragging, per-viewport inertia, draggable overlay bars, nested content and live policy switches. It is shared with headless tests; [scroll contracts](./docs/specs/scrolling.md) define ownership and limits.
 
-[Canvas trail](examples/canvas-ui/README.md) combines Action keyboard/touch input, Canvas title/HUD/buttons, a bounded Flex layout, SpriteAnimation, Tilemap collision, Pause and Scene recreation. [Canvas UI contracts](docs/canvas-ui.md) explain screen coordinates, fixed pointer ownership, native keyboard mirrors and how the existing DOM UI remains available.
+[Canvas trail](examples/canvas-ui/README.md) combines Action keyboard/touch input, Canvas title/HUD/buttons, a bounded Flex layout, SpriteAnimation, Tilemap collision, Pause and Scene recreation. [Canvas UI contracts](./docs/specs/canvas-ui.md) explain screen coordinates, fixed pointer ownership, native keyboard mirrors and how the existing DOM UI remains available.
 
 ## Create a separate game workspace
 
@@ -217,25 +217,25 @@ npm run site:check
 npm run site:serve
 ```
 
-This integrates documentation and all browser examples into `site-dist/`, independently of the existing game-only `dist/`. Use `--base /` for root/custom-domain hosting. `npm run test:site` validates production pages, gallery controls and cleanup at desktop/narrow sizes. [Site build, deployment and validation](docs/site-validation.md) explains Pages Actions and language coverage. No domain or DNS settings are changed by the build.
+This integrates documentation and all browser examples into `site-dist/`, independently of the existing game-only `dist/`. Use `--base /` for root/custom-domain hosting. `npm run test:site` validates production pages, gallery controls and cleanup at desktop/narrow sizes. [Site build, deployment and validation](./docs/archive/site-validation.md) explains Pages Actions and language coverage. No domain or DNS settings are changed by the build.
 
 ## Documentation
 
 - [English onboarding and guide index](site/en.md) · [日本語ガイド](site/ja/index.md)
-- [Gamepad/source contracts](docs/gamepads.md) · [two-player unified input lab](examples/unified-input/README.md)
+- [Gamepad/source contracts](./docs/specs/gamepads.md) · [two-player unified input lab](examples/unified-input/README.md)
 
-- [Fixed-size Grid data and placement example](docs/grid.md)
-- [Live rendering, shared images and readiness](docs/rendering.md)
-- [Movement composition and sprint](docs/movement.md)
-- [Tween and animation: Scene clocks, Actor/UI adapters and Slider display values](docs/tween.md)
-- [Random, Replay and fixed steps](docs/replay.md)
+- [Fixed-size Grid data and placement example](./docs/specs/grid.md)
+- [Live rendering, shared images and readiness](./docs/specs/rendering.md)
+- [Movement composition and sprint](./docs/specs/movement.md)
+- [Tween and animation: Scene clocks, Actor/UI adapters and Slider display values](./docs/specs/tween.md)
+- [Random, Replay and fixed steps](./docs/specs/replay.md)
 - [API and defaults](docs/api.md)
 - [Architecture and lifecycle decisions](docs/architecture.md)
-- [Tilemap collision API and lifetime](docs/tilemap-collision.md)
-- [Collision design review (historical evidence)](docs/collision-review/README.md)
-- [Performance methodology and recorded limitations](docs/performance.md)
+- [Tilemap collision API and lifetime](./docs/specs/tilemap-collision.md)
+- [Collision design review (historical evidence)](./docs/archive/collision-review/README.md)
+- [Performance methodology and recorded limitations](./docs/benchmarks/performance.md)
 - [Roadmap (English)](docs/roadmap.md) · [開発ロードマップ（日本語）](docs/roadmap.ja.md)
-- [Practical game validation](docs/practical-validation.md)
+- [Practical game validation](./docs/archive/practical-validation.md)
 - [Licensing and dependency policy](docs/licensing.md)
 - [Original design specification](SPEC.md)
 - [Contributor and coding-agent instructions](AGENTS.md)

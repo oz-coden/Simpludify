@@ -38,4 +38,4 @@ npm test
 npm run build -- --target web --example character --base /my-game/
 ```
 
-Serve dist through HTTP(S), not file://. For root hosting use --base /. For production SDK consumers, Vite owns the application build; the engine CLI is a repository/example tool. See [hosting](hosting.md), [platform limits](limitations.md), [concepts](concepts.md), [Actions](../../docs/action-input.md) and [gamepads](../../docs/gamepads.md).
+Serve dist through HTTP(S), not file://. For root hosting use --base /. For production SDK consumers, Vite owns the application build; the engine CLI is a repository/example tool. See [hosting](hosting.md), [platform limits](limitations.md), [concepts](concepts.md), [Actions](../../docs/specs/action-input.md) and [gamepads](../../docs/specs/gamepads.md).

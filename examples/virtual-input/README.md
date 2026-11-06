@@ -18,4 +18,4 @@ The left 44% of the layout-bound Viewport starts movement; the right 44% starts 
 
 The amber marker shows the composed Aim Action; the green Character reads Move through its original ActionReader. Virtual input drawing is screen-space, independent of Camera and DPR. The sample intentionally does not guess whether a device is a phone or hide controls on desktop.
 
-Read the [English API and arbitration guide](../../docs/virtual-input.md) or [Japanese guide](../../site/ja/virtual-input.md). Automated multitouch is not physical-device, pen-pressure, mobile-browser or non-Chromium certification.
+Read the [English API and arbitration guide](../../docs/specs/virtual-input.md) or [Japanese guide](../../site/ja/virtual-input.md). Automated multitouch is not physical-device, pen-pressure, mobile-browser or non-Chromium certification.

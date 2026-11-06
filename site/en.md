@@ -1,18 +1,18 @@
 # English documentation
 
-Simpludify is an experimental code-first TypeScript 2D engine with a DOM-free simulation Core and a Web host for Pixi rendering, browser input, asynchronous Scene preparation and DOM/Canvas UI. Core/Web **0.1.6 are published on npm**, adding [physical bindings and single-input capture](../docs/input-bindings.md). Next development milestone is v0.1.7. Use matching versions and a lockfile for independent applications.
+Simpludify is an experimental code-first TypeScript 2D engine with a DOM-free simulation Core and a Web host for Pixi rendering, browser input, asynchronous Scene preparation and DOM/Canvas UI. Core/Web **0.1.6 are published on npm**, adding [physical bindings and single-input capture](../docs/specs/input-bindings.md). Next development milestone is v0.1.7. Use matching versions and a lockfile for independent applications.
 
-Published v0.1.6 includes physical key/mouse/gamepad bindings and single-input capture. Published v0.1.5 includes [virtual sticks and pointer controls](../docs/virtual-input.md).
+Published v0.1.6 includes physical key/mouse/gamepad bindings and single-input capture. Published v0.1.5 includes [virtual sticks and pointer controls](../docs/specs/virtual-input.md).
 
 ## Start here
 
 - [First game](en/getting-started.md) and [independent npm SDK setup](en/npm.md)
 - [Core concepts](en/concepts.md), [Scenes and UI](en/scenes-ui.md), [layout and viewport](en/layout.md)
-- [Actions and input boundaries](../docs/action-input.md), [gamepads](../docs/gamepads.md) and [two-player input lab](../examples/unified-input/README.md)
+- [Actions and input boundaries](../docs/specs/action-input.md), [gamepads](../docs/specs/gamepads.md) and [two-player input lab](../examples/unified-input/README.md)
 - [Collision guide](en/collision.md), [build and hosting](en/hosting.md), [platform limits](en/limitations.md)
-- [API contracts](../docs/api.md), [Canvas UI](../docs/canvas-ui.md), [value controls](../docs/canvas-controls.md), [native editing](../docs/text-input-design.md) and [scrolling](../docs/scrolling.md)
-- [Grid](../docs/grid.md), [movement](../docs/movement.md), [rendering](../docs/rendering.md), [sprites](../docs/sprites.md), [Tilemap](../docs/tilemap.md), [tile geometry](../docs/tile-geometry.md), [Tween](../docs/tween.md) and [Replay](../docs/replay.md)
-- [SDK integration patterns](../docs/sdk-consumer-patterns.md), [architecture](../docs/architecture.md), [licensing](../docs/licensing.md)
+- [API contracts](../docs/api.md), [Canvas UI](../docs/specs/canvas-ui.md), [value controls](../docs/specs/canvas-controls.md), [native editing](../docs/specs/text-input-design.md) and [scrolling](../docs/specs/scrolling.md)
+- [Grid](../docs/specs/grid.md), [movement](../docs/specs/movement.md), [rendering](../docs/specs/rendering.md), [sprites](../docs/specs/sprites.md), [Tilemap](../docs/specs/tilemap.md), [tile geometry](../docs/specs/tile-geometry.md), [Tween](../docs/specs/tween.md) and [Replay](../docs/specs/replay.md)
+- [SDK integration patterns](../docs/specs/sdk-consumer-patterns.md), [architecture](../docs/architecture.md), [licensing](../docs/licensing.md)
 - [Interactive gallery (Japanese instructions; sample controls use English labels)](ja/examples.md)
 
 ## Language coverage
