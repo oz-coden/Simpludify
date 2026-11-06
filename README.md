@@ -226,7 +226,7 @@ This integrates documentation and all browser examples into `site-dist/`, indepe
 - [Tilemap collision API and lifetime](docs/tilemap-collision.md)
 - [Collision design review (historical evidence)](docs/collision-review/README.md)
 - [Performance methodology and recorded limitations](docs/performance.md)
-- [Implementation status and next milestone](docs/roadmap.md)
+- [Roadmap (English)](docs/roadmap.md) · [開発ロードマップ（日本語）](docs/roadmap.ja.md)
 - [Practical game validation](docs/practical-validation.md)
 - [Licensing and dependency policy](docs/licensing.md)
 - [Original design specification](SPEC.md)
