@@ -24,9 +24,11 @@ import {
   CollisionWorld,
   ContactEnter,
   Motion,
+  Scene,
   Transform,
 } from "@simpludify/core";
 
+const scene = new Scene("arena");
 const world = new CollisionWorld(scene);
 const player = scene.add(new Actor());
 player.add(new Transform({ x: 100, y: 200 }));

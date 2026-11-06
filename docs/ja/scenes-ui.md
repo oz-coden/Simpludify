@@ -72,4 +72,4 @@ Buttonはネイティブ要素でTab・Enter/Spaceに対応します。同期han
 
 購読・タイマー・ActionSourceはScene/Actor/Componentへ所有させます。独自DOMリスナーはsetupのsignal、または明示的なcleanupを使います。破棄は冪等で、あるcleanupが失敗しても他を実行します。
 
-切り替えの準備前エラーは旧Sceneを維持しますが、コミット後のライフサイクル通知エラーは新Sceneを巻き戻しません。更新中の変更も自動ロールバックしません。詳細は[英語のArchitecture](../en/architecture.html)に記載しています。
+切り替えの準備前エラーは旧Sceneを維持しますが、コミット後のライフサイクル通知エラーは新Sceneを巻き戻しません。更新中の変更も自動ロールバックしません。詳細は[Architecture](architecture.md)に記載しています。

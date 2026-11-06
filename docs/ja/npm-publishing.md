@@ -60,4 +60,4 @@ npmのパッケージ設定（Settings → Trusted publishing）は両パッケ�
 
 - [npm導入ガイド（利用者向け）](npm.md)
 - [設計思想と責務](architecture.md)
-- [制約事項とロードマップ](roadmap.html)
+- [制約事項とロードマップ](roadmap.md)

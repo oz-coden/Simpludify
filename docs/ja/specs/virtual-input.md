@@ -101,4 +101,4 @@ mode・radius・deadZone・regionの変更、無効化、`cancel()`、入力の�
 
 `pointerId`の所有権は既存ルーターとBrowserPointerだけが管理します。指の交差や領域越えで変更しません。表示方式はゲームと利用者が選べます。描画された仮想ボタンはポインター操作用で、別のネイティブなキーボードフォーカス要素は生成しません。必要な代替操作はキーボード・ゲームパッド・既存Canvas UIで用意してください。
 
-[Virtual input lab](../examples.html)で左右スティック、中央の空白、2種のボタン、Canvas優先、表示／入力の切り替え、プログラム入力、リサイズを試せます。自動検証はCore状態、CDPマルチタッチ、ブラウザのマウス／Capture、WebGL／Canvas2Dが対象です。実機・ペンの筆圧／傾き・ドライバー・モバイルブラウザ固有ジェスチャー・Safari/Firefox・OS IME・支援技術は別途検証が必要です。
+[Virtual input lab](../examples.md)で左右スティック、中央の空白、2種のボタン、Canvas優先、表示／入力の切り替え、プログラム入力、リサイズを試せます。自動検証はCore状態、CDPマルチタッチ、ブラウザのマウス／Capture、WebGL／Canvas2Dが対象です。実機・ペンの筆圧／傾き・ドライバー・モバイルブラウザ固有ジェスチャー・Safari/Firefox・OS IME・支援技術は別途検証が必要です。

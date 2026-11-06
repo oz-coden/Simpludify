@@ -140,9 +140,9 @@ Canvas trailの **UI list lab** は、Core APIだけで構築した同じ画面�
 
 ## 標準入力コンポーネント
 
-`CanvasCheckbox`は真偽値、`CanvasSlider`は数値範囲を扱います。どちらもCoreの値・イベント・フォーカスと既存PointerRoutingを使い、ゲーム側でDOM/Pixiを操作せず構築できます。Canvas trailの **Settings lab** で音声、音量、速度、読み取り専用、適用・リセットを試せます。[引数・値・イベント・入力・破棄の契約](../en/canvas-controls.html) を参照してください。
+`CanvasCheckbox`は真偽値、`CanvasSlider`は数値範囲を扱います。どちらもCoreの値・イベント・フォーカスと既存PointerRoutingを使い、ゲーム側でDOM/Pixiを操作せず構築できます。Canvas trailの **Settings lab** で音声、音量、速度、読み取り専用、適用・リセットを試せます。[引数・値・イベント・入力・破棄の契約](canvas-controls.md) を参照してください。
 
-Sliderは操作中の値を即時反映し、中断時も最後の値を保持します。設定全体を取り消したい場合は、アプリケーション側で保存した値をプログラムから戻します。`CanvasSelect`・`CanvasTextInput`・`CanvasNumberInput`も同じ値・フォーカス基盤を使います。文字・数値は編集中の`draft`と確定値`value`を分け、Enterまたは通常のフォーカス移動で確定、Escapeで取り消します。日本語IME変換中のEnter/Escapeはネイティブ入力に任せます。Settings labで難易度・プレイヤー名・数値音量を試せます。[生成・イベント・ネイティブ入力・Host移行・未検証事項](../en/text-input-design.html) を参照してください。実OSの日本語IMEと物理端末のソフトウェアキーボードは未検証です。
+Sliderは操作中の値を即時反映し、中断時も最後の値を保持します。設定全体を取り消したい場合は、アプリケーション側で保存した値をプログラムから戻します。`CanvasSelect`・`CanvasTextInput`・`CanvasNumberInput`も同じ値・フォーカス基盤を使います。文字・数値は編集中の`draft`と確定値`value`を分け、Enterまたは通常のフォーカス移動で確定、Escapeで取り消します。日本語IME変換中のEnter/Escapeはネイティブ入力に任せます。Settings labで難易度・プレイヤー名・数値音量を試せます。[生成・イベント・ネイティブ入力・Host移行・未検証事項](text-input-design.md) を参照してください。実OSの日本語IMEと物理端末のソフトウェアキーボードは未検証です。
 
 
 ## ホバーとキーボード入力の優先規則
@@ -159,7 +159,7 @@ Panel・Row・Column・Scrollの背景は、既定ではホバーで明るくな
 
 UIが消費したkeydownをActionへ重複配送しません。keyupはUIが伝播を止めてもゲーム状態を解除します。編集開始、外部へのフォーカス移動、ウィンドウのblur、非表示、Scene／Gameの変更で押下を解放し、押しっぱなしのrepeatでは復元しません。新たなkeydownが必要です。Enter／Escapeで文字を確定／取り消しても編集欄のフォーカスは保ちます。Tabで標準Button等へ移動すると、ゲーム画面を再クリックせずWASDを再開できます。busyになったCanvas ButtonはCoreのフォーカス／Tab対象から外れるため、補助ボタンを無効化する前にゲーム領域へフォーカスを引き継ぎ、無関係な押下を保ちます。処理完了時にフォーカスを奪い返しません。DOM Buttonはaria-disabledと重複実行ガードで現在のフォーカスを保ちます。独立したタッチ／プログラムのActionSourceはそれぞれの所有規則を保ちます。
 
-明示的な`ui.focus(node)`の変更をネイティブへ反映し、無関係なホバー再描画でフォーカスを奪い返しません。並べ替えでは編集中のネイティブ要素を取り外さず、選択範囲と変換セッションの同一性を保ちます。実OS日本語IME・物理モバイルキーボード・他ブラウザは未検証です。[共通入力・フォーカスの詳細](../en/canvas-ui.html#keyboard-and-accessibility-scope)を参照してください。
+明示的な`ui.focus(node)`の変更をネイティブへ反映し、無関係なホバー再描画でフォーカスを奪い返しません。並べ替えでは編集中のネイティブ要素を取り外さず、選択範囲と変換セッションの同一性を保ちます。実OS日本語IME・物理モバイルキーボード・他ブラウザは未検証です。[英語リファレンスのキーボード・アクセシビリティ詳細](../../en/specs/canvas-ui.md#keyboard-and-accessibility-scope)を参照してください。
 
 ## SDK 0.1.3の入力改善
 

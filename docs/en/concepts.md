@@ -4,6 +4,10 @@ Simpludify balances convenient presets with small, composable building blocks. G
 
 ## Responsibilities and ownership
 
+Instead of deep object-oriented inheritance hierarchies (`Player extends Character extends Entity...`), Simpludify constructs entities by composing **Actors** with reusable **Components**. For example, adding `Transform` (position), `Renderable` (visual appearance), and `Motion` (velocity integration) to a `player` Actor yields a visible, controllable character.
+
+Furthermore, simulation logic runs inside **Engine** (DOM-independent, fast, headless, and deterministic for unit tests), while presentation, PixiJS rendering, browser input, and DOM/Canvas UI are handled by **Web Game**.
+
 | Concept   | Responsibility                                                                  | Lifetime                                  |
 | --------- | ------------------------------------------------------------------------------- | ----------------------------------------- |
 | Engine    | Active Scene, frozen input frame, explicit step progression, seeded PRNG        | Owned by the application                  |

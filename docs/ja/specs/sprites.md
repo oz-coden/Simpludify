@@ -84,4 +84,4 @@ npm run dev -- --example sprites
 
 [Sprite garden](../../../examples/sprites/README.md)はWASD移動に応じた待機／歩行、同じ画像を共有する仲間、再生操作、Scene往復を含みます。元画像もリポジトリのMITライセンスによるオリジナル素材です。ブラウザテストではデスクトップ／幅390px、WebGL／Canvas2Dで実画素・操作・遅延完了・解放を検証します。
 
-詳細なAPI契約と制約は[英語リファレンス](../en/sprites.html)を参照してください。Atlasパーサー、GUI、可変フレーム時間、汎用状態機械・制御権、事前ロードは今回の対象外です。
+詳細なAPI契約と制約は[英語リファレンス](../../en/specs/sprites.md)を参照してください。Atlasパーサー、GUI、可変フレーム時間、汎用状態機械・制御権、事前ロードは今回の対象外です。

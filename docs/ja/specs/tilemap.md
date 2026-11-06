@@ -74,7 +74,7 @@ console.log(origin, tile, bounds);
 
 公開TilemapはActorを継承せず、内部で1個のActorと受動Componentを使います。既存Sceneの所有・破棄を再利用しながら、Actor.getとTilemap.getの混同を避けています。セルごとにActor／Componentを生成しません。
 
-描画範囲のタイルだけにPixi Spriteを作ります。静止時のセル走査は0、画面内1セルの変更なら1セル更新です。画面外変更は表示範囲へ入った時に反映します。Cameraでタイル範囲が変わると現在の表示範囲を再走査します。表示中の全Spriteの描画コストは残り、特にCanvas2Dで大量のセルを全表示すると重くなります。[実測値と条件](../en/tilemap-performance.html)を確認してください。
+描画範囲のタイルだけにPixi Spriteを作ります。静止時のセル走査は0、画面内1セルの変更なら1セル更新です。画面外変更は表示範囲へ入った時に反映します。Cameraでタイル範囲が変わると現在の表示範囲を再走査します。表示中の全Spriteの描画コストは残り、特にCanvas2Dで大量のセルを全表示すると重くなります。[実測値と条件](../../benchmarks/tilemap-performance.md)を確認してください。
 
 元画像と切り出しTextureは既存の画像共有を使います。空・非表示・無効化したマップも画像参照は保持します。最後の画像参照がなくなると切り出しと元画像を解放します。ロード中の破棄やScene準備失敗も既存のキャンセル契約に従います。
 
@@ -86,7 +86,7 @@ npm run dev -- --example tilemap
 
 [Tile trail](../../../examples/tilemap/README.md)は3枚のTilemap、WASD移動、Camera追従、足元の書き換え、座標表示、Scene往復を含みます。石・木はSolidの壁、水は通過できるTriggerです。Toggle wall aheadで生成／破壊、Toggle collisionで見た目を保ったまま衝突を切り替えられます。
 
-衝突を使う場合は、SceneにCollisionWorldを1つ作り、動かすActorにSolid ColliderとCollisionBodyを追加します。Tilemapのcollision.tilesへIDごとの応答を設定し、setCollision(x,y,null)でセルだけ無効、resetCollision(x,y)で継承に戻せます。visibleは描画だけ、collisionEnabledは衝突だけ、enabledは配置全体を止めます。Actor用Contactは変更せず、地形用にはTileContactEnter/Stay/Exitを購読します。[詳しい契約](../en/tilemap-collision.html)と[衝突ガイド](../collision.md)を参照してください。
+衝突を使う場合は、SceneにCollisionWorldを1つ作り、動かすActorにSolid ColliderとCollisionBodyを追加します。Tilemapのcollision.tilesへIDごとの応答を設定し、setCollision(x,y,null)でセルだけ無効、resetCollision(x,y)で継承に戻せます。visibleは描画だけ、collisionEnabledは衝突だけ、enabledは配置全体を止めます。Actor用Contactは変更せず、地形用にはTileContactEnter/Stay/Exitを購読します。[詳しい契約](./tilemap-collision.md)と[衝突ガイド](../collision.md)を参照してください。
 
 無限マップ、エディター、オートタイル、複雑なアニメーションタイルは未実装です。完全な剛体物理やCCD、任意の深い埋まりからの復帰は保証しません。
 
@@ -94,7 +94,7 @@ npm run dev -- --example tilemap
 
 `new CollisionWorld(scene, { tileSearch: "rectangles" })`で、同じ応答・layer・maskを持つ隣接タイルを矩形の衝突候補へ統合します。横の連続区間を作り、同じ幅の区間が続けば縦へ伸ばします。穴や異なる属性をまたがず、16×16セルの区画内に限定します。必要な区画だけ構築し、1セルの変更ならその区画だけを無効にして、次の衝突判定で再構築します。ID共通設定の変更では該当IDを含むキャッシュ区画、fillでは全キャッシュ区画が対象です。
 
-矩形は候補の絞り込みに使い、接触セルごとの細かな判定・位置補正・TileContactイベントは従来どおりです。小さいActorや密な接触では管理コストが増える場合があるため、既定値は`tileSearch: "cells"`です。`world.tileIndexDiagnostics`でキャッシュ中のcells／regions／chunks、構築回数などを確認できます。[契約と性能上の制約](../en/tilemap-collision.html#optional-rectangle-candidate-search)を参照してください。
+矩形は候補の絞り込みに使い、接触セルごとの細かな判定・位置補正・TileContactイベントは従来どおりです。小さいActorや密な接触では管理コストが増える場合があるため、既定値は`tileSearch: "cells"`です。`world.tileIndexDiagnostics`でキャッシュ中のcells／regions／chunks、構築回数などを確認できます。[契約と性能上の制約](./tilemap-collision.md#任意の矩形候補探索tilesearch-rectangles)を参照してください。
 
 Tile trailは矩形検索を使用し、地形のセル数と矩形数を表示します。Toggle doorで石壁の(14,7)を開閉できます。タイルデータは即時に変わり、衝突は次の判定パス、描画は次の表示更新で反映します。接触イベント内で変更しても、そのパスの走査をやり直しません。Actorの足元に壁を置いた場合は次のパスで既存の補正を適用し、完全に埋まった状態の解消までは保証しません。
 

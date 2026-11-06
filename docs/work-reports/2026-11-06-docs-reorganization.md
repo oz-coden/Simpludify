@@ -127,3 +127,19 @@ Content was systematically consolidated towards the most detailed version availa
 - `f8443b4`: `docs: categorize docs into specs, benchmarks, and archive with updated links`
 - `167ee44`: `docs: translate core specs and unify roadmap into site structure`
 - `ff97e43`: `docs: consolidate site into docs with unified ja/en mirrors and enriched content`
+- `9ead0f4`: `style(site): resolve CSS lint warnings in site.css and format docs`
+- `a987f62`: `docs: improve onboarding readability, fix stale references, and align collision examples`
+
+## Readability & Implementation Audit Checkpoint
+
+- **Beginner & Onboarding Readability:**
+  - `getting-started.md` (JA & EN): Added code breakdowns explaining the roles of `new Game()`, `defineActions`/`ActionController`, `Character` preset, and `game.run()`. Added explanation of logical resolution (800×450 vs responsive window scaling), world coordinates, and the requirement for non-zero container `#app` height.
+  - `concepts.md` (JA & EN): Clarified the Actor-Component mental model (composition over inheritance; Actors as game entities, Components as modular capability data) and the boundary between headless Core `Engine` and browser `Web Game`. Synchronized the full 8-step deterministic execution sequence across Japanese and English.
+- **Implementation & Link Symmetry:**
+  - `collision.md` (JA & EN): Added explicit `const scene = new Scene("arena");` to make the minimal collision example fully self-contained and verified.
+  - Cleaned up lingering `.html` hyperlinks across `docs/ja/` and `docs/en/` so all internal documentation references navigate cleanly as Markdown files on GitHub and resolve to HTML anchors on the static site.
+  - Checked all Core and Web exports (`Game`, `ActionController`, `Character`, `Motion`, `Transform`, `CollisionWorld`, `Collider`, etc.); all 97 standalone doc TypeScript snippets pass `tsc` typechecking without errors.
+- **Verification:**
+  - `npm run check`: 0 errors.
+  - `npm run site:build -- --base /Simpludify/` & `npm run site:check`: 101 HTML pages, 9,488 links/assets, 97 typechecked code blocks, 0 broken links or anchors.
+  - `npm test`: 66 test files passed, 891 unit tests passed.

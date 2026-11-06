@@ -56,4 +56,4 @@ await game.run();
 
 短さだけでAPIを選びません。所有権・更新順序・エラー時の状態を明確にし、ヘッドレステストとブラウザテストで検証します。AIによる生成・解析も、同じ型・コード・CLIを利用できます。ゲーム実行時にAIサービスは不要です。
 
-[設計思想](architecture.md)、[現在の制約](limitations.md)、[英語の詳細API](../en/api.html)もあわせて確認してください。
+[設計思想](architecture.md)、[現在の制約](limitations.md)、[API仕様](api.md)もあわせて確認してください。

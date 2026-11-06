@@ -24,9 +24,11 @@ import {
   CollisionWorld,
   ContactEnter,
   Motion,
+  Scene,
   Transform,
 } from "@simpludify/core";
 
+const scene = new Scene("arena");
 const world = new CollisionWorld(scene);
 const player = scene.add(new Actor());
 player.add(new Transform({ x: 100, y: 200 }));
@@ -87,7 +89,7 @@ payloadのnormalX/Yは自分から相手への法線、depthはそのパスで�
 
 高速移動では薄い壁を端点間ですり抜けます。適切に小さなEngine.stepへの分割は緩和策ですが、Sweep/CCDの保証はありません。窮屈な隙間・深い重なり・密集では貫通や振動が残ります。`world.responseDiagnostics.unresolved`を確認します。100体を密集させた測定では既定6反復後も147ペアが未解消でした。
 
-X軸SweepのBroad Phaseを使用しますが、密集・不利な分布では二次的なコストになります。[性能記録](../en/performance.html)は特定環境での観測であり一般的な優劣ではありません。
+X軸SweepのBroad Phaseを使用しますが、密集・不利な分布では二次的なコストになります。[性能記録](../benchmarks/performance.md)は特定環境での観測であり一般的な優劣ではありません。
 
 ## Colliderを使わないゲーム
 
@@ -134,4 +136,4 @@ map.resetCollision(0, 0); // wallの既定へ戻す
 
 同じセル・実効応答なら画像変更だけでEnter/Exitを増やしません。ペア応答がSolid↔Triggerへ変われば旧Exit→新Enterです。イベント内の画像／属性編集は次の衝突パスへ反映し、破棄／無効化は後続Enter/Stayを即抑制します。Scene破棄時は合成Exitを出さず解放します。
 
-等しい衝突属性の連続壁では内部面・頂点による補正を除外し、円・回転Box・縦横／逆方向・非正方形セル・凸凹角を検証しています。任意に深く地形へ埋まった場合や狭すぎる隙間では未解消接触が残ります。セル単位のイベントなので、隣のセルへ移ればそのセルのEnter/Exitは発生します。[詳細な契約](../en/tilemap-collision.html)と[実測と限界](../en/collision-performance.html)を確認してください。
+等しい衝突属性の連続壁では内部面・頂点による補正を除外し、円・回転Box・縦横／逆方向・非正方形セル・凸凹角を検証しています。任意に深く地形へ埋まった場合や狭すぎる隙間では未解消接触が残ります。セル単位のイベントなので、隣のセルへ移ればそのセルのEnter/Exitは発生します。[詳細な契約](./specs/tilemap-collision.md)と[実測と限界](../benchmarks/collision-performance.md)を確認してください。

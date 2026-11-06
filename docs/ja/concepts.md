@@ -4,14 +4,18 @@
 
 ## 責務と所有権
 
-| 概念      | 担当                                        | 寿命                         |
-| --------- | ------------------------------------------- | ---------------------------- |
-| Engine    | 現在のScene、入力の固定、明示的な時間更新   | アプリケーションが所有       |
-| Scene     | Actor集合、タイマー、ローカルイベント       | 切り替え時に旧Sceneを破棄    |
-| Actor     | ゲーム内の識別可能な対象とComponent         | 1つのSceneに所属。削除は破棄 |
-| Component | データまたは再利用可能な振る舞い            | 1つのActorに所属             |
-| EventBus  | 任意の型付き同期通知                        | 明示した所有者が管理         |
-| Web Game  | 描画、ブラウザ入力、非同期Scene準備、DOM UI | `dispose()`で解放            |
+Simpludifyでは、深いクラス継承（`Player extends Character extends Entity...`）を使わず、**Actor（実体）**に**Component（部品）**を組み合わせてゲーム内の対象を作ります。たとえば「プレイヤー」というActorに「位置（Transform）」「見た目（Renderable）」「動く能力（Motion）」を追加することで、画面に表示されて移動できるキャラクターになります。
+
+また、DOMに依存しないシミュレーション計算を行う**Engine**と、それをブラウザ上で動かす**Web Game**（PixiJS描画・キーボード入力・DOM/Canvas UI）が分かれているため、ゲームロジック単体をブラウザなしで高速に自動テストできます。
+
+| 概念      | 担当                                               | 寿命                         |
+| --------- | -------------------------------------------------- | ---------------------------- |
+| Engine    | 現在のScene、入力の固定、明示的な時間更新、乱数    | アプリケーションが所有       |
+| Scene     | Actor集合、タイマー、ローカルイベント              | 切り替え時に旧Sceneを破棄    |
+| Actor     | ゲーム内の識別可能な対象（プレイヤー・敵・壁など） | 1つのSceneに所属。削除は破棄 |
+| Component | データまたは再利用可能な機能（Transform、Motion）  | 1つのActorに所属             |
+| EventBus  | 任意の型付き同期通知                               | 明示した所有者が管理         |
+| Web Game  | 画面描画、ブラウザ入力、非同期Scene準備、UI表示    | `dispose()`で解放            |
 
 SceneやComponentを破棄後に再利用するAPIではありません。`remove`は一時的な取り外しではなく終端の破棄です。
 
@@ -72,14 +76,18 @@ scene.events.emit(ScoreChanged, { score: 1 });
 
 ## 更新順序と変更
 
-1. 入力をそのステップ用に固定する。
-2. 全ActorのInputフェーズComponentを実行する。
-3. Updateで移動指示などを計算し、IntegrateでMotionが位置へ反映する。
-4. LateUpdateでクランプや移動後処理を行い、その後post-updateフックで衝突判定・位置補正・接触通知を行う。
-5. Sceneのシミュレーションタイマー、Scene.onUpdateを実行する。
-6. Webが現在の状態を描画する。
+各`Engine.step`は決定論的な順序で実行されます。
 
-同一フェーズではActor・Componentの追加順です。追加したActor/Componentの更新は次のステップから、削除・無効化は後続実行を即時抑止します。`onUpdate`で動かした座標への接触判定は次のステップになります。通常の移動はComponentに配置してください。[標準移動と独自Component](guides/movement.html)も参照してください。
+1. deltaの検証と、アクティブなActionControllerの入力状態の固定（フリーズ）。
+2. `onPressed` コールバックの配信（pause中も発火可能）。
+3. 全ActorのInputフェーズComponentを実行する。
+4. UpdateフェーズComponent（ActionMovementやカスタム移動ポリシーによるコマンド計算）を実行する。
+5. IntegrateフェーズComponent（MotionがTransformへ速度を適用）を実行し、続いてLateUpdateフェーズComponent（位置のクランプや移動後処理）を実行する。
+6. ポスト更新フックを実行（CollisionWorldの位置補正、接触検出、イベント配信）。
+7. シミュレーションTween、シミュレーションタイマー、`Scene.onUpdate` を進める。
+8. ホストへ戻り、Web層が現在の状態を画面へ描画（Presentation commit）する。
+
+同一フェーズ内ではActor・Componentの追加順で実行されます。追加したActorやComponentの更新は**次のステップから**開始され、削除や無効化は後続フェーズの実行を即時抑止します。`onUpdate`で直接動かした座標への接触判定は次のステップになります。通常の移動はComponentに配置してください。[標準移動と独自Component](specs/movement.md)も参照してください。
 
 ## ゲーム固有のモデル
 

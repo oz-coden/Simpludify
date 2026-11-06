@@ -52,7 +52,19 @@ await game.run();
 <script type="module" src="./main.ts"></script>
 ```
 
-`Character` is a composition preset with Transform, Renderable, and Motion. It adds ActionMovement only when `movement` is provided. See [Movement composition](./specs/movement.md) for live scale changes and custom movement policies. A placeholder is drawn even without image assets. The default position is world coordinates (400, 225), speed is 180 units/second, and size is 32. `Game` has a default logical view resolution of 800×450.
+### Code breakdown
+
+1. **`new Game()`**: Initializes the entire game running in the browser. It automatically sets up the rendering canvas (PixiJS) and listens for keyboard and mouse events.
+2. **`defineActions` and `ActionController`**: Decouples physical inputs (such as W/A/S/D keys) from game intent (moving: `Move`). This abstraction allows moving characters with the same game code regardless of input source (keyboard, gamepad, or on-screen touch virtual controls).
+3. **`Character({ movement: ... })`**: A pre-composed, ready-to-use actor preset with position (`Transform`), appearance (`Renderable`), and velocity (`Motion`). If no sprite image is passed, a mint-green square placeholder is drawn automatically.
+4. **`game.add(...)` and `await game.run()`**: Adds the character to the active scene and starts the main engine loop.
+
+### Screen and coordinate basics
+
+- **Logical resolution (800 × 450)**: The virtual baseline screen size for your game. Regardless of browser window dimensions, the viewport automatically scales and letterboxes (Fit mode) to preserve this aspect ratio.
+- **World coordinates**: The character's initial position is `(400, 225)`, centered on the 800×450 screen. Default speed is `180` units/second, and size is `32`.
+- **HTML and height**: The container element `#app` must have a non-zero CSS height (`height: 100dvh` or `height: 100%`). If the container height is 0, the canvas cannot render.
+- For customizing speed scales or authoring your own custom components, see [Movement composition](./specs/movement.md).
 
 The Web entry includes scoped CSS automatically. Without `parent`, Game appends its own host element to `document.body`. It does not autofocus. Give the html/body/parent element a nonzero height; standard CSS handles the outer page layout. Call `game.dispose()` when tearing down or replacing the game.
 
