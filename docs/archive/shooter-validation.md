@@ -1,6 +1,6 @@
 # Triangle / Prism Raid: API review and validation
 
-> Historical validation of the Triangle/shooter revision through `636014f`. Later [typed Action input](../specs/action-input.md) replaces the keyboard-oriented game bindings and autopilot described here; the recorded benchmark versions and results remain historical evidence.
+> Historical validation of the Triangle/shooter revision through `636014f`. Later [typed Action input](../en/specs/action-input.md) replaces the keyboard-oriented game bindings and autopilot described here; the recorded benchmark versions and results remain historical evidence.
 
 ## Scope and source
 
@@ -10,7 +10,7 @@ Baseline: `bacdf9e4d34431704bafcce05029f0cca2657ada`. Triangle checkpoint: `e138
 
 ## Triangle contract and renderer compatibility
 
-`new Renderable({ source: { kind: "shape", shape: Shape.Triangle }, width: 32, height: 40, color: 0x65a8ed })` creates an upward-pointing isosceles triangle. Local vertices are `(0,-height/2)`, `(width/2,height/2)` and `(-width/2,height/2)`. The origin is the bounding-box center, matching other shapes; it is not the centroid. Width/height are independent. Transform position, radians rotation, independent/negative scales and live visibility/opacity/depth all use the existing renderer path. Live geometry/color and explicit shape/image sources now follow the [rendering contract](../specs/rendering.md).
+`new Renderable({ source: { kind: "shape", shape: Shape.Triangle }, width: 32, height: 40, color: 0x65a8ed })` creates an upward-pointing isosceles triangle. Local vertices are `(0,-height/2)`, `(width/2,height/2)` and `(-width/2,height/2)`. The origin is the bounding-box center, matching other shapes; it is not the centroid. Width/height are independent. Transform position, radians rotation, independent/negative scales and live visibility/opacity/depth all use the existing renderer path. Live geometry/color and explicit shape/image sources now follow the [rendering contract](../en/specs/rendering.md).
 
 Triangle uses a closed Graphics polygon; it does not add another renderer, texture path or physics shape. Existing Box/Circle/Character pixel fixtures pass. Triangle-specific pixel/resource cases pass on both WebGL/SwiftShader and forced Canvas2D at desktop/narrow widths. Forced Canvas2D Prism Raid also starts, clears all waves through normal input and releases resources. These are pinned Chromium/Pixi observations, not universal Canvas2D, WebGPU or hardware-GPU guarantees.
 

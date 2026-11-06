@@ -2,7 +2,7 @@
 
 三角形の機体で3ウェーブを迎撃する、小さな縦型シューティングです。自機は上向き、敵は下向きに回転したTriangleで描画します。弾は矩形と円、背景は細い矩形です。画像・音声・外部サービス・AIモデルは使いません。
 
-[サンプルギャラリー](../../site/ja/examples.md)から起動できます。Start missionで開始し、Watch autopilotでは通常の入力APIを使う自動プレイヤーを観察できます。
+[サンプルギャラリー](../../docs/ja/examples.md)から起動できます。Start missionで開始し、Watch autopilotでは通常の入力APIを使う自動プレイヤーを観察できます。
 
 ## 操作
 
@@ -93,7 +93,7 @@ npm run test:site
 
 ## Action入力とリバインド
 
-RaidActions.MoveはAxis2D、Fire・Sprint・PauseはButtonです。new Raid(scene, engine.input, random)で構成し、移動Componentと戦闘ルールは物理キーを参照しません。キーボードはcontrolsのbindings、タッチは独立ActionSource、自動プレイヤーはround.inputへMove/Fireを設定します。controls.rebindで物理キーを変更しても、タッチ・自動プレイや戦闘ロジックは変わりません。pause/resumeは停止中も捕捉するonPressedを利用します。[詳細な入力契約](../../docs/specs/action-input.md)には所有権・合成・設定保存をまとめています。
+RaidActions.MoveはAxis2D、Fire・Sprint・PauseはButtonです。new Raid(scene, engine.input, random)で構成し、移動Componentと戦闘ルールは物理キーを参照しません。キーボードはcontrolsのbindings、タッチは独立ActionSource、自動プレイヤーはround.inputへMove/Fireを設定します。controls.rebindで物理キーを変更しても、タッチ・自動プレイや戦闘ロジックは変わりません。pause/resumeは停止中も捕捉するonPressedを利用します。[詳細な入力契約](../../docs/en/specs/action-input.md)には所有権・合成・設定保存をまとめています。
 
 移動は標準ActionMovementが担当し、Inputフェーズのゲーム固有SprintScaleがscaleを1／2へ設定します。Motion.speedは基準速度220で、ダッシュ倍率とは別の責務です。移動後のクランプ・射撃・寿命判定はLateUpdateで接触判定より前に行います。
 
@@ -106,4 +106,4 @@ npm run replay:demo
 npm run replay:demo -- --out mission.json
 ```
 
-ファイル保存はCLI側の処理で、CoreのReplayはメモリ上のJSON互換データだけを扱います。ゲームバージョンはサンプル自身が指定します。[Random・Replay・固定ステップ](../../docs/specs/replay.md)に手順と制約をまとめています。
+ファイル保存はCLI側の処理で、CoreのReplayはメモリ上のJSON互換データだけを扱います。ゲームバージョンはサンプル自身が指定します。[Random・Replay・固定ステップ](../../docs/en/specs/replay.md)に手順と制約をまとめています。

@@ -6,4 +6,4 @@ The three lanes compare Linear, OutCubic and InOutCubic. WASD moves the sprite's
 
 Fade/Slide UI moves a subtree and its native text editor. Tween value to 80 changes the Slider's actual value (program events); dragging takes control immediately. Damage HP changes logical HP immediately, with a read-only bar that catches up through displayValue. Tween plain state animates an ordinary numeric record. Leave/Recreate Scene exercises automatic cleanup.
 
-Draw offsets do not move collision bodies. Canvas presentation supports translation/opacity only. Native editor geometry is tested automatically; real OS IME and physical mobile keyboards require separate device validation. See [Tween reference](../../docs/specs/tween.md) for time, ownership, conflict and error contracts.
+Draw offsets do not move collision bodies. Canvas presentation supports translation/opacity only. Native editor geometry is tested automatically; real OS IME and physical mobile keyboards require separate device validation. See [Tween reference](../../docs/en/specs/tween.md) for time, ownership, conflict and error contracts.

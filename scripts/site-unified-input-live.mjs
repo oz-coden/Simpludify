@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { chromium } from "playwright";
-import { languagePairs } from "../site/config.mjs";
+import { languagePairs } from "./site-config.mjs";
 import { serveSite } from "./site-server.mjs";
 
 const server = process.env.SITE_URL

@@ -12,7 +12,7 @@ Validated on 2026-10-29 JST. Work began from main `8b6babe9157c0dbb2ceb288afc8a4
 - Invalid decoded frames reject readiness, retain the previous display and recover when corrected, including before first commit and while retaining a different image. Failed staged frame preparation preserves the active Scene and releases candidate leases.
 - Sprite garden: original eight-cell MIT SVG, WASD idle/walk selection, independent tinted friend, playback buttons, and Scene round trips. CLI and site gallery include the sample; Japanese and English guides document ownership/defaults/errors.
 
-See [Sprite contracts](../specs/sprites.md) for runnable examples and precise defaults. No new runtime or development dependency was added; package scripts only add an optional completion check.
+See [Sprite contracts](../en/specs/sprites.md) for runnable examples and precise defaults. No new runtime or development dependency was added; package scripts only add an optional completion check.
 
 ## Results
 

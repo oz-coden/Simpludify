@@ -9,4 +9,4 @@ Focus the game and move with WASD. The green player switches between idle/walk c
 
 `main.ts` uses Character + SpriteSheet + SpriteAnimation, an ordinary ActionController and a short Scene callback to select movement clips. No game code obtains Textures or advances frames. The eight 32×32 cells in `hero.svg` are original geometric artwork provided under the repository MIT license. `new URL(..., import.meta.url)` keeps the asset correct under root/subpath builds.
 
-[Sprite contracts](../../docs/specs/sprites.md) explain frame coordinates, deferred image-bound validation, source ownership, sharing and cleanup. Browser checks live in `tests/browser/sprites.spec.ts`.
+[Sprite contracts](../../docs/en/specs/sprites.md) explain frame coordinates, deferred image-bound validation, source ownership, sharing and cleanup. Browser checks live in `tests/browser/sprites.spec.ts`.

@@ -136,4 +136,4 @@ The final-placement report uses source revision 1aee1114407e976974e4f606faa5ae0e
 
 ## Movement composition
 
-[Movement validation](../specs/movement.md#measured-validation) compares isolated command/integration costs, complete Prism Raid rounds, Actor churn and Solid workloads against 49d98f5. It retains intermediate regressions and both sequential/interleaved series, explaining variance and limits rather than claiming universal speedups.
+[Movement validation](../en/specs/movement.md#measured-validation) compares isolated command/integration costs, complete Prism Raid rounds, Actor churn and Solid workloads against 49d98f5. It retains intermediate regressions and both sequential/interleaved series, explaining variance and limits rather than claiming universal speedups.

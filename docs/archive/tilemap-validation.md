@@ -1,6 +1,6 @@
 # Tilemap validation and delivery
 
-> Historical Tilemap foundation validation. Current optional collision is documented in the [Tilemap collision API](../specs/tilemap-collision.md); the older deferred-collision statements below describe that foundation checkpoint.
+> Historical Tilemap foundation validation. Current optional collision is documented in the [Tilemap collision API](../en/specs/tilemap-collision.md); the older deferred-collision statements below describe that foundation checkpoint.
 
 Work started from `codex/working-sprites` at eb61494e5f3275ba1593bb5989cb8f3b9cdce312 after verifying the remote. New work is on [codex/working-tilemap](https://github.com/oz-coden/Simpludify/tree/codex/working-tilemap). Each checkpoint commit was immediately persisted by a fast-forward branch update. No force update, main push/merge or Sprite-branch update was performed.
 
@@ -8,7 +8,7 @@ At final verification main remains 8b6babe9157c0dbb2ceb288afc8a4595ed8535dd and 
 
 ## Public API and architecture
 
-`new Tilemap({sheet, tiles, tileWidth, tileHeight, x?, y?, zIndex?, visible?, id?, enabled?}).place(scene)` is the placement facade. It provides get/set/fill/inBounds/copyTiles, readonly dimensions/revision, tileToWorld/worldToTile, live position/depth/visibility, enabled, scene/disposed, onDispose and dispose. Names infer from SpriteSheet; null is the only empty cell. [API guide](../specs/tilemap.md) contains checked examples, units, errors and coordinate boundaries.
+`new Tilemap({sheet, tiles, tileWidth, tileHeight, x?, y?, zIndex?, visible?, id?, enabled?}).place(scene)` is the placement facade. It provides get/set/fill/inBounds/copyTiles, readonly dimensions/revision, tileToWorld/worldToTile, live position/depth/visibility, enabled, scene/disposed, onDispose and dispose. Names infer from SpriteSheet; null is the only empty cell. [API guide](../en/specs/tilemap.md) contains checked examples, units, errors and coordinate boundaries.
 
 Rows and Grid inputs are validated copies; there is no exposed writable backing Grid. copyTiles supports data reuse after Scene disposal. A placement uses one internal Actor and one passive TilemapLayer, avoiding a new Scene collection while keeping map.get(x,y) distinct from Actor.get(ComponentType). Renderer integration is in a separate tilemap-visual module with existing SharedImages leases/crop Textures. Each map is a draw group ordered alongside ordinary Renderables. No per-cell Actor/Component, implicit simulation update, manual draw registration or texture cleanup is required.
 

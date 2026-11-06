@@ -23,6 +23,6 @@ An alternative reviewed was @pixi/tilemap 5.0.2: its package declares pixi.js >=
 
 ## Optional collision integration
 
-[Tilemap collision](../specs/tilemap-collision.md) now implements optional ID defaults/cell overrides in the same CollisionWorld. Actor Contact remains unchanged; dedicated TileContact events avoid imposing target-union branches on Actor-only games. The earlier public-union proposal is historical and superseded. Internal pairs share observation, response, filtering and delivery without a second physics world.
+[Tilemap collision](../en/specs/tilemap-collision.md) now implements optional ID defaults/cell overrides in the same CollisionWorld. Actor Contact remains unchanged; dedicated TileContact events avoid imposing target-union branches on Actor-only games. The earlier public-union proposal is historical and superseded. Internal pairs share observation, response, filtering and delivery without a second physics world.
 
 Direct local cell queries and equal-policy exposed boundary features avoid full-map geometry rebuilds and internal seam response. Stable contact identity is placement/cell based. No per-cell Actor/Collider Component is introduced. [Implementation decisions and validation](collision-implementation.md) and [Solver measurements](../benchmarks/collision-performance.md) distinguish current guarantees from remaining discrete/finite-budget limits.

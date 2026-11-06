@@ -16,7 +16,7 @@ Implementation gates: constrained Flex allocation; width-aware Unicode text meas
 
 Pixi measurement and rendering use identical explicit line strings, fonts and sizes, without modifying Pixi's global wrapping hooks. Each text node caches at most eight widths; font/content changes replace the cache, disposal clears it. Custom fonts must load before tree construction. Core Action/input contracts are unchanged. Pointer hit testing, native focus mirrors and paint use the same final rectangles. Existing pointer capture, multiple touches, UI/world separation, clips, async cancellation, DPI/scale and Scene ownership remain in the regression suite.
 
-See [English API/examples](../specs/canvas-ui.md), [Japanese guide](../../site/ja/canvas-ui.md), [responsive Canvas trail](../../examples/canvas-ui/README.md). Scene naming, dynamic creation, suspension, concurrent Scenes and UI virtualization remain [roadmap proposals](../roadmap.md), not new runtime abstractions.
+See [English API/examples](../en/specs/canvas-ui.md), [Japanese guide](../ja/specs/canvas-ui.md), [responsive Canvas trail](../../examples/canvas-ui/README.md). Scene naming, dynamic creation, suspension, concurrent Scenes and UI virtualization remain [roadmap proposals](../en/roadmap.md), not new runtime abstractions.
 
 ## Layout selection: custom Flex retained
 

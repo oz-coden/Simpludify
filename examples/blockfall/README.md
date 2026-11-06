@@ -2,7 +2,7 @@
 
 Simpludifyの公開APIでつくる、10列×20行の整数グリッド型パズルです。入力は型付きPuzzleActionsとActionControllerで受け、個別のkeydownキューを持ちません。7種類のテトロミノ、ライン消去、レベル、次の5個、ホールド、ゴースト、一時停止、再開始を備えます。固有のゲームルールはサンプル側に置き、Colliderやエンジン内部APIには依存しません。
 
-[サンプルギャラリー](../../site/ja/examples.md)から「Blockfall」を起動できます。
+[サンプルギャラリー](../../docs/ja/examples.md)から「Blockfall」を起動できます。
 
 ## 操作
 
@@ -64,4 +64,4 @@ npm run test:site
 
 ## Action入力と検証
 
-createPuzzle(scene, engine.input, random)がScene所有のActionControllerを構成します。Left/Right/SoftDrop、RotateCW/RotateCCW、Drop、Hold、Pauseはゲーム側の定義です。Controllerのeventsで複数の短押し順序を保ち、長押しのリピート時間はゲーム側が管理します。キーボードの割り当て変更はcontroller.controls.rebindで行い、盤面ルールは変更しません。controller.inputはヘッドレス操作用の論理sourceです。タッチも独立した論理sourceを使い、Scene再開始時に破棄されます。[入力契約](../../docs/specs/action-input.md)を参照してください。
+createPuzzle(scene, engine.input, random)がScene所有のActionControllerを構成します。Left/Right/SoftDrop、RotateCW/RotateCCW、Drop、Hold、Pauseはゲーム側の定義です。Controllerのeventsで複数の短押し順序を保ち、長押しのリピート時間はゲーム側が管理します。キーボードの割り当て変更はcontroller.controls.rebindで行い、盤面ルールは変更しません。controller.inputはヘッドレス操作用の論理sourceです。タッチも独立した論理sourceを使い、Scene再開始時に破棄されます。[入力契約](../../docs/en/specs/action-input.md)を参照してください。

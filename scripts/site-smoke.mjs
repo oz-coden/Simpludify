@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { chromium } from "playwright";
-import { examples, pages } from "../site/config.mjs";
 import { testBlockfall } from "./site-blockfall-test.mjs";
 import { testCanvasUI } from "./site-canvas-test.mjs";
+import { examples, pages } from "./site-config.mjs";
 import { testSiteImages } from "./site-image-test.mjs";
 import { testPrismRaid } from "./site-prism-raid-test.mjs";
 import { testSDKIntegration } from "./site-sdk-integration-test.mjs";

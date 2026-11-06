@@ -11,4 +11,4 @@ Focus the game. WASD, left virtual stick or pad left stick moves. Space, mouse B
 
 Capture Jump input waits for held inputs to release, then adds one key, game-surface mouse button or pad button. Escape/modifiers are assignable. Cancel capture is explicit. Save bindings/Restore saved bindings keep an in-memory snapshot; Reset Jump restores initial assignments. The example supplies no standard settings widget or persistent storage. Nonstandard pads require explicit raw mapping; this lab uses standard mapping.
 
-[Binding contracts](../../docs/specs/input-bindings.md) · [日本語](../../site/ja/input-bindings.md)
+[Binding contracts](../../docs/en/specs/input-bindings.md) · [日本語](../../docs/ja/specs/input-bindings.md)

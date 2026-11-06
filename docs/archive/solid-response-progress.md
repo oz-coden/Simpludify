@@ -34,7 +34,7 @@ Unit checks include Trigger/Solid combinations, fixed/dynamic and mass ratios, m
 
 Browser checks cover both 1440×900 and 390×844: real input, wall contact, sliding, Enter/Stay/Exit, Trigger collection, full route completion, result/replay, pause, camera/pointer conversion, rendering and teardown. A zoom-coordinate race found during integration is covered by the destination-click fixture. Focus-sensitive input tests run sequentially without retrying failures.
 
-Response is translation-only, with no forces, angular dynamics, friction, impulses or moving-platform velocity transfer. Fixed iteration budgets cannot guarantee all dense stacks, impossible gaps or deep interlocking shapes. Inspect responseDiagnostics.unresolved. The sweep retains quadratic worst cases; no spatial-index rewrite or general performance superiority is claimed. API contracts and measured observations are maintained in [API](../api.md) and [Performance](../benchmarks/performance.md).
+Response is translation-only, with no forces, angular dynamics, friction, impulses or moving-platform velocity transfer. Fixed iteration budgets cannot guarantee all dense stacks, impossible gaps or deep interlocking shapes. Inspect responseDiagnostics.unresolved. The sweep retains quadratic worst cases; no spatial-index rewrite or general performance superiority is claimed. API contracts and measured observations are maintained in [API](../en/api.md) and [Performance](../benchmarks/performance.md).
 
 ## Recorded validation state
 

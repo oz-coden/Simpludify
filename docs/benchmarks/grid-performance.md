@@ -51,4 +51,4 @@ In this numeric-cell observation the single-array Grid retained approximately th
 
 ## Scope decisions
 
-A private flat Array keeps coordinate indexing and full traversal simple without row objects. Grid pays explicit validation rather than silently accepting bad coordinates. No stride framework, NDArray abstraction, control rights, sparse storage, custom allocator or renderer is introduced. Blockfall keeps its current row-based representation because its row filtering/splicing would not become simpler by migrating. The [placement example and contracts](../specs/grid.md) demonstrate an independent dense-grid use instead.
+A private flat Array keeps coordinate indexing and full traversal simple without row objects. Grid pays explicit validation rather than silently accepting bad coordinates. No stride framework, NDArray abstraction, control rights, sparse storage, custom allocator or renderer is introduced. Blockfall keeps its current row-based representation because its row filtering/splicing would not become simpler by migrating. The [placement example and contracts](../en/specs/grid.md) demonstrate an independent dense-grid use instead.

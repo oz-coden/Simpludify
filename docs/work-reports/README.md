@@ -1,6 +1,6 @@
 # Work reports
 
-- [Documentation reorganization and cleanup — 2026-11-06](2026-11-06-docs-reorganization.md): Complete: removed CODEX-START.md, aligned v0.1.6 published / v0.1.7 upcoming references across docs and site, categorized docs into specs/benchmarks/archive, fixed 387 relative links, verified site build and references.
+- [Documentation reorganization, consolidation and direct docs site build — 2026-11-06](2026-11-06-docs-reorganization.md): Complete: removed CODEX-START.md, aligned v0.1.6 published / v0.1.7 upcoming references, categorized docs into ja/en mirrors under docs/ with specs/benchmarks/archive, removed redundant site/ directory, moved site assets to scripts/site-assets, consolidated content favoring the most detailed version, verified site build (base /Simpludify/ and /), 101 pages, 9,488 links, 97 typechecked snippets, 891 unit tests.
 
 - [v0.1.6 publication and registry verification](2026-11-05-v0.1.6-publication.md): release preparation; exact main push CI, approved tag, OIDC publication and registry acceptance pending.
 

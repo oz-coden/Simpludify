@@ -1,6 +1,6 @@
 # Contributor instructions
 
-Simpludify is an experimental code-first TypeScript 2D engine. Read `README.md`, `docs/architecture.md` and `docs/api.md` before changing lifecycle or public APIs. `SPEC.md` describes broader goals; `docs/roadmap.md` records implemented scope.
+Simpludify is an experimental code-first TypeScript 2D engine. Read `README.md`, `docs/en/architecture.md` and `docs/en/api.md` before changing lifecycle or public APIs. `SPEC.md` describes broader goals; `docs/en/roadmap.md` records implemented scope.
 
 ## Boundaries
 
@@ -33,11 +33,11 @@ Unit fixtures cover movement/input/determinism, generic Actors/Components/depend
 - Explain actual tested support and deferred features precisely. Do not claim packaging, benchmarks or browser compatibility from unrun paths.
 - Public docs, code comments and commit messages must make sense without private planning conversations. Match existing language/style and avoid unnecessary unrelated edits.
 
-The root workspace is private; Core/Web are experimental publishable SDKs. Run `npm run test:packages` for distribution changes, including real external tarball consumers. `npm run pack:packages` rebuilds both packages before packing. Do not publish npm packages or create releases as part of routine implementation work; obtain explicit release authorization and final publication approval. See `docs/npm-publishing.md` for OIDC/bootstrap constraints.
+The root workspace is private; Core/Web are experimental publishable SDKs. Run `npm run test:packages` for distribution changes, including real external tarball consumers. `npm run pack:packages` rebuilds both packages before packing. Do not publish npm packages or create releases as part of routine implementation work; obtain explicit release authorization and final publication approval. See `docs/en/npm-publishing.md` for OIDC/bootstrap constraints.
 
 ## Official documentation site
 
-`site/config.mjs` maps Japanese Markdown and existing English docs to static routes. Keep public API contracts in sync with source; SPEC proposals must not be described as implemented. `npm run site:build -- --base /Simpludify/`, `npm run site:check` and `npm run test:site` validate the integrated site without changing game CLI dist. Also test base `/` after build/config changes. Page content is trusted repository Markdown; do not accept arbitrary runtime HTML. Preserve first-party iframe disposal/focus behavior and include all notices. Pages must be enabled by an administrator before deploy; workflows must not enable visibility or configure DNS automatically.
+`scripts/site-config.mjs` maps Japanese Markdown and English docs under `docs/` to static routes. Keep public API contracts in sync with source; SPEC proposals must not be described as implemented. `npm run site:build -- --base /Simpludify/`, `npm run site:check` and `npm run test:site` validate the integrated site without changing game CLI dist. Also test base `/` after build/config changes. Page content is trusted repository Markdown; do not accept arbitrary runtime HTML. Preserve first-party iframe disposal/focus behavior and include all notices. Pages must be enabled by an administrator before deploy; workflows must not enable visibility or configure DNS automatically.
 
 ## Persistent work reports
 

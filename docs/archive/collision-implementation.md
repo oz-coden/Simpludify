@@ -8,7 +8,7 @@ Actor ContactEnter/Stay/Exit and Contact.self/other/selfActor/otherActor remain 
 
 A public union would impose a branch on an Actor-only handler merely because the engine supports terrain. Dedicated tokens require two subscriptions only when a game actually has two different rules. Actor-only, terrain-only and mixed usage is compiled in `tests/types/collision-usage.ts`; negative options/fields and preserved Actor payloads are compiled in `tests/types/tile-collision.ts`. No significant duplicate game-code framework was needed. Native TypeScript completion checks use the real exported APIs, not the historical proposal declarations.
 
-[Current API and lifecycle](../specs/tilemap-collision.md) and [full Solver measurements](../benchmarks/collision-performance.md) are the supported feature documents. Historical prototypes under tests/prototypes remain isolated evidence; the formal World does not call the naive seam-producing probe.
+[Current API and lifecycle](../en/specs/tilemap-collision.md) and [full Solver measurements](../benchmarks/collision-performance.md) are the supported feature documents. Historical prototypes under tests/prototypes remain isolated evidence; the formal World does not call the naive seam-producing probe.
 
 ## Responsibilities and implementation
 

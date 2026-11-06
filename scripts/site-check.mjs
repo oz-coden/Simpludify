@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
-import { languagePairs, pages } from "../site/config.mjs";
 import { isPathInside } from "./path-boundary.mjs";
+import { languagePairs, pages } from "./site-config.mjs";
 import { checkSnippets } from "./site-snippets.mjs";
 
 const root = resolve("site-dist");

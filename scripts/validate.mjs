@@ -56,8 +56,10 @@ for (const file of [
   "examples/signal-run/main.ts",
   "docs/archive/practical-validation.md",
   "LICENSE",
-  "docs/api.md",
-  "docs/architecture.md",
+  "docs/en/api.md",
+  "docs/ja/api.md",
+  "docs/en/architecture.md",
+  "docs/ja/architecture.md",
 ])
   if (!existsSync(file)) throw new Error(`FILE_MISSING: ${file}`);
 for (const folder of ["core", "web"]) {

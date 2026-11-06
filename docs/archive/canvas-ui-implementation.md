@@ -19,7 +19,7 @@ The temporary execution environment disconnected after the project-base site smo
 - One Game-owned capture-phase DOM pointer adapter routes to Canvas node buses or a Scene-owned world bus. UI Pixi containers disable federated interaction, avoiding duplicate delivery and window-bubbling initialization assumptions. Down fixes ownership until up/cancel; multiple pointer IDs remain independent.
 - Native pointer-transparent semantic buttons provide Tab/Enter/Space, names and focus state, synchronized with Canvas paint order/bounds. This is not a complete Canvas document accessibility tree.
 
-See [supported API/contracts](../specs/canvas-ui.md), [Japanese guide](../../site/ja/canvas-ui.md), [Action input](../specs/action-input.md) and [Canvas trail](../../examples/canvas-ui/README.md) for executable examples. The formal guide includes Action movement, title screen, Flex HUD, Button clicks, HoldButton sources, world selection and Scene disposal in one verified sample.
+See [supported API/contracts](../en/specs/canvas-ui.md), [Japanese guide](../ja/specs/canvas-ui.md), [Action input](../en/specs/action-input.md) and [Canvas trail](../../examples/canvas-ui/README.md) for executable examples. The formal guide includes Action movement, title screen, Flex HUD, Button clicks, HoldButton sources, world selection and Scene disposal in one verified sample.
 
 ## Correctness findings resolved
 
@@ -112,14 +112,14 @@ The following 56 files differ from collision base `89491c6` including this docum
 - [benchmarks/canvas-ui/bundles-cli-summary.json](../../benchmarks/canvas-ui/bundles-cli-summary.json)
 - [benchmarks/canvas-ui/bundles.json](../../benchmarks/canvas-ui/bundles.json)
 - [benchmarks/canvas-ui/model.json](../../benchmarks/canvas-ui/model.json)
-- [docs/action-input.md](../specs/action-input.md)
-- [docs/api.md](../api.md)
-- [docs/architecture.md](../architecture.md)
+- [docs/action-input.md](../en/specs/action-input.md)
+- [docs/api.md](../en/api.md)
+- [docs/architecture.md](../en/architecture.md)
 - [docs/canvas-ui-implementation.md](./canvas-ui-implementation.md)
 - [docs/canvas-ui-performance.md](../benchmarks/canvas-ui-performance.md)
-- [docs/canvas-ui.md](../specs/canvas-ui.md)
+- [docs/canvas-ui.md](../en/specs/canvas-ui.md)
 - [docs/input-unification.md](./input-unification.md)
-- [docs/roadmap.md](../roadmap.md)
+- [docs/roadmap.md](../en/roadmap.md)
 - [examples/canvas-ui/README.md](../../examples/canvas-ui/README.md)
 - [examples/canvas-ui/index.html](../../examples/canvas-ui/index.html)
 - [examples/canvas-ui/main.ts](../../examples/canvas-ui/main.ts)
@@ -143,13 +143,13 @@ The following 56 files differ from collision base `89491c6` including this docum
 - [scripts/site-canvas-test.mjs](../../scripts/site-canvas-test.mjs)
 - [scripts/site-smoke.mjs](../../scripts/site-smoke.mjs)
 - [scripts/smoke-build.mjs](../../scripts/smoke-build.mjs)
-- [site/config.mjs](../../site/config.mjs)
-- [site/ja/api.md](../../site/ja/api.md)
-- [site/ja/canvas-ui.md](../../site/ja/canvas-ui.md)
-- [site/ja/examples.md](../../site/ja/examples.md)
-- [site/ja/index.md](../../site/ja/index.md)
-- [site/ja/limitations.md](../../site/ja/limitations.md)
-- [site/ja/scenes-ui.md](../../site/ja/scenes-ui.md)
+- [site/config.mjs](../../scripts/site-config.mjs)
+- [site/ja/api.md](../ja/api.md)
+- [site/ja/canvas-ui.md](../ja/specs/canvas-ui.md)
+- [site/ja/examples.md](../ja/examples.md)
+- [site/ja/index.md](../ja/index.md)
+- [site/ja/limitations.md](../ja/limitations.md)
+- [site/ja/scenes-ui.md](../ja/scenes-ui.md)
 - [tests/browser/canvas-ui-benchmark.ts](../../tests/browser/canvas-ui-benchmark.ts)
 - [tests/browser/canvas-ui-fixture.ts](../../tests/browser/canvas-ui-fixture.ts)
 - [tests/browser/canvas-ui.spec.ts](../../tests/browser/canvas-ui.spec.ts)

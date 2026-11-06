@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { pages } from "../site/config.mjs";
+import { pages } from "./site-config.mjs";
 
 // Mark complete, independently compilable examples with a `ts verify` fence.
 // Partial snippets remain explicitly contextual examples, not false standalone fixtures.

@@ -30,15 +30,15 @@ KeyboardSource is still public so a non-DOM keyboard adapter and physical-bindin
 
 ## Samples
 
-All six gallery entries retain their existing presentation and game rules. Character, UI/Scenes and Beacon Field explicitly create an ActionController and inject its reader. Signal Run now uses one custom SignalMovement Component for both Move Actions and pointer destinations, replacing the earlier two-writer ActionMovement/PointControl composition. Touch/automation still write logical vectors. See [movement composition](../specs/movement.md). Blockfall retains ordered command Buttons and game-owned repeat timing. Prism Raid removes its redundant Steering Component in favor of ActionMovement; continuous/short-tap fire and its logical-input autopilot remain game rules. Headless and maintained benchmark entry points were migrated too.
+All six gallery entries retain their existing presentation and game rules. Character, UI/Scenes and Beacon Field explicitly create an ActionController and inject its reader. Signal Run now uses one custom SignalMovement Component for both Move Actions and pointer destinations, replacing the earlier two-writer ActionMovement/PointControl composition. Touch/automation still write logical vectors. See [movement composition](../en/specs/movement.md). Blockfall retains ordered command Buttons and game-owned repeat timing. Prism Raid removes its redundant Steering Component in favor of ActionMovement; continuous/short-tap fire and its logical-input autopilot remain game rules. Headless and maintained benchmark entry points were migrated too.
 
 ## Remaining review topics
 
 The existing lifecycle regressions still cover disposal during initial activation, dependent Component teardown and phase-independent timers. Repeating timers retain fractional time, drop missed repetitions and invoke at most once per step. This revision does not redesign them.
 
-Renderable investigation at the input-unification revision identified immutable visual values and replacement blocked by dependent Components. [Live rendering](../specs/rendering.md) now addresses this with validated setters, source revisions, image generations, cancellation and readiness. Shared images and SpriteAnimation are now implemented; see [sprite contracts](../specs/sprites.md).
+Renderable investigation at the input-unification revision identified immutable visual values and replacement blocked by dependent Components. [Live rendering](../en/specs/rendering.md) now addresses this with validated setters, source revisions, image generations, cancellation and readiness. Shared images and SpriteAnimation are now implemented; see [sprite contracts](../en/specs/sprites.md).
 
-Text remains a Web editing stream. [The native typing recipe](../specs/action-input.md#text-and-typing-games) covers input/composition, focus and committed-value deduplication. No new parallel key-based text system or TextInput widget is introduced. OS IME UI and physical mobile software keyboards require further device testing.
+Text remains a Web editing stream. [The native typing recipe](../en/specs/action-input.md#text-and-typing-games) covers input/composition, focus and committed-value deduplication. No new parallel key-based text system or TextInput widget is introduced. OS IME UI and physical mobile software keyboards require further device testing.
 
 ## Validation
 

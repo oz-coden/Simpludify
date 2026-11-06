@@ -1,6 +1,6 @@
 # Practical game validation
 
-Signal Run is a short, complete example built from the public Scene/Actor/Component/Event APIs. Its headless round logic and browser host are separate, so collection, damage, timing and disposal can be checked without Pixi or DOM. See [game instructions](../../examples/signal-run/README.md), [API contracts](../api.md) and [raw performance reports](../../benchmarks/practical).
+Signal Run is a short, complete example built from the public Scene/Actor/Component/Event APIs. Its headless round logic and browser host are separate, so collection, damage, timing and disposal can be checked without Pixi or DOM. See [game instructions](../../examples/signal-run/README.md), [API contracts](../en/api.md) and [raw performance reports](../../benchmarks/practical).
 
 ## Reproduce behavior checks
 
