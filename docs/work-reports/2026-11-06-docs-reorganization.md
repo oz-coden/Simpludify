@@ -126,5 +126,4 @@ Content was systematically consolidated towards the most detailed version availa
 - `195e8d4`: `docs: remove CODEX-START and align documentation to published v0.1.6`
 - `f8443b4`: `docs: categorize docs into specs, benchmarks, and archive with updated links`
 - `167ee44`: `docs: translate core specs and unify roadmap into site structure`
-- `757c8e8`: `docs: consolidate site into docs with unified ja/en mirrors and enriched content`
-
+- `ff97e43`: `docs: consolidate site into docs with unified ja/en mirrors and enriched content`

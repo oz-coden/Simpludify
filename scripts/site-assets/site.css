@@ -75,7 +75,7 @@ button:hover {
   outline-offset: 4px;
 }
 [hidden] {
-  display: none !important;
+  display: none;
 }
 .skip {
   position: fixed;
@@ -152,38 +152,6 @@ button:hover {
   display: grid;
   grid-template-columns: 15rem minmax(0, 1fr) 12rem;
   margin: auto;
-}
-#sidebar {
-  position: sticky;
-  top: 4.5rem;
-  height: calc(100dvh - 4.5rem);
-  overflow: auto;
-  border-right: 1px solid var(--line);
-  padding: 1.7rem 1.4rem;
-}
-#sidebar section {
-  margin-bottom: 1.3rem;
-}
-#sidebar h2 {
-  font-size: 0.7rem;
-  color: var(--muted);
-  letter-spacing: 0.08em;
-  margin: 0 0 0.35rem;
-}
-#sidebar a {
-  display: block;
-  font-size: 0.82rem;
-  line-height: 1.5;
-  padding: 0.4rem 0.65rem;
-  margin-left: -0.65rem;
-  color: var(--muted);
-  text-decoration: none;
-  border-radius: 0.4rem;
-}
-#sidebar a[aria-current="page"] {
-  color: var(--accent);
-  background: var(--soft);
-  font-weight: 650;
 }
 main {
   min-width: 0;
@@ -294,7 +262,7 @@ img {
   color: var(--muted);
   margin-top: 0;
 }
-.on-page a {
+nav.on-page a {
   display: block;
   padding: 0.35rem 0;
   color: var(--muted);
@@ -404,6 +372,38 @@ footer {
   font-size: 0.8rem;
   color: var(--muted);
 }
+#sidebar {
+  position: sticky;
+  top: 4.5rem;
+  height: calc(100dvh - 4.5rem);
+  overflow: auto;
+  border-right: 1px solid var(--line);
+  padding: 1.7rem 1.4rem;
+}
+#sidebar section {
+  margin-bottom: 1.3rem;
+}
+#sidebar h2 {
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  margin: 0 0 0.35rem;
+}
+#sidebar a {
+  display: block;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  padding: 0.4rem 0.65rem;
+  margin-left: -0.65rem;
+  color: var(--muted);
+  text-decoration: none;
+  border-radius: 0.4rem;
+}
+#sidebar a[aria-current="page"] {
+  color: var(--accent);
+  background: var(--soft);
+  font-weight: 650;
+}
 @media (min-width: 1600px) {
   main {
     padding-left: 5rem;
@@ -500,7 +500,7 @@ footer {
 }
 @media (prefers-reduced-motion: reduce) {
   html {
-    scroll-behavior: auto !important;
+    scroll-behavior: auto;
   }
 }
 /* Long API names wrap in prose; code blocks and tables keep their own scrollers. */
