@@ -25,19 +25,24 @@
    - Created `docs/specs/`: Moved 19 active feature specifications and guides.
    - Created `docs/benchmarks/`: Moved 6 performance and measurement documents.
    - Created `docs/archive/`: Moved 11 historical validation checkpoints and `docs/collision-review/`.
-   - Maintained entry points in `docs/` root: `api.md`, `architecture.md`, `host-boundary.md`, `licensing.md`, `roadmap.md`, `roadmap.ja.md`, `work-reports/`.
-   - Updated 30 source routes in `site/config.mjs` and required path in `scripts/validate.mjs`.
+   - Maintained entry points in `docs/` root: `api.md`, `architecture.md`, `host-boundary.md`, `licensing.md`, `roadmap.md`, `work-reports/`.
+   - Updated source routes in `site/config.mjs` and required path in `scripts/validate.mjs`.
    - Updated 387 relative Markdown links across repository docs, examples and site guides.
+4. **Japanese translation and roadmap unification**:
+   - Created `site/ja/roadmap.md` consolidating the roadmap into the official site structure, removing isolated `docs/roadmap.ja.md`.
+   - Created `site/ja/host-boundary.md`: Complete Japanese translation for Core modules and Host contracts.
+   - Created `site/ja/tilemap-collision.md`: Complete Japanese translation for Tilemap collision API and configuration.
+   - Created `site/ja/npm-publishing.md`: Complete Japanese translation for npm package publishing and Trusted Publishing (OIDC).
+   - Added routes and bidirectional `languagePairs` in `site/config.mjs` (`roadmap.html`, `guides/host-boundary.html`, `guides/tilemap-collision.html`, `npm-publishing.html`).
 
 ## Verification results
 
-- `npm run site:build`: Passed (86 client modules + 809 tilemap + 810 canvas-ui modules built, licenses verified for 116 dependencies).
-- `npm run site:check`: Passed (`Site references verified: 97 HTML documents, 8688 links/assets, base /Simpludify/`, `Standalone documentation examples typechecked: 88`, 0 broken links).
+- `npm run site:build`: Passed (90 client modules + 809 tilemap + 810 canvas-ui modules built, licenses verified for 116 dependencies).
+- `npm run site:check`: Passed (`Site references verified: 101 HTML documents, 9473 links/assets, base /Simpludify/`, `Standalone documentation examples typechecked: 89`, 0 broken links).
 - `npx @biomejs/biome format --write`: Formatted all documentation cleanly.
-- `npm run check`: Passed (658 files checked, 0 errors, architecture and required-file checks passed, SDK version 0.1.6 consistent).
+- `npm run check`: Passed (661 files checked, 0 errors, architecture and required-file checks passed, SDK version 0.1.6 consistent).
 - `npm test`: 64/66 test files passed (888/891 tests passed; unchanged environment sandbox checks).
 
 ## Next steps
 
-1. Review English-only documentation candidates for Japanese translation.
-2. Commit documentation reorganization on `flash/docs/reorganization`.
+- Integration and push to `flash/docs/reorganization`.

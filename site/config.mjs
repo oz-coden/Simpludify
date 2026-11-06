@@ -469,6 +469,30 @@ export const pages = [
     "Tile geometry contracts",
     "English",
   ],
+  [
+    "roadmap.html",
+    "site/ja/roadmap.md",
+    "実装状況とロードマップ",
+    "プロジェクト",
+  ],
+  [
+    "guides/host-boundary.html",
+    "site/ja/host-boundary.md",
+    "CoreとHostの責務境界",
+    "ガイド",
+  ],
+  [
+    "guides/tilemap-collision.html",
+    "site/ja/tilemap-collision.md",
+    "Tilemapの地形衝突",
+    "ガイド",
+  ],
+  [
+    "npm-publishing.html",
+    "site/ja/npm-publishing.md",
+    "npm SDKの公開と運用",
+    "プロジェクト",
+  ],
 ].map(([route, source, title, section]) => ({
   route,
   source,
@@ -509,4 +533,8 @@ export const languagePairs = [
   ["guides/sprites.html", "en/sprites.html"],
   ["guides/tilemap.html", "en/tilemap.html"],
   ["guides/tile-geometry.html", "en/tile-geometry.html"],
+  ["roadmap.html", "en/roadmap.html"],
+  ["guides/host-boundary.html", "en/host-boundary.html"],
+  ["guides/tilemap-collision.html", "en/tilemap-collision.html"],
+  ["npm-publishing.html", "en/npm-publishing.html"],
 ];
