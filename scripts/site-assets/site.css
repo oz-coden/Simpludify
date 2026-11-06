@@ -141,6 +141,24 @@ button:hover {
   color: var(--text);
   text-decoration: none;
 }
+.site-header nav a[data-language-link] {
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 0.35rem;
+  background: var(--soft);
+  font-size: 0.8rem;
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+.site-header nav a[data-language-link]:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
 .site-header button {
   padding: 0.25rem 0.7rem;
 }
@@ -215,6 +233,104 @@ pre code {
   background: none;
   font-size: inherit;
   overflow-wrap: normal;
+}
+.code-block {
+  position: relative;
+  margin: 1.5rem 0;
+}
+.code-block pre {
+  margin: 0;
+}
+.copy-button {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.72rem;
+  font-family: inherit;
+  font-weight: 600;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 0.35rem;
+  color: var(--muted);
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+  z-index: 2;
+}
+.code-block:hover .copy-button,
+.copy-button:focus-visible {
+  opacity: 1;
+}
+.copy-button:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+.copy-button.copied {
+  opacity: 1;
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--soft);
+}
+@media (pointer: coarse) {
+  .copy-button {
+    opacity: 0.85;
+  }
+}
+pre.shiki {
+  background-color: var(--code);
+  color: var(--shiki-light);
+  overflow-x: auto;
+}
+pre.shiki span {
+  color: var(--shiki-light);
+}
+:root[data-theme="dark"] pre.shiki {
+  background-color: var(--code);
+  color: var(--shiki-dark);
+}
+:root[data-theme="dark"] pre.shiki span {
+  color: var(--shiki-dark);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) pre.shiki {
+    background-color: var(--code);
+    color: var(--shiki-dark);
+  }
+  :root:not([data-theme="light"]) pre.shiki span {
+    color: var(--shiki-dark);
+  }
+}
+.language-fallback-banner {
+  margin: 1.5rem 0 2rem;
+  padding: 0.85rem 1.2rem;
+  border-left: 4px solid var(--accent);
+  background: var(--soft);
+  border-radius: 0 0.5rem 0.5rem 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+.language-fallback-banner p {
+  margin: 0.25rem 0;
+}
+.language-fallback-banner a {
+  color: var(--accent);
+  font-weight: 600;
+}
+.lang-tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.05rem 0.35rem;
+  border: 1px solid var(--line);
+  border-radius: 0.25rem;
+  color: var(--muted);
+  margin-left: 0.4rem;
+  vertical-align: middle;
 }
 blockquote {
   margin: 1.5rem 0;

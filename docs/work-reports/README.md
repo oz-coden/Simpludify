@@ -1,5 +1,7 @@
 # Work reports
 
+- [Documentation site syntax highlighting and bilingual navigation separation — 2026-11-06](2026-11-06-site-improvements.md): Complete: Shiki syntax highlighting across TS/JS/JSON/HTML/CSS/Bash/PS1/YAML with dual theme support and copy buttons; language-segregated navigation with fallback section for English engineering records, fallback banners, en/examples.html, and language continuity; 102 HTML docs, 6,423 links, 97 typechecked snippets, 898 unit tests, and Playwright Chromium test:site (87 pages, desktop/narrow viewports, light/dark themes) verified.
+
 - [Documentation reorganization, consolidation and direct docs site build — 2026-11-06](2026-11-06-docs-reorganization.md): Complete: removed CODEX-START.md, aligned v0.1.6 published / v0.1.7 upcoming references, categorized docs into ja/en mirrors under docs/ with specs/benchmarks/archive, removed redundant site/ directory, moved site assets to scripts/site-assets, consolidated content favoring the most detailed version, verified site build (base /Simpludify/ and /), 101 pages, 9,488 links, 97 typechecked snippets, 891 unit tests.
 
 - [v0.1.6 publication and registry verification](2026-11-05-v0.1.6-publication.md): release preparation; exact main push CI, approved tag, OIDC publication and registry acceptance pending.

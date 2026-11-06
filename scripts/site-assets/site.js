@@ -77,3 +77,25 @@ document.querySelector("[data-stop]")?.addEventListener("click", () => {
   launcher?.focus();
 });
 window.addEventListener("pagehide", release);
+
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-copy-code]");
+  if (!button) return;
+  const block = button.closest(".code-block");
+  const pre = block?.querySelector("pre");
+  if (!pre) return;
+  const text = pre.textContent || "";
+  const isJa = document.documentElement.lang === "ja";
+  navigator.clipboard
+    ?.writeText(text)
+    .then(() => {
+      const originalText = button.textContent;
+      button.textContent = isJa ? "コピー完了" : "Copied";
+      button.classList.add("copied");
+      setTimeout(() => {
+        button.textContent = originalText;
+        button.classList.remove("copied");
+      }, 2000);
+    })
+    .catch(() => {});
+});

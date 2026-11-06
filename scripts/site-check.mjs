@@ -53,6 +53,69 @@ for (const pair of languagePairs) {
     );
   }
 }
+
+// Check unpaired fallback routing and banner presence
+for (const page of pages) {
+  const isPaired = paired.has(page.route);
+  const html = readFileSync(join(root, page.route), "utf8");
+  if (!isPaired) {
+    assert(
+      html.includes('class="language-fallback-banner"'),
+      `Missing fallback banner on unpaired page: ${page.route}`,
+    );
+    const expectedDest =
+      page.lang === "en"
+        ? `${manifest.base}index.html`
+        : `${manifest.base}en/examples.html`;
+    assert(
+      html.includes(`data-language-link href="${expectedDest}"`),
+      `Wrong fallback language destination on ${page.route}`,
+    );
+  } else {
+    assert(
+      !html.includes('class="language-fallback-banner"'),
+      `Paired page must not show fallback banner: ${page.route}`,
+    );
+  }
+
+  // Check navigation separation in sidebar
+  const sidebarMatch = html.match(
+    /<aside id="sidebar"[^>]*>([\s\S]*?)<\/aside>/,
+  );
+  assert(sidebarMatch, `Sidebar missing on ${page.route}`);
+  const sidebarContent = sidebarMatch[1];
+  if (page.lang === "ja") {
+    assert(
+      !sidebarContent.includes(`href="${manifest.base}en/api.html"`),
+      `Japanese sidebar leaked English guide: ${page.route}`,
+    );
+    assert(
+      !sidebarContent.includes(
+        `href="${manifest.base}en/getting-started.html"`,
+      ),
+      `Japanese sidebar leaked English getting-started: ${page.route}`,
+    );
+  } else {
+    assert(
+      !sidebarContent.includes(`href="${manifest.base}api.html"`),
+      `English sidebar leaked Japanese guide: ${page.route}`,
+    );
+    assert(
+      !sidebarContent.includes(`href="${manifest.base}getting-started.html"`),
+      `English sidebar leaked Japanese getting-started: ${page.route}`,
+    );
+  }
+}
+
+// Check syntax highlighting presence on code-bearing pages
+const sampleCodePage = readFileSync(join(root, "getting-started.html"), "utf8");
+assert(sampleCodePage.includes('class="shiki'), "Shiki code blocks missing");
+assert(sampleCodePage.includes("data-copy-code"), "Copy button missing");
+assert(
+  sampleCodePage.includes("--shiki-light"),
+  "Shiki theme variables missing",
+);
+
 let references = 0;
 for (const file of documents) {
   const html = readFileSync(file, "utf8");
