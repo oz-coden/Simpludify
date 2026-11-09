@@ -48,6 +48,8 @@ Direct disposal of an active Scene is terminal, not an implicit navigation actio
 5. Core commits the synchronous activation. Web then installs the matching presentation and overlay. Old visual/UI cleanup is idempotent and also tied to the old Scene's disposal. Lifecycle-hook errors are reported while retaining the committed new Scene.
 6. Game disposal rejects active/queued navigation promptly, even if user setup never resolves. It aborts scene signals, disposes the staged/current Scene, cancels the one frame chain, removes input/resize listeners and owned DOM, and disposes the renderer. Late prepared resources are immediately disposed. Arbitrary user promises cannot be forcibly stopped; use the provided signal and register cleanup before awaiting.
 
+After startup, an activation hook can enqueue a new navigation request. It must handle the returned Promise separately from the synchronous hook. An error installing or first rendering an already committed presentation rejects navigation and disposes the host.
+
 Actors created by activation hooks are runtime additions; use whenReady to await their images after activation. Renderer/render failures after commit are runtime failures, not rollback guarantees. Update exceptions abort the remaining step without rolling back already mutated state. Core clears its reentrancy guard so a headless caller can handle the failure. Background update/render exceptions reach the diagnostic observer and stop/dispose the Web Game. User code should handle rejections from run/changeScene/whenReady.
 
 ## Actor and Component ownership

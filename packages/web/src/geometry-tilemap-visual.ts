@@ -68,11 +68,11 @@ export class GeometryTilemapVisual {
       .fill(color);
     this.stats.updatedTiles++;
   }
-  render(view: ViewTransform): void {
+  render(view: ViewTransform, enabled = true): void {
     if (this.disposed) return;
     const m = this.map;
     this.display.position.set(m.x, m.y);
-    this.display.visible = m.visible && m.enabled;
+    this.display.visible = enabled && m.visible && m.enabled;
     if (!this.display.visible) {
       this.invalid = true;
       this.bulk = true;

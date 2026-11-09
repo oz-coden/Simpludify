@@ -319,6 +319,15 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
     web,
   );
   cpSync("tests/package-fixture", web, { recursive: true });
+  if (registryMode && sdkVersion === "0.1.6") {
+    const entry = join(web, "main.ts");
+    const source = readFileSync(entry, "utf8");
+    assert(
+      source.includes("game.changeScene("),
+      "Expected the candidate restart",
+    );
+    writeFileSync(entry, source.replace("game.changeScene(", "game.goTo("));
+  }
   writeFileSync(
     join(web, "explicit-css.ts"),
     'import "@simpludify/web/style.css";\n',

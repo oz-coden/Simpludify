@@ -181,6 +181,7 @@ test("coalesces only pending identical navigation and serializes different reque
     let release: (() => void) | undefined,
       count = 0,
       restarts = 0;
+    let restarted: Promise<void> | undefined;
     game.scene("slow", async () => {
       if (++count === 1)
         await new Promise<void>((resolve) => {
@@ -191,7 +192,7 @@ test("coalesces only pending identical navigation and serializes different reque
     game.scene("restart", ({ onActivate }) => {
       if (++restarts === 1)
         onActivate(() => {
-          void game.changeScene("restart");
+          restarted = game.changeScene("restart");
         });
     });
     const invalidSceneId = (() => {
@@ -223,9 +224,10 @@ test("coalesces only pending identical navigation and serializes different reque
     const final = game.engine.scene.id;
     await game.changeScene("slow");
     const afterReload = count;
-    await game.changeScene("restart");
-    await Promise.resolve();
-    await game.whenReady();
+    const initial = game.changeScene("restart");
+    await initial;
+    const independentRestart = restarted !== undefined && restarted !== initial;
+    await restarted;
     game.dispose();
     return {
       same,
@@ -233,6 +235,7 @@ test("coalesces only pending identical navigation and serializes different reque
       count: afterReload,
       final,
       restarts,
+      independentRestart,
       invalidSceneId,
       invalidSetup,
     };
@@ -243,10 +246,161 @@ test("coalesces only pending identical navigation and serializes different reque
     count: 3,
     final: "slow",
     restarts: 2,
+    independentRestart: true,
     invalidSceneId: "INVALID_VALUE",
     invalidSetup: "INVALID_VALUE",
   });
 });
+test("settles queued transitions in order after staged setup rejects", async ({
+  page,
+}) => {
+  const result = await page.evaluate(async (url) => {
+    const { Action, defineActions, Game } = (await import(
+      url
+    )) as typeof import("@simpludify/web");
+    window.demo.dispose();
+    const game = new Game<"a" | "b" | "c">();
+    const actions = defineActions({ Jump: Action.button() });
+    const timeline: string[] = [];
+    const signals: AbortSignal[] = [];
+    let rejectSetup: (error: Error) => void = () => {};
+    let bCount = 0;
+    for (const id of ["a", "b", "c"] as const) {
+      game.scene(id, ({ signal, onActivate, onDispose, actions: bind }) => {
+        signals.push(signal);
+        bind(actions).createSource();
+        onActivate(() => {
+          timeline.push(`activate:${id}`);
+        });
+        onDispose(() => {
+          timeline.push(`dispose:${id}`);
+        });
+        if (id === "b" && ++bCount === 1)
+          return new Promise<void>((_, reject) => {
+            rejectSetup = reject;
+          });
+      });
+    }
+    await game.run("a");
+    const initial = game.engine.scene;
+    const failed = game.changeScene("b").then(
+      () => "unexpected success",
+      (error: Error) => {
+        timeline.push(`reject:${error.message}`);
+        return error.message;
+      },
+    );
+    await Promise.resolve();
+    const during = game.engine.scene === initial;
+    const next = game.changeScene("c");
+    const back = game.changeScene("b");
+    const last = game.changeScene("a");
+    const duplicate = game.changeScene("a") === last;
+    const outcomes = [
+      failed,
+      ...[next, back, last].map((task, index) =>
+        task.then(() => {
+          timeline.push(`resolve:${index}`);
+          return "ok";
+        }),
+      ),
+    ];
+    rejectSetup(new Error("setup failed"));
+    const results = await Promise.all(outcomes);
+    const current = game.engine.scene;
+    const fresh = current.id === "a" && current !== initial && initial.disposed;
+    const beforeDispose = signals.map((signal) => signal.aborted);
+    game.dispose();
+    return {
+      during,
+      duplicate,
+      fresh,
+      beforeDispose,
+      results,
+      timeline,
+      afterDispose: signals.every((signal) => signal.aborted),
+      sources: game.engine.input.sourceCount,
+    };
+  }, sdk);
+  expect(result).toEqual({
+    during: true,
+    duplicate: true,
+    fresh: true,
+    beforeDispose: [true, true, true, true, false],
+    results: ["setup failed", "ok", "ok", "ok"],
+    timeline: [
+      "activate:a",
+      "dispose:b",
+      "reject:setup failed",
+      "dispose:a",
+      "activate:c",
+      "resolve:0",
+      "dispose:c",
+      "activate:b",
+      "resolve:1",
+      "dispose:b",
+      "activate:a",
+      "resolve:2",
+      "dispose:a",
+    ],
+    afterDispose: true,
+    sources: 0,
+  });
+});
+
+test("disposes the host when the first render of a committed scene fails", async ({
+  page,
+}) => {
+  const result = await page.evaluate(async (url) => {
+    const { Game } = (await import(url)) as typeof import("@simpludify/web");
+    window.demo.dispose();
+    const disposed: string[] = [];
+    const game = new Game<"one" | "broken" | "queued">({
+      frames: { request: () => 1, cancel: () => {} },
+      renderer: () => ({
+        init: async () => {},
+        prepare: async (scene) => ({
+          render: () => {
+            if (scene.id === "broken") throw new Error("render failed");
+          },
+          dispose: () => {
+            disposed.push(scene.id);
+          },
+        }),
+        resize: () => {},
+        dispose: () => {
+          disposed.push("renderer");
+        },
+      }),
+    });
+    game.scene("one", () => {});
+    game.scene("broken", () => {});
+    game.scene("queued", () => {
+      throw new Error("queued setup ran");
+    });
+    await game.run("one");
+    const failed = game
+      .changeScene("broken")
+      .catch((error: Error) => error.message);
+    const queued = game
+      .changeScene("queued")
+      .catch((error: { code?: string }) => error.code);
+    const results = await Promise.all([failed, queued]);
+    return {
+      results,
+      disposed,
+      engineDisposed: game.engine.disposed,
+      connected: game.element.isConnected,
+    };
+  }, sdk);
+  expect(result).toEqual({
+    results: ["render failed", "GAME_DISPOSED"],
+    disposed: ["one", "broken", "renderer"],
+    engineDisposed: true,
+    connected: false,
+  });
+});
+
 test("cancels never-resolving setup and queued navigation promptly on dispose", async ({
   page,
 }) => {
@@ -283,6 +437,37 @@ test("cancels never-resolving setup and queued navigation promptly on dispose", 
     cleaned: 1,
   });
 });
+test("observes a rejected setup even when the factory disposes the Game", async ({
+  page,
+}) => {
+  const result = await page.evaluate(async (url) => {
+    const { Game } = (await import(url)) as typeof import("@simpludify/web");
+    window.demo.dispose();
+    const unhandled: string[] = [];
+    window.addEventListener("unhandledrejection", (event) => {
+      unhandled.push(String(event.reason));
+      event.preventDefault();
+    });
+    const game = new Game<"stop">();
+    game.scene("stop", async () => {
+      game.dispose();
+      throw new Error("late setup rejection");
+    });
+    await game.run();
+    const code = await game
+      .changeScene("stop")
+      .catch((error: { code: string }) => error.code);
+    await new Promise(requestAnimationFrame);
+    await new Promise(requestAnimationFrame);
+    return { code, unhandled, disposed: game.engine.disposed };
+  }, sdk);
+  expect(result).toEqual({
+    code: "GAME_DISPOSED",
+    unhandled: [],
+    disposed: true,
+  });
+});
+
 test("preserves committed scenes after lifecycle errors and rejects invalid transitions", async ({
   page,
 }) => {

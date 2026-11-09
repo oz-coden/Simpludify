@@ -26,6 +26,8 @@ This directory contains persistent engineering reports, implementation logs, ver
 
 ### 2026-11-10
 
+- [Independent v0.1.7 review and consumer CI recovery](2026-11-10-v0.1.7-independent-review.md)
+
 - [Comprehensive code review, design audit and quality improvements — v0.1.7](2026-11-10-v0.1.7-quality-review.md): Full Core/Web source audit, `game.goTo()` → `game.changeScene()` API migration, queued scene transition and `onActivate` self-restart fixes, `TilemapLayer` / `GeometryTilemapLayer` visual reconciliation fixes, gamepad button binding deduplication, `CanvasVisual` zero-rect wheel guard, `Tilemap.worldToTile(-0, -0)` normalization, and full verification records.
 
 ### 2026-11-09

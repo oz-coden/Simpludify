@@ -699,12 +699,14 @@ export class PixiRenderer implements RendererPort {
       let order = 0;
       for (const actor of scene.actors) {
         const layer = actor.get(TilemapLayer.type);
-        if (layer) {
+        if (layer && !layer.disposed && !layer.map.disposed) {
           let tile = tilemaps.get(actor);
           if (!tile) {
             tile = new TilemapVisual(
               layer.map,
-              scene,
+              () =>
+                actor.scene === scene &&
+                actor.get(TilemapLayer.type)?.map === layer.map,
               (url, signal) => this.acquireImage(url, signal),
               changed,
               this.onError,
@@ -720,7 +722,11 @@ export class PixiRenderer implements RendererPort {
           tile.order = order;
         }
         const geometryLayer = actor.get(GeometryTilemapLayer.type);
-        if (geometryLayer) {
+        if (
+          geometryLayer &&
+          !geometryLayer.disposed &&
+          !geometryLayer.map.disposed
+        ) {
           let tile = geometryTilemaps.get(actor);
           if (!tile) {
             const created = new GeometryTilemapVisual(geometryLayer.map, () => {
@@ -829,15 +835,22 @@ export class PixiRenderer implements RendererPort {
             entry.display.scale.set(scaleX, scaleY);
           }
         }
-        for (const entry of tilemaps.values()) {
-          entry.render(view);
+        for (const [actor, entry] of tilemaps) {
+          entry.render(
+            view,
+            actor.enabled && actor.get(TilemapLayer.type)?.enabled === true,
+          );
           if (entry.depth !== entry.map.zIndex) {
             entry.depth = entry.map.zIndex;
             depthDirty = true;
           }
         }
-        for (const entry of geometryTilemaps.values()) {
-          entry.render(view);
+        for (const [actor, entry] of geometryTilemaps) {
+          entry.render(
+            view,
+            actor.enabled &&
+              actor.get(GeometryTilemapLayer.type)?.enabled === true,
+          );
           if (entry.depth !== entry.map.zIndex) {
             entry.depth = entry.map.zIndex;
             depthDirty = true;

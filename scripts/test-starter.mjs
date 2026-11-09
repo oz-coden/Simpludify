@@ -77,6 +77,21 @@ if (registryMode) {
     await runConsumerNpm(root, ["run", "pack:packages"]);
   await installCandidateProject(project);
 }
+if (
+  starterVersion === "0.1.6" &&
+  (!registryMode || sdkVersion !== starterVersion)
+) {
+  const entry = join(project, "main.ts");
+  const source = readFileSync(entry, "utf8");
+  assert(
+    source.includes('game.goTo("play")'),
+    "Expected the 0.1.6 starter restart",
+  );
+  writeFileSync(
+    entry,
+    source.replace('game.goTo("play")', 'game.changeScene("play")'),
+  );
+}
 await run(["run", "check"]);
 await run(["run", "build", "--", "--base", "/starter-test/"]);
 const notices = readFileSync(

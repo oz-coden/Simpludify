@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- Rename `Game.goTo(id)` to `Game.changeScene(id)` in the next SDK release. Consecutive pending requests for the same scene share a Promise, and requests separated by another scene retain their queue positions.
 - **Documentation Restructuring**: Unified all documentation under `docs/ja/` and `docs/en/` mirrors, moving internal engineering records into `docs/benchmarks/` and `docs/archive/`.
 - **Initial Specification Archive**: Moved the original draft specification (`SPEC.md`) to [`docs/archive/initial-spec.md`](docs/archive/initial-spec.md) with an archive notice pointing to current authoritative architecture and API specifications.
 - **README Modernization**: Streamlined the root `README.md` to focus on quick start, key concepts, and live examples, moving past version release notes into `CHANGELOG.md`.

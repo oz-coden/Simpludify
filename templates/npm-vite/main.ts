@@ -34,7 +34,7 @@ game.scene("play", (context) => {
       CanvasButton("Pause / Resume", () =>
         game.engine.paused ? game.resume() : game.pause(),
       ),
-      CanvasButton("Restart scene", () => game.changeScene("play")),
+      CanvasButton("Restart scene", () => game.goTo("play")),
     ],
     { gap: 8, shrink: 0 },
   );

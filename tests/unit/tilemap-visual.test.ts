@@ -25,7 +25,7 @@ it("releases leases and subscriptions even if Pixi display destruction fails", a
   const released = vi.fn();
   const visual = new TilemapVisual(
     map,
-    scene,
+    () => map.scene === scene,
     (url, signal) => pool.acquire(url, signal),
     () => {},
     () => {},

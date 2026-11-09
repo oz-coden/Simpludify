@@ -39,6 +39,64 @@ for (const fallback of [false, true])
     test.afterEach(async ({ page }) => {
       expect(await page.evaluate(() => window.nativeProbe.errors)).toEqual([]);
     });
+    test("ignores wheel input and cancels held pointers when the host collapses", async ({
+      page,
+    }) => {
+      const result = await page.evaluate(async (url) => {
+        const { CanvasHoldButton, CanvasTextInput } = (await import(
+          url
+        )) as typeof import("@simpludify/web");
+        const f = window.nativeProbe;
+        const { game } = f;
+        const holds: boolean[] = [];
+        const hold = CanvasHoldButton("Hold", (value) => {
+          holds.push(value);
+        });
+        f.screen.root.clear();
+        f.screen.root.add(hold, CanvasTextInput({ label: "Editor" }));
+        f.tick();
+        const native = game.element.querySelector("input.s-canvas-native");
+        if (!native) throw new Error("Missing native input");
+        const { x, y } = f.center(hold);
+        const pointer = (type: "pointerdown" | "pointerup") =>
+          new PointerEvent(type, {
+            bubbles: true,
+            cancelable: true,
+            pointerId: 42,
+            pointerType: "touch",
+            button: 0,
+            buttons: type === "pointerdown" ? 1 : 0,
+            clientX: x,
+            clientY: y,
+          });
+        game.element.dispatchEvent(pointer("pointerdown"));
+        const before = game.pointerDiagnostics.captures;
+        game.element.style.width = "0px";
+        const wheel = () =>
+          new WheelEvent("wheel", {
+            bubbles: true,
+            cancelable: true,
+            deltaY: 100,
+          });
+        const wheels = [
+          native.dispatchEvent(wheel()),
+          game.element.dispatchEvent(wheel()),
+        ];
+        game.element.dispatchEvent(pointer("pointerup"));
+        return {
+          before,
+          after: game.pointerDiagnostics.captures,
+          holds,
+          wheels,
+        };
+      }, `/@fs/${process.cwd()}/packages/web/src/index.ts`);
+      expect(result).toEqual({
+        before: 1,
+        after: 0,
+        holds: [true, false],
+        wheels: [true, true],
+      });
+    });
     test("label semantics follow text, tree order and lifetime without interrupting editing", async ({
       page,
     }) => {

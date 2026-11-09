@@ -174,7 +174,7 @@ export function checkedGamepadBindings(
             continue;
           }
           const entry = record(item, ["button", "threshold"]),
-            threshold = entry.threshold ?? 0.5;
+            threshold = entry.threshold === undefined ? 0.5 : entry.threshold;
           if (
             typeof threshold !== "number" ||
             !Number.isFinite(threshold) ||

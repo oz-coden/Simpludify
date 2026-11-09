@@ -93,6 +93,8 @@ Gamepad APIは各Engine入力境界で1回読み、全Controllerのフレーム�
 
 negative/positiveはボタン番号列です。それぞれの最大アナログ値を軸に減算／加算し、[-1,1]へ制限、必要なら反転してから軸ごとのデッドゾーンを適用します。abs(v)がd以下なら0、それ以外はsign(v)×(abs(v)-d)/(1-d)です。欠落・非有限値は0、有限の範囲外値は制限します。radial方式ではなく各軸独立の方式です。その後、通常のAction合成でSourceを加算・成分制限・ベクトル正規化し、1未満のアナログ強度は維持します。
 
+同じButton Action内で同じ番号を複数指定した場合は、最後の指定とその閾値を使います。`addBindings` で登録済みの番号を指定した場合も閾値を更新します。別のActionや割り当て先で同じ番号を使う場合は、競合検出の対象です。
+
 GamepadBindings.LeftStick / RightStick / DPad / Moveは凍結したAxis2D設定です。Moveは左スティックと十字キーを併用します。標準軸はLeftX=0、LeftY=1、RightX=2、RightY=3で、負のYが上です。トリガーはアナログButton値なので、Axis1Dへ{positive:[GamepadButton.RightTrigger], deadZone:0}を渡すと[0,1]を使えます。デジタル入力にする場合はButtonのthresholdを使います。
 
 GamepadButtonはSouth/East/West/North、左右Shoulder/Trigger、Select、Start、左右Stick、DPadの4方向、Homeです。標準mappingの物理的位置であり、raw機器で同じ番号が同じ位置だとは保証しません。

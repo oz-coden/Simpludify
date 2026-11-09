@@ -297,11 +297,7 @@ export class Game<SceneId extends string = string> {
       this.element,
       (event) => {
         const rect = this.element.getBoundingClientRect();
-        if (rect.width <= 0 || rect.height <= 0)
-          throw new EngineError(
-            "VIEWPORT_UNAVAILABLE",
-            "Game has no visible bounds",
-          );
+        if (rect.width <= 0 || rect.height <= 0) return;
         const screen = screenPoint(
           ((event.clientX - rect.left) * this.width) / rect.width,
           ((event.clientY - rect.top) * this.height) / rect.height,
@@ -453,10 +449,13 @@ export class Game<SceneId extends string = string> {
     return this;
   }
   private wait<T>(promise: Promise<T>): Promise<T> {
-    if (this.dead)
+    if (this.dead) {
+      // A synchronous factory can dispose the Game before returning a Promise.
+      void promise.catch(() => {});
       return Promise.reject(
         new EngineError("GAME_DISPOSED", "Game has been disposed"),
       );
+    }
     const signal = this.shutdown.signal;
     return new Promise<T>((resolve, reject) => {
       const abort = () => {
@@ -664,19 +663,22 @@ export class Game<SceneId extends string = string> {
       this.canvas = canvas;
       this.canvasPresentation = canvasPresentation;
       this.virtualPresentation = virtualPresentation;
-      this.pointers.routing.setScene(this.channelFor(scene), canvas);
       committed = true;
-      this.element.append(ui.element);
-      for (const cleanup of [
-        () => oldPrepared?.dispose(),
-        () => oldUI?.dispose(),
-        () => oldCanvas?.dispose(),
-        () => oldVirtual?.dispose(),
-      ]) {
-        try {
-          cleanup();
-        } catch (error) {
-          this.report(error);
+      try {
+        this.pointers.routing.setScene(this.channelFor(scene), canvas);
+        this.element.append(ui.element);
+      } finally {
+        for (const cleanup of [
+          () => oldPrepared?.dispose(),
+          () => oldUI?.dispose(),
+          () => oldCanvas?.dispose(),
+          () => oldVirtual?.dispose(),
+        ]) {
+          try {
+            cleanup();
+          } catch (error) {
+            this.report(error);
+          }
         }
       }
       this.assertAlive();
@@ -686,7 +688,8 @@ export class Game<SceneId extends string = string> {
       this.render();
       this.assertAlive();
     } catch (error) {
-      if (!committed)
+      if (committed) this.dispose();
+      else
         for (const cleanup of [
           () => prepared?.dispose(),
           () => ui?.dispose(),

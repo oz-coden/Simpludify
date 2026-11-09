@@ -451,7 +451,31 @@ it("deduplicates gamepad button bindings by button index and updates thresholds 
       { button: 1, threshold: 0.8 },
     ],
   });
-  f.c.rebind(A.Attack, {});
+  for (const threshold of [0, null as never])
+    expect(() =>
+      f.c.addBindings(A.Jump, {
+        gamepad: { buttons: [{ button: 0, threshold }, 0] },
+      }),
+    ).toThrowError(
+      expect.objectContaining({ code: "INVALID_GAMEPAD_BINDING" }),
+    );
+  expect(f.c.getBinding(A.Jump).gamepad?.buttons?.[0]).toEqual({
+    button: 0,
+    threshold: 0.7,
+  });
+  f.c.rebind(A.Attack, { gamepad: { buttons: [1] } });
+  expect(f.c.conflicts("gamepad")).toEqual([
+    {
+      device: "gamepad",
+      kind: "button",
+      index: 1,
+      bindings: [
+        { action: A.Jump, path: "gamepad.buttons" },
+        { action: A.Attack, path: "gamepad.buttons" },
+      ],
+    },
+  ]);
+  f.c.removeBindings(A.Jump, { gamepad: { buttons: [1] } });
   expect(f.c.conflicts("gamepad")).toEqual([]);
   f.engine.dispose();
 });

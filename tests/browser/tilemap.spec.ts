@@ -128,6 +128,153 @@ for (const fallback of [false, true])
       expect(r.after).toEqual(empty);
     });
 
+    test("renders and reconciles both map layers on the same Actor", async ({
+      page,
+    }) => {
+      const result = await page.evaluate(async (url) => {
+        const {
+          Actor,
+          Game,
+          GeometryTilemap,
+          GeometryTilemapLayer,
+          PixiRenderer,
+          SpriteSheet,
+          TileGeometry,
+          Tilemap,
+          TilemapLayer,
+          worldPoint,
+        } = (await import(url)) as typeof import("@simpludify/web");
+        window.demo.dispose();
+        let renderer!: InstanceType<typeof PixiRenderer>;
+        const errors: unknown[] = [];
+        const game = new Game({
+          pixelRatio: 1,
+          frames: { request: () => 1, cancel: () => {} },
+          renderer: (host) => {
+            renderer = new PixiRenderer(host, "#000000", (error) =>
+              errors.push(error),
+            );
+            return renderer;
+          },
+        });
+        await game.run();
+        const actor = game.add(new Actor());
+        const sheet = (color: string) =>
+          SpriteSheet.grid(
+            `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><rect width="16" height="16" fill="${color}"/></svg>`)}`,
+            { frameWidth: 16, frameHeight: 16 },
+          );
+        const map = (color: string) =>
+          new Tilemap({
+            sheet: sheet(color),
+            tiles: [[0]],
+            tileWidth: 64,
+            tileHeight: 64,
+            x: 16,
+            y: 16,
+          });
+        const sprite = map("#ff0000"),
+          replacement = map("#0000ff");
+        const geometry = new GeometryTilemap({
+          geometry: TileGeometry.square({ width: 64, height: 64 }),
+          tiles: [[0x00ff00]],
+          x: 16,
+          y: 16,
+        });
+        const pixel = () => {
+          game.setViewport();
+          const canvas = game.element.querySelector("canvas");
+          if (!canvas) throw new Error("Missing canvas");
+          const copy = document.createElement("canvas");
+          copy.width = canvas.width;
+          copy.height = canvas.height;
+          const ctx = copy.getContext("2d");
+          if (!ctx) throw new Error("Missing readback context");
+          ctx.drawImage(canvas, 0, 0);
+          const { x, y } = game.worldToScreen(worldPoint(48, 48));
+          return [
+            ...ctx.getImageData(Math.round(x), Math.round(y), 1, 1).data,
+          ].slice(0, 3);
+        };
+        actor.add(new TilemapLayer(sprite));
+        const geometryLayer = actor.add(new GeometryTilemapLayer(geometry));
+        await game.whenReady();
+        const tied = pixel();
+        sprite.zIndex = 1;
+        const above = pixel();
+        sprite.zIndex = 0;
+        geometryLayer.enabled = false;
+        const regularOnly = pixel();
+        actor.enabled = false;
+        const hidden = pixel();
+        actor.enabled = true;
+        geometryLayer.enabled = true;
+        const visuals = (
+          renderer as unknown as { tilemaps: ReadonlySet<object> }
+        ).tilemaps;
+        const before = [...visuals][0];
+        actor.remove(TilemapLayer.type);
+        actor.add(new TilemapLayer(sprite));
+        await game.whenReady();
+        const reused = before !== undefined && visuals.has(before);
+
+        const discarded = map("#ffffff");
+        actor.remove(TilemapLayer.type);
+        actor.add(new TilemapLayer(discarded));
+        actor.remove(TilemapLayer.type);
+        actor.add(new TilemapLayer(replacement));
+        discarded.dispose();
+        geometryLayer.dispose();
+        await game.whenReady();
+        const replaced = pixel();
+        const replacedRefs = renderer.diagnostics.imageReferences;
+        actor.add(new GeometryTilemapLayer(geometry));
+        await game.whenReady();
+        const addedBack = pixel();
+        geometry.dispose();
+        replacement.dispose();
+        // A later structural change must not recreate visuals of disposed maps.
+        game.add(new Actor());
+        await game.whenReady();
+        const noLayers = pixel();
+        actor.dispose();
+        await game.whenReady();
+        const remaining = [
+          renderer.tilemapDiagnostics.maps,
+          renderer.geometryTilemapDiagnostics.maps,
+          renderer.diagnostics.imageReferences,
+        ];
+        game.dispose();
+        sprite.dispose();
+        return {
+          tied,
+          above,
+          regularOnly,
+          hidden,
+          reused,
+          replaced,
+          replacedRefs,
+          addedBack,
+          noLayers,
+          remaining,
+          errors: errors.length,
+        };
+      }, `/@fs/${process.cwd()}/packages/web/src/index.ts`);
+      expect(result).toEqual({
+        tied: [0, 255, 0],
+        above: [255, 0, 0],
+        regularOnly: [255, 0, 0],
+        hidden: [0, 0, 0],
+        reused: true,
+        replaced: [0, 0, 255],
+        replacedRefs: 1,
+        addedBack: [0, 255, 0],
+        noLayers: [0, 0, 0],
+        remaining: [0, 0, 0],
+        errors: 0,
+      });
+    });
+
     test("actual tile trail moves camera, edits data and returns through Scenes", async ({
       page,
     }) => {

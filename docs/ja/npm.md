@@ -5,7 +5,7 @@ SimpludifyのExperimental v0.1.6は、`@simpludify/core`と`@simpludify/web`に�
 **公開状態：`@simpludify/core@0.1.6`と`@simpludify/web@0.1.6`はnpmレジストリで公開済みです。** 以下の手順で独立したプロジェクトにインストールできます。
 
 
-ゲームパッド・Source有効化API、仮想入力、入力Binding APIは公開済みv0.1.6で利用できます。独立スターターはレジストリ0.1.3のlockfileを維持しており、依存更新は別の変更として扱います。
+ゲームパッド・Source有効化API、仮想入力、入力Binding APIは公開済みv0.1.6で利用できます。独立スターターのlockfileは公開済みのv0.1.6を固定します。候補SDKでの検証では、一時コピーの依存関係とScene再開呼び出しを候補APIに合わせます。
 
 ## 1. 必要な環境とパッケージ
 

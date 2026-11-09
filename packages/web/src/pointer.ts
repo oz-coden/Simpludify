@@ -10,6 +10,12 @@ import {
 } from "@simpludify/core";
 import { blocksGameKeyboard, focusGameSurface } from "./ui-keyboard";
 
+interface PointerProjection {
+  screen: PointerInfo["screen"];
+  world: WorldPoint;
+  view: ViewTransform;
+}
+
 const mouseMasks = [
   [MouseButton.Left, 1],
   [MouseButton.Middle, 4],
@@ -28,11 +34,10 @@ export class BrowserPointer {
   private readonly offInput: (() => void) | undefined;
   constructor(
     private readonly host: HTMLElement,
-    private readonly project: (event: { clientX: number; clientY: number }) => {
-      screen: PointerInfo["screen"];
-      world: WorldPoint;
-      view: ViewTransform;
-    },
+    private readonly project: (event: {
+      clientX: number;
+      clientY: number;
+    }) => PointerProjection | undefined,
     private readonly report: (error: unknown) => void,
     private readonly flush: () => void,
     private readonly input?: InputSystem,
@@ -59,6 +64,7 @@ export class BrowserPointer {
           }
           this.flush();
           const data = this.data(e);
+          if (!data) return this.release();
           // Capture before delivery: callbacks may remove the target or navigate.
           try {
             host.setPointerCapture(e.pointerId);
@@ -86,7 +92,9 @@ export class BrowserPointer {
         this.guard(() => {
           if (!this.surface(e.target)) return;
           this.flush();
-          const { screen } = this.project(e);
+          const projected = this.project(e);
+          if (!projected) return;
+          const { screen } = projected;
           const unit =
             e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? host.clientHeight : 1;
           if (
@@ -107,13 +115,18 @@ export class BrowserPointer {
         this.guard(() => {
           if (!this.routing.owns(e.pointerId) && !this.surface(e.target)) {
             if (e.pointerType === "mouse") this.releaseMouse(e.pointerId);
-            if (this.routing.hasHover(e.pointerId))
-              this.routing.leave(this.data(e));
+            if (this.routing.hasHover(e.pointerId)) {
+              const data = this.data(e);
+              if (data) this.routing.leave(data);
+              else this.release();
+            }
             return;
           }
           this.flush();
+          const data = this.data(e);
+          if (!data) return this.release();
           this.updateMouse(e);
-          this.routing.move(this.data(e));
+          this.routing.move(data);
         }),
       options,
     );
@@ -125,7 +138,9 @@ export class BrowserPointer {
           if (this.routing.owns(e.pointerId)) {
             e.preventDefault();
             this.flush();
-            this.routing.up(this.data(e));
+            const data = this.data(e);
+            if (data) this.routing.up(data);
+            else this.release();
           }
         }),
       options,
@@ -154,7 +169,12 @@ export class BrowserPointer {
     );
     host.addEventListener(
       "pointerleave",
-      (e) => this.guard(() => this.routing.leave(this.data(e))),
+      (e) =>
+        this.guard(() => {
+          const data = this.data(e);
+          if (data) this.routing.leave(data);
+          else this.release();
+        }),
       options,
     );
     window.addEventListener(
@@ -241,8 +261,10 @@ export class BrowserPointer {
         target.parentElement === this.host)
     );
   }
-  private data(e: PointerEvent): PointerInfo {
-    const { screen, world, view } = this.project(e);
+  private data(e: PointerEvent): PointerInfo | undefined {
+    const projected = this.project(e);
+    if (!projected) return undefined;
+    const { screen, world, view } = projected;
     return Object.freeze({
       pointerId: e.pointerId,
       pointerType: e.pointerType,

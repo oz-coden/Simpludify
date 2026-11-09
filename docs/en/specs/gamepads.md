@@ -96,6 +96,8 @@ Live adapter sampling is excluded during Replay playback. Replay records the fin
 
 negative/positive are button-index lists. Their maximum analog values are subtracted/added to the selected axis, clamped to [-1,1], optionally inverted, then passed through an axial dead zone: zero for abs(v) ≤ d, otherwise sign(v) × (abs(v)-d)/(1-d). Missing/nonfinite device values are neutral; finite out-of-range values clamp safely. The dead zone is axial, not radial. The final Action still sums all sources, clamps components and applies its usual vector normalization, preserving analog magnitudes below one.
 
+Within one Button Action, repeated indices use the last entry and its threshold. Adding a binding for an existing index replaces its threshold. Conflicts still report uses of the same index across Actions or binding paths.
+
 GamepadBindings.LeftStick, RightStick, DPad and Move are immutable Axis2D data. Move combines the left stick with DPad. Standard axes are LeftX=0, LeftY=1, RightX=2, RightY=3; negative Y is up. Triggers are analog button values: for example { positive: [GamepadButton.RightTrigger], deadZone: 0 } feeds an Axis1D in [0,1]. Use a button threshold when a digital trigger Action is wanted.
 
 GamepadButton provides South/East/West/North, Left/RightShoulder, Left/RightTrigger, Select, Start, Left/RightStick, DPadUp/Down/Left/Right and Home. These names denote standard physical positions. Raw bindings use device-specific numeric indices and make no positional guarantee.

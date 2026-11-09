@@ -1,9 +1,4 @@
-import {
-  cleanupAll,
-  type Scene,
-  type Tilemap,
-  type ViewTransform,
-} from "@simpludify/core";
+import { cleanupAll, type Tilemap, type ViewTransform } from "@simpludify/core";
 import { Container, Sprite, type Texture } from "pixi.js";
 import type { ImageLease } from "./shared-images";
 
@@ -33,7 +28,7 @@ export class TilemapVisual {
   private readonly offDispose: () => void;
   constructor(
     readonly map: Tilemap<string>,
-    scene: Scene,
+    isCurrent: () => boolean,
     acquire: (url: string, signal: AbortSignal) => Promise<ImageLease>,
     private readonly changed: () => void,
     private readonly onError: (error: unknown) => void,
@@ -56,7 +51,7 @@ export class TilemapVisual {
     if (!controller) throw Error("Missing tilemap request controller");
     void acquire(map.sheet.url, controller.signal)
       .then((lease) => {
-        if (this.disposed || map.disposed || map.scene !== scene) {
+        if (this.disposed || map.disposed || !isCurrent()) {
           lease.release();
           return;
         }
@@ -129,12 +124,12 @@ export class TilemapVisual {
     sprite.height = this.map.tileHeight;
     this.stats.updatedTiles++;
   }
-  render(view: ViewTransform): void {
+  render(view: ViewTransform, enabled = true): void {
     if (this.disposed) return;
     this.sync();
     const m = this.map;
     this.display.position.set(m.x, m.y);
-    this.display.visible = m.visible && m.enabled;
+    this.display.visible = enabled && m.visible && m.enabled;
     if (!this.display.visible) {
       this.invalid = true;
       return;
