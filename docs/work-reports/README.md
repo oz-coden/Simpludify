@@ -24,6 +24,10 @@ This directory contains persistent engineering reports, implementation logs, ver
 
 ## Technical implementation reports (by date)
 
+### 2026-11-09
+
+- [SDK candidate CI and registry acceptance](2026-11-09-ci-sdk-candidates.md)
+
 ### 2026-11-07
 
 - [Documentation cleanup and CHANGELOG establishment](2026-11-07-docs-cleanup-and-changelog.md): Archived initial `SPEC.md` to `docs/archive/initial-spec.md`, created user-facing `CHANGELOG.md`, modernized `README.md`, generalized version numbers and release examples, updated `work-reports/README.md` index, and verified site builds on both `/Simpludify/` and `/` bases.

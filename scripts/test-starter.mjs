@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
 import {
   cpSync,
   existsSync,
@@ -12,6 +11,17 @@ import { join, resolve } from "node:path";
 import { chromium } from "playwright";
 import { preview } from "vite";
 import { checkPackageReadme } from "./check-package-readmes.mjs";
+import {
+  assertInstalledSdk,
+  installCandidateProject,
+  installFlags,
+  publicRegistry,
+  publicSdkUrl,
+  readJson,
+  runConsumerNpm,
+  sdkNames,
+  writeSdkRegistry,
+} from "./sdk-candidate.mjs";
 import { sdkVersion } from "./sdk-version.mjs";
 
 const root = resolve(import.meta.dirname, ".."),
@@ -20,55 +30,53 @@ cpSync(join(root, "templates/npm-vite"), project, {
   recursive: true,
   filter: (source) => !/[\\/](?:node_modules|dist)(?:[\\/]|$)/.test(source),
 });
-const npmCLI = process.env.npm_execpath;
-assert(npmCLI, "Run with npm run test:starter");
-async function run(args) {
-  await new Promise((done, reject) => {
-    const child = spawn(process.execPath, [npmCLI, ...args], {
-      cwd: project,
-      env: { ...process.env, NODE_PATH: "" },
-      stdio: "inherit",
-    });
-    child.on("error", reject);
-    child.on("exit", (code) =>
-      code === 0 ? done() : reject(new Error(`npm ${args.join(" ")}: ${code}`)),
-    );
-  });
-}
-const starterVersion = JSON.parse(
-  readFileSync(join(project, "package.json"), "utf8"),
-).dependencies["@simpludify/web"];
+const registryMode = process.argv.includes("--registry");
+const run = (args) => runConsumerNpm(project, args);
+const starterVersion = readJson(join(project, "package.json")).dependencies[
+  "@simpludify/web"
+];
 assert.match(
   starterVersion,
   /^\d+\.\d+\.\d+$/,
-  "Starter must pin an exact registry SDK version",
+  "Starter must pin a published SDK version",
 );
-const starterLock = JSON.parse(
-  readFileSync(join(project, "package-lock.json"), "utf8"),
-);
-for (const name of ["core", "web"])
+const starterLock = readJson(join(project, "package-lock.json"));
+for (const name of sdkNames) {
+  const entry = starterLock.packages[`node_modules/@simpludify/${name}`];
   assert.equal(
-    starterLock.packages[`node_modules/@simpludify/${name}`].version,
+    entry.version,
     starterVersion,
-    "Starter lockfile must match its released SDK dependency",
+    "Starter lock must match its published SDK pin",
   );
+  assert.equal(entry.resolved, publicSdkUrl(name, starterVersion));
+}
 const manifest = { name: "@simpludify/web", version: sdkVersion };
 for (const bad of [
   "Experimental v0.1.0\nnpm install @simpludify/web@0.1.0",
   `Experimental v${sdkVersion}\nnpm install @simpludify/web@${sdkVersion}\nOnce published:`,
 ])
   assert.throws(() => checkPackageReadme(manifest, bad));
-await run(["ci", "--no-audit", "--no-fund"]);
-for (const name of ["core", "web"])
-  assert.equal(
-    JSON.parse(
-      readFileSync(
-        join(project, `node_modules/@simpludify/${name}/package.json`),
-        "utf8",
-      ),
-    ).version,
-    starterVersion,
-  );
+if (registryMode) {
+  writeSdkRegistry(project, publicRegistry);
+  const cache = ["--cache", join(project, ".npm-cache")];
+  if (starterVersion !== sdkVersion) {
+    await run([
+      "install",
+      "--package-lock-only",
+      "--ignore-scripts",
+      "--save-exact",
+      ...installFlags,
+      ...cache,
+      `@simpludify/web@${sdkVersion}`,
+    ]);
+  }
+  await run(["ci", ...installFlags, ...cache]);
+  assertInstalledSdk(project, { resolved: publicSdkUrl });
+} else {
+  if (!process.argv.includes("--packed"))
+    await runConsumerNpm(root, ["run", "pack:packages"]);
+  await installCandidateProject(project);
+}
 await run(["run", "check"]);
 await run(["run", "build", "--", "--base", "/starter-test/"]);
 const notices = readFileSync(
@@ -76,8 +84,8 @@ const notices = readFileSync(
   "utf8",
 );
 for (const pkg of [
-  `@simpludify/core@${starterVersion}`,
-  `@simpludify/web@${starterVersion}`,
+  `@simpludify/core@${sdkVersion}`,
+  `@simpludify/web@${sdkVersion}`,
   "pixi.js@",
   "@pixi/colord@2.9.6",
   "0d16e3b7ab0a4bcb42e6682712cc124af5f7ce9d",
@@ -143,5 +151,5 @@ writeFileSync(license, "");
 // An empty license text must also fail; the generator checks the text body.
 await assert.rejects(() => run(["run", "licenses"]));
 console.log(
-  `PASS independent registry starter: npm ci, types, production subpath/CSS, scene restart and notices (${process.platform}); ${project}`,
+  `PASS independent ${registryMode ? "public registry" : "candidate"} starter: npm ci, types, production subpath/CSS, scene restart and notices (${process.platform}); ${project}`,
 );

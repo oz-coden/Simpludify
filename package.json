@@ -43,6 +43,8 @@
     "test:packages:registry": "node scripts/test-packages.mjs --registry",
     "pack:packages": "node scripts/pack-packages.mjs",
     "test:starter": "node scripts/test-starter.mjs",
+    "test:starter:registry": "node scripts/test-starter.mjs --registry",
+    "test:consumer:prepare": "node scripts/prepare-sdk-consumer.mjs",
     "version:sdk": "node scripts/set-sdk-version.mjs"
   },
   "devDependencies": {

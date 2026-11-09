@@ -23,6 +23,7 @@ jobs:
     timeout-minutes: 30
     outputs:
       sha: ${{ steps.revision.outputs.sha }}
+      version: ${{ steps.revision.outputs.version }}
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -46,6 +47,7 @@ jobs:
           if (!runs.some(run => run.head_branch === 'main' && run.status === 'completed' && run.conclusion === 'success')) throw new Error('Tag must have a successful main push CI run');
           JS
           echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v7.0.1
         with:
           ref: ${{ steps.revision.outputs.sha }}
@@ -56,12 +58,10 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm test
-      - run: npx playwright install --with-deps chromium --only-shell
+      - uses: ./.github/actions/setup-chromium
       - run: npm run test:packages
       - name: Record exact archives
         run: |
-          npm pack ./packages/core --ignore-scripts --json --pack-destination test-results/packages > test-results/packages/core-pack.json
-          npm pack ./packages/web --ignore-scripts --json --pack-destination test-results/packages > test-results/packages/web-pack.json
           cd test-results/packages
           sha256sum *.tgz > SHA256SUMS
       - run: node scripts/publish-packages.mjs
@@ -70,6 +70,7 @@ jobs:
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
+          overwrite: true
           name: npm-sdk-validation
           path: test-results/packages/
   publish:
@@ -98,6 +99,7 @@ jobs:
           JS
       - uses: actions/download-artifact@v7.0.0
         with:
+          overwrite: true
           name: npm-sdk-validation
           path: test-results/packages
       - name: Publish exact validated archives, Core first
@@ -108,12 +110,15 @@ jobs:
           sha256sum --check SHA256SUMS
           cd ../..
           node scripts/publish-packages.mjs --publish
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium --only-shell
-      - name: Verify public registry clean installation
-        run: npm run test:packages:registry
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
+          overwrite: true
           name: npm-sdk-publication
           path: test-results/packages/
+  registry-acceptance:
+    needs: [validate, publish]
+    uses: ./.github/workflows/npm-registry-acceptance.yml
+    with:
+      source: ${{ needs.validate.outputs.sha }}
+      version: ${{ needs.validate.outputs.version }}

@@ -68,10 +68,30 @@ try {
         const r = game.element.getBoundingClientRect(),
           v = game.viewport;
         const p = (x, y) => ({
-          x: r.left + v.x + x * v.width,
-          y: r.top + v.y + y * v.height,
+          x:
+            r.left + ((v.x + x * v.width) * r.width) / game.element.clientWidth,
+          y:
+            r.top +
+            ((v.y + y * v.height) * r.height) / game.element.clientHeight,
         });
-        return { move: p(0.22, 0.68), aim: p(0.78, 0.68), fire: p(0.85, 0.25) };
+        window.virtualTouchMoves = new Map();
+        game.element.addEventListener(
+          "pointermove",
+          (event) => {
+            if (event.pointerType === "touch")
+              window.virtualTouchMoves.set(event.pointerId, {
+                x: event.clientX,
+                y: event.clientY,
+              });
+          },
+          { capture: true },
+        );
+        return {
+          move: p(0.22, 0.68),
+          aim: p(0.78, 0.68),
+          detour: p(0.5, 0.84),
+          fire: p(0.85, 0.25),
+        };
       });
       const touch = await page.context().newCDPSession(page);
       await touch.send("Input.dispatchTouchEvent", {
@@ -81,20 +101,49 @@ try {
           { id: 2, ...points.aim },
         ],
       });
-      const ids = await page.evaluate(() => [
-        window.virtualLab.current.move.pointerId,
-        window.virtualLab.current.aim.pointerId,
-      ]);
+      const ids = await page
+        .waitForFunction(() => {
+          const { move, aim } = window.virtualLab.current;
+          return Number.isInteger(move.pointerId) &&
+            Number.isInteger(aim.pointerId)
+            ? [move.pointerId, aim.pointerId]
+            : false;
+        })
+        .then((handle) => handle.jsonValue());
       assert(ids.every((id) => Number.isInteger(id)));
       assert.notEqual(ids[0], ids[1]);
       const crossed = [
         { id: 1, ...points.aim },
         { id: 2, ...points.move },
       ];
-      await touch.send("Input.dispatchTouchEvent", {
-        type: "touchMove",
-        touchPoints: crossed,
-      });
+      // Send one moving contact at a time with distinct coordinates. Chromium
+      // can defer pointermove delivery beyond the CDP command's response.
+      const moveContact = async (touchPoints, index) => {
+        await touch.send("Input.dispatchTouchEvent", {
+          type: "touchMove",
+          touchPoints,
+        });
+        await page.waitForFunction(
+          ({ id, point }) => {
+            const event = window.virtualTouchMoves.get(id);
+            return (
+              event &&
+              Math.abs(event.x - point.x) < 1 &&
+              Math.abs(event.y - point.y) < 1
+            );
+          },
+          { id: ids[index], point: touchPoints[index] },
+        );
+      };
+      await moveContact(
+        [
+          { id: 1, ...points.detour },
+          { id: 2, ...points.aim },
+        ],
+        0,
+      );
+      await moveContact([{ id: 1, ...points.detour }, crossed[1]], 1);
+      await moveContact(crossed, 0);
       const state = await page.evaluate(() => {
         const { game, current: c, Actions: a } = window.virtualLab;
         game.engine.step(0);
@@ -105,8 +154,7 @@ try {
         };
       });
       assert.deepEqual(state.ids, ids);
-      assert(state.move.x > 0.9);
-      assert(state.aim.x < -0.9);
+      assert(state.move.x > 0.9 && state.aim.x < -0.9, JSON.stringify(state));
       await touch.send("Input.dispatchTouchEvent", {
         type: "touchStart",
         touchPoints: [...crossed, { id: 3, ...points.fire }],
@@ -119,6 +167,10 @@ try {
       await touch.send("Input.dispatchTouchEvent", {
         type: "touchCancel",
         touchPoints: [],
+      });
+      await page.waitForFunction(() => {
+        const { move, aim, fire } = window.virtualLab.current;
+        return !move.pressed && !aim.pressed && !fire.pressed;
       });
       await touch.detach();
       const neutral = await page.evaluate(() => {

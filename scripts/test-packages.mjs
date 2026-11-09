@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { createHash } from "node:crypto";
 import {
   cpSync,
   existsSync,
@@ -9,7 +8,6 @@ import {
   mkdtempSync,
   readdirSync,
   readFileSync,
-  realpathSync,
   writeFileSync,
 } from "node:fs";
 import { createServer } from "node:http";
@@ -17,14 +15,27 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { chromium } from "playwright";
 import { build, preview, createServer as viteServer } from "vite";
+import {
+  assertInstalledSdk,
+  candidateDirectory,
+  installFlags,
+  publicRegistry,
+  publicSdkUrl,
+  readCandidate,
+  sdkNames,
+  writeSdkRegistry,
+} from "./sdk-candidate.mjs";
 import { sdkVersion } from "./sdk-version.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 process.chdir(root);
-const output = resolve("test-results/packages");
+const output = candidateDirectory;
 mkdirSync(output, { recursive: true });
 const temporary = mkdtempSync(join(tmpdir(), "simpludify-packed-"));
 const registryMode = process.argv.includes("--registry");
+const cache = registryMode
+  ? ["--cache", join(temporary, "registry-cache")]
+  : [];
 const report = {
   mode: registryMode ? "public-registry" : "local-tarballs",
   temporary,
@@ -70,20 +81,12 @@ const checks = (message) => {
 };
 let registry, browser;
 try {
-  const tarballs = {};
-  if (!registryMode) {
-    await run(npm, ["run", "build:packages"]);
-    for (const name of ["core", "web"]) {
-      const packed = JSON.parse(
-        await run(npm, [
-          "pack",
-          `./packages/${name}`,
-          "--ignore-scripts",
-          "--json",
-          "--pack-destination",
-          output,
-        ]),
-      )[0];
+  if (!registryMode && !process.argv.includes("--packed"))
+    await run(npm, ["run", "pack:packages"]);
+  const tarballs = registryMode ? undefined : readCandidate();
+  if (tarballs) {
+    for (const name of sdkNames) {
+      const { packed } = tarballs[name];
       const pkg = JSON.parse(
         readFileSync(`packages/${name}/package.json`, "utf8"),
       );
@@ -109,33 +112,9 @@ try {
         assert(paths.includes("dist/style.css"));
         assert.equal(pkg.dependencies["@simpludify/core"], sdkVersion);
       }
-      const map = JSON.parse(
-        readFileSync(`packages/${name}/dist/index.js.map`, "utf8"),
-      );
-      assert.equal(map.sources.length, map.sourcesContent.length);
-      assert(map.sourcesContent.every((source) => typeof source === "string"));
-      assert(
-        map.sources.every(
-          (source) =>
-            !source.startsWith("/") && !source.includes("node_modules"),
-        ),
-      );
-      const data = readFileSync(join(output, packed.filename));
-      assert.equal(
-        `sha512-${createHash("sha512").update(data).digest("base64")}`,
-        packed.integrity,
-      );
-      tarballs[name] = {
-        pkg,
-        data,
-        packed,
-        path: join(output, packed.filename),
-      };
       report.packages.push(packed);
     }
-    checks(
-      "restricted tarball files, declarations, embedded-source maps and integrity",
-    );
+    checks("restricted tarball files, declarations and integrity");
   }
   const core = join(temporary, "core-only"),
     web = join(temporary, "web-only");
@@ -150,12 +129,16 @@ try {
       }),
     );
   }
+  if (registryMode) {
+    for (const project of [core, web])
+      writeSdkRegistry(project, publicRegistry);
+  }
   const coreSpec = registryMode
     ? `@simpludify/core@${sdkVersion}`
     : tarballs.core.path;
   await run(
     npm,
-    ["install", "--ignore-scripts", "--no-audit", "--no-fund", coreSpec],
+    ["install", "--ignore-scripts", ...installFlags, ...cache, coreSpec],
     core,
   );
   assert(!existsSync(join(core, "node_modules/@simpludify/web")));
@@ -198,24 +181,36 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
     ],
     core,
   );
-  checks(
-    "Core-only tarball install, browser-free Node import/lifecycle and NodeNext public types",
+  const coreEntry = JSON.parse(
+    readFileSync(join(core, "package-lock.json"), "utf8"),
+  ).packages["node_modules/@simpludify/core"];
+  assert.equal(coreEntry.version, sdkVersion);
+  assert(
+    !lstatSync(join(core, "node_modules/@simpludify/core")).isSymbolicLink(),
   );
-  if (!registryMode) {
+  if (tarballs)
+    assert.equal(coreEntry.integrity, tarballs.core.packed.integrity);
+  else assert.equal(coreEntry.resolved, publicSdkUrl("core"));
+  checks(
+    "Core-only install, browser-free Node import/lifecycle and NodeNext public types",
+  );
+  let candidateRegistry;
+  if (tarballs) {
     const requested = [];
     registry = createServer((request, response) => {
       requested.push(request.url);
       const path = decodeURIComponent(request.url);
-      const name = path.includes("core")
-        ? "core"
-        : path.includes("web")
-          ? "web"
-          : undefined;
+      const name = sdkNames.find(
+        (name) => path === `/@simpludify/${name}` || path === `/${name}.tgz`,
+      );
       if (!name || request.method !== "GET") {
         response.writeHead(404).end();
         return;
       }
       const entry = tarballs[name];
+      const pkg = JSON.parse(
+        readFileSync(`packages/${name}/package.json`, "utf8"),
+      );
       if (path.endsWith(".tgz")) {
         response.setHeader("Content-Type", "application/octet-stream");
         response.end(entry.data);
@@ -224,11 +219,11 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
       response.setHeader("Content-Type", "application/json");
       response.end(
         JSON.stringify({
-          name: entry.pkg.name,
+          name: pkg.name,
           "dist-tags": { latest: sdkVersion },
           versions: {
             [sdkVersion]: {
-              ...entry.pkg,
+              ...pkg,
               dist: {
                 tarball: `http://127.0.0.1:${registry.address().port}/${name}.tgz`,
                 integrity: entry.packed.integrity,
@@ -239,17 +234,15 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
       );
     });
     await new Promise((done) => registry.listen(0, "127.0.0.1", done));
-    writeFileSync(
-      join(web, ".npmrc"),
-      `@simpludify:registry=http://127.0.0.1:${registry.address().port}/\n`,
-    );
+    candidateRegistry = `http://127.0.0.1:${registry.address().port}`;
+    writeSdkRegistry(web, `${candidateRegistry}/`);
     await run(
       npm,
       [
         "install",
         "--ignore-scripts",
-        "--no-audit",
-        "--no-fund",
+        ...installFlags,
+        ...cache,
         tarballs.web.path,
       ],
       web,
@@ -266,8 +259,8 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
       [
         "install",
         "--ignore-scripts",
-        "--no-audit",
-        "--no-fund",
+        ...installFlags,
+        ...cache,
         `@simpludify/web@${sdkVersion}`,
       ],
       web,
@@ -276,12 +269,36 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
     readFileSync(join(web, "package.json"), "utf8"),
   );
   assert(!webManifest.dependencies["@simpludify/core"]);
-  for (const name of ["core", "web"]) {
-    const installed = join(web, "node_modules/@simpludify", name);
-    assert(!lstatSync(installed).isSymbolicLink());
-    assert(realpathSync(installed).startsWith(temporary));
+  await run(npm, ["ci", "--ignore-scripts", ...installFlags, ...cache], web);
+  const webLock = JSON.parse(
+    readFileSync(join(web, "package-lock.json"), "utf8"),
+  );
+  assertInstalledSdk(web, {
+    resolved: (name) =>
+      registryMode
+        ? publicSdkUrl(name)
+        : name === "core"
+          ? `${candidateRegistry}/core.tgz`
+          : webLock.packages[""].dependencies["@simpludify/web"],
+    ...(tarballs
+      ? { integrity: (name) => tarballs[name].packed.integrity }
+      : {}),
+  });
+  for (const name of sdkNames) {
+    const map = JSON.parse(
+      readFileSync(
+        join(web, `node_modules/@simpludify/${name}/dist/index.js.map`),
+        "utf8",
+      ),
+    );
+    assert.equal(map.sources.length, map.sourcesContent.length);
+    assert(map.sourcesContent.every((source) => typeof source === "string"));
+    assert(
+      map.sources.every(
+        (source) => !source.startsWith("/") && !source.includes("node_modules"),
+      ),
+    );
   }
-  await run(npm, ["ci", "--ignore-scripts", "--no-audit", "--no-fund"], web);
   await run(npm, ["ls", "@simpludify/core", "pixi.js", "--all"], web);
   checks(
     "Web-only install resolves packed Core transitively, with physical external dependencies",
@@ -295,8 +312,8 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
       "install",
       "--save-dev",
       "--ignore-scripts",
-      "--no-audit",
-      "--no-fund",
+      ...installFlags,
+      ...cache,
       `vite@${tooling.vite}`,
       `typescript@${tooling.typescript}`,
     ],

@@ -5,6 +5,10 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+env:
+  NPM_CONFIG_AUDIT: "false"
+  NPM_CONFIG_FUND: "false"
+  NPM_CONFIG_PREFER_OFFLINE: "true"
 # Preserve the newest checkpoint; obsolete runs otherwise occupy runners for minutes.
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -29,6 +33,7 @@ jobs:
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
+          overwrite: true
           name: core-validation
           path: test-results/
           if-no-files-found: ignore
@@ -48,13 +53,14 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium --only-shell
+      - uses: ./.github/actions/setup-chromium
       - run: npm run test:browser -- --project=${{ matrix.project }} --shard=${{ matrix.shard }}/2
         env:
           PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/browser.json
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
+          overwrite: true
           name: browser-validation-${{ matrix.project }}-${{ matrix.shard }}
           path: test-results/
           if-no-files-found: ignore
@@ -68,7 +74,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium --only-shell
+      - uses: ./.github/actions/setup-chromium
       - run: npm run test:build
       - run: npm run test:build:game
       - run: npm run build -- --target web --example canvas-ui --base /Simpludify/
@@ -78,12 +84,15 @@ jobs:
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
+          overwrite: true
           name: production-validation
           path: |
             dist/
             test-results/
           if-no-files-found: ignore
   site-bases:
+    outputs:
+      pages-artifact: ${{ steps.stamp.outputs.artifact }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -101,7 +110,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium --only-shell
+      - uses: ./.github/actions/setup-chromium
       - run: npm run site:build -- --base "${{ matrix.base }}"
       - run: npm run site:check
       - run: npm run test:site
@@ -123,20 +132,24 @@ jobs:
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
+          overwrite: true
           name: site-validation-${{ matrix.artifact }}
           path: test-results/site/
           if-no-files-found: ignore
+      - name: Stamp deployable site with the source revision
+        id: stamp
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && matrix.artifact == 'project'
+        run: |
+          printf '%s\n' "$GITHUB_SHA" > site-dist/ci-source.txt
+          echo "artifact=github-pages-$GITHUB_RUN_ATTEMPT" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-pages-artifact@v4
         if: github.ref == 'refs/heads/main' && github.event_name == 'push' && matrix.artifact == 'project'
         with:
+          name: ${{ steps.stamp.outputs.artifact }}
           path: site-dist
-  packages:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    timeout-minutes: 30
+  sdk-candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: actions/setup-node@v7.1.0
@@ -144,112 +157,144 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium --only-shell
-      - run: npm run test:packages
+      - run: npm run pack:packages
       - uses: actions/upload-artifact@v7.0.2
-        if: always()
+        with:
+          name: sdk-candidate
+          path: |
+            test-results/packages/*.tgz
+            test-results/packages/*-pack.json
+          if-no-files-found: error
+          overwrite: true
+  packages:
+    needs: sdk-candidate
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            templates/npm-vite/package-lock.json
+      - run: npm ci
+      - name: Check tooling paths on Windows
+        if: runner.os == 'Windows'
+        run: npx --no vitest run tests/unit/path-boundary.test.ts tests/unit/core-boundary.test.ts tests/unit/cli.test.ts
+      - uses: actions/download-artifact@v7.0.0
+        with:
+          name: sdk-candidate
+          path: test-results/packages
+      - uses: ./.github/actions/setup-chromium
+      - name: Validate installed package contents and public APIs
+        id: packages
+        run: npm run test:packages -- --packed
+      - name: Validate the candidate in the starter
+        if: ${{ !cancelled() && steps.packages.outcome != 'skipped' }}
+        run: npm run test:starter -- --packed
+      - uses: actions/upload-artifact@v7.0.2
+        if: ${{ !cancelled() }}
         with:
           name: npm-sdk-validation-${{ matrix.os }}
-          path: test-results/packages/
+          path: |
+            test-results/packages/*.json
+            test-results/packages/*.png
           if-no-files-found: ignore
-  sdk-starter:
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    steps:
-      - uses: actions/checkout@v7.0.1
-      - uses: actions/setup-node@v7.1.0
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium --only-shell
-      - run: npm run test:starter
-  tooling-paths:
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 10
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    steps:
-      - uses: actions/checkout@v7.0.1
-      - uses: actions/setup-node@v7.1.0
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
-      - run: npx vitest run tests/unit/path-boundary.test.ts tests/unit/core-boundary.test.ts tests/unit/cli.test.ts
-  sdk-consumer:
+          overwrite: true
+  sdk-consumer-build:
+    needs: sdk-candidate
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        project:
-          [
-            desktop,
-            compact,
-            narrow,
-            desktop-canvas2d,
-            compact-canvas2d,
-            narrow-canvas2d,
-          ]
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7.0.1
-      - uses: actions/setup-node@v7.1.0
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium --only-shell
-      - run: npm run pack:packages
-      - name: Resolve candidate version
-        id: sdk
-        run: |
-          version=$(node --input-type=module -e 'import {sdkVersion} from "./scripts/sdk-version.mjs"; console.log(sdkVersion)')
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-      # Frozen external consumer; its committed registry dependencies stay at 0.1.3.
+      # Pin application source and its toolchain. The isolated lock replaces both SDK entries.
       - uses: actions/checkout@v7.0.1
         with:
           repository: oz-coden/Run-To-Exit
           ref: e3c6f50ad837e2d2c598a1a1d01c47077b33d00c
           path: test-results/consumer-source
-      - run: mkdir -p "${{ runner.temp }}/candidate"
-      - run: npm run test:sdk-candidate -- "${{ github.workspace }}/test-results/packages/simpludify-core-${{ steps.sdk.outputs.version }}.tgz" "${{ github.workspace }}/test-results/packages/simpludify-web-${{ steps.sdk.outputs.version }}.tgz" --project=${{ matrix.project }}
-        working-directory: test-results/consumer-source
-        env:
-          TMPDIR: ${{ runner.temp }}/candidate
+          persist-credentials: false
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: test-results/consumer-source/package-lock.json
+      - uses: actions/download-artifact@v7.0.0
+        with:
+          name: sdk-candidate
+          path: test-results/packages
+      - name: Install candidate, typecheck, run units and build the external game
+        run: npm run test:consumer:prepare -- test-results/consumer-source
       - name: Verify consumer dependency files are unchanged
-        if: always()
+        if: ${{ !cancelled() }}
         run: git diff --exit-code -- package.json package-lock.json
         working-directory: test-results/consumer-source
+      - name: Archive portable consumer fixture
+        run: |
+          cp test-results/consumer-source/package-lock.json test-results/run-to-exit/tooling-lock.json
+          tar -czf test-results/run-to-exit.tar.gz --exclude=node_modules -C test-results run-to-exit
       - uses: actions/upload-artifact@v7.0.2
-        if: always()
+        with:
+          name: sdk-consumer-build
+          path: test-results/run-to-exit.tar.gz
+          if-no-files-found: error
+          overwrite: true
+  sdk-consumer:
+    needs: sdk-consumer-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [desktop, compact, narrow, canvas2d]
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/download-artifact@v7.0.0
+        with:
+          name: sdk-consumer-build
+          path: test-results
+      - run: tar -xzf test-results/run-to-exit.tar.gz -C test-results
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: test-results/run-to-exit/tooling-lock.json
+      - run: npm ci
+        working-directory: test-results/run-to-exit
+      - uses: ./.github/actions/setup-chromium
+        with:
+          working-directory: test-results/run-to-exit
+      - name: Test the same production build in each renderer and viewport
+        working-directory: test-results/run-to-exit
+        env:
+          PROJECT: ${{ matrix.project }}
+          E2E_REQUIRE_LABELS: "1"
+        run: |
+          export E2E_SDK_VERSION="$(cat candidate-version.txt)"
+          projects=(--project="$PROJECT")
+          if [[ "$PROJECT" == canvas2d ]]; then
+            projects=(--project=desktop-canvas2d --project=compact-canvas2d --project=narrow-canvas2d)
+          fi
+          npm run test:e2e -- --retries=0 --max-failures=0 "${projects[@]}"
+      - uses: actions/upload-artifact@v7.0.2
+        if: ${{ !cancelled() }}
         with:
           name: sdk-consumer-${{ matrix.project }}
           path: |
-            ${{ runner.temp }}/candidate/run-to-exit-sdk-*/candidate-result.json
-            ${{ runner.temp }}/candidate/run-to-exit-sdk-*/test-results/
-            ${{ runner.temp }}/candidate/run-to-exit-sdk-*/playwright-report/
-            test-results/packages/*-pack.json
+            test-results/run-to-exit/candidate-version.txt
+            test-results/run-to-exit/test-results/
+            test-results/run-to-exit/playwright-report/
           if-no-files-found: ignore
+          overwrite: true
   deploy:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs:
-      [
-        quality,
-        browser,
-        production,
-        site-bases,
-        packages,
-        sdk-starter,
-        tooling-paths,
-        sdk-consumer,
-      ]
+    needs: [quality, browser, production, site-bases, packages, sdk-consumer]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -260,40 +305,54 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Verify this push is still the head of main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: test "$GITHUB_SHA" = "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq .object.sha)"
       # Pages must already be enabled by an administrator.
       - uses: actions/configure-pages@v5
         with:
           enablement: false
       - uses: actions/deploy-pages@v4
         id: deployment
+        with:
+          artifact_name: ${{ needs.site-bases.outputs.pages-artifact }}
+  published-site:
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SITE_URL: https://github.oz-coden.com/Simpludify/
+    steps:
       - uses: actions/checkout@v7.0.1
       - uses: actions/setup-node@v7.1.0
         with:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium --only-shell
+      - uses: ./.github/actions/setup-chromium
+      - name: Wait for the deployed revision
+        run: |
+          for attempt in {1..12}; do
+            if [[ "$(curl -fsS --max-time 10 "${SITE_URL}ci-source.txt?run=${GITHUB_RUN_ID}&attempt=${attempt}")" == "$GITHUB_SHA" ]]; then
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::Pages is not serving $GITHUB_SHA"
+          exit 1
       - run: node scripts/site-sdk-integration-live.mjs
-        env:
-          SITE_URL: https://github.oz-coden.com/Simpludify/
       - run: node scripts/site-tween-live.mjs
-        env:
-          SITE_URL: https://github.oz-coden.com/Simpludify/
       - run: node scripts/site-tilemap-live.mjs
-        env:
-          SITE_URL: https://github.oz-coden.com/Simpludify/
       - run: node scripts/site-tile-geometry-live.mjs
-        env:
-          SITE_URL: https://github.oz-coden.com/Simpludify/
       - run: node scripts/site-virtual-input-live.mjs
-        env:
-          SITE_URL: https://github.oz-coden.com/Simpludify/
       - run: node scripts/site-unified-input-live.mjs
-        env:
-          SITE_URL: https://github.oz-coden.com/Simpludify/
+      - name: Confirm the revision did not change during E2E
+        run: test "$(curl -fsS --max-time 10 "${SITE_URL}ci-source.txt?run=${GITHUB_RUN_ID}&check=final")" = "$GITHUB_SHA"
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
+          overwrite: true
           name: published-sample-validation
           path: |
             test-results/site/unified-input-live.json

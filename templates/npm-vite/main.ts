@@ -7,6 +7,7 @@ import {
   Character,
   defineActions,
   Game,
+  GamepadBindings,
   KeyboardBindings,
 } from "@simpludify/web";
 import "@simpludify/web/style.css";
@@ -17,12 +18,16 @@ const game = new Game<"play">({ parent });
 const Actions = defineActions({ Move: Action.axis2D() });
 game.scene("play", (context) => {
   const controls = context.actions(Actions, { Move: KeyboardBindings.WASD });
+  game.gamepads.bind(controls, {
+    index: 0,
+    bindings: { Move: GamepadBindings.Move },
+  });
   const player = context.add(
     Character({ movement: controls.reader(Actions.Move) }),
   );
   const hud = CanvasColumn(
     [
-      CanvasLabel("Click the world / Tab, then WASD"),
+      CanvasLabel("Focus the world, then use WASD or the left stick"),
       CanvasButton("Move right", () => {
         player.x += 32;
       }),

@@ -1,0 +1,53 @@
+name: Verify published npm SDK
+on:
+  workflow_call:
+    inputs:
+      source:
+        description: Validated release source revision
+        type: string
+        required: true
+      version:
+        description: Exact published SDK version
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact published SDK version matching the selected source ref
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  registry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ inputs.source || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - name: Verify source and registry target match
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
+        run: |
+          node --input-type=module -e '
+            import assert from "node:assert/strict";
+            import { sdkVersion } from "./scripts/sdk-version.mjs";
+            assert.equal(sdkVersion, process.env.EXPECTED_VERSION);
+          '
+      - run: npm ci --no-audit --no-fund --prefer-offline
+      - uses: ./.github/actions/setup-chromium
+      - run: npm run test:packages:registry
+      - run: npm run test:starter:registry
+      - uses: actions/upload-artifact@v7.0.2
+        if: ${{ !cancelled() }}
+        with:
+          name: npm-sdk-registry-acceptance
+          path: test-results/packages/
+          if-no-files-found: ignore
+          overwrite: true
