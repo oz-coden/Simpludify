@@ -10,10 +10,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [0.1.7] - 2026-11-10
 
+Release details and verification: [GitHub Release v0.1.7](https://github.com/oz-coden/Simpludify/releases/tag/v0.1.7) · [Publication Record](docs/work-reports/2026-11-10-v0.1.7-publication.md)
+
 ### Changed
 
 - Renamed `Game.goTo(id)` to `Game.changeScene(id)` without a compatibility alias.
-- Improved queued scene transitions, including repeated scene requests separated by other transitions.
+- Consecutive pending requests for the same scene share a Promise. Requests separated by another scene retain their queue positions.
+- Unified documentation under `docs/ja/` and `docs/en/`, with benchmarks in `docs/benchmarks/` and the original specification in `docs/archive/`.
+- Refocused the README on quick start, key concepts, and live examples. Installation and publishing guides use commands and version placeholders that apply across releases.
 
 ### Fixed
 
@@ -30,14 +34,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Bilingual Navigation Separation**: The documentation site now separates Japanese and English navigation. The English sidebar shows only English guides and records; the Japanese sidebar includes an explicit fallback section for untranslated technical documents.
 - **Language Continuity & Fallback Banners**: Preserves active language when navigating via the brand logo, header, or footer. Added bilingual fallback banners for unpaired technical records with safe return links.
 - **User-Facing Changelog**: Created this `CHANGELOG.md` consolidating release history across all published SDK versions.
-
-### Changed
-
-- Rename `Game.goTo(id)` to `Game.changeScene(id)` in the next SDK release. Consecutive pending requests for the same scene share a Promise, and requests separated by another scene retain their queue positions.
-- **Documentation Restructuring**: Unified all documentation under `docs/ja/` and `docs/en/` mirrors, moving internal engineering records into `docs/benchmarks/` and `docs/archive/`.
-- **Initial Specification Archive**: Moved the original draft specification (`SPEC.md`) to [`docs/archive/initial-spec.md`](docs/archive/initial-spec.md) with an archive notice pointing to current authoritative architecture and API specifications.
-- **README Modernization**: Streamlined the root `README.md` to focus on quick start, key concepts, and live examples, moving past version release notes into `CHANGELOG.md`.
-- **Version Reference Generalization**: Replaced unnecessary hardcoded version numbers in install and publishing guides with general commands (`npm install @simpludify/web`) and placeholders (`<version>`).
 
 ---
 
