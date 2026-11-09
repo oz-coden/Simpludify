@@ -8,6 +8,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-11-10
+
+### Changed
+
+- Renamed `Game.goTo(id)` to `Game.changeScene(id)` without a compatibility alias.
+- Improved queued scene transitions, including repeated scene requests separated by other transitions.
+
+### Fixed
+
+- Fixed scene activation and disposal edge cases, including rejected transitions and failed visual attachment cleanup.
+- Fixed tilemap and geometry tilemap layer replacement, coexistence, ordering, and resource lease handling.
+- Fixed gamepad button binding normalization and conflict detection.
+- Guarded Canvas UI wheel and pointer handling for zero-sized hosts.
+- Validated scene registration arguments and normalized tile coordinates at negative zero.
+
 ### Added
 
 - **Build-time Syntax Highlighting (Shiki)**: Added syntax highlighting to the official documentation site generated during `site:build`. Supports TypeScript, JavaScript, JSON, HTML, CSS, Bash, PowerShell, YAML, Diff, and Markdown with zero client-side JavaScript or external CDN requirements.
