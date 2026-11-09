@@ -239,7 +239,7 @@ for (const fallback of [false, true])
         const old = f.lab,
           view = f.linearView();
         const offset = view.offsetX;
-        await f.game.goTo("empty");
+        await f.game.changeScene("empty");
         f.tick(0.5);
         const released = {
           sim: old.simulation.diagnostics.active,
@@ -248,7 +248,7 @@ for (const fallback of [false, true])
           disposed: old.root.disposed,
           offset: view.offsetX,
         };
-        await f.game.goTo("lab");
+        await f.game.changeScene("lab");
         const live = f.lab.simulation.diagnostics.active;
         const clean = f.dispose();
         return {

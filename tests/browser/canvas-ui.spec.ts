@@ -148,7 +148,7 @@ for (const fallback of [false, true])
           );
         }
         const source = display.renderGroup?.texture?.source;
-        await f.game.goTo("empty");
+        await f.game.changeScene("empty");
         const returned = !display.renderGroup?.texture;
         f.game.dispose();
         const remainingGPU = source
@@ -478,14 +478,14 @@ for (const fallback of [false, true])
         const f = window.canvasProbe,
           old = f.root,
           controls = f.controls;
-        await f.game.goTo("empty");
+        await f.game.changeScene("empty");
         const left = {
           disposed: old.disposed,
           sources: controls.sourceCount,
           held: f.game.pointerDiagnostics.heldNodes,
           captures: f.game.pointerDiagnostics.captures,
         };
-        await f.game.goTo("first");
+        await f.game.changeScene("first");
         f.game.dispose();
         return {
           left,
@@ -530,12 +530,12 @@ for (const fallback of [false, true])
         );
         let failure = "";
         try {
-          await f.game.goTo("broken");
+          await f.game.changeScene("broken");
         } catch (e) {
           failure = String(e);
         }
         const failed = f.failed?.disposed;
-        const navigation = f.game.goTo("slow");
+        const navigation = f.game.changeScene("slow");
         await new Promise((r) => setTimeout(r, 0));
         const stagedButtons = document.querySelectorAll(
           ".s-canvas-accessibility button",
@@ -593,7 +593,7 @@ for (const fallback of [false, true])
       const r = await page.evaluate(async () => {
         const f = window.canvasProbe,
           old = f.root;
-        await f.game.goTo("empty");
+        await f.game.changeScene("empty");
         return {
           disposed: old.disposed,
           holds: f.holdEvents,

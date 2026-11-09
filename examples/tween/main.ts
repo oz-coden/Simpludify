@@ -22,8 +22,8 @@ game.scene("lab", (context) => {
     paused: () => game.paused,
     pause: () => game.pause(),
     resume: () => game.resume(),
-    restart: () => game.goTo("lab"),
-    leave: () => game.goTo("empty"),
+    restart: () => game.changeScene("lab"),
+    leave: () => game.changeScene("empty"),
   });
 });
 game.scene("empty", ({ canvasUI }) => {
@@ -33,7 +33,7 @@ game.scene("empty", ({ canvasUI }) => {
         CanvasLabel(
           "Lab Scene disposed: its Actors, UI and tweens are released.",
         ),
-        CanvasButton("Return to lab", () => game.goTo("lab")),
+        CanvasButton("Return to lab", () => game.changeScene("lab")),
       ],
       { padding: 20, gap: 12 },
     ),

@@ -129,7 +129,7 @@ try {
       memory = [];
     for (let i = 0; i < 50; i++) {
       const start = performance.now();
-      await game.goTo("cycle");
+      await game.changeScene("cycle");
       durations.push(performance.now() - start);
       if (i % 10 === 0) memory.push(performance.memory?.usedJSHeapSize ?? null);
     }

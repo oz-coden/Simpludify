@@ -37,7 +37,7 @@ for (const id of ["stats", "controls"])
 const observeError = (error: unknown) => console.error(error);
 const start = (automatic: boolean) => {
   demo = automatic;
-  return game.goTo("play");
+  return game.changeScene("play");
 };
 game.scene("menu", ({ scene, ui, onActivate }) => {
   presentRaid(scene);
@@ -121,7 +121,7 @@ game.scene("play", ({ scene, onActivate, onDispose, onUpdate }) => {
       held && !game.paused && round.status === "playing",
     );
   const restart = async () => {
-    await game.goTo("play");
+    await game.changeScene("play");
     game.element.focus({ preventScroll: true });
   };
   const controls = mountUI(
@@ -146,7 +146,7 @@ game.scene("play", ({ scene, onActivate, onDispose, onUpdate }) => {
         [
           pause,
           Button("Restart", restart),
-          Button("Menu", () => game.goTo("menu")),
+          Button("Menu", () => game.changeScene("menu")),
         ],
         { layout: Layout.Row },
       ),

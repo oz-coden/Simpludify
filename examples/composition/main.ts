@@ -49,7 +49,7 @@ game.scene("field", ({ scene, ui, signal, onActivate }) => {
             Button("Zoom", () => {
               game.camera.zoom = game.camera.zoom === 1 ? 1.5 : 1;
             }),
-            Button("Restart", () => game.goTo("field")),
+            Button("Restart", () => game.changeScene("field")),
           ],
           { layout: Layout.Row },
         ),

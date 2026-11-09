@@ -70,7 +70,7 @@ for (const id of ["first", "second"] as const) {
     add(Character({ x: 200, y: 250, source: { kind: "image", url: image } }));
     button = CanvasButton("Next scene", () => {
       clicks++;
-      return game.goTo(id === "first" ? "second" : "first");
+      return game.changeScene(id === "first" ? "second" : "first");
     });
     ui = CanvasColumn(
       [

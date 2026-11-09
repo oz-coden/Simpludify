@@ -53,7 +53,7 @@ await game.run();
 
 `Game.add(actor)`は渡されたActor自身を返し、runの前でも実行中でも動作します。`Game.remove(actorOrId)`は現在のSceneの構成員を破棄し、存在していたかどうかをブール値で返します。別のSceneの準備中であっても、これらのメソッドは常に現在のSceneを対象とします。準備中の候補Sceneには、ステージされたcontextのadd/sceneを使用してください。
 
-`Game.scene(id, setup)`は一意のfactoryを登録します。`Game<'menu' | 'play'>`のように型引数を指定すると、コンパイル時にIDを制限できます。Setupはscene、signal、add、ui、onUpdate、onActivate、onDeactivate、onDisposeを受け取ります。非同期setupも許容されます。キャンセル可能な処理にはsignalを使用し、awaitの前に破棄クリーンアップを登録してください。`run(id?)`は共有の起動Promiseを返し、goToの前にこれをawaitします。`goTo(id)`は準備完了Promiseを返し、同一IDへの重複リクエストはまとめ、異なるIDはキューに入れ、完了後の再訪問では新しいSceneインスタンスを作成します。コミット前のsetupやアセットの失敗では現在のSceneが維持されます。ライフサイクルコールバックのエラーは、コミット後に新しいSceneを維持したまま報告されます。`Game.dispose()`は同期的かつ冪等であり、処理待ちの遷移を速やかに中断します。
+`Game.scene(id, setup)`は一意のfactoryを登録します。`Game<'menu' | 'play'>`のように型引数を指定すると、コンパイル時にIDを制限できます。Setupはscene、signal、add、ui、onUpdate、onActivate、onDeactivate、onDisposeを受け取ります。非同期setupも許容されます。キャンセル可能な処理にはsignalを使用し、awaitの前に破棄クリーンアップを登録してください。`run(id?)`は共有の起動Promiseを返し、changeSceneの前にこれをawaitします。`changeScene(id)`は準備完了Promiseを返し、直近の保留中IDと同じ重複リクエストはまとめ、異なるIDはキューに入れ、完了後の再訪問では新しいSceneインスタンスを作成します。コミット前のsetupやアセットの失敗では現在のSceneが維持されます。ライフサイクルコールバックのエラーは、コミット後に新しいSceneを維持したまま報告されます。`Game.dispose()`は同期的かつ冪等であり、処理待ちの遷移を速やかに中断します。
 
 `Game.bindViewport(ui, node): () => void`（v0.1.2以降公開）は、マウントされたGame所有のCanvas UIの専用レイアウト領域をワールドViewportに連動させます。解決済みbounds × UI scaleをCSSピクセルで適用し、描画とポインター変換の前に反映します。これはDPRや論理解像度から独立しています。既存のaspect/camera投影はそのまま機能します。UIごとに1つの連動が許可され、再割り当ては安全で、返された解除関数は冪等です。UIまたは領域ノードの破棄により連動は解除されます。準備中のUIは現在のSceneに影響を与えません。`setViewport`による手動フォールバックも維持され、連動解除時に復元されます。非表示・無効・サイズ0の領域はワールドの描画と入力を完全にクリップし、その空領域での変換はワールド上の意味を持ちません。スクロールしない専用スロットを使用してください。これは任意の入れ子マスクではありません。[SDK統合ラボ](../../examples/sdk-integration/README.md)を参照してください。
 
@@ -133,7 +133,7 @@ off(); // actorが破棄された際にも自動解除
 scene.after(1, () => console.log("one simulation second"), actor);
 ```
 
-Sceneの状態は**Preparing → Ready → Active → Inactive → Disposed**です。`markReady`は同期処理です。`Engine.activate`は利便性のためPreparing状態のヘッドレスSceneをReadyにしてアクティブ化できます。`Engine.step`は最初の更新の前に既定のSceneをアクティブ化します。EngineによるScene差し替えは旧インスタンスを破棄します。破棄済みまたは非アクティブなインスタンスは再利用できません。アクティブ化の前に`onActivate`を登録してください。UIレイアウトはWebのrun/goToをawaitした後に利用可能になります。`onActivate`/`onDeactivate`/`onPostUpdate`/`onUpdate`/`onDispose`はコールバックを登録し、登録解除関数を返します。登録解除関数自体はクリーンアップを実行しません。非アクティブまたは破棄済みの所有者でリソースを取得しようとするとエラーがスローされます。初期の既定アクティブ化は合成入力を保持し、Sceneの差し替えは入力をクリアします。
+Sceneの状態は**Preparing → Ready → Active → Inactive → Disposed**です。`markReady`は同期処理です。`Engine.activate`は利便性のためPreparing状態のヘッドレスSceneをReadyにしてアクティブ化できます。`Engine.step`は最初の更新の前に既定のSceneをアクティブ化します。EngineによるScene差し替えは旧インスタンスを破棄します。破棄済みまたは非アクティブなインスタンスは再利用できません。アクティブ化の前に`onActivate`を登録してください。UIレイアウトはWebのrun/changeSceneをawaitした後に利用可能になります。`onActivate`/`onDeactivate`/`onPostUpdate`/`onUpdate`/`onDispose`はコールバックを登録し、登録解除関数を返します。登録解除関数自体はクリーンアップを実行しません。非アクティブまたは破棄済みの所有者でリソースを取得しようとするとエラーがスローされます。初期の既定アクティブ化は合成入力を保持し、Sceneの差し替えは入力をクリアします。
 
 `Scene.events`、`Actor.events`、`Component.events`は遅延初期化されるローカルイベントバスです。アプリケーション所有の明示的なスコープには`new EventBus()`および`new Lifetime()`が利用可能です。これらは自身でdisposeしてください。`bus.on(token, handler, owner?)`は冪等な登録解除関数を返します。バスまたは任意の所有者が破棄されると購読が解除されます。同名のイベントトークンであっても互いに区別されます。`emit`は同期的で登録順に配信されます。配信中の追加は次回のemitを待ち、除去は即座に有効になります。異なるトークンのemitは深さ優先でネストできますが、同一バス上での同一トークンの再帰的配信は拒否されます。エラーが発生しても対象の全ハンドラが実行され、失敗は`AggregateError`としてスローされます。Promiseを返すハンドラは`EVENT_ASYNC_HANDLER`を引き起こし、そのrejectionは消費されてエミッターに集約エラーが渡されます。非同期処理は同期配信の外側で明示的に管理してください。
 

@@ -134,7 +134,7 @@ try {
     assert.deepEqual(await pixel(), [136, 150, 153]);
     const released = await page.evaluate(async () => {
       const { game, world } = window.tilemapDemo;
-      await game.goTo("rest");
+      await game.changeScene("rest");
       return {
         disposed: world.disposed,
         chunks: world.tileIndexDiagnostics.chunks,

@@ -77,6 +77,17 @@ it("keeps tile/world coordinates separate with negative origin and half-open bou
   });
   expect(map.worldToTile(-10, 5)).toEqual({ space: "tile", x: 0, y: 0 });
   expect(map.worldToTile(10, 15)).toEqual({ space: "tile", x: 1, y: 1 });
+  const zeroOrigin = new Tilemap({
+    sheet,
+    tiles: [[0]],
+    tileWidth: 16,
+    tileHeight: 16,
+    x: 0,
+    y: 0,
+  });
+  const tile = zeroOrigin.worldToTile(-0, -0);
+  expect(Object.is(tile?.x, 0)).toBe(true);
+  expect(Object.is(tile?.y, 0)).toBe(true);
   for (const [x, y] of [
     [-10.1, 5],
     [30, 5],

@@ -210,7 +210,7 @@ game.scene("field", ({ scene, add, ui }) => {
                 `Terrain collision ${ground.collisionEnabled ? "enabled" : "disabled"}; visibility unchanged.`,
               );
             }),
-            Button("Leave field →", () => game.goTo("rest")),
+            Button("Leave field →", () => game.changeScene("rest")),
           ],
           { layout: Layout.Grid },
         ),
@@ -226,7 +226,7 @@ game.scene("rest", ({ ui }) => {
     Panel(
       [
         Label("The old map placements and image leases are disposed."),
-        Button("← Return to field", () => game.goTo("field")),
+        Button("← Return to field", () => game.changeScene("field")),
       ],
       { title: "Rest stop" },
     ),

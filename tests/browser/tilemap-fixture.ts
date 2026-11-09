@@ -138,14 +138,15 @@ export async function lifecycle() {
         }).place(scene),
       );
     });
-  await f.game.goTo("shared");
-  for (let i = 0; i < 8; i++) await f.game.goTo(i % 2 ? "shared" : "broken");
+  await f.game.changeScene("shared");
+  for (let i = 0; i < 8; i++)
+    await f.game.changeScene(i % 2 ? "shared" : "broken");
   const pixel = f.pixel(200, 150),
     oldDisposed = maps.slice(0, -1).every((m) => m.disposed),
     sharedLoads = loads;
-  await f.game.goTo("empty");
+  await f.game.changeScene("empty");
   const released = f.renderer.diagnostics;
-  await f.game.goTo("shared");
+  await f.game.changeScene("shared");
   const reloaded = loads;
   f.game.dispose();
   return {
@@ -278,7 +279,7 @@ export async function bounds() {
   });
   let staged = "";
   try {
-    await f.game.goTo("broken");
+    await f.game.changeScene("broken");
   } catch (e) {
     staged = (e as { code: string }).code;
   }

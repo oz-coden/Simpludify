@@ -24,7 +24,7 @@ game.scene("title", ({ canvasUI }) => {
     CanvasColumn(
       [
         CanvasLabel("Ready?", { fontSize: 30 }),
-        CanvasButton("Start", () => game.goTo("play")),
+        CanvasButton("Start", () => game.changeScene("play")),
       ],
       { gap: 20, align: "center", justify: "center" },
     ),
@@ -41,10 +41,13 @@ game.scene("play", ({ actions, canvasUI, pointer, add }) => {
   canvasUI(
     CanvasColumn(
       [
-        CanvasRow([selected, CanvasButton("Menu", () => game.goTo("title"))], {
-          gap: 12,
-          wrap: true,
-        }),
+        CanvasRow(
+          [selected, CanvasButton("Menu", () => game.changeScene("title"))],
+          {
+            gap: 12,
+            wrap: true,
+          },
+        ),
         CanvasPanel([], { grow: 1 }),
         right,
       ],

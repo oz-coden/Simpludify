@@ -322,7 +322,7 @@ for (const fallback of [false, true]) {
         });
         let failure = "";
         try {
-          await game.goTo("broken");
+          await game.changeScene("broken");
         } catch (e) {
           failure = (e as { code: string }).code;
         }
@@ -355,7 +355,7 @@ for (const fallback of [false, true]) {
           (e) => (e as { code: string }).code,
         );
         await Promise.resolve();
-        await game.goTo("empty");
+        await game.changeScene("empty");
         const changed = await waiting;
         game.dispose();
         return {

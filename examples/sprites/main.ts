@@ -77,7 +77,7 @@ game.scene("field", ({ scene, add, ui }) => {
           greeting.state === "paused" ? greeting.resume() : greeting.pause(),
         ),
         Button("Stop friend", () => greeting.stop()),
-        Button("Leave field →", () => game.goTo("rest")),
+        Button("Leave field →", () => game.changeScene("rest")),
       ],
       { title: "Sprite garden" },
     ),
@@ -88,7 +88,7 @@ game.scene("rest", ({ ui }) => {
     Panel(
       [
         Label("The field's Actors and sprite resources have been released."),
-        Button("← Return to field", () => game.goTo("field")),
+        Button("← Return to field", () => game.changeScene("field")),
       ],
       { title: "A fresh scene" },
     ),

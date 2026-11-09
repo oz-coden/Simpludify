@@ -55,6 +55,48 @@ test("reconciles dynamic render components and releases removed/pending visuals"
     await waiting;
     await game.whenReady();
     const after = renderer?.diagnostics;
+    const mapActor = game.add(new Actor());
+    const {
+      Grid,
+      SpriteSheet,
+      TileGeometry,
+      Tilemap,
+      GeometryTilemap,
+      TilemapLayer,
+      GeometryTilemapLayer,
+    } = (await import(url)) as typeof import("@simpludify/web");
+    const sheet = SpriteSheet.grid("./player.svg", {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
+    const map1 = new Tilemap({
+      sheet,
+      tiles: new Grid(1, 1, 0),
+      tileWidth: 16,
+      tileHeight: 16,
+    });
+    const map2 = new Tilemap({
+      sheet,
+      tiles: new Grid(1, 1, 0),
+      tileWidth: 16,
+      tileHeight: 16,
+    });
+    const gmap = new GeometryTilemap({
+      geometry: TileGeometry.square({ width: 16, height: 16 }),
+      tiles: [[0xff0000]],
+    });
+    mapActor.add(new TilemapLayer(map1));
+    mapActor.add(new GeometryTilemapLayer(gmap));
+    await game.whenReady();
+    mapActor.remove(TilemapLayer.type);
+    mapActor.add(new TilemapLayer(map2));
+    await game.whenReady();
+    const mapsCount =
+      (renderer?.tilemapDiagnostics.maps ?? 0) +
+      (renderer?.geometryTilemapDiagnostics.maps ?? 0);
+    mapActor.dispose();
+    gmap.dispose();
+    await game.whenReady();
     game.dispose();
     const disposed = renderer?.diagnostics;
     return {
@@ -63,6 +105,7 @@ test("reconciles dynamic render components and releases removed/pending visuals"
       removed,
       image,
       after,
+      mapsCount,
       disposed,
       errors: errors.length,
     };
@@ -80,6 +123,7 @@ test("reconciles dynamic render components and releases removed/pending visuals"
       imageEntries: 0,
       pendingImages: 0,
     },
+    mapsCount: 2,
     disposed: {
       presentations: 0,
       visuals: 0,
@@ -133,9 +177,10 @@ test("coalesces only pending identical navigation and serializes different reque
   const result = await page.evaluate(async (url) => {
     const { Game } = (await import(url)) as typeof import("@simpludify/web");
     window.demo.dispose();
-    const game = new Game<"slow" | "last">();
+    const game = new Game<"slow" | "last" | "restart">();
     let release: (() => void) | undefined,
-      count = 0;
+      count = 0,
+      restarts = 0;
     game.scene("slow", async () => {
       if (++count === 1)
         await new Promise<void>((resolve) => {
@@ -143,21 +188,64 @@ test("coalesces only pending identical navigation and serializes different reque
         });
     });
     game.scene("last", () => {});
+    game.scene("restart", ({ onActivate }) => {
+      if (++restarts === 1)
+        onActivate(() => {
+          void game.changeScene("restart");
+        });
+    });
+    const invalidSceneId = (() => {
+      try {
+        game.scene("" as never, () => {});
+        return "none";
+      } catch (error) {
+        return (error as { code: string }).code;
+      }
+    })();
+    const invalidSetup = (() => {
+      try {
+        game.scene("bad" as never, null as never);
+        return "none";
+      } catch (error) {
+        return (error as { code: string }).code;
+      }
+    })();
     await game.run();
-    const first = game.goTo("slow"),
-      duplicate = game.goTo("slow"),
-      last = game.goTo("last");
-    const same = first === duplicate;
+    const first = game.changeScene("slow"),
+      duplicate = game.changeScene("slow"),
+      last = game.changeScene("last"),
+      backToSlow = game.changeScene("slow");
+    const same = first === duplicate,
+      queuedAfterIntervening = backToSlow !== first;
     await Promise.resolve();
     release?.();
-    await Promise.all([first, duplicate, last]);
+    await Promise.all([first, duplicate, last, backToSlow]);
     const final = game.engine.scene.id;
-    await game.goTo("slow");
+    await game.changeScene("slow");
     const afterReload = count;
+    await game.changeScene("restart");
+    await Promise.resolve();
+    await game.whenReady();
     game.dispose();
-    return { same, count: afterReload, final };
+    return {
+      same,
+      queuedAfterIntervening,
+      count: afterReload,
+      final,
+      restarts,
+      invalidSceneId,
+      invalidSetup,
+    };
   }, sdk);
-  expect(result).toEqual({ same: true, count: 2, final: "last" });
+  expect(result).toEqual({
+    same: true,
+    queuedAfterIntervening: true,
+    count: 3,
+    final: "slow",
+    restarts: 2,
+    invalidSceneId: "INVALID_VALUE",
+    invalidSetup: "INVALID_VALUE",
+  });
 });
 test("cancels never-resolving setup and queued navigation promptly on dispose", async ({
   page,
@@ -179,8 +267,8 @@ test("cancels never-resolving setup and queued navigation promptly on dispose", 
       throw new Error("queued setup must not run");
     });
     await game.run();
-    const first = game.goTo("slow").catch((error) => error.code),
-      queued = game.goTo("queued").catch((error) => error.code);
+    const first = game.changeScene("slow").catch((error) => error.code),
+      queued = game.changeScene("queued").catch((error) => error.code);
     await Promise.resolve();
     game.dispose();
     return {
@@ -217,12 +305,12 @@ test("preserves committed scenes after lifecycle errors and rejects invalid tran
     });
     let before = "";
     try {
-      await game.goTo("one");
+      await game.changeScene("one");
     } catch (error) {
       before = (error as { code: string }).code;
     }
     await game.run("one");
-    await game.goTo("two");
+    await game.changeScene("two");
     const active = game.engine.scene.state;
     const id = game.engine.scene.id;
     game.dispose();
@@ -328,7 +416,7 @@ test("rejects startup or navigation disposed inside render without reserving a n
       let code = "";
       try {
         await game.run("one");
-        if (transition) await game.goTo("two");
+        if (transition) await game.changeScene("two");
       } catch (error) {
         code = (error as { code: string }).code;
       }

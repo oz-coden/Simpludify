@@ -27,7 +27,7 @@ game.scene("title", ({ canvasUI }) => {
     CanvasColumn(
       [
         CanvasLabel("Ready?", { fontSize: 30 }),
-        CanvasButton("Start", () => game.goTo("play")),
+        CanvasButton("Start", () => game.changeScene("play")),
       ],
       { align: "center", justify: "center", gap: 20 },
     ),
@@ -44,10 +44,13 @@ game.scene("play", ({ actions, canvasUI, add, pointer }) => {
   canvasUI(
     CanvasColumn(
       [
-        CanvasRow([selected, CanvasButton("Menu", () => game.goTo("title"))], {
-          gap: 12,
-          wrap: true,
-        }),
+        CanvasRow(
+          [selected, CanvasButton("Menu", () => game.changeScene("title"))],
+          {
+            gap: 12,
+            wrap: true,
+          },
+        ),
         CanvasPanel([], { grow: 1 }),
         right,
       ],
@@ -85,7 +88,7 @@ The **UI list lab** button in Canvas trail opens a [Core-only screen definition]
 
 ## Layout contract
 
-UI coordinates are host CSS dimensions divided by `ui.scale` (default 1). The root fills that extent unless it has explicit dimensions. Camera, world logical resolution, world Fit bars, zoom and physical DPR do not change those units. Root `scale` and resize cause relayout. All dimensions include padding; no border width is deducted. `bounds` is a frozen, root-relative logical rectangle after the last layout. Query after `await run/goTo` or a rendered update; setters invalidate synchronously but layout is deferred until rendering or the next pointer hit-test flush.
+UI coordinates are host CSS dimensions divided by `ui.scale` (default 1). The root fills that extent unless it has explicit dimensions. Camera, world logical resolution, world Fit bars, zoom and physical DPR do not change those units. Root `scale` and resize cause relayout. All dimensions include padding; no border width is deducted. `bounds` is a frozen, root-relative logical rectangle after the last layout. Query after `await run/changeScene` or a rendered update; setters invalidate synchronously but layout is deferred until rendering or the next pointer hit-test flush.
 
 | Style                                    | Meaning / default                                                                                                                                          |
 | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |

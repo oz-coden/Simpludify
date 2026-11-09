@@ -22,7 +22,7 @@ import {
 const game = new Game<"menu" | "play">();
 const Actions = defineActions({ Move: Action.axis2D() });
 game.scene("menu", ({ ui }) => {
-  ui(Panel([Label("Ready?"), Button("Start", () => game.goTo("play"))]));
+  ui(Panel([Label("Ready?"), Button("Start", () => game.changeScene("play"))]));
 });
 game.scene("play", ({ scene, add, ui }) => {
   const controls = new ActionController(Actions, {
@@ -31,12 +31,12 @@ game.scene("play", ({ scene, add, ui }) => {
     bindings: { Move: KeyboardBindings.WASD },
   });
   add(Character({ movement: controls.reader(Actions.Move) }));
-  ui(Panel([Button("Menu", () => game.goTo("menu"))]));
+  ui(Panel([Button("Menu", () => game.changeScene("menu"))]));
 });
 await game.run("menu");
 ```
 
-`run`をawaitしてから`goTo`します。準備の間は旧Sceneが動き続け、準備失敗なら旧Sceneを保ちます。成功した切り替えで旧Sceneは破棄されます。同じIDへ完了後に遷移しても新しいインスタンスを作るので、再プレイにも使えます。
+`run`をawaitしてから`changeScene`します。準備の間は旧Sceneが動き続け、準備失敗なら旧Sceneを保ちます。成功した切り替えで旧Sceneは破棄されます。同じIDへ完了後に遷移しても新しいインスタンスを作るので、再プレイにも使えます。
 
 ## 非同期準備とキャンセル
 

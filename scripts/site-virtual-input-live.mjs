@@ -209,7 +209,7 @@ try {
       assert.equal(handoff.sameActor, true);
       const cleanup = await page.evaluate(async () => {
         const { game, current: old } = window.virtualLab;
-        await game.goTo("play");
+        await game.changeScene("play");
         if (!old.controls.disposed || !old.virtual.disposed)
           throw Error("Old virtual Scene retained");
         game.dispose();

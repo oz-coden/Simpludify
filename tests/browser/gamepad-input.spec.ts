@@ -188,7 +188,7 @@ for (const fallback of [false, true])
         game.engine.step(0);
         const resumed = a.controls.value(Actions.Move);
         const old = a.pad;
-        await game.goTo("play");
+        await game.changeScene("play");
         return {
           released,
           disconnected,

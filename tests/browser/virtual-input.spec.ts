@@ -375,7 +375,7 @@ for (const fallback of [false, true])
       await page.mouse.up();
       const cleanup = await page.evaluate(async () => {
         const { game, current: old } = window.virtualLab;
-        await game.goTo("play");
+        await game.changeScene("play");
         return {
           old: old.virtual.disposed,
           controls: old.controls.disposed,

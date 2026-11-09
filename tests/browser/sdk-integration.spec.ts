@@ -173,7 +173,7 @@ test("scene replacement cancels unfinished display, rejects disposed UI and rest
       old = f.current;
     old.demo.step();
     const scheduler = old.scene.presentationTweens;
-    await f.game.goTo("empty");
+    await f.game.changeScene("empty");
     let rejected = false;
     try {
       f.game.bindViewport(old.ui, old.region);
@@ -182,7 +182,7 @@ test("scene replacement cancels unfinished display, rejects disposed UI and rest
     }
     const disposed = old.ui.disposed,
       active = scheduler.diagnostics.active;
-    await f.game.goTo("play");
+    await f.game.changeScene("play");
     return {
       rejected,
       disposed,
@@ -279,7 +279,7 @@ test("foreign UI is rejected, staged bindings are isolated, failed preparation c
         fail = () => reject(new Error("expected preparation failure"));
       });
     });
-    const pending = game.goTo("failed").catch(() => undefined);
+    const pending = game.changeScene("failed").catch(() => undefined);
     await ready;
     const during = f.game.viewport;
     fail();

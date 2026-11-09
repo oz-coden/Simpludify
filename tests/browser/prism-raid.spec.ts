@@ -230,7 +230,7 @@ test("restarts repeatedly without accumulating input sources or presentations", 
     const samples = [];
     for (let i = 0; i < 12; i++) {
       const retired = window.prismRaid.round;
-      await game.goTo("play");
+      await game.changeScene("play");
       await game.whenReady();
       samples.push({
         units: retired?.units.size,

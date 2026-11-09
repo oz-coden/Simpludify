@@ -189,7 +189,7 @@ test("owns scene cleanup and commits only after async readiness; failures keep t
     });
     await game.run("one");
     oldButton = game.element.querySelector("button");
-    const switching = game.goTo("two");
+    const switching = game.changeScene("two");
     await Promise.resolve();
     const during = game.engine.scene.id;
     await new Promise<void>((resolve) =>
@@ -200,7 +200,7 @@ test("owns scene cleanup and commits only after async readiness; failures keep t
     oldButton?.click();
     let failure = "";
     try {
-      await game.goTo("bad");
+      await game.changeScene("bad");
     } catch (error) {
       failure = (error as Error).message;
     }
@@ -304,17 +304,17 @@ test("loads a local image sprite, rejects missing assets, and disposes real Pixi
     await game.run("image");
     let failure = "";
     try {
-      await game.goTo("missing");
+      await game.changeScene("missing");
     } catch (error) {
       failure = (error as { code: string }).code;
     }
     let unsafeFailure = "";
     try {
-      await game.goTo("unsafe" as never);
+      await game.changeScene("unsafe" as never);
     } catch (error) {
       unsafeFailure = (error as { code: string }).code;
     }
-    for (let i = 0; i < 5; i++) await game.goTo("image");
+    for (let i = 0; i < 5; i++) await game.changeScene("image");
     const scene = game.engine.scene.id,
       canvases = document.querySelectorAll("canvas").length;
     game.dispose();

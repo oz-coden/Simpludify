@@ -96,7 +96,7 @@ game.scene("play", ({ scene, onUpdate, onActivate, onDispose }) => {
         ],
         { layout: Layout.Row },
       ),
-      Panel([pause, Button("Restart", () => game.goTo("play"))], {
+      Panel([pause, Button("Restart", () => game.changeScene("play"))], {
         layout: Layout.Row,
       }),
     ],

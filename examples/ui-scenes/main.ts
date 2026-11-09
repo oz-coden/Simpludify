@@ -50,7 +50,7 @@ for (const id of ["garden", "studio"] as const) {
             [
               Button(
                 id === "garden" ? "Visit the studio →" : "← Back to the garden",
-                () => game.goTo(id === "garden" ? "studio" : "garden"),
+                () => game.changeScene(id === "garden" ? "studio" : "garden"),
               ),
             ],
             { layout: Layout.Row },

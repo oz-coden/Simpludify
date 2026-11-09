@@ -107,7 +107,7 @@ export async function terrainPhysics(
     tileHeight: 32,
   });
   const index = world.tileIndexDiagnostics;
-  await f.game.goTo("empty");
+  await f.game.changeScene("empty");
   const released = {
     world: world.disposed,
     contacts: world.tileDiagnostics.contacts,

@@ -79,7 +79,7 @@ function setup(context: Parameters<Parameters<typeof game.scene>[1]>[0]) {
             () => (game.engine.paused ? game.resume() : game.pause()),
             { width: 80, height: 40 },
           ),
-          CanvasButton("Scene", () => game.goTo("empty"), {
+          CanvasButton("Scene", () => game.changeScene("empty"), {
             width: 80,
             height: 40,
           }),
@@ -113,7 +113,7 @@ game.scene("play", (context) => {
 game.scene("empty", (context) => {
   game.resume();
   context.canvasUI(
-    CanvasColumn([CanvasButton("Return", () => game.goTo("play"))], {
+    CanvasColumn([CanvasButton("Return", () => game.changeScene("play"))], {
       padding: 12,
     }),
   );

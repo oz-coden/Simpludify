@@ -216,7 +216,7 @@ if (mode === "core") {
     const frameResults = [];
     for (const active of [false, true]) {
       await page.evaluate(async (active) => {
-        await window.signalRun.game.goTo(active ? "play" : "menu");
+        await window.signalRun.game.changeScene(active ? "play" : "menu");
         if (active)
           window.signalRun.round.input.set(
             window.signalRun.round.controls.actions.Move,
@@ -248,13 +248,13 @@ if (mode === "core") {
       page.evaluate(async (count) => {
         for (let i = 0; i < count; i++) {
           const game = window.signalRun.game;
-          await game.goTo("play");
+          await game.changeScene("play");
           window.signalRun.round.input.set(
             window.signalRun.round.controls.actions.Move,
             { x: 1, y: 0 },
           );
           for (let step = 0; step < 60; step++) game.engine.step(1 / 60);
-          await game.goTo("menu");
+          await game.changeScene("menu");
         }
       }, count);
     await cycle(20);

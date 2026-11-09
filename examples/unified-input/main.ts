@@ -206,7 +206,7 @@ game.scene("play", (context) => {
     () => (game.paused ? game.resume() : game.pause()),
     { minHeight: 44, fontSize: 13 },
   );
-  const restart = CanvasButton("New Scene", () => game.goTo("play"), {
+  const restart = CanvasButton("New Scene", () => game.changeScene("play"), {
     minHeight: 44,
     fontSize: 13,
   });

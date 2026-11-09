@@ -233,6 +233,7 @@ export class CanvasVisual implements CanvasPresentation {
       },
       wheel: (event: WheelEvent) => {
         const rect = this.host.getBoundingClientRect();
+        if (rect.width <= 0 || rect.height <= 0) return;
         const unit =
           event.deltaMode === 1
             ? 16

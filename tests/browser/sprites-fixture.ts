@@ -167,7 +167,7 @@ export async function invalid() {
   });
   let stagedError = "";
   try {
-    await f.game.goTo("broken");
+    await f.game.changeScene("broken");
   } catch (e) {
     stagedError = (e as { code: string }).code;
   }
@@ -297,10 +297,11 @@ export async function scenes() {
       actor.add(new Renderable({ source: sheet.get(0), color: 0xffffff }));
       animations.push(actor.add(new SpriteAnimation({ sheet, clips })));
     });
-  await f.game.goTo("shared");
+  await f.game.changeScene("shared");
   const first = (f.display() as Sprite).texture,
     source = first.source;
-  for (let i = 0; i < 8; i++) await f.game.goTo(i % 2 ? "shared" : "broken");
+  for (let i = 0; i < 8; i++)
+    await f.game.changeScene(i % 2 ? "shared" : "broken");
   const overlapLoads = loads,
     sharedAlive = !first.destroyed && !source.destroyed;
   const oldStopped = animations
@@ -309,9 +310,9 @@ export async function scenes() {
   f.game.engine.step(0.25);
   await f.game.whenReady();
   const blue = f.pixel();
-  await f.game.goTo("empty");
+  await f.game.changeScene("empty");
   const released = first.destroyed && source.destroyed;
-  await f.game.goTo("shared");
+  await f.game.changeScene("shared");
   f.game.engine.step(0.5);
   await f.game.whenReady();
   const green = f.pixel();

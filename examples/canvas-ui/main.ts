@@ -77,9 +77,9 @@ game.scene("title", ({ canvasUI, onActivate }) => {
               "WASD or hold the arrows. 日本語と English の説明は画面幅に合わせて折り返します。\nStone walls stop you; water is a Trigger.",
               { fontSize: 14, maxWidth: "100%", shrink: 0 },
             ),
-            button("Start", () => game.goTo("field")),
-            button("UI list lab", () => game.goTo("list")),
-            button("Settings lab", () => game.goTo("settings")),
+            button("Start", () => game.changeScene("field")),
+            button("UI list lab", () => game.changeScene("list")),
+            button("Settings lab", () => game.changeScene("settings")),
           ],
           {
             width: "90%",
@@ -108,14 +108,14 @@ export let portableDemo:
   | { screen: ReturnType<typeof createPortableScreen>; ui: CanvasUI }
   | undefined;
 game.scene("list", ({ canvasUI }) => {
-  const screen = createPortableScreen(() => game.goTo("title"));
+  const screen = createPortableScreen(() => game.changeScene("title"));
   portableDemo = { screen, ui: canvasUI(screen.root) };
 });
 export let settingsDemo:
   | { screen: ReturnType<typeof createSettingsScreen>; ui: CanvasUI }
   | undefined;
 game.scene("settings", ({ canvasUI }) => {
-  const screen = createSettingsScreen(() => game.goTo("title"));
+  const screen = createSettingsScreen(() => game.changeScene("title"));
   settingsDemo = { screen, ui: canvasUI(screen.root) };
 });
 game.scene(
@@ -225,7 +225,7 @@ game.scene(
                   position,
                   pause,
                   edit,
-                  button("Menu", () => game.goTo("title")),
+                  button("Menu", () => game.changeScene("title")),
                 ],
                 { wrap: true, gap: 8, align: "center" },
               ),

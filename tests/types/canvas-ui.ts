@@ -26,7 +26,7 @@ game.scene("play", ({ actions, canvasUI, pointer }) => {
   canvasUI(
     CanvasPanel([
       CanvasRow([label, b], { width: "50%", wrap: true }),
-      CanvasButton("Menu", () => game.goTo("title")),
+      CanvasButton("Menu", () => game.changeScene("title")),
     ]),
   );
   pointer.events.on(PointerClick, (e) => {

@@ -164,7 +164,11 @@ function createLab(context: Parameters<Parameters<typeof game.scene>[1]>[0]) {
   const small = { fontSize: 12, padding: 7, minHeight: 36 };
   for (const button of [show, enable, mode, auto, pause, priority])
     button.setStyle(small);
-  const restart = CanvasButton("Restart scene", () => game.goTo("play"), small);
+  const restart = CanvasButton(
+    "Restart scene",
+    () => game.changeScene("play"),
+    small,
+  );
   const root = CanvasColumn(
     [
       title,

@@ -185,7 +185,7 @@ export class Game<SceneId extends string = string> {
   private height = 450;
   private ratio = 1;
   private readonly scenes = new Map<SceneId, SceneSetup>();
-  private readonly pendingScenes = new Map<SceneId, Promise<void>>();
+  private pendingScene: { id: SceneId; task: Promise<void> } | undefined;
   private readonly defaultUI: UINode[] = [];
   private ui: MountedUI | undefined;
   private prepared: PreparedScene | undefined;
@@ -439,6 +439,10 @@ export class Game<SceneId extends string = string> {
   }
   scene(id: SceneId, setup: SceneSetup): this {
     this.assertAlive();
+    if (typeof id !== "string" || !id.length)
+      throw new EngineError("INVALID_VALUE", "Scene id must not be empty");
+    if (typeof setup !== "function")
+      throw new EngineError("INVALID_VALUE", "Scene setup must be a function");
     if (this.scenes.has(id))
       throw new EngineError(
         "DUPLICATE_SCENE",
@@ -498,7 +502,7 @@ export class Game<SceneId extends string = string> {
     })();
     return this.startPromise;
   }
-  goTo(id: SceneId): Promise<void> {
+  changeScene(id: SceneId): Promise<void> {
     if (this.dead)
       return Promise.reject(
         new EngineError("GAME_DISPOSED", "Game has been disposed"),
@@ -515,8 +519,7 @@ export class Game<SceneId extends string = string> {
       return Promise.reject(
         new EngineError("SCENE_NOT_FOUND", "Unknown scene", { sceneId: id }),
       );
-    const existing = this.pendingScenes.get(id);
-    if (existing) return existing;
+    if (this.pendingScene?.id === id) return this.pendingScene.task;
     const task = this.queue
       .then(async () => {
         this.assertAlive();
@@ -570,7 +573,9 @@ export class Game<SceneId extends string = string> {
             ),
           );
           this.assertAlive();
-          await this.present(scene, nodes, canvas);
+          await this.present(scene, nodes, canvas, () => {
+            if (this.pendingScene?.task === task) this.pendingScene = undefined;
+          });
         } catch (error) {
           try {
             scene.dispose();
@@ -583,9 +588,9 @@ export class Game<SceneId extends string = string> {
         }
       })
       .finally(() => {
-        if (this.pendingScenes.get(id) === task) this.pendingScenes.delete(id);
+        if (this.pendingScene?.task === task) this.pendingScene = undefined;
       });
-    this.pendingScenes.set(id, task);
+    this.pendingScene = { id, task };
     this.queue = task.catch(() => {});
     return task;
   }
@@ -593,6 +598,7 @@ export class Game<SceneId extends string = string> {
     scene: Scene,
     nodes: readonly UINode[],
     canvas?: CanvasUI,
+    beforeActivate?: () => void,
   ): Promise<void> {
     let prepared: PreparedScene | undefined,
       ui: MountedUI | undefined,
@@ -638,6 +644,7 @@ export class Game<SceneId extends string = string> {
       }
       virtualPresentation = this.prepareVirtual(scene);
       scene.markReady();
+      beforeActivate?.();
       this.errorBox.hidden = true;
       try {
         if (this.playback && this.playbackScene !== scene) this.stopReplay();
@@ -981,7 +988,7 @@ export class Game<SceneId extends string = string> {
     this.defaultCanvas = undefined;
     this.defaultUI.length = 0;
     this.scenes.clear();
-    this.pendingScenes.clear();
+    this.pendingScene = undefined;
   }
 }
 

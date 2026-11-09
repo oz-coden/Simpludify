@@ -193,13 +193,13 @@ export async function polygons() {
       tiles: [[0xff0000]],
     }).place(scene);
   });
-  await f.game.goTo("shared");
+  await f.game.changeScene("shared");
   f.game.setViewport();
   const uiMounted =
     !!state.ui &&
     !state.ui.disposed &&
     f.renderer.geometryTilemapDiagnostics.maps === 1;
-  await f.game.goTo("empty");
+  await f.game.changeScene("empty");
   const empty = f.renderer.geometryTilemapDiagnostics;
   f.game.dispose();
   return {

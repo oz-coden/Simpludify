@@ -174,7 +174,7 @@ export async function benchmarkBrowser({ seconds, percentile }) {
         requestAnimationFrame(frame);
       };
       requestAnimationFrame(frame);
-      await game.goTo("play");
+      await game.changeScene("play");
     });
     const session = await page.context().newCDPSession(page);
     const capture = async (elapsed) => {

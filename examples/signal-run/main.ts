@@ -36,7 +36,7 @@ game.scene("menu", ({ ui, onActivate }) => {
           "WASD / arrows, click a destination, or use the touch buttons. Pause freezes simulation time.",
           { muted: true },
         ),
-        Button("Start run", () => game.goTo("play")),
+        Button("Start run", () => game.changeScene("play")),
       ],
       { title: "Signal Run", placement: Placement.Center },
     ),
@@ -76,7 +76,7 @@ game.scene("play", ({ scene, ui, signal, onActivate, onDispose }) => {
     RoundFinished,
     (state) => {
       result = state;
-      void game.goTo("result").catch((error) => {
+      void game.changeScene("result").catch((error) => {
         if (!game.engine.disposed) console.error(error);
       });
     },
@@ -101,8 +101,8 @@ game.scene("play", ({ scene, ui, signal, onActivate, onDispose }) => {
         Panel(
           [
             pause,
-            Button("Restart", () => game.goTo("play")),
-            Button("Menu", () => game.goTo("menu")),
+            Button("Restart", () => game.changeScene("play")),
+            Button("Menu", () => game.changeScene("menu")),
             Button("Zoom", () => {
               game.camera.zoom = game.camera.zoom === 1 ? 1.25 : 1;
               follow.update(round.player, 0);
@@ -169,8 +169,8 @@ game.scene("result", ({ ui, onActivate }) => {
               : "Your HP reached zero.",
         ),
         Label("Signals " + (state?.score ?? 0) + "/" + (state?.goal ?? 6)),
-        Button("Play again", () => game.goTo("play")),
-        Button("Main menu", () => game.goTo("menu")),
+        Button("Play again", () => game.changeScene("play")),
+        Button("Main menu", () => game.changeScene("menu")),
       ],
       {
         title: state?.status === RoundStatus.Won ? "Run complete" : "Run ended",

@@ -280,7 +280,7 @@ for (const fallback of [false, true])
         ).toBe("rectangles");
         const old = await page.evaluate(async () => {
           const previous = window.tilemapDemo.world;
-          await window.tilemapDemo.game.goTo("rest");
+          await window.tilemapDemo.game.changeScene("rest");
           return {
             disposed: previous?.disposed,
             contacts: previous?.tileDiagnostics.contacts,

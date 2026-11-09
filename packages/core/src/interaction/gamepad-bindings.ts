@@ -163,25 +163,30 @@ export function checkedGamepadBindings(
       if (action.kind === "button") {
         const b = record(binding, ["buttons"]);
         if (b.buttons !== undefined && !Array.isArray(b.buttons)) return fail();
+        const deduped = new Map<
+          number,
+          number | { readonly button: number; readonly threshold?: number }
+        >();
+        for (const item of (b.buttons ?? []) as unknown[]) {
+          if (typeof item === "number") {
+            const index = gamepadIndex(item);
+            deduped.set(index, index);
+            continue;
+          }
+          const entry = record(item, ["button", "threshold"]),
+            threshold = entry.threshold ?? 0.5;
+          if (
+            typeof threshold !== "number" ||
+            !Number.isFinite(threshold) ||
+            threshold <= 0 ||
+            threshold > 1
+          )
+            return fail();
+          const index = gamepadIndex(entry.button);
+          deduped.set(index, Object.freeze({ button: index, threshold }));
+        }
         result = Object.freeze({
-          buttons: Object.freeze(
-            ((b.buttons ?? []) as unknown[]).map((item) => {
-              if (typeof item === "number") return gamepadIndex(item);
-              const b = record(item, ["button", "threshold"]),
-                threshold = b.threshold ?? 0.5;
-              if (
-                typeof threshold !== "number" ||
-                !Number.isFinite(threshold) ||
-                threshold <= 0 ||
-                threshold > 1
-              )
-                return fail();
-              return Object.freeze({
-                button: gamepadIndex(b.button),
-                threshold,
-              });
-            }),
-          ),
+          buttons: Object.freeze([...deduped.values()]),
         });
       } else if (action.kind === "axis1d") result = axisBinding(binding);
       else {

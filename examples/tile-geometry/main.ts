@@ -146,7 +146,7 @@ for (const [id, action] of Object.entries({
       );
   },
   rebuild: () => {
-    void game.goTo("lab");
+    void game.changeScene("lab");
   },
 }))
   document
@@ -155,7 +155,7 @@ for (const [id, action] of Object.entries({
 select?.addEventListener(
   "change",
   () => {
-    void game.goTo("lab");
+    void game.changeScene("lab");
   },
   { signal: abort.signal },
 );

@@ -52,8 +52,8 @@ export async function tweenFixture() {
       paused: () => game.paused,
       pause: () => game.pause(),
       resume: () => game.resume(),
-      leave: () => game.goTo("empty"),
-      restart: () => game.goTo("lab"),
+      leave: () => game.changeScene("empty"),
+      restart: () => game.changeScene("lab"),
     });
     lab.volume.onChange((e) =>
       changes.push({ value: e.value, source: e.source }),
@@ -62,7 +62,9 @@ export async function tweenFixture() {
   });
   game.scene("empty", ({ canvasUI }) => {
     canvasUI(
-      CanvasColumn([CanvasButton("Return to lab", () => game.goTo("lab"))]),
+      CanvasColumn([
+        CanvasButton("Return to lab", () => game.changeScene("lab")),
+      ]),
     );
   });
   await game.run("lab");

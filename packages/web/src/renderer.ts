@@ -357,7 +357,8 @@ export class PixiRenderer implements RendererPort {
     root.addChild(world, mask);
     root.mask = mask;
     const visuals = new Map<Actor, Visual>();
-    const tilemaps = new Map<Actor, TilemapVisual | GeometryTilemapVisual>();
+    const tilemaps = new Map<Actor, TilemapVisual>();
+    const geometryTilemaps = new Map<Actor, GeometryTilemapVisual>();
     const drawOrder: {
       display: Sprite | Graphics | Container;
       order: number;
@@ -665,20 +666,36 @@ export class PixiRenderer implements RendererPort {
           entry.dispose();
           visuals.delete(actor);
         }
-      for (const [actor, entry] of tilemaps)
+      for (const [actor, entry] of tilemaps) {
+        const layer = actor.get(TilemapLayer.type);
         if (
           actor.disposed ||
           actor.scene !== scene ||
-          !(entry instanceof TilemapVisual
-            ? actor.get(TilemapLayer.type)
-            : actor.get(GeometryTilemapLayer.type)) ||
+          !layer ||
+          layer.disposed ||
+          layer.map !== entry.map ||
           entry.disposed
         ) {
           entry.dispose();
-          if (entry instanceof TilemapVisual) this.tilemaps.delete(entry);
-          else this.geometryTilemaps.delete(entry);
+          this.tilemaps.delete(entry);
           tilemaps.delete(actor);
         }
+      }
+      for (const [actor, entry] of geometryTilemaps) {
+        const layer = actor.get(GeometryTilemapLayer.type);
+        if (
+          actor.disposed ||
+          actor.scene !== scene ||
+          !layer ||
+          layer.disposed ||
+          layer.map !== entry.map ||
+          entry.disposed
+        ) {
+          entry.dispose();
+          this.geometryTilemaps.delete(entry);
+          geometryTilemaps.delete(actor);
+        }
+      }
       let order = 0;
       for (const actor of scene.actors) {
         const layer = actor.get(TilemapLayer.type);
@@ -692,7 +709,7 @@ export class PixiRenderer implements RendererPort {
               changed,
               this.onError,
               () => {
-                if (tile instanceof TilemapVisual) this.tilemaps.delete(tile);
+                if (tile) this.tilemaps.delete(tile);
                 depthDirty = true;
               },
             );
@@ -704,7 +721,7 @@ export class PixiRenderer implements RendererPort {
         }
         const geometryLayer = actor.get(GeometryTilemapLayer.type);
         if (geometryLayer) {
-          let tile = tilemaps.get(actor);
+          let tile = geometryTilemaps.get(actor);
           if (!tile) {
             const created = new GeometryTilemapVisual(geometryLayer.map, () => {
               this.geometryTilemaps.delete(created);
@@ -712,7 +729,7 @@ export class PixiRenderer implements RendererPort {
             });
             tile = created;
             world.addChild(tile.display);
-            tilemaps.set(actor, tile);
+            geometryTilemaps.set(actor, tile);
             this.geometryTilemaps.add(created);
           }
           tile.order = order;
@@ -732,8 +749,7 @@ export class PixiRenderer implements RendererPort {
     const sync = () => {
       reconcile();
       for (const entry of visuals.values()) update(entry);
-      for (const entry of tilemaps.values())
-        if (entry instanceof TilemapVisual) entry.sync();
+      for (const entry of tilemaps.values()) entry.sync();
     };
     const prepared: PreparedScene = {
       ready: async () => {
@@ -750,7 +766,6 @@ export class PixiRenderer implements RendererPort {
             if (entry.controller) pending = true;
           }
           for (const entry of tilemaps.values()) {
-            if (!(entry instanceof TilemapVisual)) continue;
             if (entry.error) throw entry.error;
             if (entry.controller) pending = true;
           }
@@ -821,6 +836,13 @@ export class PixiRenderer implements RendererPort {
             depthDirty = true;
           }
         }
+        for (const entry of geometryTilemaps.values()) {
+          entry.render(view);
+          if (entry.depth !== entry.map.zIndex) {
+            entry.depth = entry.map.zIndex;
+            depthDirty = true;
+          }
+        }
         if (depthDirty) {
           drawOrder.length = 0;
           for (const entry of visuals.values())
@@ -831,6 +853,12 @@ export class PixiRenderer implements RendererPort {
                 zIndex: entry.component.zIndex,
               });
           for (const entry of tilemaps.values())
+            drawOrder.push({
+              display: entry.display,
+              order: entry.order,
+              zIndex: entry.map.zIndex,
+            });
+          for (const entry of geometryTilemaps.values())
             drawOrder.push({
               display: entry.display,
               order: entry.order,
@@ -862,10 +890,14 @@ export class PixiRenderer implements RendererPort {
             () => {
               for (const entry of tilemaps.values()) {
                 entry.dispose();
-                if (entry instanceof TilemapVisual) this.tilemaps.delete(entry);
-                else this.geometryTilemaps.delete(entry);
+                this.tilemaps.delete(entry);
               }
               tilemaps.clear();
+              for (const entry of geometryTilemaps.values()) {
+                entry.dispose();
+                this.geometryTilemaps.delete(entry);
+              }
+              geometryTilemaps.clear();
             },
             () => root.destroy({ children: true, context: true }),
           ],

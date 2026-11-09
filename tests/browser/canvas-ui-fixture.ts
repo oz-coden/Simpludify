@@ -124,7 +124,7 @@ export async function canvasFixture(responsive = false) {
   });
   game.scene("empty", ({ canvasUI }) => {
     root = canvasUI(
-      CanvasPanel([CanvasButton("Return", () => game.goTo("first"))], {
+      CanvasPanel([CanvasButton("Return", () => game.changeScene("first"))], {
         padding: 20,
         align: "start",
       }),
@@ -294,10 +294,10 @@ export async function ownedResourceCycle(
 ) {
   const active = inspectCanvasResources(f.renderer);
   for (let i = 0; i < 10; i++) {
-    await f.game.goTo("empty");
-    await f.game.goTo("first");
+    await f.game.changeScene("empty");
+    await f.game.changeScene("first");
   }
-  await f.game.goTo("empty");
+  await f.game.changeScene("empty");
   // The empty Scene has one ordinary world clip plus its Return button.
   const empty = inspectCanvasResources(f.renderer);
   f.game.dispose();

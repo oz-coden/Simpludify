@@ -387,7 +387,7 @@ for (const fallback of [false, true])
               game.pause();
               game.resume();
             }
-            if (kind === "scene") await game.goTo("play");
+            if (kind === "scene") await game.changeScene("play");
             if (kind === "owner") owner.dispose();
             if (kind === "editing") {
               const field = document.createElement("input");

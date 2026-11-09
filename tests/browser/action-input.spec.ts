@@ -255,7 +255,7 @@ test("preparing bindings do not capture keys or leak held input through scene co
   await probe(page);
   await page.evaluate(() => {
     const p = window.actionProbe;
-    p.navigation = p.game.goTo("second");
+    p.navigation = p.game.changeScene("second");
   });
   await page.waitForFunction(() => !!window.actionProbe.staged);
   await page.keyboard.press("KeyZ");

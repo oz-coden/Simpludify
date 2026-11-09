@@ -426,3 +426,32 @@ it("global reset and Scene replacement cancel capture safely and leave no input 
   f.engine.dispose();
   expect(f.engine.input.sourceCount).toBe(0);
 });
+it("deduplicates gamepad button bindings by button index and updates thresholds without self-conflict", () => {
+  const f = fixture();
+  f.c.rebind(A.Jump, {
+    gamepad: {
+      buttons: [
+        0,
+        0,
+        { button: 0, threshold: 0.7 },
+        { button: 1, threshold: 0.4 },
+        1,
+      ],
+    },
+  });
+  expect(f.c.getBinding(A.Jump).gamepad).toEqual({
+    buttons: [{ button: 0, threshold: 0.7 }, 1],
+  });
+  f.c.addBindings(A.Jump, {
+    gamepad: { buttons: [{ button: 1, threshold: 0.8 }] },
+  });
+  expect(f.c.getBinding(A.Jump).gamepad).toEqual({
+    buttons: [
+      { button: 0, threshold: 0.7 },
+      { button: 1, threshold: 0.8 },
+    ],
+  });
+  f.c.rebind(A.Attack, {});
+  expect(f.c.conflicts("gamepad")).toEqual([]);
+  f.engine.dispose();
+});

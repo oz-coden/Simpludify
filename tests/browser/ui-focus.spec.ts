@@ -446,7 +446,7 @@ for (const fallback of [false, true])
       await page.keyboard.down("w");
       await expectMovement(page, true);
       await page.evaluate(async () => {
-        await window.focusProbe.game.goTo("empty");
+        await window.focusProbe.game.changeScene("empty");
         window.focusProbe.tick();
       });
       expect(

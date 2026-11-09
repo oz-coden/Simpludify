@@ -217,7 +217,7 @@ test("Web plays a JSON Prism Raid victory, excludes live keys and releases Repla
   expect(result.actual.status).toBe("won");
   await page.keyboard.up("d");
   await page.keyboard.up("Space");
-  await page.evaluate(() => window.replayGame.game.goTo("next"));
+  await page.evaluate(() => window.replayGame.game.changeScene("next"));
   expect(await page.evaluate(() => window.replayGame.player.disposed)).toBe(
     true,
   );

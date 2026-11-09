@@ -170,7 +170,7 @@ export async function scenes() {
       new Renderable({ source: { kind: "image", url: imageURL("cyan") } }),
     );
   });
-  await f.game.goTo("shared");
+  await f.game.changeScene("shared");
   const success = f.pixel(),
     sameTexture = displays(f)[0]?.texture === texture;
   const loadsAfterTransition = loads;
@@ -192,7 +192,7 @@ export async function scenes() {
   });
   let failure = "";
   try {
-    await f.game.goTo("broken");
+    await f.game.changeScene("broken");
   } catch (e) {
     failure = (e as { code: string }).code;
   }

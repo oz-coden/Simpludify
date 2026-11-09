@@ -343,7 +343,7 @@ if (mode === "core") {
     };
     const soak = [];
     let restarts = 0;
-    await page.evaluate(() => window.signalRun.game.goTo("play"));
+    await page.evaluate(() => window.signalRun.game.changeScene("play"));
     const started = performance.now();
     if (soakSeconds > 0) {
       soak.push({ seconds: 0, ...(await memory()) });
@@ -352,7 +352,7 @@ if (mode === "core") {
       while ((performance.now() - started) / 1000 < soakSeconds) {
         const elapsed = (performance.now() - started) / 1000;
         if (Math.floor(elapsed / 20) > restarts) {
-          await page.evaluate(() => window.signalRun.game.goTo("play"));
+          await page.evaluate(() => window.signalRun.game.changeScene("play"));
           restarts++;
         }
         await page.evaluate(
@@ -402,7 +402,7 @@ if (mode === "core") {
         "render only",
         "simulation + render",
       ]) {
-        await game.goTo("play");
+        await game.changeScene("play");
         window.signalRun.round.input.set(
           window.signalRun.round.controls.actions.Move,
           { x: 0, y: 1 },
@@ -447,9 +447,9 @@ if (mode === "core") {
       await page.evaluate(async () => {
         const game = window.signalRun.game;
         for (let i = 0; i < 20; i++) {
-          await game.goTo("play");
+          await game.changeScene("play");
           for (let k = 0; k < 60; k++) game.engine.step(1 / 60);
-          await game.goTo("menu");
+          await game.changeScene("menu");
         }
       });
       heap.push({ cycles: batch * 20, ...(await memory()) });

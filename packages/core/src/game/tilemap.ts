@@ -338,8 +338,8 @@ export class Tilemap<Name extends string = never> {
   worldToTile(x: number, y: number): TilePoint | undefined {
     finite(x);
     finite(y);
-    const tx = Math.floor((x - this.x) / this.tileWidth),
-      ty = Math.floor((y - this.y) / this.tileHeight);
+    const tx = Math.floor((x - this.x) / this.tileWidth) || 0,
+      ty = Math.floor((y - this.y) / this.tileHeight) || 0;
     return this.inBounds(tx, ty) ? { space: "tile", x: tx, y: ty } : undefined;
   }
   /** @internal Unique currently used IDs; no writable Grid/cache is exposed. */

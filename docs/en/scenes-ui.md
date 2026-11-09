@@ -21,7 +21,7 @@ const game = new Game<"menu" | "play">();
 const Actions = defineActions({ Move: Action.axis2D() });
 
 game.scene("menu", ({ ui }) => {
-  ui(Panel([Label("Ready?"), Button("Start", () => game.goTo("play"))]));
+  ui(Panel([Label("Ready?"), Button("Start", () => game.changeScene("play"))]));
 });
 
 game.scene("play", ({ scene, add, ui }) => {
@@ -31,13 +31,13 @@ game.scene("play", ({ scene, add, ui }) => {
     bindings: { Move: KeyboardBindings.WASD },
   });
   add(Character({ movement: controls.reader(Actions.Move) }));
-  ui(Panel([Button("Menu", () => game.goTo("menu"))]));
+  ui(Panel([Button("Menu", () => game.changeScene("menu"))]));
 });
 
 await game.run("menu");
 ```
 
-Await `game.run` before calling `game.goTo`. During scene preparation, the active Scene continues running. If preparation fails, the existing Scene remains active. Once preparation succeeds, the old Scene is disposed and the new Scene is committed. Navigating to the same Scene ID constructs a fresh instance, providing an easy restart mechanism.
+Await `game.run` before calling `game.changeScene`. During scene preparation, the active Scene continues running. If preparation fails, the existing Scene remains active. Once preparation succeeds, the old Scene is disposed and the new Scene is committed. Navigating to the same Scene ID constructs a fresh instance, providing an easy restart mechanism.
 
 ## Asynchronous setup and cancellation
 

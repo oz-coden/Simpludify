@@ -78,7 +78,7 @@ for (const fallback of [false, true])
         mirror.locator(".s-canvas-label").filter({ hasText: "計画を編集中" }),
       ).toHaveCount(0);
       await page.evaluate(async () => {
-        await window.nativeProbe.game.goTo("empty");
+        await window.nativeProbe.game.changeScene("empty");
       });
       await expect(mirror).toHaveCount(0);
     });
@@ -113,7 +113,7 @@ for (const fallback of [false, true])
       await expect(status).toHaveText("Paused");
       await expect(alert).toHaveText("Enter a whole number");
       await page.evaluate(async () => {
-        await window.nativeProbe.game.goTo("empty");
+        await window.nativeProbe.game.changeScene("empty");
       });
       await expect(status).toHaveCount(0);
       await expect(alert).toHaveCount(0);
@@ -146,7 +146,7 @@ for (const fallback of [false, true])
       });
       await page.mouse.move(point.x, point.y);
       await page.evaluate(async () => {
-        await window.nativeProbe.game.goTo("empty");
+        await window.nativeProbe.game.changeScene("empty");
       });
       await expect(page.locator(".s-canvas-accessibility")).toHaveCount(0);
     });
@@ -451,7 +451,7 @@ for (const fallback of [false, true])
       });
       await expect(input).toHaveCount(0);
       await page.evaluate(async () => {
-        await window.nativeProbe.game.goTo("empty");
+        await window.nativeProbe.game.changeScene("empty");
       });
       await expect(page.locator(".s-canvas-native")).toHaveCount(0);
       expect(

@@ -22,7 +22,7 @@ export async function controlsFixture() {
     },
     onError: (e) => errors.push(String(e)),
   });
-  const screen = createSettingsScreen(() => game.goTo("empty"));
+  const screen = createSettingsScreen(() => game.changeScene("empty"));
   screen.volume.onCommit((e) => commits.push(e.value));
   screen.volume.onCancel((e) => cancels.push(e.value));
   let ui: ReturnType<typeof game.canvasUI> | undefined;

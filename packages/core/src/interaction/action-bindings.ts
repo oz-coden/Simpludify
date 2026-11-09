@@ -181,11 +181,7 @@ function editGamepad(
       v && typeof v === "object" && "button" in v ? v.button : v;
     return remove
       ? old.filter((v) => !patch.some((p) => control(p) === control(v)))
-      : [
-          ...new Map(
-            [...old, ...patch].map((v) => [JSON.stringify(v), v]),
-          ).values(),
-        ];
+      : [...new Map([...old, ...patch].map((v) => [control(v), v])).values()];
   }
   if (patch && typeof patch === "object") {
     const result: Record<string, unknown> =

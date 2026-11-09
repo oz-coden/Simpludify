@@ -152,7 +152,7 @@ for (const fallback of [false, true])
         game.element.style.height = "620px";
         await new Promise((resolve) => requestAnimationFrame(resolve));
         const resized = shapeKinds.map((_, i) => pixel(100 + i * 100, 100));
-        await game.goTo("empty");
+        await game.changeScene("empty");
         const empty = renderer?.diagnostics;
         const canvas2D = fallback
           ? !!game.element.querySelector("canvas")?.getContext("2d")

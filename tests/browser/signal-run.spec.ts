@@ -403,7 +403,7 @@ test("disposes immediately after a committed render failure", async ({
     await game.run("good");
     let message = "";
     try {
-      await game.goTo("bad");
+      await game.changeScene("bad");
     } catch (error) {
       message = (error as Error).message;
     }
@@ -447,7 +447,7 @@ test("destroys clipping graphics contexts on every transition", async ({
           | undefined;
       if (!mask) throw new Error("No clip");
       contexts.push(mask.context);
-      await game.goTo("empty");
+      await game.changeScene("empty");
     }
     game.dispose();
     return contexts.map((context) => context.destroyed);

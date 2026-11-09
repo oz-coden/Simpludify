@@ -252,9 +252,9 @@ export async function createCycleProbe() {
     baseline: inspectCanvasResources(renderer),
     async cycle() {
       const start = performance.now();
-      await game.goTo("ui");
+      await game.changeScene("ui");
       const mounted = performance.now();
-      await game.goTo("empty");
+      await game.changeScene("empty");
       const removed = performance.now();
       return {
         mountMs: mounted - start,
