@@ -378,6 +378,10 @@ for (const fallback of [false, true])
       await boot(page);
       const p = await center(page, "hold"),
         client = await page.context().newCDPSession(page);
+      const captures = () =>
+        page.evaluate(
+          () => window.canvasProbe.game.pointerDiagnostics.captures,
+        );
       await client.send("Input.dispatchTouchEvent", {
         type: "touchStart",
         touchPoints: [
@@ -385,6 +389,8 @@ for (const fallback of [false, true])
           { x: p.x + 8, y: p.y, id: 2 },
         ],
       });
+      // A CDP response can arrive before the page handles the pointer events.
+      await expect.poll(captures).toBe(2);
       await page.evaluate(() => window.canvasProbe.step());
       expect(await page.evaluate(() => window.canvasProbe.holdEvents)).toEqual([
         true,
@@ -393,6 +399,7 @@ for (const fallback of [false, true])
         type: "touchEnd",
         touchPoints: [{ x: p.x + 8, y: p.y, id: 2 }],
       });
+      await expect.poll(captures).toBe(1);
       expect(await page.evaluate(() => window.canvasProbe.holdEvents)).toEqual([
         true,
       ]);
@@ -400,10 +407,12 @@ for (const fallback of [false, true])
         type: "touchCancel",
         touchPoints: [],
       });
+      await expect.poll(captures).toBe(0);
       expect(await page.evaluate(() => window.canvasProbe.holdEvents)).toEqual([
         true,
         false,
       ]);
+      await client.detach();
       await page.mouse.click(320, 230);
       await page.keyboard.down("a");
       await page.mouse.move(p.x, p.y);
