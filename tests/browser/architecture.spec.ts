@@ -348,57 +348,67 @@ test("settles queued transitions in order after staged setup rejects", async ({
   });
 });
 
-test("disposes the host when the first render of a committed scene fails", async ({
+test("cleans both presentations after committed installation and render failures", async ({
   page,
 }) => {
-  const result = await page.evaluate(async (url) => {
+  const results = await page.evaluate(async (url) => {
     const { Game } = (await import(url)) as typeof import("@simpludify/web");
     window.demo.dispose();
-    const disposed: string[] = [];
-    const game = new Game<"one" | "broken" | "queued">({
-      frames: { request: () => 1, cancel: () => {} },
-      renderer: () => ({
-        init: async () => {},
-        prepare: async (scene) => ({
-          render: () => {
-            if (scene.id === "broken") throw new Error("render failed");
-          },
+    const fail = async (phase: "install" | "render") => {
+      const disposed: string[] = [];
+      const game = new Game<"one" | "broken" | "queued">({
+        frames: { request: () => 1, cancel: () => {} },
+        renderer: () => ({
+          init: async () => {},
+          prepare: async (scene) => ({
+            render: () => {
+              if (phase === "render" && scene.id === "broken")
+                throw new Error("render failed");
+            },
+            dispose: () => {
+              disposed.push(scene.id);
+            },
+          }),
+          resize: () => {},
           dispose: () => {
-            disposed.push(scene.id);
+            disposed.push("renderer");
           },
         }),
-        resize: () => {},
-        dispose: () => {
-          disposed.push("renderer");
-        },
-      }),
-    });
-    game.scene("one", () => {});
-    game.scene("broken", () => {});
-    game.scene("queued", () => {
-      throw new Error("queued setup ran");
-    });
-    await game.run("one");
-    const failed = game
-      .changeScene("broken")
-      .catch((error: Error) => error.message);
-    const queued = game
-      .changeScene("queued")
-      .catch((error: { code?: string }) => error.code);
-    const results = await Promise.all([failed, queued]);
-    return {
-      results,
-      disposed,
-      engineDisposed: game.engine.disposed,
-      connected: game.element.isConnected,
+      });
+      game.scene("one", () => {});
+      game.scene("broken", () => {});
+      game.scene("queued", () => {
+        throw new Error("queued setup ran");
+      });
+      await game.run("one");
+      if (phase === "install")
+        game.element.append = () => {
+          throw new Error("install failed");
+        };
+      const failed = game
+        .changeScene("broken")
+        .catch((error: Error) => error.message);
+      const queued = game
+        .changeScene("queued")
+        .catch((error: { code?: string }) => error.code);
+      const outcomes = await Promise.all([failed, queued]);
+      return {
+        outcomes,
+        disposed,
+        engineDisposed: game.engine.disposed,
+        connected: game.element.isConnected,
+      };
     };
+    return [await fail("install"), await fail("render")];
   }, sdk);
-  expect(result).toEqual({
-    results: ["render failed", "GAME_DISPOSED"],
-    disposed: ["one", "broken", "renderer"],
-    engineDisposed: true,
-    connected: false,
-  });
+  expect(results).toEqual(
+    ["install", "render"].map((phase) => ({
+      outcomes: [`${phase} failed`, "GAME_DISPOSED"],
+      disposed: ["one", "broken", "renderer"],
+      engineDisposed: true,
+      connected: false,
+    })),
+  );
 });
 
 test("cancels never-resolving setup and queued navigation promptly on dispose", async ({

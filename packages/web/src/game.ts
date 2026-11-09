@@ -688,8 +688,7 @@ export class Game<SceneId extends string = string> {
       this.render();
       this.assertAlive();
     } catch (error) {
-      if (committed) this.dispose();
-      else
+      if (!committed)
         for (const cleanup of [
           () => prepared?.dispose(),
           () => ui?.dispose(),
