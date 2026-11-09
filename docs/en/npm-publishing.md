@@ -19,9 +19,9 @@ npm run check
 npm test
 npx playwright install --with-deps chromium --only-shell
 npm run test:browser
-npm run test:packages
-npm run test:starter
 npm run pack:packages
+npm run test:packages -- --packed
+npm run test:starter -- --packed
 node scripts/publish-packages.mjs
 ```
 
@@ -29,7 +29,9 @@ The last command only checks archives and registry availability; it does not pub
 
 `test:packages` creates genuine external temporary projects with no workspace aliases or symlinks. Core alone runs in Node and typechecks in NodeNext without DOM ambient types. Web alone resolves the exact Core tarball transitively using a loopback scoped registry. Both development and production subpath builds check CSS, public declarations, images, controls, scene replacement, `bindViewport` and idempotent resource cleanup at desktop, 390px and 320px. `--registry` installs the matching source version from public npm and runs the same fixture, including the new API. Network/authentication failures fail validation. Failed temporary projects remain available for inspection.
 
-CI runs package generation and these external consumers on **Windows and Linux**, as well as the independent npm/Vite starter on both systems. The starter uses the published v0.1.3 registry lockfile. Do not fabricate registry integrity for an unpublished version.
+Regular CI builds the candidate pair once. Windows and Linux validate the packages and a copy of the Vite starter using those archives. The starter's committed lockfile continues to pin an actual published release. CI replaces both SDK entries in its temporary copy before running `npm ci`. Run To Exit uses the same archives with a pinned application revision. Its typecheck, units and production build run once, and Playwright tests that build at three viewport sizes with WebGL and Canvas2D.
+
+For independent public-registry acceptance, run **Verify published npm SDK** with the exact version on a matching source ref. The release workflow invokes this check after both packages are published. Locally, use `npm run test:packages:registry` and `npm run test:starter:registry` from the matching source. Each uses its own initially empty npm cache. When the starter's committed pin differs from the target, the registry test updates only the temporary copy's lockfile.
 
 `pack:packages` always rebuilds. Only compiled `dist`, metadata, README and MIT license ship. JavaScript maps embed source, declaration maps are omitted, and Web keeps Core and PixiJS as runtime dependencies rather than embedded copies. Web imports scoped CSS automatically and also exports `@simpludify/web/style.css` with declarations. Core has no runtime dependencies. `test-results/packages/` records pack manifests, SHA512 integrities, validation reports and screenshots.
 
@@ -57,7 +59,7 @@ The [official Trusted Publishing guide](https://docs.npmjs.com/trusted-publisher
 4. Create `v<version>` at that full SHA without moving any existing tag. The manual **Create approved SDK tag** workflow validates version, exact main SHA, confirmation (`create TAG at SHA`) and successful main push CI, and refuses to move an existing tag. Open Actions → Publish experimental npm SDK → Run workflow from `main`. Enter tag `v<version>` and exact confirmation `publish @simpludify/core@<version> and @simpludify/web@<version>`.
 5. Validation derives the version from manifests and verifies confirmation, tag, dispatched SHA, main ancestry and successful main push CI. It reruns checks/unit tests and external tarball consumers, records pack manifests and SHA256 checksums, then passes those exact archives to the publish job.
 6. The publish job verifies checksums, archive metadata against source manifests, package versions/integrities, tag/SHA and OIDC capability before any publication. Both target versions are checked before the first publish. **Core publishes first and its registry integrity is verified before Web publishes.** Already-published identical archives may be skipped; differing archives fail. `latest` is the intended dist-tag. After npm accepts a publish, the script allows up to six minutes for processing/visibility before reporting failure; this wait never republishes or skips registry integrity checks.
-7. `test:packages:registry` makes clean public-registry installations and repeats the full consumer fixture including `bindViewport`. Inspect `npm-sdk-validation`, `npm-sdk-publication` and the job summary. Record source SHA/tag, integrities, provenance and registry URLs. Do not mark a failed post-publication test as an unpublished state.
+7. The registry acceptance job repeats the package and starter fixtures with clean public-registry installations. Inspect `npm-sdk-validation`, `npm-sdk-publication`, `npm-sdk-registry-acceptance` and the job summary. Record source SHA/tag, integrities, provenance and registry URLs. Do not mark a failed post-publication test as an unpublished state.
 8. After registry validation succeeds, update public release status and create or verify the GitHub Release for the same immutable tag. Treat independent consumer upgrades as separate changes: regenerate lockfiles from npm and require their own checks/browser tests and deployment verification.
 
 If Core succeeds and Web fails, inspect registry metadata and saved archives before retrying the same tag. Never move a release tag, force-push main, unpublish, or silently substitute rebuilt content as a retry mechanism. A different archive requires a separately reviewed version.

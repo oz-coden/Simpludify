@@ -19,9 +19,9 @@ npm run check
 npm test
 npx playwright install --with-deps chromium --only-shell
 npm run test:browser
-npm run test:packages
-npm run test:starter
 npm run pack:packages
+npm run test:packages -- --packed
+npm run test:starter -- --packed
 node scripts/publish-packages.mjs
 ```
 
@@ -31,6 +31,10 @@ node scripts/publish-packages.mjs
 - `@simpludify/core` 単独でNode.js環境（DOM型なし）で動作すること
 - `@simpludify/web` が依存関係としてCoreを正しく解決できること
 - デスクトップおよび狭小画面（390px, 320px）でのCSS、公開型、UIコントロール、リソース解放が正常であること
+
+通常CIは現行ソースから候補を一組生成し、WindowsとLinuxの両方でパッケージとViteスターターを検証します。配布用スターターのlockfileは公開済みの版を固定します。候補検証では一時コピー内のSDK依存を差し替えてから `npm ci` を実行します。Run To Exitは固定したアプリのソースで型検査・単体テスト・本番ビルドを一度行い、同じビルドを3つの画面幅とWebGL・Canvas2Dで検証します。
+
+公開版を個別に確認する場合は、対象バージョンと一致するソースrefで **Verify published npm SDK** を実行します。ローカルでは該当ソースから `npm run test:packages:registry` と `npm run test:starter:registry` を実行します。それぞれ空のnpmキャッシュから検証を始めます。スターターの公開版の固定値が対象バージョンと異なる場合は、一時コピーのlockfileだけを更新します。
 
 ## Trusted Publishing（OIDC）の構成
 
@@ -54,7 +58,7 @@ npmのパッケージ設定（Settings → Trusted publishing）は両パッケ�
 4. GitHub Actionsの **Publish experimental npm SDK** ワークフローを手動実行（`workflow_dispatch`）します。
    - タグ名（`v<version>`）と確認文字列（`publish @simpludify/core@<version> and @simpludify/web@<version>`）を入力して実行します。
 5. 公開ジョブは、**まず `@simpludify/core` を公開し、レジストリでの存在が確認されてから `@simpludify/web` を公開** します。
-6. `test:packages:registry` を実行し、公開されたレジストリから実際にインストールして最終検証を行います。
+6. 両パッケージの公開後、独立したレジストリ検証ジョブがパッケージとスターターをクリーンインストールして検証します。結果は `npm-sdk-registry-acceptance` アーティファクトとジョブログで確認できます。
 
 ## 関連資料
 

@@ -72,4 +72,4 @@ context.onUpdate(() => renderBetween(oldWorld, newWorld, display.progress));
 
 [SDK統合ラボ](../../../examples/sdk-integration/README.md)は、Flexが所有するワールド領域、DOM/CanvasのTab移動、表示専用の離散Tween、Sceneの差し替えを実証しています。
 
-[独立npm/Viteスターター](../../../templates/npm-vite/README.md)は、レイアウト連動Viewportを含む公開APIを使用しています。コミットされたlockfile、`npm ci`、明示的なCSS、Sceneの起動と破棄、Pages `--base`、不足時に失敗する本番ライセンス生成を備えています。
+[独立npm/Viteスターター](../../../templates/npm-vite/README.md)は、レイアウト連動ViewportとゲームパッドBindingを含むv0.1.6の公開APIを使用しています。通常CIでは独立したコピーに現行候補を導入し、WindowsとLinuxの両方で検証します。コミットされたlockfile、`npm ci`、明示的なCSS、Sceneの起動と破棄、Pages `--base`、不足時に失敗する本番ライセンス生成を備えています。

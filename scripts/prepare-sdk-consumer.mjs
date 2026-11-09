@@ -1,12 +1,21 @@
 import assert from "node:assert/strict";
 import { cpSync, existsSync, writeFileSync } from "node:fs";
-import { basename, join, resolve } from "node:path";
+import { basename, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { installCandidateProject, runConsumerNpm } from "./sdk-candidate.mjs";
 import { sdkVersion } from "./sdk-version.mjs";
 
-const [checkout] = process.argv.slice(2);
-assert(checkout, "Pass the path to the pinned Run To Exit checkout");
-const project = resolve("test-results/run-to-exit");
+const [checkout, destination] = process.argv.slice(2);
+assert(
+  checkout && destination,
+  "Pass the Run To Exit checkout and an isolated destination",
+);
+const project = resolve(destination);
+const workspace = resolve(import.meta.dirname, "..");
+const relativePath = relative(workspace, project);
+assert(
+  relativePath.startsWith(`..${sep}`) || isAbsolute(relativePath),
+  "Consumer must be outside the SDK workspace",
+);
 assert(
   !existsSync(project),
   `Remove the previous consumer fixture: ${project}`,

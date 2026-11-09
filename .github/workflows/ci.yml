@@ -11,7 +11,7 @@ env:
   NPM_CONFIG_PREFER_OFFLINE: "true"
 # Preserve the newest checkpoint; obsolete runs otherwise occupy runners for minutes.
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}${{ github.run_attempt > 1 && format('-retry-{0}', github.run_id) || '' }}
   cancel-in-progress: true
 jobs:
   quality:
@@ -31,7 +31,7 @@ jobs:
       - run: npm run bench:practical -- --out test-results/practical-core.json
       - run: npm run bench:response -- --out test-results/response-core.json
       - uses: actions/upload-artifact@v7.0.2
-        if: always()
+        if: ${{ !cancelled() }}
         with:
           overwrite: true
           name: core-validation
@@ -58,7 +58,7 @@ jobs:
         env:
           PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/browser.json
       - uses: actions/upload-artifact@v7.0.2
-        if: always()
+        if: ${{ !cancelled() }}
         with:
           overwrite: true
           name: browser-validation-${{ matrix.project }}-${{ matrix.shard }}
@@ -82,7 +82,7 @@ jobs:
       - run: npm run build -- --target web --example tween --base /Simpludify/
       - run: node scripts/smoke-build.mjs --example tween
       - uses: actions/upload-artifact@v7.0.2
-        if: always()
+        if: ${{ !cancelled() }}
         with:
           overwrite: true
           name: production-validation
@@ -130,7 +130,7 @@ jobs:
         env:
           SITE_BASE: ${{ matrix.base }}
       - uses: actions/upload-artifact@v7.0.2
-        if: always()
+        if: ${{ !cancelled() }}
         with:
           overwrite: true
           name: site-validation-${{ matrix.artifact }}
@@ -184,9 +184,12 @@ jobs:
             package-lock.json
             templates/npm-vite/package-lock.json
       - run: npm ci
-      - name: Check tooling paths on Windows
+      - name: Check tooling paths and package compilation on Windows
         if: runner.os == 'Windows'
-        run: npx --no vitest run tests/unit/path-boundary.test.ts tests/unit/core-boundary.test.ts tests/unit/cli.test.ts
+        run: |
+          npx --no vitest run tests/unit/path-boundary.test.ts tests/unit/core-boundary.test.ts tests/unit/cli.test.ts
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm run build:packages
       - uses: actions/download-artifact@v7.0.0
         with:
           name: sdk-candidate
@@ -230,15 +233,15 @@ jobs:
           name: sdk-candidate
           path: test-results/packages
       - name: Install candidate, typecheck, run units and build the external game
-        run: npm run test:consumer:prepare -- test-results/consumer-source
+        run: npm run test:consumer:prepare -- test-results/consumer-source "$RUNNER_TEMP/run-to-exit"
       - name: Verify consumer dependency files are unchanged
         if: ${{ !cancelled() }}
         run: git diff --exit-code -- package.json package-lock.json
         working-directory: test-results/consumer-source
       - name: Archive portable consumer fixture
         run: |
-          cp test-results/consumer-source/package-lock.json test-results/run-to-exit/tooling-lock.json
-          tar -czf test-results/run-to-exit.tar.gz --exclude=node_modules -C test-results run-to-exit
+          cp test-results/consumer-source/package-lock.json "$RUNNER_TEMP/run-to-exit/tooling-lock.json"
+          tar -czf test-results/run-to-exit.tar.gz --exclude=node_modules -C "$RUNNER_TEMP" run-to-exit
       - uses: actions/upload-artifact@v7.0.2
         with:
           name: sdk-consumer-build
@@ -259,19 +262,19 @@ jobs:
         with:
           name: sdk-consumer-build
           path: test-results
-      - run: tar -xzf test-results/run-to-exit.tar.gz -C test-results
+      - run: tar -xzf test-results/run-to-exit.tar.gz -C "$RUNNER_TEMP"
       - uses: actions/setup-node@v7.1.0
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: test-results/run-to-exit/tooling-lock.json
+          cache-dependency-path: ${{ runner.temp }}/run-to-exit/tooling-lock.json
       - run: npm ci
-        working-directory: test-results/run-to-exit
+        working-directory: ${{ runner.temp }}/run-to-exit
       - uses: ./.github/actions/setup-chromium
         with:
-          working-directory: test-results/run-to-exit
+          working-directory: ${{ runner.temp }}/run-to-exit
       - name: Test the same production build in each renderer and viewport
-        working-directory: test-results/run-to-exit
+        working-directory: ${{ runner.temp }}/run-to-exit
         env:
           PROJECT: ${{ matrix.project }}
           E2E_REQUIRE_LABELS: "1"
@@ -287,9 +290,9 @@ jobs:
         with:
           name: sdk-consumer-${{ matrix.project }}
           path: |
-            test-results/run-to-exit/candidate-version.txt
-            test-results/run-to-exit/test-results/
-            test-results/run-to-exit/playwright-report/
+            ${{ runner.temp }}/run-to-exit/candidate-version.txt
+            ${{ runner.temp }}/run-to-exit/test-results/
+            ${{ runner.temp }}/run-to-exit/playwright-report/
           if-no-files-found: ignore
           overwrite: true
   deploy:
@@ -350,7 +353,7 @@ jobs:
       - name: Confirm the revision did not change during E2E
         run: test "$(curl -fsS --max-time 10 "${SITE_URL}ci-source.txt?run=${GITHUB_RUN_ID}&check=final")" = "$GITHUB_SHA"
       - uses: actions/upload-artifact@v7.0.2
-        if: always()
+        if: ${{ !cancelled() }}
         with:
           overwrite: true
           name: published-sample-validation

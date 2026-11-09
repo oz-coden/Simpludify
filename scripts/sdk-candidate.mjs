@@ -52,6 +52,7 @@ export function runConsumerNpm(project, args, env = {}) {
 
 export const installFlags = ["--no-audit", "--no-fund", "--prefer-offline"];
 export const publicRegistry = "https://registry.npmjs.org/";
+export const blockedSdkRegistry = "http://127.0.0.1:1/";
 export const sdkLocation = (name) => `node_modules/@simpludify/${name}`;
 
 export function writeSdkRegistry(project, url) {
@@ -60,9 +61,18 @@ export function writeSdkRegistry(project, url) {
 
 export function assertInstalledSdk(
   project,
-  { version = sdkVersion, resolved, integrity } = {},
+  { version = sdkVersion, resolved, integrity },
 ) {
   const lock = readJson(join(project, "package-lock.json"));
+  assert.deepEqual(
+    Object.keys(lock.packages)
+      .filter((path) =>
+        /(?:^|\/)node_modules\/@simpludify\/(?:core|web)$/.test(path),
+      )
+      .sort(),
+    sdkNames.map(sdkLocation),
+    "Lockfile must contain one physical entry per SDK package",
+  );
   for (const name of sdkNames) {
     const path = join(project, sdkLocation(name));
     const entry = lock.packages[sdkLocation(name)];
@@ -95,7 +105,7 @@ export async function installCandidateProject(project) {
 
   // Both tarballs are explicit in the temporary lock. A scope lookup would indicate
   // that npm cannot satisfy an SDK edge from the archives being tested.
-  writeSdkRegistry(project, "http://127.0.0.1:1/");
+  writeSdkRegistry(project, blockedSdkRegistry);
   const resolved = (name) => `file:.sdk/${candidate[name].packed.filename}`;
   await runConsumerNpm(project, [
     "install",

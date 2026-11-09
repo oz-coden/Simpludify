@@ -17,6 +17,7 @@ import { chromium } from "playwright";
 import { build, preview, createServer as viteServer } from "vite";
 import {
   assertInstalledSdk,
+  blockedSdkRegistry,
   candidateDirectory,
   installFlags,
   publicRegistry,
@@ -129,10 +130,8 @@ try {
       }),
     );
   }
-  if (registryMode) {
-    for (const project of [core, web])
-      writeSdkRegistry(project, publicRegistry);
-  }
+  writeSdkRegistry(core, registryMode ? publicRegistry : blockedSdkRegistry);
+  if (registryMode) writeSdkRegistry(web, publicRegistry);
   const coreSpec = registryMode
     ? `@simpludify/core@${sdkVersion}`
     : tarballs.core.path;
