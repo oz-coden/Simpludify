@@ -9,6 +9,8 @@ import type { ImageLease } from "./shared-images";
 
 export interface AssetData {
   image: Readonly<{ width: number; height: number }>;
+  audio: AudioBuffer | null;
+  font: string;
   json: unknown;
 }
 export type AssetKind = keyof AssetData;
@@ -42,7 +44,9 @@ export interface AssetRequest<K extends AssetKind = AssetKind>
 export interface AssetOptions {
   /** Maximum number of idle, successfully loaded Assets per Game. */
   readonly cacheEntries?: number;
-  readonly fallback?: { readonly image?: string | URL };
+  readonly fallback?: Readonly<
+    Partial<Record<Exclude<AssetKind, "json">, string | URL>>
+  >;
 }
 export interface AssetProgress {
   readonly total: number;
@@ -251,6 +255,30 @@ export class AssetHandle<K extends AssetKind> {
     return this.imageSource as K extends "image" ? ImageAssetSource : undefined;
   }
 
+  onChange(listener: (asset: this) => void): () => void {
+    const signal = this.cancelled.signal;
+    signal.throwIfAborted();
+    const notify = () => listener(this);
+    const off = () => {
+      this.entry.listeners.delete(notify);
+      signal.removeEventListener("abort", off);
+    };
+    this.entry.listeners.add(notify);
+    signal.addEventListener("abort", off, { once: true });
+    return off;
+  }
+
+  /** @internal A playback or Game font owns a separate reference. */
+  retain(store: AssetStore): AssetHandle<K> {
+    this.cancelled.signal.throwIfAborted();
+    if (this.store !== store)
+      throw new EngineError("ASSET_OWNERSHIP", "Asset belongs to another Game");
+    let release = () => {};
+    const use = new AssetHandle(this.kind, this.entry, store, () => release());
+    release = store.retain(this.entry, () => use.release());
+    return use;
+  }
+
   async reload(options: AssetLoadOptions = {}): Promise<this> {
     if (this.cancelled.signal.aborted) throw cancelled();
     await wait(
@@ -380,7 +408,7 @@ export class AssetStore {
   private notifying = false;
   private notificationScheduled = false;
   private readonly capacity: number;
-  private readonly customImage: string | undefined;
+  private readonly customFallback: Partial<Record<AssetKind, string>> = {};
   private sequence = 0;
   private dead = false;
 
@@ -396,9 +424,11 @@ export class AssetStore {
       1024,
       "cache capacity",
     );
-    const custom = options.fallback?.image;
-    this.customImage =
-      custom === undefined ? undefined : assetURL(custom, base);
+    for (const kind of ["image", "audio", "font"] as const) {
+      const custom = options.fallback?.[kind];
+      if (custom !== undefined)
+        this.customFallback[kind] = assetURL(custom, base);
+    }
   }
 
   register(scope: AssetScope): () => void {
@@ -456,7 +486,7 @@ export class AssetStore {
 
   entry<K extends AssetKind>(request: AssetRequest<K>): Entry {
     if (this.dead) throw cancelled();
-    if (request.kind !== "image" && request.kind !== "json")
+    if (!["image", "audio", "font", "json"].includes(request.kind))
       throw invalid("kind");
     settings(request);
     const url = assetURL(request.url, this.base);
@@ -596,7 +626,7 @@ export class AssetStore {
     signal: AbortSignal,
     owner: AbortSignal,
   ): Promise<void> {
-    const custom = entry.kind === "image" ? this.customImage : undefined;
+    const custom = this.customFallback[entry.kind];
     if (custom && !signal.aborted) {
       try {
         const asset = await this.attempt(

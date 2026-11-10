@@ -1,6 +1,6 @@
 import { EngineError } from "@simpludify/core";
 import { Texture } from "pixi.js";
-import type { AssetAdapter, AssetResource } from "./assets";
+import type { AssetAdapter, AssetKind, AssetResource } from "./assets";
 import {
   type ImageLease,
   type ImageResource,
@@ -142,28 +142,57 @@ function imageAsset(image: ImageLease): AssetResource {
   };
 }
 
-export function browserAssetAdapter(images: SharedImages): AssetAdapter {
+let nextFont = 0;
+const systemFont = "system-ui, sans-serif";
+
+async function registerFont(
+  data: ArrayBuffer,
+  signal: AbortSignal,
+): Promise<AssetResource> {
+  const family = `SimpludifyFont${++nextFont}`;
+  const face = await new FontFace(family, data).load();
+  signal.throwIfAborted();
+  document.fonts.add(face);
   return {
-    load: async (kind, url, signal, reload) => {
-      if (kind === "image")
-        return imageAsset(
-          await images.acquire(reload ? Symbol() : url, signal, {
-            url,
-            mode: reload ? "reload" : "explicit",
-          }),
-        );
-      const response = await assetResponse(url, signal, reload);
-      return { value: await response.json(), release() {} };
+    value: `${family}, ${systemFont}`,
+    release: () => {
+      document.fonts.delete(face);
     },
-    fallback: async (kind, url, signal) => {
-      if (kind !== "image") return undefined;
+  };
+}
+
+export function browserAssetAdapter(
+  images: SharedImages,
+  decode: (data: ArrayBuffer) => Promise<AudioBuffer>,
+): AssetAdapter {
+  const load = async (
+    kind: AssetKind,
+    url: string,
+    signal: AbortSignal,
+    reload: boolean,
+  ): Promise<AssetResource> => {
+    if (kind === "image")
       return imageAsset(
-        await images.acquire(
-          url ?? missing,
-          signal,
-          url ? { url, mode: "explicit" } : undefined,
-        ),
+        await images.acquire(reload ? Symbol() : url, signal, {
+          url,
+          mode: reload ? "reload" : "explicit",
+        }),
       );
+    const response = await assetResponse(url, signal, reload);
+    if (kind === "json") return { value: await response.json(), release() {} };
+    const data = await response.arrayBuffer();
+    signal.throwIfAborted();
+    if (kind === "font") return await registerFont(data, signal);
+    return { value: await decode(data), release() {} };
+  };
+  return {
+    load,
+    fallback: async (kind, url, signal) => {
+      if (url) return await load(kind, url, signal, false);
+      if (kind === "image")
+        return imageAsset(await images.acquire(missing, signal));
+      if (kind === "audio") return { value: null, release() {} };
+      if (kind === "font") return { value: systemFont, release() {} };
     },
   };
 }

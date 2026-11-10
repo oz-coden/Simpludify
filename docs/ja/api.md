@@ -348,6 +348,22 @@ Gameは既定で切り替え前のSceneを破棄します。`new Game({ sceneRet
 
 非アクティブの保持Sceneでは、Actor、タイマー、Tween、購読、Assetスコープの所有権を維持します。シミュレーション、描画、通常の入力を止め、進行中のAssetロードは継続できます。再入場では同じSceneモデルからブラウザ表示を作り直し、活性化フックを再実行します。現在の保持Sceneへの遷移は再初期化せず完了します。破棄方針のSceneはこれまでどおり、新しいインスタンスを作ります。Gameの破棄時は保持Sceneも解放します。
 
+## Audioとフォント
+
+BGM・効果音はどちらも `kind: "audio"` でロードします。`game.audio.play(handle, options)` は再生ごとに独立したインスタンスを返し、`pause()`、`resume()`、`stop()`、`volume`、`loop`、`state` と終了を待つ `finished` を持ちます。再生側もデコード済みデータへの参照を保持します。既定の再生所有者はGameです。`owner: scene` や別のLifetimeを指定すると、その所有者の破棄で停止します。
+
+```ts
+const theme = game.assets.load({ kind: "audio", url: "./theme.ogg" });
+const music = game.audio.play(theme, { group: "music", loop: true });
+game.audio.group("music").volume = 0.6;
+```
+
+すべての再生は `master` に接続され、`music` と `effects` を標準で利用できます。`game.audio.group(name, { parent, volume, maxVoices })` で独自グループを作成でき、再生と各階層の音量は乗算されます。同時再生は既定で許可されます。グループ上限には子グループと待機・一時停止中の再生を含めます。`play` の `maxVoices` では今回の再生要求についてAsset単位の上限も指定できます。上限を超えると該当する最古の再生が `"replaced"` で終了します。[Godotの同時再生仕様](https://docs.godotengine.org/en/4.4/classes/class_audiostreamplayer.html)
+
+ブラウザが自動再生を制限している間の再生要求は待機します。Gameの信頼されたポインターやキー操作でAudioContextの再開を試みます。Game外のボタンから再開する場合は、その操作から `game.audio.unlock()` を呼べます。音声ロード失敗時は指定したFallback URLか内蔵の無音を使います。開始済みの再生は開始時の音声を保ち、次の再生から新しい世代を使います。
+
+`kind: "font"` はブラウザのFontFaceを登録します。ロード後のフォントスタックは個々のCanvasノードの `fontFamily` に設定できます。`game.setFont(handle)` はDOMとCanvas UIのGame標準フォントとして独立した参照を持ちます。ノードに個別指定したフォントは優先されます。`game.setFont()` でテーマのフォントに戻せます。フォントロード失敗時は指定したFallbackかシステムフォントを使い、最後の参照とキャッシュが解放されると登録を削除します。
+
 ## SpriteSheetとSpriteAnimation
 
 [Spriteの契約と例](./specs/sprites.md)で、グリッド／名前付き／矩形の画像ソース、シミュレーション時間での再生、Renderable sourceの所有権、遅延境界検査、共有切り抜き／ソースのクリーンアップを定義しています。どちらのAPIもCoreおよびWebからexportされています。SpriteAnimationはRenderableを必要とし、LateUpdateで実行され、ホストタイマーや非同期Coreライフサイクルを追加することはありません。

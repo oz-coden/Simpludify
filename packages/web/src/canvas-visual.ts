@@ -11,6 +11,7 @@ import {
   canvasScrollbars,
   canvasSliderGeometry,
   cleanupAll,
+  defaultCanvasStyle,
   EngineError,
   intersectUI,
   wrapCanvasText,
@@ -63,6 +64,7 @@ export class CanvasVisual implements CanvasPresentation {
     }
   >();
   private dirty = true;
+  private defaultFont: string = defaultCanvasStyle.fontFamily;
   private dead = false;
   private active = false;
   private cacheResolution: number | undefined;
@@ -165,7 +167,8 @@ export class CanvasVisual implements CanvasPresentation {
     };
   }
   private measure = (node: CanvasNode, contentWidth = Infinity) => {
-    const { fontSize, fontFamily, textWrap } = node.style;
+    const { fontSize, textWrap } = node.style;
+    const fontFamily = this.fontFamily(node);
     const content = canvasControlText(node);
     const adornment = node.control?.model.kind === "checkbox" ? 30 : 0;
     const key = JSON.stringify([
@@ -386,8 +389,18 @@ export class CanvasVisual implements CanvasPresentation {
     button.style.cssText = `left:${c.x * s}px;top:${c.y * s}px;width:${c.width * s}px;height:${c.height * s}px;`;
     if (button.disabled && document.activeElement === button) button.blur();
   }
+  private fontFamily(node: CanvasNode): string {
+    return node.inheritsFont ? this.defaultFont : node.style.fontFamily;
+  }
   update(width: number, height: number): void {
     if (this.dead || this.ui.disposed) return;
+    const family =
+      this.host.style.getPropertyValue("--s-font").trim() ||
+      defaultCanvasStyle.fontFamily;
+    if (this.defaultFont !== family) {
+      this.defaultFont = family;
+      this.ui.invalidate(true);
+    }
     const layout = this.ui.layout(width, height, this.measure);
     if (!this.active) {
       this.host.append(this.element);
@@ -496,6 +509,7 @@ export class CanvasVisual implements CanvasPresentation {
         }
         const b = node.bounds,
           s = node.style;
+        const fontFamily = this.fontFamily(node);
         const scrollBox = intersectUI(b, clip);
         if (
           node.style.scroll &&
@@ -509,6 +523,7 @@ export class CanvasVisual implements CanvasPresentation {
           enabled &&= p.enabled;
         const signature = JSON.stringify([
           node.paintRevision,
+          fontFamily,
           b.x,
           b.y,
           b.width,
@@ -552,6 +567,7 @@ export class CanvasVisual implements CanvasPresentation {
         entry.maskSignature = maskSignature;
         const paintSignature = JSON.stringify([
           node.paintRevision,
+          fontFamily,
           b.width,
           b.height,
           enabled,
@@ -640,7 +656,7 @@ export class CanvasVisual implements CanvasPresentation {
               entry.text.text = m.text;
             }
             const textStyleKey = JSON.stringify([
-              s.fontFamily,
+              fontFamily,
               s.fontSize,
               s.color,
             ]);
@@ -648,7 +664,7 @@ export class CanvasVisual implements CanvasPresentation {
               this.resources.changedText(entry.text.styleKey);
               entry.textStyleKey = textStyleKey;
               entry.text.style = {
-                fontFamily: s.fontFamily,
+                fontFamily,
                 fontSize: s.fontSize,
                 fill: s.color,
               };

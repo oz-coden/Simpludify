@@ -4,6 +4,7 @@ import {
   type CanvasTextSnapshot,
   type CanvasUI,
   cleanupAll,
+  defaultCanvasStyle,
   intersectUI,
   type UIBounds,
 } from "@simpludify/core";
@@ -355,7 +356,9 @@ export function nativeGeometry(
   const background = style.background ?? 0x23594e;
   const color = `#${style.color.toString(16).padStart(6, "0")}`;
   el.style.cssText = `left:${b.x * scale}px;top:${b.y * scale}px;width:${b.width * scale}px;height:${b.height * scale}px;padding:${style.padding * scale}px;font-size:${style.fontSize * scale}px;--s-native-color:${color};--s-native-background:#${background.toString(16).padStart(6, "0")};color-scheme:${((background >> 16) * 0.2126 + ((background >> 8) & 255) * 0.7152 + (background & 255) * 0.0722) > 128 ? "light" : "dark"};clip-path:inset(${Math.max(0, c.y - b.y) * scale}px ${Math.max(0, b.x + b.width - c.x - c.width) * scale}px ${Math.max(0, b.y + b.height - c.y - c.height) * scale}px ${Math.max(0, c.x - b.x) * scale}px);`;
-  el.style.fontFamily = style.fontFamily;
+  el.style.fontFamily = node.inheritsFont
+    ? `var(--s-font, ${defaultCanvasStyle.fontFamily})`
+    : style.fontFamily;
   if (el.disabled && document.activeElement === el) el.blur();
 }
 

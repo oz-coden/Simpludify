@@ -14,6 +14,15 @@ export type {
   AssetStatus,
   ImageAssetSource,
 } from "./assets";
+export type {
+  AudioEndReason,
+  AudioGroup,
+  AudioGroupOptions,
+  AudioPlayback,
+  AudioPlaybackState,
+  AudioPlayOptions,
+  GameAudio,
+} from "./audio";
 export { browserAbortSignal, CanvasButton } from "./canvas-node";
 export type { CanvasPresentation } from "./canvas-visual";
 export * from "./game";

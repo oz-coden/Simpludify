@@ -351,6 +351,22 @@ A Game defaults to disposing the outgoing Scene. Use `new Game({ sceneRetention:
 
 When a retained Scene is inactive, its Actors, simulation timers, tweens, subscriptions and Asset scope remain owned. Its simulation, presentation and ordinary input stop, while pending Asset loads can complete. Returning to it runs activation hooks again and rebuilds the browser presentation from the same Scene models. Navigation to the already active retained Scene completes without restarting it. The default disposal policy still creates a fresh instance on each completed request. Game disposal releases every retained Scene.
 
+## Audio and fonts
+
+Audio and fonts use the same Asset scopes and handles. Load `kind: "audio"` for both music and effects. `game.audio.play(handle, options)` returns an independent playback with `pause()`, `resume()`, `stop()`, `volume`, `loop`, `state` and a `finished` Promise. A playback retains its own use of the decoded buffer. Set `owner: scene` or another lifetime to stop that playback on disposal. The Game owns playback by default.
+
+```ts
+const theme = game.assets.load({ kind: "audio", url: "./theme.ogg" });
+const music = game.audio.play(theme, { group: "music", loop: true });
+game.audio.group("music").volume = 0.6;
+```
+
+The `master` group controls all playback. `music` and `effects` are built in. Create a custom group with `game.audio.group(name, { parent, volume, maxVoices })`. Voice and group gain multiply. The default allows overlap. A group limit counts its live voices and descendants, including queued and paused voices. `play` also accepts an asset-wide `maxVoices` cap for the new request. When a cap is exceeded, the oldest matching playback finishes as `"replaced"`. This matches the cutoff policy used by Godot's AudioStreamPlayer. [Godot documentation](https://docs.godotengine.org/en/4.4/classes/class_audiostreamplayer.html)
+
+Playback requested before the browser allows sound remains pending. A trusted pointer or keyboard gesture on the Game attempts to resume the context. Call `game.audio.unlock()` from an external trusted control to resume it there. A missing audio asset can use a custom fallback URL or the built-in silence. A running playback keeps the buffer generation it started with. New playback uses the current generation.
+
+A `kind: "font"` Asset loads and registers a browser FontFace. Await the handle to use its font-family stack in Canvas node styles. `game.setFont(handle)` makes the font the default for the Game's DOM and Canvas UI and holds its own reference. Explicit node font families override it. Call `game.setFont()` to restore the Game theme font. Font failures use the configured font fallback or the browser's system font stack. Registration is removed when the final reference and its idle cache entry are released.
+
 ## SpriteSheet and SpriteAnimation
 
 [Sprite contracts and examples](./specs/sprites.md) define grid/named/rectangular image sources, simulation-time playback, Renderable source ownership, deferred bounds checking and shared crop/source cleanup. Both APIs are exported by Core and Web. SpriteAnimation requires Renderable, runs in LateUpdate, and does not add host timers or an asynchronous Core lifecycle.

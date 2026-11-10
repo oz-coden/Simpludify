@@ -41,7 +41,13 @@ import {
   worldToScreen,
 } from "@simpludify/core";
 import { browserAssetAdapter, createImagePool } from "./asset-loaders";
-import { type AssetOptions, AssetScope, AssetStore } from "./assets";
+import {
+  type AssetHandle,
+  type AssetOptions,
+  AssetScope,
+  AssetStore,
+} from "./assets";
+import { GameAudio } from "./audio";
 import type { CanvasPresentation } from "./canvas-visual";
 import { GamepadInput } from "./gamepads";
 import { BrowserInput } from "./input";
@@ -123,6 +129,9 @@ export class Game<SceneId extends string = string> {
   readonly gamepads: GamepadInput;
   readonly logger: Logger;
   readonly assets: AssetScope;
+  readonly audio: GameAudio;
+  private readonly defaultFont: string;
+  private fontUse: AssetHandle<"font"> | undefined;
   private readonly imagePool = createImagePool();
   private readonly assetStore: AssetStore;
   private readonly renderer: RendererPort;
@@ -296,8 +305,9 @@ export class Game<SceneId extends string = string> {
       )
         throw new EngineError("INVALID_THEME_TOKEN", `Invalid token: ${name}`);
     const tokens = { ...theme, ...options.tokens };
+    this.defaultFont = tokens.font;
     this.assetStore = new AssetStore(
-      browserAssetAdapter(this.imagePool),
+      browserAssetAdapter(this.imagePool, (data) => this.audio.decode(data)),
       this.logger,
       document.baseURI,
       options.assets,
@@ -318,6 +328,7 @@ export class Game<SceneId extends string = string> {
     this.errorBox.hidden = true;
     this.element.append(this.errorBox);
     (options.parent ?? document.body).append(this.element);
+    this.audio = new GameAudio(this.element, this.assetStore, this.logger);
     try {
       this.renderer =
         options.renderer?.(this.element) ??
@@ -330,6 +341,7 @@ export class Game<SceneId extends string = string> {
     } catch (error) {
       this.element.remove();
       this.engine.dispose();
+      this.audio.dispose();
       this.assetStore.dispose();
       this.imagePool.dispose();
       throw error;
@@ -388,6 +400,25 @@ export class Game<SceneId extends string = string> {
     });
     this.observer.observe(this.element);
   }
+  /** Choose the Game default font for DOM and Canvas UI. */
+  setFont(asset?: AssetHandle<"font">): void {
+    this.assertAlive();
+    if (asset && asset.kind !== "font")
+      throw new EngineError("INVALID_VALUE", "A font asset is required");
+    const next = asset?.retain(this.assetStore);
+    const old = this.fontUse;
+    this.fontUse = next;
+    const update = () => {
+      this.element.style.setProperty(
+        "--s-font",
+        next?.value ?? this.defaultFont,
+      );
+    };
+    next?.onChange(update);
+    update();
+    old?.release();
+  }
+
   private assertAlive(): void {
     if (this.dead)
       throw new EngineError("GAME_DISPOSED", "Game has been disposed");
@@ -1123,7 +1154,9 @@ export class Game<SceneId extends string = string> {
       () => this.ui?.dispose(),
       () => this.prepared?.dispose(),
       () => this.renderer.dispose(),
+      () => this.audio.dispose(),
       () => this.engine.dispose(),
+      () => this.fontUse?.release(),
       () => this.assetStore.dispose(),
       () => this.imagePool.dispose(),
       () => this.element.remove(),
@@ -1141,6 +1174,7 @@ export class Game<SceneId extends string = string> {
     this.canvasPresentation = undefined;
     this.virtualPresentation = undefined;
     this.defaultCanvas = undefined;
+    this.fontUse = undefined;
     this.defaultUI.length = 0;
     this.scenes.clear();
     this.retainedScenes.clear();

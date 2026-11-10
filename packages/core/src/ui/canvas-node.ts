@@ -231,6 +231,7 @@ export class CanvasNode implements LifetimeOwner {
     | CanvasNodeOwner
     | undefined;
   private config: ResolvedCanvasStyle;
+  private ownFont: boolean;
   private captionValue: string;
   private shown = true;
   private active = true;
@@ -394,6 +395,7 @@ export class CanvasNode implements LifetimeOwner {
       this.labelSemantics = Object.freeze({ ...options.label });
     }
     this.config = checkedStyle(options.style ?? {});
+    this.ownFont = Object.hasOwn(options.style ?? {}, "fontFamily");
     this.click = options.click;
     this.hold = options.hold;
     this.signal = this.abort.signal;
@@ -448,6 +450,10 @@ export class CanvasNode implements LifetimeOwner {
   }
   get style(): ResolvedCanvasStyle {
     return this.config;
+  }
+  /** @internal A Host may supply a default only when the node has no explicit font. */
+  get inheritsFont(): boolean {
+    return !this.ownFont;
   }
   get text(): string {
     return this.captionValue;
@@ -523,7 +529,9 @@ export class CanvasNode implements LifetimeOwner {
   setStyle(value: CanvasStyle): void {
     this.assertAlive();
     const next = checkedStyle({ ...this.config, ...value });
+    const ownFont = this.ownFont || Object.hasOwn(value, "fontFamily");
     if (
+      ownFont === this.ownFont &&
       Object.keys(next).every(
         (k) =>
           next[k as keyof CanvasStyle] === this.config[k as keyof CanvasStyle],
@@ -551,7 +559,10 @@ export class CanvasNode implements LifetimeOwner {
       "fontFamily",
       "scroll",
     ];
-    const layout = geometry.some((key) => next[key] !== this.config[key]);
+    const layout =
+      ownFont !== this.ownFont ||
+      geometry.some((key) => next[key] !== this.config[key]);
+    this.ownFont = ownFont;
     if (next.scroll !== this.config.scroll || !next.inertia || !next.dragScroll)
       this.stopScroll();
     this.config = next;
