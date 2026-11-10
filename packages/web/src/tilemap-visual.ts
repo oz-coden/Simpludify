@@ -57,6 +57,14 @@ export class TilemapVisual {
         }
         this.lease = lease;
         this.sync();
+        lease.onChange?.(() => {
+          if (this.disposed || !isCurrent()) return;
+          this.textures.clear();
+          this.revision = -1;
+          this.invalid = true;
+          this.sync();
+          this.changed();
+        });
       })
       .catch((error: unknown) => {
         if (!this.disposed) this.fail(error);
@@ -80,7 +88,14 @@ export class TilemapVisual {
     this.revision = this.map.revision;
     this.error = undefined;
     try {
-      for (const id of this.map.tileIds()) {
+      const ids = this.lease.useFrames
+        ? [...this.map.tileIds()]
+        : this.map.tileIds();
+      if (this.lease.useFrames)
+        this.lease.useFrames(
+          [...ids].map((id) => this.map.sheet.get(id).frame),
+        );
+      for (const id of ids) {
         if (!this.textures.has(id)) {
           this.stats.validatedFrames++;
           this.textures.set(

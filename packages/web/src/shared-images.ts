@@ -12,6 +12,8 @@ export interface ImageResource {
 }
 export interface ImageLease extends ImageResource {
   textureFor(frame?: SpriteFrame): Texture;
+  useFrames?(frames: readonly SpriteFrame[]): void;
+  onChange?(listener: () => void): () => void;
 }
 interface Consumer {
   ready(resource: ImageResource): void;
@@ -19,7 +21,6 @@ interface Consumer {
   release(): void;
 }
 interface Entry {
-  readonly key: string;
   readonly controller: AbortController;
   readonly consumers: Set<Consumer>;
   readonly frames: Map<string, Texture>;
@@ -28,13 +29,15 @@ interface Entry {
 
 /** Renderer-local, live-reference cache. No idle retention or process-global state. */
 export class SharedImages {
-  private readonly entries = new Map<string, Entry>();
+  private readonly entries = new Map<string | symbol, Entry>();
+  private loaded = 0;
   private references = 0;
   private dead = false;
   constructor(
     private readonly load: (
       url: string,
       signal: AbortSignal,
+      mode?: "explicit" | "reload",
     ) => Promise<ImageResource>,
   ) {}
   get diagnostics() {
@@ -46,15 +49,22 @@ export class SharedImages {
       pendingImages: pending,
     };
   }
-  acquire(key: string, signal: AbortSignal): Promise<ImageLease> {
+  get textures(): number {
+    return this.loaded;
+  }
+  acquire(
+    key: string | symbol,
+    signal: AbortSignal,
+    request?: { url: string; mode: "explicit" | "reload" },
+  ): Promise<ImageLease> {
+    const url = request?.url ?? String(key);
     const cancelled = () =>
-      new EngineError("GAME_DISPOSED", "Image use cancelled", { path: key });
+      new EngineError("GAME_DISPOSED", "Image use cancelled", { path: url });
     if (this.dead || signal.aborted) return Promise.reject(cancelled());
     let entry = this.entries.get(key);
     const fresh = !entry;
     if (!entry) {
       entry = {
-        key,
         controller: new AbortController(),
         consumers: new Set(),
         frames: new Map(),
@@ -82,7 +92,10 @@ export class SharedImages {
           delete current.resource;
           for (const texture of current.frames.values()) texture.destroy(false);
           current.frames.clear();
-          resource?.release();
+          if (resource) {
+            this.loaded--;
+            resource.release();
+          }
         }
       };
       const consumer: Consumer = {
@@ -134,7 +147,7 @@ export class SharedImages {
       // Register the first consumer before invoking even a synchronous/throwing
       // loader. Both completion branches handle abandoned entries explicitly.
       void Promise.resolve()
-        .then(() => this.load(key, current.controller.signal))
+        .then(() => this.load(url, current.controller.signal, request?.mode))
         .then(
           (resource) => {
             if (!current.consumers.size) {
@@ -142,6 +155,7 @@ export class SharedImages {
               return;
             }
             current.resource = resource;
+            this.loaded++;
             for (const consumer of current.consumers) consumer.ready(resource);
           },
           (error) => {

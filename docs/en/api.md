@@ -329,6 +329,22 @@ This experimental revision also removes InputState, InputSource, InputReader, Ke
 
 Engine diagnostics can include `code`, `source`, `fatal`, `details` and the original `cause`. Use `fatal` to distinguish a stopped operation from a recoverable report. Logging at error level leaves execution policy to the caller. Engine Console and alert output use safe summaries. To migrate from `GameOptions.onError`, subscribe to `game.logger` and handle the structured entry or its cause.
 
+## Assets
+
+`game.assets.load({ kind, url })` returns a stable handle immediately. Await `handle.ready` for the first usable result. Image handles expose `source` for `Renderable` and `source.url` for `SpriteSheet`. Use the `assets` scope provided by a Scene setup to tie ownership to that Scene. `game.assets.scope()` creates an explicitly disposable scope with the same API. Multiple owners share a resource but can release their references independently.
+
+```ts
+const hero = assets.load({ kind: "image", url: "./hero.png" });
+await hero.ready;
+actor.add(new Renderable({ source: hero.source }));
+```
+
+The game retains up to `assets.cacheEntries` idle, successfully loaded assets by default. The default is 16, and 0 releases the last idle reference immediately. Visuals also hold their own references. Image load failures use the configured `assets.fallback.image` or an internal checkerboard. A JSON request rejects when no usable result exists. A recovered image updates existing visuals, and a replacement that invalidates an in-use atlas frame is rejected before changing the current image.
+
+`handle.reload()` requests a replacement while keeping the current usable result. To retry an ordinary failure once, use `retry.once: "immediate"`, `{ delayMs }` or `{ until: promise }`. `retry.network` accepts zero to five extra attempts after network failures and HTTP 408, 429 or 5xx. The default load deadline is 30 seconds, including retry waits. Existing work keeps its first request policy when another owner joins it. A usable fallback can resolve `ready` while retries continue.
+
+Use `assets.progress`, `assets.onProgress(handler)` and `handle.progress` for loading UI. The game scope counts active assets across its scopes and counts each shared asset once. A scope can represent an independent batch. Completed entries include terminal failures and usable fallbacks. The loading count includes background retries. `onProgress` returns an unsubscribe callback.
+
 ## SpriteSheet and SpriteAnimation
 
 [Sprite contracts and examples](./specs/sprites.md) define grid/named/rectangular image sources, simulation-time playback, Renderable source ownership, deferred bounds checking and shared crop/source cleanup. Both APIs are exported by Core and Web. SpriteAnimation requires Renderable, runs in LateUpdate, and does not add host timers or an asynchronous Core lifecycle.

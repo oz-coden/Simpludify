@@ -1,6 +1,19 @@
 import "./style.css";
 
 export * from "@simpludify/core";
+export type {
+  AssetData,
+  AssetHandle,
+  AssetKind,
+  AssetLoadOptions,
+  AssetOptions,
+  AssetProgress,
+  AssetRequest,
+  AssetRetry,
+  AssetScope,
+  AssetStatus,
+  ImageAssetSource,
+} from "./assets";
 export { browserAbortSignal, CanvasButton } from "./canvas-node";
 export type { CanvasPresentation } from "./canvas-visual";
 export * from "./game";

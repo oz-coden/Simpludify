@@ -20,8 +20,9 @@ import {
   Graphics,
   RendererType,
   Sprite,
-  Texture,
 } from "pixi.js";
+import { createImagePool, loadImageResource } from "./asset-loaders";
+import { type AssetStore, isAssetImage } from "./assets";
 import { type CanvasPresentation, CanvasVisual } from "./canvas-visual";
 import { GeometryTilemapVisual } from "./geometry-tilemap-visual";
 import {
@@ -29,11 +30,7 @@ import {
   releaseUIGraphics,
   releaseUIText,
 } from "./pixi-ui-cleanup";
-import {
-  type ImageLease,
-  type ImageResource,
-  SharedImages,
-} from "./shared-images";
+import type { ImageLease, SharedImages } from "./shared-images";
 import { TilemapVisual } from "./tilemap-visual";
 import {
   type VirtualInputPresentation,
@@ -164,9 +161,7 @@ export class PixiRenderer implements RendererPort {
     };
   }
   private readonly scenes = new Set<PreparedScene>();
-  private readonly images = new SharedImages((url, signal) =>
-    this.image(url, signal),
-  );
+  private readonly images: SharedImages;
   private readonly tilemaps = new Set<TilemapVisual>();
   get tilemapDiagnostics() {
     let sprites = 0,
@@ -222,12 +217,11 @@ export class PixiRenderer implements RendererPort {
   private ready = false;
   private dead = false;
   private visualCount = 0;
-  private textureCount = 0;
   get diagnostics() {
     return {
       presentations: this.scenes.size,
       visuals: this.visualCount,
-      textures: this.textureCount,
+      textures: this.images.textures,
       ...this.images.diagnostics,
     };
   }
@@ -235,7 +229,15 @@ export class PixiRenderer implements RendererPort {
     private readonly host: HTMLElement,
     private readonly background = "#101922",
     private readonly onError: (error: unknown) => void = () => {},
-  ) {}
+    private readonly assetServices?: {
+      store: AssetStore;
+      images: SharedImages;
+    },
+  ) {
+    this.images =
+      assetServices?.images ??
+      createImagePool((...args) => this.image(...args));
+  }
   async init(): Promise<void> {
     await this.app.init({
       width: 800,
@@ -260,73 +262,25 @@ export class PixiRenderer implements RendererPort {
     this.app.canvas.setAttribute("aria-label", "Game world");
     this.host.prepend(this.app.canvas);
   }
-  private async image(
+  private image(
     url: string,
     signal: AbortSignal,
-  ): Promise<ImageResource> {
-    const image = new Image();
-    await new Promise<void>((resolve, reject) => {
-      const clear = () => {
-        image.onload = null;
-        image.onerror = null;
-        signal.removeEventListener("abort", abort);
-      };
-      const abort = () => {
-        clear();
-        image.src = "";
-        reject(
-          new EngineError("GAME_DISPOSED", "Image loading cancelled", {
-            path: url,
-          }),
-        );
-      };
-      image.onload = () => {
-        clear();
-        resolve();
-      };
-      image.onerror = () => {
-        clear();
-        reject(
-          new EngineError("ASSET_LOAD_FAILED", "Could not load sprite", {
-            path: url,
-          }),
-        );
-      };
-      if (signal.aborted) {
-        abort();
-        return;
-      }
-      signal.addEventListener("abort", abort, { once: true });
-      image.crossOrigin = "anonymous";
-      image.src = url;
-    });
-    if (signal.aborted)
-      throw new EngineError("GAME_DISPOSED", "Image loading cancelled", {
-        path: url,
-      });
-    const texture = Texture.from(image, true);
-    if (!(texture.width > 0 && texture.height > 0)) {
-      texture.destroy(true);
-      throw new EngineError(
-        "ASSET_LOAD_FAILED",
-        "Image has no drawable dimensions",
-        { path: url },
-      );
-    }
-    this.textureCount++;
-    let released = false;
-    return {
-      texture,
-      release: () => {
-        if (released) return;
-        released = true;
-        this.textureCount--;
-        texture.destroy(true);
-      },
-    };
+    mode?: "explicit" | "reload",
+  ) {
+    return loadImageResource(url, signal, mode);
   }
 
   private acquireImage(url: string, signal: AbortSignal): Promise<ImageLease> {
+    if (isAssetImage(url))
+      return (
+        this.assetServices?.store.image(url, signal) ??
+        Promise.reject(
+          new EngineError(
+            "ASSET_CANCELLED",
+            "Image asset does not belong to this renderer",
+          ),
+        )
+      );
     // Image.src resolves against document.baseURI too. Retain query, fragment and
     // credentials; anonymous CORS is fixed for every request in this renderer.
     try {
@@ -509,6 +463,7 @@ export class PixiRenderer implements RendererPort {
       if (source.kind !== "image") return;
       // Resolve and validate before mutating the retained Sprite or releasing its lease.
       const texture = resource.textureFor(source.frame);
+      resource.useFrames?.(source.frame ? [source.frame] : []);
       const previous = entry.image;
       const sprite =
         entry.display instanceof Sprite ? entry.display : new Sprite(texture);
@@ -517,7 +472,22 @@ export class PixiRenderer implements RendererPort {
       entry.image = resource;
       replace(entry, sprite, source);
       appearance(entry);
-      if (previous !== resource) previous?.release();
+      if (previous !== resource) {
+        previous?.release();
+        resource.onChange?.(() => {
+          if (
+            !valid(entry) ||
+            entry.image !== resource ||
+            !entry.displayedSource
+          )
+            return;
+          try {
+            commitImage(entry, resource, entry.displayedSource);
+          } catch (error) {
+            fail(entry, error);
+          }
+        });
+      }
     };
     const update = (entry: Visual) => {
       const component = entry.component;
@@ -959,7 +929,9 @@ export class PixiRenderer implements RendererPort {
           p.dispose();
         }),
         () => this.pendingUITextKeys.clear(),
-        () => this.images.dispose(),
+        () => {
+          if (!this.assetServices) this.images.dispose();
+        },
         () => this.destroyApp(),
       ],
       "Renderer cleanup failed",

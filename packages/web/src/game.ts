@@ -39,6 +39,8 @@ import {
   type WorldPoint,
   worldToScreen,
 } from "@simpludify/core";
+import { browserAssetAdapter, createImagePool } from "./asset-loaders";
+import { type AssetOptions, AssetScope, AssetStore } from "./assets";
 import type { CanvasPresentation } from "./canvas-visual";
 import { GamepadInput } from "./gamepads";
 import { BrowserInput } from "./input";
@@ -58,6 +60,7 @@ import type { VirtualInputPresentation } from "./virtual-input-visual";
 
 export interface SceneContext {
   readonly scene: Scene;
+  readonly assets: AssetScope;
   readonly signal: AbortSignal;
   readonly tweens: TweenScheduler;
   readonly presentationTweens: TweenScheduler;
@@ -95,6 +98,7 @@ export interface GameOptions {
   renderer?: (host: HTMLElement) => RendererPort;
   frames?: FrameDriver;
   logging?: GameLoggingOptions;
+  assets?: AssetOptions;
   /** @deprecated Subscribe to Game.logger for structured diagnostics. */
   onError?: (error: unknown) => void;
 }
@@ -104,6 +108,9 @@ export class Game<SceneId extends string = string> {
   readonly camera: Camera;
   readonly gamepads: GamepadInput;
   readonly logger: Logger;
+  readonly assets: AssetScope;
+  private readonly imagePool = createImagePool();
+  private readonly assetStore: AssetStore;
   private readonly renderer: RendererPort;
   private readonly keyboard: BrowserInput;
   private readonly captures: InputCaptureManager;
@@ -264,6 +271,13 @@ export class Game<SceneId extends string = string> {
       )
         throw new EngineError("INVALID_THEME_TOKEN", `Invalid token: ${name}`);
     const tokens = { ...theme, ...options.tokens };
+    this.assetStore = new AssetStore(
+      browserAssetAdapter(this.imagePool),
+      this.logger,
+      document.baseURI,
+      options.assets,
+    );
+    this.assets = new AssetScope(this.assetStore, undefined, true);
     this.element = document.createElement("div");
     this.element.className = "simpludify";
     this.element.tabIndex = 0;
@@ -282,12 +296,17 @@ export class Game<SceneId extends string = string> {
     try {
       this.renderer =
         options.renderer?.(this.element) ??
-        new PixiRenderer(this.element, tokens.background, (error) =>
-          this.report(error, "engine.renderer"),
+        new PixiRenderer(
+          this.element,
+          tokens.background,
+          (error) => this.report(error, "engine.renderer"),
+          { store: this.assetStore, images: this.imagePool },
         );
     } catch (error) {
       this.element.remove();
       this.engine.dispose();
+      this.assetStore.dispose();
+      this.imagePool.dispose();
       throw error;
     }
     this.frames = options.frames ?? {
@@ -555,10 +574,12 @@ export class Game<SceneId extends string = string> {
         this.staging = scene;
         scene.onDispose(() => controller.abort());
         try {
+          const assets = this.assets.scope(scene);
           await this.wait(
             Promise.resolve(
               setup({
                 scene,
+                assets,
                 get tweens() {
                   return scene.tweens;
                 },
@@ -1018,6 +1039,8 @@ export class Game<SceneId extends string = string> {
       () => this.prepared?.dispose(),
       () => this.renderer.dispose(),
       () => this.engine.dispose(),
+      () => this.assetStore.dispose(),
+      () => this.imagePool.dispose(),
       () => this.element.remove(),
     ]) {
       try {

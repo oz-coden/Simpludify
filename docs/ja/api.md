@@ -326,6 +326,22 @@ Webの`context.actions(definitions, bindings?)`は、factoryのSceneとGame入�
 
 診断は `code`、`source`、`fatal`、`details`、元の `cause` を保持できます。`fatal` は処理側の停止判断を表し、`logger.error()` 自体はゲームを停止しません。エンジンのConsoleと画面には安全な要約を表示します。従来の `GameOptions.onError` を使っていたコードは、`game.logger` を購読して構造化された診断や `cause` を扱えます。
 
+## Asset管理
+
+`game.assets.load({ kind, url })` はすぐに安定したハンドルを返します。最初の利用可能な結果を待つには `handle.ready` を使います。画像では `handle.source` を `Renderable` に、`handle.source.url` を `SpriteSheet` に渡せます。Sceneのセットアップで受け取る `assets` は、そのSceneの完全破棄に連動します。`game.assets.scope()` は同じAPIを持つ個別に破棄可能なスコープを作ります。所有者ごとに参照を解放でき、同じAssetの取得と実リソースは共有されます。
+
+```ts
+const hero = assets.load({ kind: "image", url: "./hero.png" });
+await hero.ready;
+actor.add(new Renderable({ source: hero.source }));
+```
+
+`assets.cacheEntries` は成功した未使用Assetの最大保持数です。既定値は16で、0では最後の参照が外れた時点で解放します。描画側も独立した参照を持ちます。画像のロード失敗時は設定された `assets.fallback.image`、または内蔵の市松模様を使います。JSONは利用可能な値が得られなければ拒否されます。正常画像が得られると既存のVisualを更新します。使用中のアトラスフレームが不正になる差し替えは確定前に拒否します。
+
+`handle.reload()` は現在の利用可能な値を維持しながら再読み込みします。通常失敗を一度だけ再試行するには `retry.once` に `"immediate"`、`{ delayMs }` または `{ until: promise }` を指定します。通信エラーやHTTP 408、429、5xxに対する `retry.network` は追加試行回数0〜5です。待機時間を含むロード期限の既定値は30秒です。処理を共有する場合は最初のロードの方針を使います。Fallbackが利用可能になった時点で `ready` が解決し、再試行は背景で継続できます。
+
+進捗は `assets.progress`、`assets.onProgress(handler)`、`handle.progress` で取得できます。Game全体では各スコープの稼働中のAssetを重複なく集計します。個別のスコープをバッチ単位としても使えます。完了数には最終的な失敗や利用可能なFallbackも含まれ、ロード中の件数には背景の再試行も含まれます。
+
 ## SpriteSheetとSpriteAnimation
 
 [Spriteの契約と例](./specs/sprites.md)で、グリッド／名前付き／矩形の画像ソース、シミュレーション時間での再生、Renderable sourceの所有権、遅延境界検査、共有切り抜き／ソースのクリーンアップを定義しています。どちらのAPIもCoreおよびWebからexportされています。SpriteAnimationはRenderableを必要とし、LateUpdateで実行され、ホストタイマーや非同期Coreライフサイクルを追加することはありません。
