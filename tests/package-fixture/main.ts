@@ -22,6 +22,7 @@ import {
 // Explicit CSS is optional: the Web entry also includes it automatically.
 const game = new Game<"first" | "second">({
   parent: document.querySelector<HTMLElement>("#app") ?? document.body,
+  assets: { cacheEntries: 0 },
 });
 const actions = defineActions({ Move: Action.axis2D(), Jump: Action.button() });
 let currentControls: ActionController<typeof actions>;
@@ -100,6 +101,20 @@ await game.run("first");
 if (!(game.engine instanceof Engine)) throw new Error("Duplicate Core runtime");
 const probe = {
   game,
+  async loadAssets() {
+    const scope = game.assets.scope();
+    try {
+      const sprite = scope.load({ kind: "image", url: image });
+      const data = scope.load({
+        kind: "json",
+        url: "data:application/json,%7B%22packed%22%3Atrue%7D",
+      });
+      await Promise.all([sprite.ready, data.ready]);
+      return { image: sprite.value, json: data.value, status: sprite.status };
+    } finally {
+      scope.dispose();
+    }
+  },
   get jump() {
     game.engine.step(0);
     return currentControls.value(actions.Jump);

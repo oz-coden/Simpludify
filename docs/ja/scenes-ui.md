@@ -36,11 +36,11 @@ game.scene("play", ({ scene, add, ui }) => {
 await game.run("menu");
 ```
 
-`run`をawaitしてから`changeScene`します。準備の間は旧Sceneが動き続け、準備失敗なら旧Sceneを保ちます。成功した切り替えで旧Sceneは破棄されます。同じIDへ完了後に遷移しても新しいインスタンスを作るので、再プレイにも使えます。
+`run`をawaitしてから`changeScene`します。準備の間は旧Sceneが動き続け、準備失敗なら旧Sceneを保ちます。既定では切り替え前のSceneを破棄し、同じIDへ再入場すると新しいインスタンスを作ります。保持する場合は、Gameの`sceneRetention: "retain"`か登録時の`{ retention: "retain" }`を指定します。[Sceneの保持と再開](api.md#sceneの保持と再開)。
 
 ## 非同期準備とキャンセル
 
-setupはPromiseを返せます。contextの`signal`をロードへ渡し、await前に`onDispose`へ片付けを登録します。SceneやGameの破棄は保留遷移をキャンセルしますが、任意のPromiseを強制停止することはできません。
+setupはPromiseを返せます。contextの`signal`をロードへ渡し、await前に`onDispose`へ片付けを登録します。Gameを破棄すると保留遷移をキャンセルし、Sceneを破棄すると対応するsetupのsignalが中断されます。contextの`assets`から取得した素材は、保持中も含めてSceneの破棄まで存続します。任意のPromiseを強制停止することはできません。
 
 CoreのScene状態はPreparing → Ready → Active → Inactive → Disposedです。Webはアセット準備と表示の整合性を担当します。WebのScene factoryから`Engine.activate`や`markReady`を直接操作しないでください。
 

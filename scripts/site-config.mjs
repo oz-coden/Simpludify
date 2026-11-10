@@ -184,6 +184,12 @@ export const pages = [
   ],
   ["guides/npm.html", "docs/ja/npm.md", "npm SDK導入", "ガイド"],
   [
+    "guides/migrate-0.2.0.html",
+    "docs/ja/migrate-0.2.0.md",
+    "v0.2.0への移行",
+    "ガイド",
+  ],
+  [
     "guides/tween.html",
     "docs/ja/specs/tween.md",
     "Tween・アニメーション",
@@ -456,6 +462,12 @@ export const pages = [
   ],
   ["en/npm.html", "docs/en/npm.md", "npm SDK setup", "Guides"],
   [
+    "en/migrate-0.2.0.html",
+    "docs/en/migrate-0.2.0.md",
+    "Migrate to v0.2.0",
+    "Guides",
+  ],
+  [
     "en/examples.html",
     "docs/en/examples.md",
     "Interactive examples gallery",
@@ -567,6 +579,7 @@ export const languagePairs = [
   ["guides/layout.html", "en/layout.html"],
   ["guides/collision.html", "en/collision.html"],
   ["guides/npm.html", "en/npm.html"],
+  ["guides/migrate-0.2.0.html", "en/migrate-0.2.0.html"],
   ["guides/input.html", "en/actions.html"],
   ["guides/gamepads.html", "en/gamepads.html"],
   ["guides/unified-input.html", "en/unified-input.html"],

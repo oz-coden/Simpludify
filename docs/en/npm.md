@@ -1,8 +1,8 @@
 # Start an independent npm SDK project
 
-Simpludify Experimental v0.1.6 is an ESM SDK split into `@simpludify/core` and `@simpludify/web`. The next development milestone is v0.1.7. During the 0.x phase, APIs may evolve between releases. Direct imports of internal source paths are not public APIs.
+Simpludify is an experimental ESM SDK split into `@simpludify/core` and `@simpludify/web`. During the 0.x phase, APIs may evolve between releases. Direct imports of internal source paths are not public APIs.
 
-**Registry status: `@simpludify/core@0.1.6` and `@simpludify/web@0.1.6` are published on the npm registry.** Follow the steps below to install and set up an independent game project.
+**Registry status: `@simpludify/core@0.1.7` and `@simpludify/web@0.1.7` are published on the npm registry.** Follow the steps below to install and set up an independent game project.
 
 ## 1. Requirements and packages
 
@@ -143,16 +143,16 @@ The [independent template](../../templates/npm-vite/README.md) automates `THIRD-
 Engine maintainers can generate `.tgz` packages via `npm run pack:packages` and install them locally:
 
 ```sh
-npm install /path/to/simpludify-core-0.1.6.tgz
-npm install /path/to/simpludify-web-0.1.6.tgz
+npm install /path/to/simpludify-core-0.2.0.tgz
+npm install /path/to/simpludify-web-0.2.0.tgz
 ```
 
-When installing locally before publication, install Core first so Web's registry dependency resolves properly.
+For the unpublished v0.2.0 candidate, install Core first so the matching dependency is available when installing Web. See the [v0.2.0 migration guide](migrate-0.2.0.md).
 
 ## 6. Compatibility and limits
 
 - Distributed as standard ESM and TypeScript declarations. Direct imports into `dist/` or CommonJS `require()` are not supported.
 - JavaScript source maps include embedded sources.
-- Use matching versions of Core and Web (v0.1.6). Web re-exports Core, allowing all imports to originate from `@simpludify/web`.
+- Use matching versions of Core and Web. Web re-exports Core, allowing all imports to originate from `@simpludify/web`.
 - Core compiles and verifies without DOM or Node ambient types. Web requires browser DOM types and runtime APIs.
 - See [Platform limits](limitations.md), [API reference](api.md), and [Core/Host boundary](host-boundary.md) for full contracts.

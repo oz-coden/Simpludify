@@ -37,11 +37,11 @@ game.scene("play", ({ scene, add, ui }) => {
 await game.run("menu");
 ```
 
-Await `game.run` before calling `game.changeScene`. During scene preparation, the active Scene continues running. If preparation fails, the existing Scene remains active. Once preparation succeeds, the old Scene is disposed and the new Scene is committed. Navigating to the same Scene ID constructs a fresh instance, providing an easy restart mechanism.
+Await `game.run` before calling `game.changeScene`. During scene preparation, the active Scene continues running. If preparation fails, the existing Scene remains active. Once preparation succeeds, the new Scene is committed. By default the old Scene is disposed and navigating to the same Scene ID constructs a fresh instance. To keep a Scene across navigation, set `sceneRetention: "retain"` on Game or pass `{ retention: "retain" }` when registering it. [Retained Scene behavior](api.md#retained-scenes).
 
 ## Asynchronous setup and cancellation
 
-Scene setup functions may return a Promise. Pass the context `signal` to async operations and register cleanup via `onDispose` before awaiting. Disposing a Scene or the Game promptly cancels pending navigation and aborts the signal. Arbitrary application Promises cannot be forcibly stopped; use the signal to handle early cancellation gracefully.
+Scene setup functions may return a Promise. Pass the context `signal` to async operations and register cleanup via `onDispose` before awaiting. Game disposal promptly cancels pending navigation. A Scene aborts its own setup signal on disposal. Use the context `assets` to keep resources until the Scene is disposed, including while it is retained. Arbitrary application Promises cannot be forcibly stopped; use the signal to handle early cancellation gracefully.
 
 Core Scene lifecycle states are **Preparing → Ready → Active → Inactive → Disposed**. The Web layer manages asset preparation and presentation consistency. Do not invoke `markReady` or `Engine.activate` manually from Web scene factories.
 

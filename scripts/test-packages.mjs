@@ -453,6 +453,20 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
         assert.equal(diagnostics.visuals, 2);
         assert.equal(diagnostics.imageEntries, 1);
         assert.equal(diagnostics.imageReferences, 2);
+        assert.deepEqual(
+          await page.evaluate(() => window.packageProbe.loadAssets()),
+          {
+            image: { width: 32, height: 32 },
+            json: { packed: true },
+            status: "ready",
+          },
+        );
+        assert.equal(
+          await page.evaluate(
+            () => window.packageProbe.game.renderer.diagnostics.imageEntries,
+          ),
+          1,
+        );
         const initial = await page.evaluate(() => window.packageProbe.x);
         const worldCenter = await page.evaluate(() => {
           const v = window.packageProbe.game.viewport;

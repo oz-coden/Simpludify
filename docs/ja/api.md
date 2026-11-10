@@ -1,8 +1,8 @@
 # APIリファレンス
 
-Core/Web v0.1.6ではmouse/gamepad ActionBindingフィールド、MouseSource、mouseEnabled、デバイス競合診断、Game.captureInputを追加しています。次回開発マイルストーンはv0.1.7の予定です。[入力Binding・キャプチャ](./specs/input-bindings.md)で使用例と互換性を説明します。
+このリファレンスはソース上の未公開v0.2.0候補を対象とします。Assetのスコープ、Scene保持、構造化診断は[v0.2.0への移行ガイド](migrate-0.2.0.md)も参照してください。
 
-`@simpludify/core`はDOMに依存しません。[型安全なAction入力](./specs/action-input.md)で論理ボタン／軸、キー割り当て、入力元の合成、更新境界を定義します。`@simpludify/web`はCoreを再exportし、Game、PixiRenderer、ブラウザ入力、DOM UI、スコープ付き標準CSSを追加します。すべてのモードオブジェクトに対応するUnion型をexportします。ルートワークスペースはprivateですが、Core/Webは公開用SDKパッケージです。公開済みレジストリSDKはv0.1.6です。
+`@simpludify/core`はDOMに依存しません。[型安全なAction入力](./specs/action-input.md)で論理ボタン／軸、キー割り当て、入力元の合成、更新境界を定義します。`@simpludify/web`はCoreを再exportし、Game、PixiRenderer、ブラウザ入力、DOM UI、スコープ付き標準CSSを追加します。すべてのモードオブジェクトに対応するUnion型をexportします。ルートワークスペースはprivateですが、Core/Webは公開用SDKパッケージです。公開済みレジストリSDKはv0.1.7です。
 
 ## 2次元固定サイズデータ（Grid）
 
@@ -53,7 +53,7 @@ await game.run();
 
 `Game.add(actor)`は渡されたActor自身を返し、runの前でも実行中でも動作します。`Game.remove(actorOrId)`は現在のSceneの構成員を破棄し、存在していたかどうかをブール値で返します。別のSceneの準備中であっても、これらのメソッドは常に現在のSceneを対象とします。準備中の候補Sceneには、ステージされたcontextのadd/sceneを使用してください。
 
-`Game.scene(id, setup)`は一意のfactoryを登録します。`Game<'menu' | 'play'>`のように型引数を指定すると、コンパイル時にIDを制限できます。Setupはscene、signal、add、ui、onUpdate、onActivate、onDeactivate、onDisposeを受け取ります。非同期setupも許容されます。キャンセル可能な処理にはsignalを使用し、awaitの前に破棄クリーンアップを登録してください。`run(id?)`は共有の起動Promiseを返し、changeSceneの前にこれをawaitします。`changeScene(id)`は準備完了Promiseを返し、直近の保留中IDと同じ重複リクエストはまとめ、異なるIDはキューに入れ、完了後の再訪問では新しいSceneインスタンスを作成します。コミット前のsetupやアセットの失敗では現在のSceneが維持されます。ライフサイクルコールバックのエラーは、コミット後に新しいSceneを維持したまま報告されます。`Game.dispose()`は同期的かつ冪等であり、処理待ちの遷移を速やかに中断します。
+`Game.scene(id, setup)`は一意のfactoryを登録します。`Game<'menu' | 'play'>`のように型引数を指定すると、コンパイル時にIDを制限できます。Setupはscene、assets、signal、add、ui、onUpdate、onActivate、onDeactivate、onDisposeを受け取ります。非同期setupも許容されます。キャンセル可能な処理にはsignalを使用し、awaitの前に破棄クリーンアップを登録してください。`run(id?)`は共有の起動Promiseを返し、changeSceneの前にこれをawaitします。`changeScene(id)`は準備完了Promiseを返し、直近の保留中IDと同じ重複リクエストはまとめ、異なるIDはキューに入れ、完了後の再訪問では既定で新しいSceneインスタンスを作成します。保持はSceneの登録時に設定できます。コミット前のsetupやアセットの失敗では現在のSceneが維持されます。ライフサイクルコールバックのエラーは、コミット後に新しいSceneを維持したまま報告されます。`Game.dispose()`は同期的かつ冪等であり、処理待ちの遷移を速やかに中断します。
 
 `Game.bindViewport(ui, node): () => void`（v0.1.2以降公開）は、マウントされたGame所有のCanvas UIの専用レイアウト領域をワールドViewportに連動させます。解決済みbounds × UI scaleをCSSピクセルで適用し、描画とポインター変換の前に反映します。これはDPRや論理解像度から独立しています。既存のaspect/camera投影はそのまま機能します。UIごとに1つの連動が許可され、再割り当ては安全で、返された解除関数は冪等です。UIまたは領域ノードの破棄により連動は解除されます。準備中のUIは現在のSceneに影響を与えません。`setViewport`による手動フォールバックも維持され、連動解除時に復元されます。非表示・無効・サイズ0の領域はワールドの描画と入力を完全にクリップし、その空領域での変換はワールド上の意味を持ちません。スクロールしない専用スロットを使用してください。これは任意の入れ子マスクではありません。[SDK統合ラボ](../../examples/sdk-integration/README.md)を参照してください。
 
@@ -133,7 +133,7 @@ off(); // actorが破棄された際にも自動解除
 scene.after(1, () => console.log("one simulation second"), actor);
 ```
 
-Sceneの状態は**Preparing → Ready → Active → Inactive → Disposed**です。`markReady`は同期処理です。`Engine.activate`は利便性のためPreparing状態のヘッドレスSceneをReadyにしてアクティブ化できます。`Engine.step`は最初の更新の前に既定のSceneをアクティブ化します。EngineによるScene差し替えは旧インスタンスを破棄します。破棄済みまたは非アクティブなインスタンスは再利用できません。アクティブ化の前に`onActivate`を登録してください。UIレイアウトはWebのrun/changeSceneをawaitした後に利用可能になります。`onActivate`/`onDeactivate`/`onPostUpdate`/`onUpdate`/`onDispose`はコールバックを登録し、登録解除関数を返します。登録解除関数自体はクリーンアップを実行しません。非アクティブまたは破棄済みの所有者でリソースを取得しようとするとエラーがスローされます。初期の既定アクティブ化は合成入力を保持し、Sceneの差し替えは入力をクリアします。
+Sceneの状態は**Preparing → Ready → Active → Inactive → Disposed**です。`markReady`は同期処理です。`Engine.activate`は利便性のためPreparing状態のヘッドレスSceneをReadyにしてアクティブ化できます。`Engine.step`は最初の更新の前に既定のSceneをアクティブ化します。EngineによるScene差し替えは既定で旧インスタンスを破棄します。`Engine.activate` に `{ previous: "retain" }` を渡すと、同じEngineで再活性化できます。破棄済みのSceneは終端状態です。アクティブ化の前に`onActivate`を登録してください。UIレイアウトはWebのrun/changeSceneをawaitした後に利用可能になります。`onActivate`/`onDeactivate`/`onPostUpdate`/`onUpdate`/`onDispose`はコールバックを登録し、登録解除関数を返します。登録解除関数自体はクリーンアップを実行しません。破棄済みの所有者や破棄予定の非アクティブSceneでは、新たなリソースの取得はエラーになります。保持中の非アクティブSceneは取得できます。初期の既定アクティブ化は合成入力を保持し、Sceneの差し替えは入力をクリアします。
 
 `Scene.events`、`Actor.events`、`Component.events`は遅延初期化されるローカルイベントバスです。アプリケーション所有の明示的なスコープには`new EventBus()`および`new Lifetime()`が利用可能です。これらは自身でdisposeしてください。`bus.on(token, handler, owner?)`は冪等な登録解除関数を返します。バスまたは任意の所有者が破棄されると購読が解除されます。同名のイベントトークンであっても互いに区別されます。`emit`は同期的で登録順に配信されます。配信中の追加は次回のemitを待ち、除去は即座に有効になります。異なるトークンのemitは深さ優先でネストできますが、同一バス上での同一トークンの再帰的配信は拒否されます。エラーが発生しても対象の全ハンドラが実行され、失敗は`AggregateError`としてスローされます。Promiseを返すハンドラは`EVENT_ASYNC_HANDLER`を引き起こし、そのrejectionは消費されてエミッターに集約エラーが渡されます。非同期処理は同期配信の外側で明示的に管理してください。
 
@@ -328,7 +328,7 @@ Webの`context.actions(definitions, bindings?)`は、factoryのSceneとGame入�
 
 ## Asset管理
 
-`game.assets.load({ kind, url })` はすぐに安定したハンドルを返します。最初の利用可能な結果を待つには `handle.ready` を使います。画像では `handle.source` を `Renderable` に、`handle.source.url` を `SpriteSheet` に渡せます。Sceneのセットアップで受け取る `assets` は、そのSceneの完全破棄に連動します。`game.assets.scope()` は同じAPIを持つ個別に破棄可能なスコープを作ります。所有者ごとに参照を解放でき、同じAssetの取得と実リソースは共有されます。
+`game.assets.load({ kind, url })` はすぐに安定したハンドルを返します。最初の利用可能な結果を待つには `handle.ready` を使います。画像では `handle.source` を `Renderable` に、`handle.source.url` を `SpriteSheet` に渡せます。Sceneのセットアップで受け取る `assets` は、そのSceneの完全破棄に連動します。`game.assets.scope()` は同じAPIを持つ個別に破棄可能なスコープを作ります。同じスコープでは、種類と解決済みURLごとに1つのハンドルを返します。別のスコープとはリソースを共有し、参照は個別に解放できます。`handle.release()` は1件、`scope.dispose()` はスコープ全体を解放します。URLはGame生成時のドキュメントの基準URLから解決します。明示ロードはHTTP(S)・data・blob URLに対応します。
 
 ```ts
 const hero = assets.load({ kind: "image", url: "./hero.png" });
@@ -336,11 +336,13 @@ await hero.ready;
 actor.add(new Renderable({ source: hero.source }));
 ```
 
-`assets.cacheEntries` は成功した未使用Assetの最大保持数です。既定値は16で、0では最後の参照が外れた時点で解放します。描画側も独立した参照を持ちます。画像のロード失敗時は設定された `assets.fallback.image`、または内蔵の市松模様を使います。JSONは利用可能な値が得られなければ拒否されます。正常画像が得られると既存のVisualを更新します。使用中のアトラスフレームが不正になる差し替えは確定前に拒否します。
+`new Game({ assets: { cacheEntries, fallback } })` でキャッシュ件数と画像・音声・フォントのFallback URLを指定できます。`cacheEntries` は成功した未使用Assetの最大保持数です。既定値は16で、0では最後の参照が外れた時点で解放します。描画側も独立した参照を持ちます。画像のロード失敗時は設定された `assets.fallback.image`、または内蔵の市松模様を使います。JSONは利用可能な値が得られなければ拒否されます。正常画像が得られると管理対象のsourceを使うVisualを更新します。既定のRendererでは、同じURLの画像の初回ロードを暗黙ロードと共有できます。Fallbackや差し替えの反映には管理対象のsourceを使います。使用中のアトラスフレームが不正になる差し替えは確定前に拒否します。
 
 `handle.reload()` は現在の利用可能な値を維持しながら再読み込みします。通常失敗を一度だけ再試行するには `retry.once` に `"immediate"`、`{ delayMs }` または `{ until: promise }` を指定します。通信エラーやHTTP 408、429、5xxに対する `retry.network` は追加試行回数0〜5です。待機時間を含むロード期限の既定値は30秒です。処理を共有する場合は最初のロードの方針を使います。Fallbackが利用可能になった時点で `ready` が解決し、再試行は背景で継続できます。
 
-進捗は `assets.progress`、`assets.onProgress(handler)`、`handle.progress` で取得できます。Game全体では各スコープの稼働中のAssetを重複なく集計します。個別のスコープをバッチ単位としても使えます。完了数には最終的な失敗や利用可能なFallbackも含まれ、ロード中の件数には背景の再試行も含まれます。
+`ready` はハンドルの初回結果を表すPromiseです。失敗後の再試行結果は `reload()` をawaitしてください。`handle.onChange(handler)` で確定した世代を購読できます。`value`、`status`、`error`、`loading` は現在の状態を示します。
+
+進捗は `assets.progress`、`assets.onProgress(handler)`、`handle.progress` で取得できます。Game全体では各スコープの稼働中のAssetを重複なく集計します。個別のスコープをバッチ単位としても使えます。完了数には最終的な失敗や利用可能なFallbackも含まれ、ロード中の件数には背景の再試行も含まれます。`onProgress` の戻り値で購読を解除できます。
 
 ## Sceneの保持と再開
 
@@ -350,7 +352,7 @@ Gameは既定で切り替え前のSceneを破棄します。`new Game({ sceneRet
 
 ## Audioとフォント
 
-BGM・効果音はどちらも `kind: "audio"` でロードします。`game.audio.play(handle, options)` は再生ごとに独立したインスタンスを返し、`pause()`、`resume()`、`stop()`、`volume`、`loop`、`state` と終了を待つ `finished` を持ちます。再生側もデコード済みデータへの参照を保持します。既定の再生所有者はGameです。`owner: scene` や別のLifetimeを指定すると、その所有者の破棄で停止します。
+BGM・効果音はどちらも `kind: "audio"` でロードします。`game.audio.play(handle, options)` は再生ごとに独立したインスタンスを返し、`pause()`、`resume()`、`stop()`、`volume`、`loop`、`state` と終了を待つ `finished` を持ちます。再生側もデコード済みデータへの参照を保持します。既定の再生所有者はGameです。保持Sceneは非アクティブになっても再生を維持できます。`owner: scene` や別のLifetimeを指定すると、その所有者の破棄で停止します。
 
 ```ts
 const theme = game.assets.load({ kind: "audio", url: "./theme.ogg" });
@@ -358,9 +360,9 @@ const music = game.audio.play(theme, { group: "music", loop: true });
 game.audio.group("music").volume = 0.6;
 ```
 
-すべての再生は `master` に接続され、`music` と `effects` を標準で利用できます。`game.audio.group(name, { parent, volume, maxVoices })` で独自グループを作成でき、再生と各階層の音量は乗算されます。同時再生は既定で許可されます。グループ上限には子グループと待機・一時停止中の再生を含めます。`play` の `maxVoices` では今回の再生要求についてAsset単位の上限も指定できます。上限を超えると該当する最古の再生が `"replaced"` で終了します。[Godotの同時再生仕様](https://docs.godotengine.org/en/4.4/classes/class_audiostreamplayer.html)
+すべての再生は `master` に接続され、`music` と `effects` を標準で利用できます。`game.audio.group(name, { parent, volume, maxVoices })` で独自グループを作成でき、再生と各階層の音量は乗算されます。同時再生は既定で許可されます。グループ上限には子グループと待機・一時停止中の再生を含めます。`play` の `maxVoices` では今回の再生要求についてAsset単位の上限も指定できます。上限を超えると該当する最古の再生が `"replaced"` で終了します。`finished` は `"ended"`、`"stopped"`、`"replaced"`、`"failed"` のいずれかで解決します。
 
-ブラウザが自動再生を制限している間の再生要求は待機します。Gameの信頼されたポインターやキー操作でAudioContextの再開を試みます。Game外のボタンから再開する場合は、その操作から `game.audio.unlock()` を呼べます。音声ロード失敗時は指定したFallback URLか内蔵の無音を使います。開始済みの再生は開始時の音声を保ち、次の再生から新しい世代を使います。
+ブラウザが自動再生を制限している間の再生要求は待機します。Gameの信頼されたポインターやキー操作でAudioContextの再開を試みます。Game外のボタンから再開する場合は、その操作から `game.audio.unlock()` を呼べます。音声ロード失敗時は指定したFallback URLか内蔵の無音を使います。初回の再生開始時に現在の音声を選び、一時停止・再開でも同じ音声を使います。
 
 `kind: "font"` はブラウザのFontFaceを登録します。ロード後のフォントスタックは個々のCanvasノードの `fontFamily` に設定できます。`game.setFont(handle)` はDOMとCanvas UIのGame標準フォントとして独立した参照を持ちます。ノードに個別指定したフォントは優先されます。`game.setFont()` でテーマのフォントに戻せます。フォントロード失敗時は指定したFallbackかシステムフォントを使い、最後の参照とキャッシュが解放されると登録を削除します。
 

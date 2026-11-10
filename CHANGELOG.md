@@ -8,6 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Scoped Image, JSON, AudioBuffer and FontFace loading in Web, with shared resources, progress, retries and media fallbacks.
+- Independent audio playback and hierarchical groups, plus a Game-wide font for Canvas and DOM UI.
+- Opt-in Scene retention with resumed simulation state and rebuilt browser presentation.
+- A Core Logger with structured diagnostics, and separate Console controls in Web.
+
+### Changed
+
+- `GameOptions.onError` is deprecated. Use `game.logger.subscribe()` for structured diagnostics. See the [v0.2.0 migration guide](docs/en/migrate-0.2.0.md).
+
 ## [0.1.7] - 2026-11-10
 
 Release details and verification: [GitHub Release v0.1.7](https://github.com/oz-coden/Simpludify/releases/tag/v0.1.7) · [Publication Record](docs/work-reports/2026-11-10-v0.1.7-publication.md)

@@ -19,10 +19,10 @@ Priority labels reflect importance, not necessarily development order. Work in t
 
 | Priority          | Area                                            | Planned outcomes                                                                                                                                             | Key design/verification questions                                                                                                     |
 | ----------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
-| High              | **Audio**                                       | BGM and sound effects, playback control, volume/mute, categories or buses, looping and fades                                                                 | Unlock/autoplay policies, host adapter, scene/actor ownership, simultaneous voices and cleanup                                        |
+| High              | **Audio**                                       | Evaluate fades and streaming against game requirements                                                                                                       | Unlock/autoplay policies, host adapter, scene/actor ownership, simultaneous voices and cleanup                                        |
 | High              | **Save and Load**                               | Explicit game-state serialization and restoration, versioned application data and safe failure/migration paths                                               | Keep this distinct from input Replay and generic Engine snapshots; make storage backend optional                                      |
-| High              | **Assets**                                      | Shared image/audio/font loading, preloading, manifests or typed references, progress/error reporting and caching                                             | Resource leases, overlapping scenes, cancellation, eviction and safe URLs; build on existing renderer image sharing                   |
-| High              | **Scene lifecycle and composition**             | Preserve and resume existing scenes; support overlays/modal scenes and controlled transition policies                                                        | Input focus, pause/update/render policy, async readiness, scene ownership, suspension and failure rollback                            |
+| High              | **Assets**                                      | Evaluate manifests and larger loading batches against real games                                                                                             | Resource leases, overlapping scenes, cancellation, eviction and safe URLs; build on existing renderer image sharing                   |
+| High              | **Scene lifecycle and composition**             | Support overlays/modal scenes and composable transition policies                                                                                             | Input focus, pause/update/render policy, async readiness, scene ownership, suspension and failure rollback                            |
 | High              | **Canvas UI components**                        | Reusable modal dialogs, confirmation/alert flows, overlays, focus trapping/restoration and composable settings/menu patterns                                 | Canvas/native focus and accessibility, pointer ownership, cancellation, stacking and nested dialogs                                   |
 | High              | **Particles and effects**                       | Lightweight particle emitters and common visual effects with explicit lifetime/performance controls                                                          | Efficient batching/pooling, scene cleanup, renderer independence and deterministic-vs-visual timing                                   |
 | High              | **Camera system**                               | Camera shake, transitions, bounds/follow improvements, and eventually multi-camera/multi-viewport where supported by use cases                               | Projection/pointer conversion, UI anchoring, resize/DPR and simultaneous views                                                        |
@@ -39,12 +39,12 @@ Priority labels reflect importance, not necessarily development order. Work in t
 This sequence turns the priority table into incremental work. **It does not commit features to specific version numbers or release dates.** Each deliverable requires tests and representative game acceptance before release.
 
 1. **Improve CI reliability and throughput:** preserve Windows/Linux, external consumer, browser and published-site checks while measuring Playwright dependency setup and investigating flaky live virtual-input assertions. Do not use retries as a substitute for fixing a root cause.
-2. **Deliver a small Audio and Assets vertical slice:** demonstrate basic music/sound playback and preload of required audio/images in a working game. Avoid committing to a large asset framework prematurely.
+2. **Exercise the v0.2.0 Audio and Assets APIs in a game:** use music, sound effects, a loading screen and resource ownership across scene changes.
 3. **Validate Save/Load, retained scenes and Canvas UI together:** exercise versioned game progress, pause/resume, settings and confirmation dialogs in concrete gameplay.
 4. **Prototype desktop packaging:** build the same Web game with Electron and Tauri in small, separately evaluated prototypes; verify clean startup/shutdown and compare distribution size, memory and startup performance before promising supported targets.
 5. **Validate first-time developer adoption:** test onboarding from published npm packages and guides, and consider an opt-in showcase for games made with Simpludify. Do not introduce undisclosed usage telemetry.
 
-Audio/Assets are the initial feature priority; CI, onboarding and desktop feasibility investigations can proceed in parallel. Keep existing particle, camera and networking plans and revisit order based on actual game needs.
+Audio and Assets integration remains a priority; CI, onboarding and desktop feasibility investigations can proceed in parallel. Keep existing particle, camera and networking plans and revisit order based on actual game needs.
 
 ### CI and SDK consumer validation
 
@@ -56,8 +56,7 @@ The [registry acceptance workflow](npm-publishing.md) verifies the exact publish
 
 #### Audio and asset infrastructure
 
-- Start with a minimal audio API usable without direct Web Audio calls from game code; expose playback handles, master/category volume, mute and a small set of standard controls. Keep browser autoplay and other host limitations explicit.
-- Add asset preloading and loading-state/error handling incrementally, integrating already implemented async image leases rather than replacing them blindly. Treat font readiness and audio decoding as separate host concerns.
+- Use the v0.2.0 candidate for buffered playback, category volume and explicit preloading. Evaluate streaming, fades and manifests when a game needs them.
 - Decide which resources are application-wide versus Scene-owned. Verify cancellation, overlapping Scene lifetimes, repeated loads, failures and disposal. Avoid unbounded implicit caching.
 
 #### Persistent game state
@@ -68,7 +67,7 @@ The [registry acceptance workflow](npm-publishing.md) verifies the exact publish
 
 #### Retained Scenes, overlays and modal UI
 
-- Define lifecycle states for inactive-but-retained Scenes, including suspended/resumed updates and timers, background rendering and eventual disposal. Preserve the existing destructive navigation path for callers that want it.
+- Build on retained Scene navigation to evaluate overlays and modal composition.
 - Specify stacking/composition, topmost input ownership, Gamepad/keyboard routing, world pointers, screen-space UI, and scene-local resources. Provide deterministic behavior for focus and for failed asynchronous transitions.
 - Build modal/dialog components on the Canvas UI primitives; support confirm/cancel results, keyboard and controller interaction, focus restoration and nested overlays. Prefer one consistent overlay model over an unrelated DOM-only modal system.
 - Treat the API names in this roadmap as proposals, not implemented exports; verify sample-game usage before freezing them.
@@ -111,6 +110,8 @@ The [registry acceptance workflow](npm-publishing.md) verifies the exact publish
 
 ## Included
 
+- The unpublished v0.2.0 candidate adds scoped Assets, Audio, FontFace registration, retained Scenes and structured diagnostics. See the [migration guide](migrate-0.2.0.md).
+
 - v0.1.6 [physical bindings and single-input capture](./specs/input-bindings.md): common keyboard/mouse/gamepad settings, runtime edits and version-1 persistence, per-device diagnostics, neutral capture and existing input ownership/composition. Core/Web v0.1.6 are published on npm; see the [release record](../work-reports/2026-11-05-v0.1.6-publication.md).
 
 - [Virtual sticks and pointer controls](./specs/virtual-input.md): fixed/floating/follow Axis2D sticks, optional-direction Button controls, explicit activation regions, fixed pointer-ID ownership and existing ActionSource composition; independent visibility/enablement and WebGL/Canvas2D presentation. Physical-device and non-Chromium verification remain outside automated coverage.
@@ -144,9 +145,9 @@ The [registry acceptance workflow](npm-publishing.md) verifies the exact publish
 
 ## Pending and limits
 
-Windows/Electron packaging and Windows executable smoke tests are pending. There is no portable executable guarantee or cross-language SDK. Compiled ESM/type SDK packages and external tarball validation are implemented; Core/Web v0.1.6 are published on npm. Automated vendored-engine upgrades remain pending. See [npm distribution and publishing](npm-publishing.md).
+Windows/Electron packaging and Windows executable smoke tests are pending. There is no portable executable guarantee or cross-language SDK. Compiled ESM/type SDK packages and external tarball validation are implemented; Core/Web v0.1.7 are published on npm. Automated vendored-engine upgrades remain pending. See [npm distribution and publishing](npm-publishing.md).
 
-No impulse/angular rigid-body simulation or continuous collision detection, multiple cameras/viewports, infinite maps, audio, save-game format, networking, generic ECS, asset manifest/font manager or visual editor is implemented. Actors/components are destroyed on removal; reusable pooling and scene reactivation are not implicit features. Dynamic images load asynchronously and can fail independently of logical Actors.
+No impulse/angular rigid-body simulation or continuous collision detection, multiple cameras/viewports, infinite maps, save-game format, networking, generic ECS, asset manifests or a visual editor is implemented. Actors/components are destroyed on removal; pooling is application-owned and Scene reactivation requires explicit retention. Dynamic images load asynchronously and can fail independently of logical Actors.
 
 Generic control-right management was reviewed and is not being introduced. Grid does not acquire control handles for stored values, and no control-right API is being added to existing Components. NDArray and sparse/infinite/chunked grids are outside the fixed 2D Grid scope.
 

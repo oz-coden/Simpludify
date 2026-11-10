@@ -1,6 +1,6 @@
 # Platform limits and implemented scope
 
-The current source and public registry SDK are `@simpludify/core@0.1.6` and `@simpludify/web@0.1.6`. The next development milestone is v0.1.7. During the 0.x phase, APIs can evolve before reaching 1.0 stability. Use public package roots and exact versions with a committed lockfile.
+The public registry SDK is v0.1.7. The source includes the unpublished v0.2.0 candidate. During the 0.x phase, APIs can evolve before reaching 1.0 stability. Use public package roots and exact versions with a committed lockfile.
 
 ## Implemented features
 
@@ -8,6 +8,7 @@ The current source and public registry SDK are `@simpludify/core@0.1.6` and `@si
 - **TileGeometry / GeometryTilemap:** Square, triangle, and hex (two orientations) solid color layers, coordinate projection, polygon picking, edge neighbors, dynamic updates.
 - **Terrain collision:** Tile ID defaults, per-cell overrides, dedicated `TileContact` events, local candidate query, position correction via `CollisionWorld`.
 - **Core game foundation:** DOM-free Engine, explicit deterministic stepping, seeded PRNG, snapshot inspection.
+- **Resources (v0.2.0):** Explicit Web image, JSON, AudioBuffer and FontFace loading, media fallback, and an idle cache bounded by entry count. Audio uses Web Audio and browser autoplay policy.
 - **Scene lifecycle:** Synchronous Core states, ownership, Web asynchronous preparation, cancellation, transaction rollback on pre-commit error.
 - **Actor and Components:** Structural dependency validation, immediate disable, reverse-order destruction, lazy typed EventBus, owned simulation timers.
 - **Movement:** Character preset, Motion integrator, live scale modification, custom movement policies.
@@ -22,21 +23,20 @@ The current source and public registry SDK are `@simpludify/core@0.1.6` and `@si
 
 Position correction is bounded iterative depenetration, not a full rigid-body physics simulator. There is no restitution, friction, gravity, torque, angular dynamics, continuous collision detection (CCD), or moving-platform velocity transfer. Fast-moving objects can tunnel through thin geometry. Crowds, narrow gaps, or deep interpenetration may leave residual penetration; inspect `world.responseDiagnostics.unresolved`. One Collider per Actor is supported.
 
-Runtime exceptions during updates do not roll back mutated state. Removing an Actor or Component destroys it permanently; entity pooling and Scene reactivation are not built in. Snapshots are diagnostic inspections, not save-state formats for custom Component state.
+Runtime exceptions during updates do not roll back mutated state. Removing an Actor or Component destroys it permanently; entity pooling is outside the runtime. Reactivation requires an opt-in retained Scene. Snapshots are diagnostic inspections, not save-state formats for custom Component state.
 
 ## Unimplemented and unverified scope
 
-| Area                         | Current status                                                      |
-| ---------------------------- | ------------------------------------------------------------------- |
-| Audio & music                | Unimplemented. Web Audio must be managed by application code        |
-| Infinite maps & streaming    | Unimplemented. Tilemaps are bounded rectangular grids               |
-| Multiple cameras / viewports | Unimplemented. A single active camera and viewport is supported     |
-| Asset manifests & fonts      | Unimplemented. Handled via standard Vite / browser mechanisms       |
-| Networking & multiplayer     | Unimplemented. No transport, replication, or authority abstractions |
-| Polygon collision / SAT      | Unimplemented. Polygon tiles do not generate physics Colliders      |
-| Safari, Firefox, iOS/Android | Unverified in automated CI. Automated tests target Chromium         |
-| WebGL context loss recovery  | Unhandled / unverified                                              |
-| Native desktop / mobile apps | Unimplemented. No official Electron, Tauri, or native wrapper       |
+| Area                                | Current status                                                      |
+| ----------------------------------- | ------------------------------------------------------------------- |
+| Infinite maps & streaming           | Unimplemented. Tilemaps are bounded rectangular grids               |
+| Multiple cameras / viewports        | Unimplemented. A single active camera and viewport is supported     |
+| Asset manifests and streaming audio | Outside the v0.2.0 API. Audio is decoded into memory.               |
+| Networking & multiplayer            | Unimplemented. No transport, replication, or authority abstractions |
+| Polygon collision / SAT             | Unimplemented. Polygon tiles do not generate physics Colliders      |
+| Safari, Firefox, iOS/Android        | Unverified in automated CI. Automated tests target Chromium         |
+| WebGL context loss recovery         | Unhandled / unverified                                              |
+| Native desktop / mobile apps        | Unimplemented. No official Electron, Tauri, or native wrapper       |
 
 ## Performance interpretation and benchmarks
 

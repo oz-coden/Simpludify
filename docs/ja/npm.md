@@ -1,8 +1,8 @@
 # npm SDKからゲームを始める
 
-SimpludifyのExperimental v0.1.6は、`@simpludify/core`と`@simpludify/web`に分かれたESM SDKです。次回開発マイルストーンはv0.1.7の予定です。0.xではAPIが変更される可能性があります。内部ファイルの直接importは公開APIではありません。
+Simpludifyは`@simpludify/core`と`@simpludify/web`に分かれた実験的なESM SDKです。0.xではAPIが変更される可能性があります。内部ファイルの直接importは公開APIではありません。
 
-**公開状態：`@simpludify/core@0.1.6`と`@simpludify/web@0.1.6`はnpmレジストリで公開済みです。** 以下の手順で独立したプロジェクトにインストールできます。
+**公開状態：`@simpludify/core@0.1.7`と`@simpludify/web@0.1.7`はnpmレジストリで公開済みです。** 以下の手順で独立したプロジェクトにインストールできます。
 
 
 ゲームパッド・Source有効化API、仮想入力、入力Binding APIは公開済みv0.1.6で利用できます。独立スターターのlockfileは公開済みのv0.1.6を固定します。候補SDKでの検証では、一時コピーの依存関係とScene再開呼び出しを候補APIに合わせます。
@@ -148,17 +148,17 @@ npm run preview
 リポジトリ管理者は`npm ci`、`npm run pack:packages`で2つの`.tgz`を生成できます。独立したゲームプロジェクトには、エンジンのソースコピーをせずにアーカイブを導入できます。
 
 ```sh
-npm install /path/to/simpludify-core-0.1.6.tgz
-npm install /path/to/simpludify-web-0.1.6.tgz
+npm install /path/to/simpludify-core-0.2.0.tgz
+npm install /path/to/simpludify-web-0.2.0.tgz
 ```
 
-公開前はCoreを先に導入します。Webの依存宣言は正式な`@simpludify/core@0.1.6`なので、Coreが未導入・未公開だとレジストリ解決に失敗します。公開後はWebだけの導入で依存が自動解決されます。
+未公開のv0.2.0候補では、Webが依存する同じバージョンのCoreを先に導入します。[v0.2.0への移行ガイド](migrate-0.2.0.md)も参照してください。
 
 ## 6. 互換性と制約
 
 - ESMとTypeScript型定義を配布します。`dist`内部パスへの直接importやCJSの`require()`はサポートしません。
 - JavaScript source mapには元ソースを埋め込んでいます。型定義mapは配布しません。
-- Core/Webは同じ0.1.6を使用します。WebがCoreを再exportするため、通常はWebからまとめてimportできます。
+- CoreとWebのバージョンは揃えてください。WebがCoreを再exportするため、通常はWebからまとめてimportできます。
 - Coreの公開型はDOM/Node ambient型なしでも検証します。WebはブラウザのDOM型と実行環境が必要です。
 - 対応範囲の詳細は[制約](limitations.md)、[API](api.md)、[Core/Host境界](host-boundary.md)を参照してください。
 
