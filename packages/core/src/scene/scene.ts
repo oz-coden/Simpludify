@@ -29,8 +29,10 @@ export const SceneState = {
   Disposed: "disposed",
 } as const;
 export type SceneState = (typeof SceneState)[keyof typeof SceneState];
+export type SceneRetention = "dispose" | "retain";
 export class Scene {
   private phase: SceneState = SceneState.Preparing;
+  private retained = false;
   private engineOwner: SceneEngineOwner | undefined;
   private inputScope: InputSystem | undefined;
   private readonly members = new Map<string, Actor>();
@@ -106,7 +108,7 @@ export class Scene {
     this.displayAnimation?.advance(seconds);
   }
   private assertAlive(): void {
-    if (this.disposed || this.phase === SceneState.Inactive)
+    if (this.disposed || (this.phase === SceneState.Inactive && !this.retained))
       throw new EngineError(
         "SCENE_DISPOSED",
         "Scene can no longer acquire resources",
@@ -263,14 +265,16 @@ export class Scene {
     this.engineOwner = engine;
   }
   /** @internal */ activateOwned(): void {
+    this.retained = false;
     this.phase = SceneState.Active;
   }
   /** @internal */ notifyActivated(): void {
     if (!this.disposed)
       cleanupAll(this.activations, "Scene activation callbacks failed");
   }
-  /** @internal */ deactivateOwned(): void {
+  /** @internal */ deactivateOwned(retain = false): void {
     if (this.phase !== SceneState.Active) return;
+    this.retained = retain;
     this.phase = SceneState.Inactive;
     cleanupAll(this.deactivations, "Scene deactivation callbacks failed");
   }

@@ -345,6 +345,12 @@ The game retains up to `assets.cacheEntries` idle, successfully loaded assets by
 
 Use `assets.progress`, `assets.onProgress(handler)` and `handle.progress` for loading UI. The game scope counts active assets across its scopes and counts each shared asset once. A scope can represent an independent batch. Completed entries include terminal failures and usable fallbacks. The loading count includes background retries. `onProgress` returns an unsubscribe callback.
 
+## Retained scenes
+
+A Game defaults to disposing the outgoing Scene. Use `new Game({ sceneRetention: "retain" })` to keep registered Scenes by default. Override the policy for an individual factory with `game.scene(id, setup, { retention: "dispose" })` or `"retain"`.
+
+When a retained Scene is inactive, its Actors, simulation timers, tweens, subscriptions and Asset scope remain owned. Its simulation, presentation and ordinary input stop, while pending Asset loads can complete. Returning to it runs activation hooks again and rebuilds the browser presentation from the same Scene models. Navigation to the already active retained Scene completes without restarting it. The default disposal policy still creates a fresh instance on each completed request. Game disposal releases every retained Scene.
+
 ## SpriteSheet and SpriteAnimation
 
 [Sprite contracts and examples](./specs/sprites.md) define grid/named/rectangular image sources, simulation-time playback, Renderable source ownership, deferred bounds checking and shared crop/source cleanup. Both APIs are exported by Core and Web. SpriteAnimation requires Renderable, runs in LateUpdate, and does not add host timers or an asynchronous Core lifecycle.

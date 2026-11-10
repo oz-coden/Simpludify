@@ -342,6 +342,12 @@ actor.add(new Renderable({ source: hero.source }));
 
 進捗は `assets.progress`、`assets.onProgress(handler)`、`handle.progress` で取得できます。Game全体では各スコープの稼働中のAssetを重複なく集計します。個別のスコープをバッチ単位としても使えます。完了数には最終的な失敗や利用可能なFallbackも含まれ、ロード中の件数には背景の再試行も含まれます。
 
+## Sceneの保持と再開
+
+Gameは既定で切り替え前のSceneを破棄します。`new Game({ sceneRetention: "retain" })` では登録済みSceneを既定で保持します。`game.scene(id, setup, { retention: "dispose" })` または `"retain"` で個別に上書きできます。
+
+非アクティブの保持Sceneでは、Actor、タイマー、Tween、購読、Assetスコープの所有権を維持します。シミュレーション、描画、通常の入力を止め、進行中のAssetロードは継続できます。再入場では同じSceneモデルからブラウザ表示を作り直し、活性化フックを再実行します。現在の保持Sceneへの遷移は再初期化せず完了します。破棄方針のSceneはこれまでどおり、新しいインスタンスを作ります。Gameの破棄時は保持Sceneも解放します。
+
 ## SpriteSheetとSpriteAnimation
 
 [Spriteの契約と例](./specs/sprites.md)で、グリッド／名前付き／矩形の画像ソース、シミュレーション時間での再生、Renderable sourceの所有権、遅延境界検査、共有切り抜き／ソースのクリーンアップを定義しています。どちらのAPIもCoreおよびWebからexportされています。SpriteAnimationはRenderableを必要とし、LateUpdateで実行され、ホストタイマーや非同期Coreライフサイクルを追加することはありません。

@@ -4,11 +4,12 @@ import { RandomManager } from "../foundation/random";
 import { Transform } from "../graphics/components";
 import { InputSystem } from "../interaction/input";
 import type { ExecutionPort } from "../scene/execution";
-import { Scene, SceneState } from "../scene/scene";
+import { Scene, type SceneRetention, SceneState } from "../scene/scene";
 export class Engine {
   readonly input = new InputSystem();
   private active = new Scene("default");
   private dead = false;
+  private readonly retained = new Map<Scene, () => void>();
   private stepping = false;
   private transitioning = false;
   private suspended = false;
@@ -71,38 +72,57 @@ export class Engine {
       this.input.clear();
     }
   }
-  activate(scene: Scene): void {
+  activate(scene: Scene, options: { previous?: SceneRetention } = {}): void {
     this.assertAlive();
     if (this.stepping || this.transitioning)
       throw new EngineError(
         "TRANSITION_REENTRANT",
         "Cannot activate during a synchronous update or transition",
       );
+    if (
+      options.previous !== undefined &&
+      options.previous !== "dispose" &&
+      options.previous !== "retain"
+    )
+      throw new EngineError("INVALID_VALUE", "Unknown scene retention policy");
     scene.validateOwner(this);
     this.execution?.validateScene(scene);
     if (scene === this.active && scene.state === SceneState.Active) return;
     if (scene.state === SceneState.Preparing) scene.markReady();
-    if (scene.state !== SceneState.Ready)
+    if (scene.state !== SceneState.Ready && !this.retained.has(scene))
       throw new EngineError("SCENE_STATE", "Only ready scenes can activate", {
         sceneId: scene.id,
       });
     scene.claim(this);
     const previous = this.active;
+    const retain =
+      previous !== scene &&
+      previous.state === SceneState.Active &&
+      options.previous === "retain";
+    if (retain)
+      this.retained.set(
+        previous,
+        previous.onDispose(() => {
+          this.retained.delete(previous);
+        }),
+      );
+    this.retained.get(scene)?.();
+    this.retained.delete(scene);
     this.transitioning = true;
     this.active = scene;
     this.context.scene = scene;
     scene.activateOwned();
-    if (previous !== scene) this.input.clear();
     try {
-      cleanupAll(
-        [
-          ...(previous !== scene
-            ? [() => previous.deactivateOwned(), () => previous.dispose()]
-            : []),
-          () => scene.notifyActivated(),
-        ],
-        "Scene transition callbacks failed",
-      );
+      const callbacks: (() => void)[] = [];
+      if (previous !== scene) {
+        callbacks.push(
+          () => this.input.clear(),
+          () => previous.deactivateOwned(retain),
+        );
+        if (!retain) callbacks.push(() => previous.dispose());
+      }
+      callbacks.push(() => scene.notifyActivated());
+      cleanupAll(callbacks, "Scene transition callbacks failed");
     } finally {
       this.transitioning = false;
     }
@@ -188,11 +208,14 @@ export class Engine {
   dispose(): void {
     if (this.dead) return;
     this.dead = true;
+    const inactive = [...this.retained.keys()];
+    this.retained.clear();
     cleanupAll(
       [
         () => this.execution?.dispose(),
         () => this.input.dispose(),
         () => this.active.dispose(),
+        ...inactive.map((scene) => () => scene.dispose()),
         () => this.random.dispose(),
       ],
       "Engine cleanup failed",

@@ -28,6 +28,7 @@ import {
   ReplayPlayer,
   Scene,
   ScenePointer,
+  type SceneRetention,
   SceneState,
   type ScreenPoint,
   screenPoint,
@@ -79,6 +80,18 @@ export interface SceneContext {
   onDispose(callback: () => void): () => void;
 }
 export type SceneSetup = (context: SceneContext) => void | Promise<void>;
+export interface SceneOptions {
+  readonly retention?: SceneRetention;
+}
+interface SceneRegistration {
+  readonly setup: SceneSetup;
+  readonly retention: SceneRetention;
+}
+interface SceneSession {
+  readonly scene: Scene;
+  readonly nodes: readonly UINode[];
+  readonly canvas: CanvasUI | undefined;
+}
 export interface GameLoggingOptions extends Omit<LoggerOptions, "sink"> {
   /** Controls Console output only. Diagnostic subscribers remain active. */
   readonly console?: boolean;
@@ -99,6 +112,7 @@ export interface GameOptions {
   frames?: FrameDriver;
   logging?: GameLoggingOptions;
   assets?: AssetOptions;
+  sceneRetention?: SceneRetention;
   /** @deprecated Subscribe to Game.logger for structured diagnostics. */
   onError?: (error: unknown) => void;
 }
@@ -155,8 +169,14 @@ export class Game<SceneId extends string = string> {
         "Renderer does not support virtual input presentation",
       );
     const presentation = renderer.prepareVirtualInput(input);
-    input.onDispose(() => presentation.dispose());
-    return presentation;
+    const off = input.onDispose(() => presentation.dispose());
+    return {
+      update: () => presentation.update(),
+      dispose: () => {
+        off();
+        presentation.dispose();
+      },
+    };
   }
   private canvas: CanvasUI | undefined;
   private canvasPresentation: CanvasPresentation | undefined;
@@ -200,7 +220,11 @@ export class Game<SceneId extends string = string> {
   private width = 800;
   private height = 450;
   private ratio = 1;
-  private readonly scenes = new Map<SceneId, SceneSetup>();
+  private readonly scenes = new Map<SceneId, SceneRegistration>();
+  private readonly retainedScenes = new Map<SceneId, SceneSession>();
+  private readonly sceneRetention: SceneRetention;
+  private activeRetention: SceneRetention = "dispose";
+  private detachPresentation: (() => void) | undefined;
   private pendingScene: { id: SceneId; task: Promise<void> } | undefined;
   private readonly defaultUI: UINode[] = [];
   private ui: MountedUI | undefined;
@@ -218,6 +242,7 @@ export class Game<SceneId extends string = string> {
   private readonly errorBox: HTMLParagraphElement;
   constructor(options: GameOptions = {}) {
     this.options = options;
+    this.sceneRetention = retentionPolicy(options.sceneRetention ?? "dispose");
     const { console: consoleEnabled = !options.onError, ...logging } =
       options.logging ?? {};
     this.logger = new Logger({
@@ -469,7 +494,7 @@ export class Game<SceneId extends string = string> {
       );
     this.defaultUI.push(...nodes);
   }
-  scene(id: SceneId, setup: SceneSetup): this {
+  scene(id: SceneId, setup: SceneSetup, options: SceneOptions = {}): this {
     this.assertAlive();
     if (typeof id !== "string" || !id.length)
       throw new EngineError("INVALID_VALUE", "Scene id must not be empty");
@@ -481,7 +506,10 @@ export class Game<SceneId extends string = string> {
         "Scene id is already registered",
         { sceneId: id },
       );
-    this.scenes.set(id, setup);
+    this.scenes.set(id, {
+      setup,
+      retention: retentionPolicy(options.retention ?? this.sceneRetention),
+    });
     return this;
   }
   private wait<T>(promise: Promise<T>): Promise<T> {
@@ -556,8 +584,8 @@ export class Game<SceneId extends string = string> {
     return this.navigate(id);
   }
   private navigate(id: SceneId): Promise<void> {
-    const setup = this.scenes.get(id);
-    if (!setup)
+    const registration = this.scenes.get(id);
+    if (!registration)
       return Promise.reject(
         new EngineError("SCENE_NOT_FOUND", "Unknown scene", { sceneId: id }),
       );
@@ -565,6 +593,30 @@ export class Game<SceneId extends string = string> {
     const task = this.queue
       .then(async () => {
         this.assertAlive();
+        const beforeActivate = () => {
+          if (this.pendingScene?.task === task) this.pendingScene = undefined;
+        };
+        const existing = this.retainedScenes.get(id);
+        if (existing) {
+          if (
+            this.engine.scene === existing.scene &&
+            existing.scene.state === SceneState.Active
+          )
+            return;
+          try {
+            await this.present(
+              existing.scene,
+              existing.nodes,
+              existing.canvas,
+              beforeActivate,
+              registration.retention,
+            );
+          } catch (error) {
+            this.reportPreparation(error);
+            throw error;
+          }
+          return;
+        }
         const scene = new Scene(id),
           nodes: UINode[] = [],
           controller = new AbortController();
@@ -577,7 +629,7 @@ export class Game<SceneId extends string = string> {
           const assets = this.assets.scope(scene);
           await this.wait(
             Promise.resolve(
-              setup({
+              registration.setup({
                 scene,
                 assets,
                 get tweens() {
@@ -617,17 +669,23 @@ export class Game<SceneId extends string = string> {
             ),
           );
           this.assertAlive();
-          await this.present(scene, nodes, canvas, () => {
-            if (this.pendingScene?.task === task) this.pendingScene = undefined;
-          });
-        } catch (error) {
-          if (this.ready && !this.dead)
-            this.logger.report(error, {
-              source: "engine.scene",
-              message: "Simpludify could not prepare the requested scene",
-              fatal: false,
-              standardOutput: false,
+          if (registration.retention === "retain") {
+            scene.onDispose(() => {
+              if (this.retainedScenes.get(id)?.scene === scene)
+                this.retainedScenes.delete(id);
             });
+          }
+          await this.present(
+            scene,
+            nodes,
+            canvas,
+            beforeActivate,
+            registration.retention,
+          );
+          if (registration.retention === "retain")
+            this.retainedScenes.set(id, { scene, nodes, canvas });
+        } catch (error) {
+          this.reportPreparation(error);
           try {
             scene.dispose();
           } catch (cleanupError) {
@@ -645,17 +703,31 @@ export class Game<SceneId extends string = string> {
     this.queue = task.catch(() => {});
     return task;
   }
+  private reportPreparation(error: unknown): void {
+    if (this.ready && !this.dead)
+      this.logger.report(error, {
+        source: "engine.scene",
+        message: "Simpludify could not prepare the requested scene",
+        fatal: false,
+        standardOutput: false,
+      });
+  }
   private async present(
     scene: Scene,
     nodes: readonly UINode[],
     canvas?: CanvasUI,
     beforeActivate?: () => void,
+    retention: SceneRetention = "dispose",
   ): Promise<void> {
     let prepared: PreparedScene | undefined,
       ui: MountedUI | undefined,
       committed = false;
     let canvasPresentation: CanvasPresentation | undefined;
     let virtualPresentation: VirtualInputPresentation | undefined;
+    const hooks: (() => void)[] = [];
+    const detach = () => {
+      for (const off of hooks.splice(0)) off();
+    };
     try {
       const preparing = this.renderer.prepare(scene);
       void preparing.then(
@@ -673,7 +745,7 @@ export class Game<SceneId extends string = string> {
       prepared = await this.wait(preparing);
       this.assertAlive();
       ui = mountUI(nodes, this.report);
-      scene.onDispose(ui.dispose);
+      hooks.push(scene.onDispose(ui.dispose));
       if (canvas) {
         canvas.setErrorHandler(this.report);
         const renderer = this.renderer as RendererPort & {
@@ -691,15 +763,15 @@ export class Game<SceneId extends string = string> {
           canvas,
           this.pointers.routing,
         );
-        scene.onDispose(() => canvasPresentation?.dispose());
+        hooks.push(scene.onDispose(() => canvasPresentation?.dispose()));
       }
       virtualPresentation = this.prepareVirtual(scene);
-      scene.markReady();
+      if (scene.state === SceneState.Preparing) scene.markReady();
       beforeActivate?.();
       this.errorBox.hidden = true;
       try {
         if (this.playback && this.playbackScene !== scene) this.stopReplay();
-        this.engine.activate(scene);
+        this.engine.activate(scene, { previous: this.activeRetention });
       } catch (error) {
         if (this.engine.scene !== scene || scene.state !== SceneState.Active)
           throw error;
@@ -708,9 +780,13 @@ export class Game<SceneId extends string = string> {
       this.assertAlive();
       const oldPrepared = this.prepared,
         oldUI = this.ui,
+        oldCanvasUI = this.canvas,
+        detachOld = this.detachPresentation,
         oldCanvas = this.canvasPresentation,
         oldVirtual = this.virtualPresentation;
       this.prepared = prepared;
+      this.detachPresentation = detach;
+      this.activeRetention = retention;
       this.ui = ui;
       this.canvas = canvas;
       this.canvasPresentation = canvasPresentation;
@@ -721,6 +797,13 @@ export class Game<SceneId extends string = string> {
         this.element.append(ui.element);
       } finally {
         for (const cleanup of [
+          () => detachOld?.(),
+          () => {
+            if (oldCanvasUI && !oldCanvasUI.disposed) {
+              oldCanvasUI.focus();
+              oldCanvasUI.stopMotion();
+            }
+          },
           () => oldPrepared?.dispose(),
           () => oldUI?.dispose(),
           () => oldCanvas?.dispose(),
@@ -742,6 +825,7 @@ export class Game<SceneId extends string = string> {
     } catch (error) {
       if (!committed)
         for (const cleanup of [
+          detach,
           () => prepared?.dispose(),
           () => ui?.dispose(),
           () => canvasPresentation?.dispose(),
@@ -1035,6 +1119,7 @@ export class Game<SceneId extends string = string> {
       () => this.virtualPresentation?.dispose(),
       () => this.canvas?.dispose(),
       () => this.observer.disconnect(),
+      () => this.detachPresentation?.(),
       () => this.ui?.dispose(),
       () => this.prepared?.dispose(),
       () => this.renderer.dispose(),
@@ -1058,8 +1143,16 @@ export class Game<SceneId extends string = string> {
     this.defaultCanvas = undefined;
     this.defaultUI.length = 0;
     this.scenes.clear();
+    this.retainedScenes.clear();
+    this.detachPresentation = undefined;
     this.pendingScene = undefined;
   }
+}
+
+function retentionPolicy(value: SceneRetention): SceneRetention {
+  if (value !== "dispose" && value !== "retain")
+    throw new EngineError("INVALID_VALUE", "Unknown scene retention policy");
+  return value;
 }
 
 function validFontFamily(value: string): boolean {
