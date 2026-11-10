@@ -156,3 +156,49 @@ test("retains scene-owned loads and restores the same actors after a failed reac
     disposed: true,
   });
 });
+
+test("disposes the Game if an activation hook disposes the committed scene", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading")).toBeVisible();
+  const result = await page.evaluate(async (url) => {
+    const { Game } = (await import(url)) as typeof import("@simpludify/web");
+    window.demo.dispose();
+    const game = new Game<"home" | "target">({
+      sceneRetention: "retain",
+      logging: { console: false },
+      frames: { request: () => 1, cancel: () => {} },
+      renderer: () => ({
+        init: async () => {},
+        resize() {},
+        dispose() {},
+        prepare: async () => ({ render() {}, dispose() {} }),
+      }),
+    });
+    const faults: (boolean | undefined)[] = [];
+    game.logger.subscribe((entry) => faults.push(entry.fatal));
+    game.scene("home", () => {});
+    game.scene("target", ({ scene, onActivate }) => {
+      onActivate(() => scene.dispose());
+    });
+    await game.run("home");
+    const home = game.engine.scene;
+    const code = await game.changeScene("target").then(
+      () => "unexpected success",
+      (error: { code: string }) => error.code,
+    );
+    return {
+      code,
+      faults,
+      homeDisposed: home.disposed,
+      mounted: game.element.isConnected,
+    };
+  }, sdk);
+  expect(result).toEqual({
+    code: "SCENE_DISPOSED",
+    faults: [true],
+    homeDisposed: true,
+    mounted: false,
+  });
+});

@@ -351,8 +351,7 @@ export class AssetScope implements LifetimeOwner {
     drop = this.store.retain(entry, () => handle.release());
     if (entry.status === "loading" && !entry.task) {
       void this.store.start(entry, request, false).catch(() => {});
-    }
-    this.notify();
+    } else this.store.changed();
     return handle;
   }
 
@@ -446,19 +445,23 @@ export class AssetStore {
     };
   }
 
-  deliver(listener: () => void): void {
-    try {
-      listener();
-    } catch (cause) {
+  deliver(listener: () => unknown): void {
+    const report = (cause: unknown) => {
       this.logger.report(cause, {
         source: "engine.assets",
         message: "Asset observer failed",
         fatal: false,
       });
+    };
+    try {
+      const result = listener();
+      if (result != null) void Promise.resolve(result).catch(report);
+    } catch (cause) {
+      report(cause);
     }
   }
 
-  private changed(): void {
+  changed(): void {
     if (this.notifying) {
       if (!this.notificationScheduled) {
         this.notificationScheduled = true;
@@ -610,10 +613,16 @@ export class AssetStore {
   }
 
   private commit(entry: Entry, asset: AssetResource, fallback: boolean): void {
-    for (const validate of entry.validators) validate(asset);
+    try {
+      for (const validate of entry.validators) validate(asset);
+    } catch (error) {
+      this.release(asset);
+      throw error;
+    }
     const old = entry.asset;
     entry.asset = asset;
     entry.status = fallback ? "fallback" : "ready";
+    if (!fallback) entry.error = undefined;
     entry.usable();
     for (const listener of [...entry.listeners])
       if (entry.listeners.has(listener)) this.deliver(listener);
@@ -682,14 +691,11 @@ export class AssetStore {
             signal,
           );
           if (!asset) throw invalid("adapter result");
-          try {
-            signal.throwIfAborted();
-            this.commit(entry, asset, false);
-          } catch (error) {
+          if (signal.aborted) {
             this.release(asset);
-            throw error;
+            throw signal.reason;
           }
-          entry.error = undefined;
+          this.commit(entry, asset, false);
           return;
         } catch (cause) {
           owner.throwIfAborted();
@@ -753,10 +759,10 @@ export class AssetStore {
     if (!entry || this.dead || signal.aborted) throw cancelled();
     const controller = new AbortController();
     const pending = AbortSignal.any([signal, controller.signal]);
-    let frames: readonly SpriteFrame[] = [];
+    let frames: (() => Iterable<SpriteFrame>) | undefined;
     const subscriptions = new Set<() => void>();
     const validate = (asset: AssetResource) => {
-      for (const frame of frames) asset.image?.textureFor(frame);
+      for (const frame of frames?.() ?? []) asset.image?.textureFor(frame);
     };
     const release = () => {
       if (controller.signal.aborted) return;

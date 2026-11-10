@@ -63,8 +63,9 @@ it("unlocks queued voices, routes hierarchical gain and resumes with a new sourc
   vi.stubGlobal("AudioContext", Device);
   vi.stubGlobal("navigator", { userActivation: { isActive: false } });
   const logger = new Logger();
+  let generation = { duration: 4 };
   const adapter: AssetAdapter = {
-    load: async () => ({ value: { duration: 4 }, release() {} }),
+    load: async () => ({ value: generation, release() {} }),
     fallback: async () => undefined,
   };
   const store = new AssetStore(adapter, logger, "https://game.example/");
@@ -83,11 +84,15 @@ it("unlocks queued voices, routes hierarchical gain and resumes with a new sourc
     const device = Device.last;
     if (!device) throw new Error("Missing device");
     expect(device.sources).toHaveLength(0);
+    generation = { duration: 5 };
+    await asset.reload();
+    const unlockedGeneration = generation;
     vi.stubGlobal("navigator", { userActivation: { isActive: true } });
     expect(await audio.unlock()).toBe(true);
     expect(voice.state).toBe("playing");
     const first = device.sources[0];
     if (!first) throw new Error("Missing playback source");
+    expect(first.buffer).toBe(unlockedGeneration);
     const gains: number[] = [];
     let route = first.output;
     while (route) {
@@ -102,7 +107,10 @@ it("unlocks queued voices, routes hierarchical gain and resumes with a new sourc
     voice.pause();
     expect(voice.state).toBe("paused");
     expect(first.stop).toHaveBeenCalledTimes(1);
+    generation = { duration: 6 };
+    await asset.reload();
     voice.resume();
+    expect(device.sources[1]?.buffer).toBe(unlockedGeneration);
     expect(device.sources[1]?.start).toHaveBeenCalledWith(0, 1.25);
     owner.dispose();
     expect(await voice.finished).toBe("stopped");

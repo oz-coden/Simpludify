@@ -145,3 +145,68 @@ for (const renderer of ["WebGL", "Canvas2D"]) {
     expect(requests).toBe(3);
   });
 }
+
+test("validates a managed atlas against tile edits made before replacement commits", async ({
+  page,
+}) => {
+  let requests = 0;
+  await page.route("**/managed-terrain.svg", async (route) => {
+    const width = ++requests === 2 ? 16 : 32;
+    await route.fulfill({
+      contentType: "image/svg+xml",
+      body: `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="16"><rect width="${width}" height="16" fill="lime"/></svg>`,
+    });
+  });
+  await page.goto("/");
+  await expect(page.getByRole("heading")).toBeVisible();
+  const result = await page.evaluate(async (url) => {
+    const { Game, SpriteSheet, Tilemap } = (await import(
+      url
+    )) as typeof import("@simpludify/web");
+    window.demo.dispose();
+    const game = new Game({
+      logging: { console: false },
+      frames: { request: () => 1, cancel: () => {} },
+    });
+    try {
+      const atlas = game.assets.load({
+        kind: "image",
+        url: "/managed-terrain.svg",
+      });
+      const map = new Tilemap({
+        sheet: SpriteSheet.grid(atlas.source.url, {
+          frameWidth: 16,
+          frameHeight: 16,
+        }),
+        tiles: [[0, null]],
+        tileWidth: 16,
+        tileHeight: 16,
+      }).place(game.engine.scene);
+      await game.run();
+      const replacement = atlas.reload();
+      map.set(1, 0, 1);
+      const code = await replacement.then(
+        () => "unexpected success",
+        (error: { code: string }) => error.code,
+      );
+      const retained = atlas.value;
+      await atlas.reload();
+      game.setViewport();
+      return {
+        code,
+        retained,
+        recovered: atlas.value,
+        errorCleared: !atlas.error,
+      };
+    } finally {
+      game.dispose();
+    }
+  }, sdk);
+  expect(result).toEqual({
+    code: "SPRITE_FRAME_BOUNDS",
+    retained: { width: 32, height: 16 },
+    recovered: { width: 32, height: 16 },
+    errorCleared: true,
+  });
+  expect(requests).toBe(3);
+});

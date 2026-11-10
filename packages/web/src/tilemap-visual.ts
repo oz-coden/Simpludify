@@ -56,6 +56,9 @@ export class TilemapVisual {
           return;
         }
         this.lease = lease;
+        lease.useFrames?.(() =>
+          Array.from(this.map.tileIds(), (id) => this.map.sheet.get(id).frame),
+        );
         this.sync();
         lease.onChange?.(() => {
           if (this.disposed || !isCurrent()) return;
@@ -88,14 +91,7 @@ export class TilemapVisual {
     this.revision = this.map.revision;
     this.error = undefined;
     try {
-      const ids = this.lease.useFrames
-        ? [...this.map.tileIds()]
-        : this.map.tileIds();
-      if (this.lease.useFrames)
-        this.lease.useFrames(
-          [...ids].map((id) => this.map.sheet.get(id).frame),
-        );
-      for (const id of ids) {
+      for (const id of this.map.tileIds()) {
         if (!this.textures.has(id)) {
           this.stats.validatedFrames++;
           this.textures.set(

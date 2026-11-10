@@ -12,7 +12,7 @@ export interface ImageResource {
 }
 export interface ImageLease extends ImageResource {
   textureFor(frame?: SpriteFrame): Texture;
-  useFrames?(frames: readonly SpriteFrame[]): void;
+  useFrames?(frames: () => Iterable<SpriteFrame>): void;
   onChange?(listener: () => void): () => void;
 }
 interface Consumer {

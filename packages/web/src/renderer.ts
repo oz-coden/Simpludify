@@ -463,7 +463,7 @@ export class PixiRenderer implements RendererPort {
       if (source.kind !== "image") return;
       // Resolve and validate before mutating the retained Sprite or releasing its lease.
       const texture = resource.textureFor(source.frame);
-      resource.useFrames?.(source.frame ? [source.frame] : []);
+      resource.useFrames?.(() => (source.frame ? [source.frame] : []));
       const previous = entry.image;
       const sprite =
         entry.display instanceof Sprite ? entry.display : new Sprite(texture);

@@ -116,16 +116,7 @@ export class AudioPlayback {
     });
     this.offOwner = options.owner?.onDispose(() => this.stop());
     void use.ready
-      .then(() => {
-        if (this.done) return;
-        if (use.value === undefined)
-          throw new EngineError(
-            "ASSET_LOAD_FAILED",
-            "Audio asset is unavailable",
-          );
-        this.buffer = use.value;
-        this.startIfReady();
-      })
+      .then(() => this.startIfReady())
       .catch((cause) => this.fail(cause));
   }
 
@@ -182,12 +173,14 @@ export class AudioPlayback {
 
   /** @internal */
   startIfReady(): void {
-    if (this.phase !== "pending" || this.buffer === undefined) return;
+    if (this.phase !== "pending") return;
+    const current = this.buffer === undefined ? this.use.value : this.buffer;
+    if (current === undefined) return;
     try {
       const context = this.audio.device();
       if (context.state !== "running") return;
-      const buffer =
-        this.buffer ?? context.createBuffer(1, 1, context.sampleRate);
+      this.buffer = current;
+      const buffer = current ?? context.createBuffer(1, 1, context.sampleRate);
       if (this.position >= buffer.duration) {
         if (!this.looping) {
           this.finish("ended");

@@ -110,6 +110,10 @@ it("keeps the built-in fallback during an event retry and keeps healthy data on 
     fallback: 1,
     loading: 1,
   });
+  const recoveredErrors: unknown[] = [];
+  handle.onChange((asset) => {
+    if (asset.status === "ready") recoveredErrors.push(asset.error);
+  });
   const completed = deferred<void>();
   assets.onProgress((p) => {
     if (p.loading === 0) completed.resolve();
@@ -118,6 +122,7 @@ it("keeps the built-in fallback during an event retry and keeps healthy data on 
   await completed.promise;
   expect(handle.status).toBe("ready");
   expect(handle.value).toEqual({ width: 8, height: 8 });
+  expect(recoveredErrors).toEqual([undefined]);
   expect(fallback.release).toHaveBeenCalledTimes(1);
   expect(diagnostics.some((entry) => entry.code === "ASSET_FALLBACK")).toBe(
     true,
@@ -161,4 +166,29 @@ it("enforces retry limits, rejects invalid settings and discards late abandoned 
   await Promise.resolve();
   expect(late.release).toHaveBeenCalledTimes(1);
   expect(other.value).toBeUndefined();
+});
+
+it("delivers ordered progress snapshots across reentrant scope updates", async () => {
+  const { assets, store, diagnostics } = fixture({
+    load: async (_kind, url) => resource(url),
+    fallback: async () => undefined,
+  });
+  const scope = assets.scope();
+  const totals: number[] = [];
+  scope.onProgress((progress) => {
+    if (progress.total === 1 && progress.loading === 1)
+      scope.load({ kind: "json", url: "/second" });
+  });
+  scope.onProgress(async (progress) => {
+    totals.push(progress.total);
+    if (progress.total === 1) throw new Error("progress observer failed");
+  });
+  await scope.load({ kind: "json", url: "/first" }).ready;
+  expect(totals[0]).toBe(1);
+  expect(totals.slice(1)).not.toContain(1);
+  expect(totals).toContain(2);
+  expect(diagnostics).toContainEqual(
+    expect.objectContaining({ message: "Asset observer failed" }),
+  );
+  store.dispose();
 });

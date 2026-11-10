@@ -713,7 +713,8 @@ export class Game<SceneId extends string = string> {
             beforeActivate,
             registration.retention,
           );
-          if (registration.retention === "retain")
+          this.assertAlive();
+          if (registration.retention === "retain" && !scene.disposed)
             this.retainedScenes.set(id, { scene, nodes, canvas });
         } catch (error) {
           this.reportPreparation(error);
@@ -752,6 +753,7 @@ export class Game<SceneId extends string = string> {
   ): Promise<void> {
     let prepared: PreparedScene | undefined,
       ui: MountedUI | undefined,
+      activated = false,
       committed = false;
     let canvasPresentation: CanvasPresentation | undefined;
     let virtualPresentation: VirtualInputPresentation | undefined;
@@ -804,11 +806,18 @@ export class Game<SceneId extends string = string> {
         if (this.playback && this.playbackScene !== scene) this.stopReplay();
         this.engine.activate(scene, { previous: this.activeRetention });
       } catch (error) {
-        if (this.engine.scene !== scene || scene.state !== SceneState.Active)
-          throw error;
+        if (this.engine.scene !== scene) throw error;
+        activated = scene.disposed;
+        if (scene.state !== SceneState.Active) throw error;
         this.report(error, "engine.scene");
       }
+      activated = true;
       this.assertAlive();
+      if (scene.disposed)
+        throw new EngineError(
+          "SCENE_DISPOSED",
+          "Scene was disposed during activation",
+        );
       const oldPrepared = this.prepared,
         oldUI = this.ui,
         oldCanvasUI = this.canvas,
@@ -868,7 +877,7 @@ export class Game<SceneId extends string = string> {
             this.report(cleanupError);
           }
         }
-      if (committed && !this.dead) {
+      if (activated && !this.dead) {
         this.logger.report(error, {
           source: "engine.presentation",
           message: "Simpludify could not present the active scene",
