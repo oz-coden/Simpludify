@@ -4,7 +4,7 @@
 
 ## 公開ステータス
 
-Core/Web **v0.1.6 はnpmレジストリに公開済み** です。物理Bindingおよび単一入力キャプチャが含まれます。次回開発マイルストーンは **v0.1.7** の予定です。詳細は [v0.1.6公開検証記録](https://github.com/oz-coden/Simpludify/blob/main/docs/work-reports/2026-11-05-v0.1.6-publication.md) を参照してください。公開済みのバージョンおよびタグはイミュータブル（不変）です。
+Core/Web **v0.1.7はnpmレジストリで公開済み**です。ソースには未公開のv0.2.0候補が含まれます。[v0.1.7公開記録](../work-reports/2026-11-10-v0.1.7-publication.md)と[v0.2.0への移行ガイド](migrate-0.2.0.md)を参照してください。公開済みのバージョンとタグは変更できません。
 
 ## リリース準備と検証手順
 
@@ -30,7 +30,7 @@ node scripts/publish-packages.mjs
 `test:packages` はワークスペース外に一時的なプロジェクトを自動生成し、実環境でのインストールと型検査、ビルド、ブラウザ動作を厳密に検証します：
 - `@simpludify/core` 単独でNode.js環境（DOM型なし）で動作すること
 - `@simpludify/web` が依存関係としてCoreを正しく解決できること
-- デスクトップおよび狭小画面（390px, 320px）でのCSS、公開型、UIコントロール、リソース解放が正常であること
+- デスクトップおよび狭小画面（390px, 320px）でのCSS、公開型、画像・JSONの明示ロード、UIコントロール、リソース解放が正常であること
 
 通常CIは現行ソースから候補を一組生成し、WindowsとLinuxの両方でパッケージとViteスターターを検証します。配布用スターターのlockfileは公開済みの版を固定します。候補検証では一時コピー内のSDK依存を差し替えてから `npm ci` を実行します。Run To Exitは固定したアプリのソースで型検査・単体テスト・本番ビルドを一度行い、同じビルドを3つの画面幅とWebGL・Canvas2Dで検証します。
 
@@ -54,8 +54,8 @@ npmのパッケージ設定（Settings → Trusted publishing）は両パッケ�
 
 1. すべてのCIテストが通過したコミットのみを対象とします。`main` ブランチのコミットSHAを確定し、CIが成功していることを確認します。
 2. 候補アーカイブ（`.tgz`）を生成・検査し、SHA512チェックサム、エクスポート一覧、ライセンス表記、型定義を確認します。
-3. リリース管理者の承認を得て、タグ名（例: `v<version>`、次回リリースは `v0.1.7`）を確定します。
-4. GitHub Actionsの **Publish experimental npm SDK** ワークフローを手動実行（`workflow_dispatch`）します。
+3. リリース管理者の承認を得て、両パッケージのバージョン、公開対象のコミットSHA、タグ名（`v<version>`）を確定します。
+4. 対象SHAが `main` のHEADで、同じSHAのpush CIが成功した状態で **Create approved SDK tag** を実行します。タグ名、SHA、確認文字列（`create TAG at SHA`）を入力します。続けて `main` から **Publish experimental npm SDK** を手動実行します。
    - タグ名（`v<version>`）と確認文字列（`publish @simpludify/core@<version> and @simpludify/web@<version>`）を入力して実行します。
 5. 公開ジョブは、**まず `@simpludify/core` を公開し、レジストリでの存在が確認されてから `@simpludify/web` を公開** します。
 6. 両パッケージの公開後、独立したレジストリ検証ジョブがパッケージとスターターをクリーンインストールして検証します。結果は `npm-sdk-registry-acceptance` アーティファクトとジョブログで確認できます。

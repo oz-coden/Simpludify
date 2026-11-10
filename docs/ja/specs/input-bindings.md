@@ -1,6 +1,6 @@
 # 入力Bindingと単一入力キャプチャ
 
-公開済みv0.1.6では、既存のActionControllerでキーボード・マウス・ゲームパッドの割り当てを管理できます。Actionはゲーム内の意味、Bindingは物理入力との対応であり、変更時にCharacterやReaderを再生成しません。次回開発マイルストーンはv0.1.7の予定です。
+公開済みv0.1.6では、既存のActionControllerでキーボード・マウス・ゲームパッドの割り当てを管理できます。Actionはゲーム内の意味、Bindingは物理入力との対応であり、変更時にCharacterやReaderを再生成しません。
 
 ## 複数デバイスの割り当て
 

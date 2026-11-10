@@ -1,6 +1,6 @@
 # Published SDK consumer patterns
 
-The public npm packages `@simpludify/core@0.1.6` and `@simpludify/web@0.1.6` are intended for independent projects. Next development milestone is v0.1.7. This page records integration patterns observed while migrating [Run To Exit](https://github.com/oz-coden/Run-To-Exit) from a vendored engine workspace to npm.
+The public npm packages `@simpludify/core` and `@simpludify/web` are intended for independent projects. See the [npm SDK guide](../npm.md) for current registry availability. This page records integration patterns observed while migrating [Run To Exit](https://github.com/oz-coden/Run-To-Exit) from a vendored engine workspace to npm.
 
 ## Installation and distribution
 
