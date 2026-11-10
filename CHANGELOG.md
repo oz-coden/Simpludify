@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-10
+
+Release details and verification: [GitHub Release v0.2.0](https://github.com/oz-coden/Simpludify/releases/tag/v0.2.0) · [Publication Record](docs/work-reports/2026-11-10-v0.2.0-assets-audio-logger.md)
+
 ### Added
 
 - Scoped Image, JSON, AudioBuffer and FontFace loading in Web, with shared resources, progress, retries and media fallbacks.
@@ -18,6 +22,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 
 - `GameOptions.onError` is deprecated. Use `game.logger.subscribe()` for structured diagnostics. See the [v0.2.0 migration guide](docs/en/migrate-0.2.0.md).
+
+- The default Scene disposal policy, `game.changeScene()` and URL-based image loading remain compatible with v0.1.7.
+
+### Fixed
+
+- Asset progress subscribers receive ordered updates during reentrant loads. Recovery notifications clear the previous error.
+- Managed atlas replacements validate live Tilemap frame requirements before changing the current image.
+- Pending audio selects the current buffer at first playback. Started voices retain their buffer through pause, resume and reload.
+- A Scene disposed by its activation hook causes the transition to reject and the Game to dispose its retained Scenes.
 
 ## [0.1.7] - 2026-11-10
 

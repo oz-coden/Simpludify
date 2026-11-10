@@ -2,7 +2,7 @@
 
 Simpludifyは`@simpludify/core`と`@simpludify/web`に分かれた実験的なESM SDKです。0.xではAPIが変更される可能性があります。内部ファイルの直接importは公開APIではありません。
 
-**公開状態：`@simpludify/core@0.1.7`と`@simpludify/web@0.1.7`はnpmレジストリで公開済みです。** 以下の手順で独立したプロジェクトにインストールできます。
+**公開状態：`@simpludify/core@0.2.0`と`@simpludify/web@0.2.0`はnpmレジストリで公開済みです。** 以下の手順で独立したプロジェクトにインストールできます。
 
 
 ゲームパッド・Source有効化API、仮想入力、入力Binding APIは公開済みv0.1.6で利用できます。独立スターターのlockfileは公開済みのv0.1.6を固定します。候補SDKでの検証では、一時コピーの依存関係とScene再開呼び出しを候補APIに合わせます。
@@ -32,7 +32,7 @@ cd my-game
 npm init -y
 npm pkg set type=module
 npm pkg set scripts.dev=vite scripts.build="tsc --noEmit && vite build" scripts.preview="vite preview"
-npm install @simpludify/web
+npm install --save-exact @simpludify/web@0.2.0
 npm install --save-dev vite typescript
 ```
 
@@ -152,7 +152,7 @@ npm install /path/to/simpludify-core-0.2.0.tgz
 npm install /path/to/simpludify-web-0.2.0.tgz
 ```
 
-未公開のv0.2.0候補では、Webが依存する同じバージョンのCoreを先に導入します。[v0.2.0への移行ガイド](migrate-0.2.0.md)も参照してください。
+未公開の配布アーカイブを検証する場合は、Webが依存する同じバージョンのCoreを先に導入します。[v0.2.0への移行ガイド](migrate-0.2.0.md)も参照してください。
 
 ## 6. 互換性と制約
 

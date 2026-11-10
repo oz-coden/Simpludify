@@ -56,7 +56,7 @@ The [registry acceptance workflow](npm-publishing.md) verifies the exact publish
 
 #### Audio and asset infrastructure
 
-- Use the v0.2.0 candidate for buffered playback, category volume and explicit preloading. Evaluate streaming, fades and manifests when a game needs them.
+- Use v0.2.0 for buffered playback, category volume and explicit preloading. Evaluate streaming, fades and manifests when a game needs them.
 - Decide which resources are application-wide versus Scene-owned. Verify cancellation, overlapping Scene lifetimes, repeated loads, failures and disposal. Avoid unbounded implicit caching.
 
 #### Persistent game state
@@ -110,7 +110,7 @@ The [registry acceptance workflow](npm-publishing.md) verifies the exact publish
 
 ## Included
 
-- The unpublished v0.2.0 candidate adds scoped Assets, Audio, FontFace registration, retained Scenes and structured diagnostics. See the [migration guide](migrate-0.2.0.md).
+- v0.2.0 adds scoped Assets, Audio, FontFace registration, retained Scenes and structured diagnostics. See the [migration guide](migrate-0.2.0.md).
 
 - v0.1.6 [physical bindings and single-input capture](./specs/input-bindings.md): common keyboard/mouse/gamepad settings, runtime edits and version-1 persistence, per-device diagnostics, neutral capture and existing input ownership/composition. Core/Web v0.1.6 are published on npm; see the [release record](../work-reports/2026-11-05-v0.1.6-publication.md).
 
@@ -145,7 +145,7 @@ The [registry acceptance workflow](npm-publishing.md) verifies the exact publish
 
 ## Pending and limits
 
-Windows/Electron packaging and Windows executable smoke tests are pending. There is no portable executable guarantee or cross-language SDK. Compiled ESM/type SDK packages and external tarball validation are implemented; Core/Web v0.1.7 are published on npm. Automated vendored-engine upgrades remain pending. See [npm distribution and publishing](npm-publishing.md).
+Windows/Electron packaging and Windows executable smoke tests are pending. There is no portable executable guarantee or cross-language SDK. Compiled ESM/type SDK packages and external tarball validation are implemented; Core/Web v0.2.0 are published on npm. Automated vendored-engine upgrades remain pending. See [npm distribution and publishing](npm-publishing.md).
 
 No impulse/angular rigid-body simulation or continuous collision detection, multiple cameras/viewports, infinite maps, save-game format, networking, generic ECS, asset manifests or a visual editor is implemented. Actors/components are destroyed on removal; pooling is application-owned and Scene reactivation requires explicit retention. Dynamic images load asynchronously and can fail independently of logical Actors.
 

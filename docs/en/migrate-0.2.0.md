@@ -1,6 +1,16 @@
 # Migrate from Simpludify v0.1.7 to v0.2.0
 
-v0.2.0 is an unpublished SDK candidate. Use the matching Core and Web packages and a fresh lockfile. To try this version from source, follow the [local archive installation guide](npm.md#5-local-archive-validation).
+Install the v0.2.0 release from npm and commit the updated lockfile. Web installs the matching Core package. Projects that also declare Core directly should update both dependencies together.
+
+```sh
+npm install --save-exact @simpludify/web@0.2.0
+```
+
+If both are direct dependencies, use this command.
+
+```sh
+npm install --save-exact @simpludify/core@0.2.0 @simpludify/web@0.2.0
+```
 
 ## 1. Keep existing Scene navigation and image URLs
 

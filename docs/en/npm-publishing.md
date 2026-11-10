@@ -2,7 +2,7 @@
 
 ## Release status
 
-Core/Web v0.1.7 are published on npm. The source contains the unpublished v0.2.0 candidate. See the [v0.1.7 publication record](../work-reports/2026-11-10-v0.1.7-publication.md) and the [v0.2.0 migration guide](migrate-0.2.0.md). Published versions and their tags are immutable.
+Core/Web v0.2.0 are published on npm. See the [v0.2.0 publication record](../work-reports/2026-11-10-v0.2.0-assets-audio-logger.md#formal-publication) and the [v0.2.0 migration guide](migrate-0.2.0.md). Published versions and their tags are immutable.
 
 ## Prepare and verify
 
