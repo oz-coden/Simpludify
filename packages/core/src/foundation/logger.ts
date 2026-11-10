@@ -31,6 +31,8 @@ export interface FaultOptions {
   readonly fatal?: boolean;
   /** Safe summary when the original error text may contain private data. */
   readonly message?: string;
+  /** Disable standard output for a fault already returned to its caller. */
+  readonly standardOutput?: boolean;
 }
 
 /** Compare plain diagnostic data without invoking accessors or retaining a log history. */
@@ -157,13 +159,18 @@ export class Logger {
     const engineError = cause instanceof EngineError ? cause : undefined;
     const source = options.source ?? engineError?.source;
     const fatal = options.fatal ?? engineError?.fatal;
-    this.error(options.message ?? "Unexpected runtime error", {
-      code: engineError?.code ?? "UNEXPECTED_ERROR",
-      ...(source === undefined ? {} : { source }),
-      ...(fatal === undefined ? {} : { fatal }),
-      ...(engineError ? { details: engineError.details } : {}),
-      cause,
-    });
+    this.emit(
+      "error",
+      options.message ?? "Unexpected runtime error",
+      {
+        code: engineError?.code ?? "UNEXPECTED_ERROR",
+        ...(source === undefined ? {} : { source }),
+        ...(fatal === undefined ? {} : { fatal }),
+        ...(engineError ? { details: engineError.details } : {}),
+        cause,
+      },
+      options.standardOutput !== false,
+    );
   }
 
   private deliver(sink: DiagnosticSink, entry: Diagnostic): void {
@@ -184,13 +191,14 @@ export class Logger {
     level: LogLevel,
     message: string,
     options?: DiagnosticOptions,
+    standardOutput = true,
   ): void {
     if (this.emitting) return;
     this.emitting = true;
     try {
       const entry: Diagnostic = Object.freeze({ ...options, level, message });
       const sink = this.options.sink;
-      if (sink && priorities[level] >= this.threshold) {
+      if (standardOutput && sink && priorities[level] >= this.threshold) {
         const key =
           this.options.deduplicate === false ? undefined : signature(entry);
         if (key === undefined || key !== this.last) {

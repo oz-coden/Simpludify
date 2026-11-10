@@ -517,6 +517,7 @@ export class Game<SceneId extends string = string> {
             source: "engine.startup",
             message: "Simpludify could not start",
             fatal: true,
+            standardOutput: false,
           });
         this.dispose();
         throw error;
@@ -604,6 +605,7 @@ export class Game<SceneId extends string = string> {
               source: "engine.scene",
               message: "Simpludify could not prepare the requested scene",
               fatal: false,
+              standardOutput: false,
             });
           try {
             scene.dispose();
@@ -735,6 +737,7 @@ export class Game<SceneId extends string = string> {
           source: "engine.presentation",
           message: "Simpludify could not present the active scene",
           fatal: true,
+          standardOutput: false,
         });
         this.dispose();
       }
