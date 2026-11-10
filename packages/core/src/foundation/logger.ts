@@ -72,20 +72,32 @@ function signature(entry: Diagnostic): string | undefined {
         const keys = Object.keys(fields)
           .filter((key) => !(error && key === "stack"))
           .sort();
-        const result = keys.map((key) => {
+        const result = keys.map((key): [string, unknown] => {
           const field = fields[key];
           if (!field || !("value" in field))
             throw new Error("Opaque diagnostic accessor");
           return [key, encode(field.value, depth + 1)];
         });
         visited.delete(value);
-        // Error name can be inherited, but its stack is location-specific.
-        const name =
-          error && prototype
-            ? Object.getOwnPropertyDescriptor(prototype, "name")?.value
-            : Array.isArray(value)
-              ? "array"
-              : "object";
+        // Error name and message can be inherited (e.g. DOMException), while stack is location-specific.
+        let name: unknown = Array.isArray(value) ? "array" : "object";
+        if (error) {
+          for (
+            let proto = prototype;
+            proto && proto !== Object.prototype;
+            proto = Object.getPrototypeOf(proto)
+          ) {
+            const desc = Object.getOwnPropertyDescriptor(proto, "name");
+            if (desc && "value" in desc) {
+              name = desc.value;
+              break;
+            }
+          }
+          if (name === "object") name = value.name;
+          if (!("message" in fields))
+            result.push(["message", encode(value.message, depth + 1)]);
+          result.sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
+        }
         return [error ? "error" : "data", name, result];
       }
       default:

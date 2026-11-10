@@ -113,4 +113,28 @@ describe("Logger", () => {
     expect(received.at(-1)).toBe("muted");
     await Promise.resolve();
   });
+
+  it("distinguishes errors whose name or message is inherited from a prototype getter", () => {
+    class HostException extends Error {
+      constructor(text: string, kind: string) {
+        super();
+        Reflect.deleteProperty(this, "message");
+        Object.defineProperties(Object.getPrototypeOf(this), {
+          name: {
+            configurable: true,
+            get: () => kind,
+          },
+          message: {
+            configurable: true,
+            get: () => text,
+          },
+        });
+      }
+    }
+    const output: Diagnostic[] = [];
+    const logger = new Logger({ sink: (entry) => output.push(entry) });
+    logger.report(new HostException("first host failure", "NotFoundError"));
+    logger.report(new HostException("second host failure", "SyntaxError"));
+    expect(output).toHaveLength(2);
+  });
 });
