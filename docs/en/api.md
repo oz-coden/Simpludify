@@ -321,6 +321,14 @@ This experimental revision intentionally removes obsolete storage APIs:
 
 This experimental revision also removes InputState, InputSource, InputReader, KeyMap/KeyMaps, Movement and KeyboardController. Character now accepts an explicit Axis2D ActionReader. UpdateContext no longer contains raw input. See `examples/composition` for a runnable game exercising custom Components, typed events, scoped timers/listeners, spawning, removal and Camera zoom.
 
+## Logger and diagnostics
+
+`game.logger` provides `debug`, `info`, `warn` and `error`. Pass `logging: { console: false }` to `new Game()` to disable the Console sink. `minimumLevel` limits the sink to that level and above, and `deduplicate: false` shows every repeated entry. The default sink suppresses consecutive comparable entries with the same level, message and diagnostic data.
+
+`game.logger.subscribe(handler, owner?)` receives every top-level diagnostic regardless of those settings. It returns an unsubscribe function and can follow a `LifetimeOwner`. Diagnostic callbacks must return promptly. Errors from callbacks and synchronous recursive logging are isolated. The logger retains no history.
+
+Engine diagnostics can include `code`, `source`, `fatal`, `details` and the original `cause`. Use `fatal` to distinguish a stopped operation from a recoverable report. Logging at error level leaves execution policy to the caller. Engine Console and alert output use safe summaries. To migrate from `GameOptions.onError`, subscribe to `game.logger` and handle the structured entry or its cause.
+
 ## SpriteSheet and SpriteAnimation
 
 [Sprite contracts and examples](./specs/sprites.md) define grid/named/rectangular image sources, simulation-time playback, Renderable source ownership, deferred bounds checking and shared crop/source cleanup. Both APIs are exported by Core and Web. SpriteAnimation requires Renderable, runs in LateUpdate, and does not add host timers or an asynchronous Core lifecycle.

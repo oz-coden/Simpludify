@@ -624,3 +624,77 @@ test("rejects startup or navigation disposed inside render without reserving a n
     { code: "GAME_DISPOSED", pendingFrames: 0, connected: false },
   ]);
 });
+
+test("keeps diagnostics and fault handling active with Console output disabled", async ({
+  page,
+}) => {
+  const result = await page.evaluate(async (url) => {
+    const { EngineError, Game } = (await import(
+      url
+    )) as typeof import("@simpludify/web");
+    window.demo.dispose();
+    let frame: FrameRequestCallback | undefined;
+    const game = new Game<"broken">({
+      logging: { console: false },
+      frames: {
+        request: (callback) => {
+          frame = callback;
+          return 1;
+        },
+        cancel: () => {},
+      },
+      renderer: () => ({
+        init: async () => {},
+        resize() {},
+        dispose() {},
+        prepare: async () => ({ render() {}, dispose() {} }),
+      }),
+    });
+    const entries: { message: string; source?: string; fatal?: boolean }[] = [];
+    game.logger.subscribe((entry) => entries.push(entry));
+    game.scene("broken", () => {
+      throw new EngineError("SCENE_PREPARE_FAILED", "secret /local/path");
+    });
+    const consoleErrors: unknown[] = [];
+    const original = console.error;
+    console.error = (...messages) => consoleErrors.push(...messages);
+    try {
+      await game.run();
+      game.logger.error("application error");
+      const afterLog = game.engine.disposed;
+      const rejected = await game
+        .changeScene("broken")
+        .catch((error: { code: string }) => error.code);
+      const afterPrepare = game.engine.scene.state;
+      game.engine.scene.onUpdate(() => {
+        throw new Error("secret /local/path");
+      });
+      frame?.(performance.now());
+      return {
+        afterLog,
+        rejected,
+        afterPrepare,
+        disposed: game.engine.disposed,
+        entries,
+        consoleErrors,
+        alert: game.element.querySelector("[role=alert]")?.textContent,
+      };
+    } finally {
+      console.error = original;
+      game.dispose();
+    }
+  }, sdk);
+  expect(result).toMatchObject({
+    afterLog: false,
+    rejected: "SCENE_PREPARE_FAILED",
+    afterPrepare: "active",
+    disposed: true,
+    entries: [
+      { message: "application error" },
+      { source: "engine.scene", fatal: false },
+      { source: "engine.frame", fatal: true },
+    ],
+    consoleErrors: [],
+    alert: "Simpludify stopped after a runtime error",
+  });
+});

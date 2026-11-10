@@ -318,6 +318,14 @@ Webの`context.actions(definitions, bindings?)`は、factoryのSceneとGame入�
 
 また、InputState、InputSource、InputReader、KeyMap/KeyMaps、Movement、KeyboardControllerも削除されています。Characterは明示的なAxis2D ActionReaderを受け取ります。UpdateContextに生の入力は含まれなくなりました。
 
+## Loggerと診断
+
+`game.logger` で `debug`、`info`、`warn`、`error` を使えます。`new Game({ logging: { console: false } })` でConsole出力を停止します。`minimumLevel` はConsoleの最低レベル、`deduplicate: false` は連続する同一ログの出力抑制を無効にする設定です。
+
+`game.logger.subscribe(handler, owner?)` は出力設定にかかわらず、重複を含む診断を受け取ります。戻り値で購読解除でき、`LifetimeOwner` を指定すると所有者の破棄にも連動します。コールバックの例外と同期的な再帰ログは診断の配信境界で処理します。Loggerは履歴を保存しません。
+
+診断は `code`、`source`、`fatal`、`details`、元の `cause` を保持できます。`fatal` は処理側の停止判断を表し、`logger.error()` 自体はゲームを停止しません。エンジンのConsoleと画面には安全な要約を表示します。従来の `GameOptions.onError` を使っていたコードは、`game.logger` を購読して構造化された診断や `cause` を扱えます。
+
 ## SpriteSheetとSpriteAnimation
 
 [Spriteの契約と例](./specs/sprites.md)で、グリッド／名前付き／矩形の画像ソース、シミュレーション時間での再生、Renderable sourceの所有権、遅延境界検査、共有切り抜き／ソースのクリーンアップを定義しています。どちらのAPIもCoreおよびWebからexportされています。SpriteAnimationはRenderableを必要とし、LateUpdateで実行され、ホストタイマーや非同期Coreライフサイクルを追加することはありません。

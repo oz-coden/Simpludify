@@ -17,6 +17,8 @@ import {
   type InputCapture,
   type InputCaptureOptions,
   type JsonValue,
+  Logger,
+  type LoggerOptions,
   type LogicalResolution,
   type PointerRouting,
   type PreparedScene,
@@ -74,6 +76,10 @@ export interface SceneContext {
   onDispose(callback: () => void): () => void;
 }
 export type SceneSetup = (context: SceneContext) => void | Promise<void>;
+export interface GameLoggingOptions extends Omit<LoggerOptions, "sink"> {
+  /** Controls Console output only. Diagnostic subscribers remain active. */
+  readonly console?: boolean;
+}
 export interface GameOptions {
   parent?: HTMLElement;
   resolution?: LogicalResolution;
@@ -88,6 +94,8 @@ export interface GameOptions {
   fixedStep?: FixedStepOptions;
   renderer?: (host: HTMLElement) => RendererPort;
   frames?: FrameDriver;
+  logging?: GameLoggingOptions;
+  /** @deprecated Subscribe to Game.logger for structured diagnostics. */
   onError?: (error: unknown) => void;
 }
 export class Game<SceneId extends string = string> {
@@ -95,6 +103,7 @@ export class Game<SceneId extends string = string> {
   readonly element: HTMLDivElement;
   readonly camera: Camera;
   readonly gamepads: GamepadInput;
+  readonly logger: Logger;
   private readonly renderer: RendererPort;
   private readonly keyboard: BrowserInput;
   private readonly captures: InputCaptureManager;
@@ -202,6 +211,14 @@ export class Game<SceneId extends string = string> {
   private readonly errorBox: HTMLParagraphElement;
   constructor(options: GameOptions = {}) {
     this.options = options;
+    const { console: consoleEnabled = !options.onError, ...logging } =
+      options.logging ?? {};
+    this.logger = new Logger({
+      ...logging,
+      ...(consoleEnabled
+        ? { sink: (entry) => console[entry.level](entry.message) }
+        : {}),
+    });
     this.engine = new Engine(
       options.seed === undefined ? {} : { seed: options.seed },
     );
@@ -266,7 +283,7 @@ export class Game<SceneId extends string = string> {
       this.renderer =
         options.renderer?.(this.element) ??
         new PixiRenderer(this.element, tokens.background, (error) =>
-          this.report(error),
+          this.report(error, "engine.renderer"),
         );
     } catch (error) {
       this.element.remove();
@@ -282,7 +299,7 @@ export class Game<SceneId extends string = string> {
       this.engine.input,
       () => this.engine.scene,
       () => this.pointers.release(),
-      this.report,
+      (error) => this.report(error, "engine.input"),
     );
     this.keyboard = new BrowserInput(this.element, this.engine.input);
     this.gamepads = new GamepadInput(this.engine.input, {
@@ -304,7 +321,7 @@ export class Game<SceneId extends string = string> {
         );
         return { screen, world: this.screenToWorld(screen), view: this.view };
       },
-      this.report,
+      (error) => this.report(error, "engine.input"),
       () => this.updateProjection(),
       this.engine.input,
     );
@@ -321,7 +338,7 @@ export class Game<SceneId extends string = string> {
       try {
         this.resize();
       } catch (error) {
-        this.report(error);
+        this.report(error, "engine.resize", true);
         this.dispose();
       }
     });
@@ -495,6 +512,12 @@ export class Game<SceneId extends string = string> {
         this.assertAlive();
         this.frame = this.frames.request(this.tick);
       } catch (error) {
+        if (!this.dead)
+          this.logger.report(error, {
+            source: "engine.startup",
+            message: "Simpludify could not start",
+            fatal: true,
+          });
         this.dispose();
         throw error;
       }
@@ -576,6 +599,12 @@ export class Game<SceneId extends string = string> {
             if (this.pendingScene?.task === task) this.pendingScene = undefined;
           });
         } catch (error) {
+          if (this.ready && !this.dead)
+            this.logger.report(error, {
+              source: "engine.scene",
+              message: "Simpludify could not prepare the requested scene",
+              fatal: false,
+            });
           try {
             scene.dispose();
           } catch (cleanupError) {
@@ -651,7 +680,7 @@ export class Game<SceneId extends string = string> {
       } catch (error) {
         if (this.engine.scene !== scene || scene.state !== SceneState.Active)
           throw error;
-        this.report(error);
+        this.report(error, "engine.scene");
       }
       this.assertAlive();
       const oldPrepared = this.prepared,
@@ -701,7 +730,14 @@ export class Game<SceneId extends string = string> {
             this.report(cleanupError);
           }
         }
-      if (committed) this.dispose();
+      if (committed && !this.dead) {
+        this.logger.report(error, {
+          source: "engine.presentation",
+          message: "Simpludify could not present the active scene",
+          fatal: true,
+        });
+        this.dispose();
+      }
       throw error;
     }
   }
@@ -938,17 +974,23 @@ export class Game<SceneId extends string = string> {
       }
       if (!this.dead) this.frame = this.frames.request(this.tick);
     } catch (error) {
-      this.report(error);
+      this.report(error, "engine.frame", true);
       this.dispose();
     }
   };
-  private readonly report = (error: unknown): void => {
-    this.errorBox.textContent =
-      error instanceof Error ? error.message : String(error);
+  private readonly report = (
+    error: unknown,
+    source = "engine.runtime",
+    fatal = false,
+  ): void => {
+    const message = fatal
+      ? "Simpludify stopped after a runtime error"
+      : "Simpludify encountered a runtime error";
+    this.logger.report(error, { source, fatal, message });
+    this.errorBox.textContent = message;
     this.errorBox.hidden = false;
     try {
       if (this.options.onError) this.options.onError(error);
-      else console.error(error);
     } catch {
       /* Observers must not prevent cleanup. */
     }

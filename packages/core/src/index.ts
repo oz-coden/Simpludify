@@ -7,6 +7,7 @@ export * from "./foundation/easing";
 export * from "./foundation/events";
 export * from "./foundation/grid";
 export * from "./foundation/lifetime";
+export * from "./foundation/logger";
 export * from "./foundation/random";
 export * from "./foundation/tween";
 export * from "./foundation/version";
