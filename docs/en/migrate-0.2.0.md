@@ -1,15 +1,15 @@
 # Migrate from Simpludify v0.1.7 to v0.2.0
 
-Install the v0.2.0 release from npm and commit the updated lockfile. Web installs the matching Core package. Projects that also declare Core directly should update both dependencies together.
+Install v0.2.1 from npm and commit the updated lockfile. This patch preserves the v0.2.0 API described in this guide. Web installs the matching Core package. Projects that also declare Core directly should update both dependencies together.
 
 ```sh
-npm install --save-exact @simpludify/web@0.2.0
+npm install --save-exact @simpludify/web@0.2.1
 ```
 
 If both are direct dependencies, use this command.
 
 ```sh
-npm install --save-exact @simpludify/core@0.2.0 @simpludify/web@0.2.0
+npm install --save-exact @simpludify/core@0.2.1 @simpludify/web@0.2.1
 ```
 
 ## 1. Keep existing Scene navigation and image URLs

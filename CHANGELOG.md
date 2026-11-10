@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [0.2.1] - 2026-11-11
 
-This patch preserves the v0.2.0 public API. See the [independent review record](docs/work-reports/2026-11-10-v0.2.0-independent-review.md) for verification details.
+This patch preserves the v0.2.0 public API. See the [GitHub Release](https://github.com/oz-coden/Simpludify/releases/tag/v0.2.1) and [publication record](docs/work-reports/2026-11-10-v0.2.0-independent-review.md#v021-publication) for verification details.
 
 ### Fixed
 

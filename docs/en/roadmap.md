@@ -145,7 +145,7 @@ The [registry acceptance workflow](npm-publishing.md) verifies the exact publish
 
 ## Pending and limits
 
-Windows/Electron packaging and Windows executable smoke tests are pending. There is no portable executable guarantee or cross-language SDK. Compiled ESM/type SDK packages and external tarball validation are implemented; Core/Web v0.2.0 are published on npm. Automated vendored-engine upgrades remain pending. See [npm distribution and publishing](npm-publishing.md).
+Windows/Electron packaging and Windows executable smoke tests are pending. There is no portable executable guarantee or cross-language SDK. Compiled ESM/type SDK packages and external tarball validation are implemented; Core/Web v0.2.1 are published on npm. Automated vendored-engine upgrades remain pending. See [npm distribution and publishing](npm-publishing.md).
 
 No impulse/angular rigid-body simulation or continuous collision detection, multiple cameras/viewports, infinite maps, save-game format, networking, generic ECS, asset manifests or a visual editor is implemented. Actors/components are destroyed on removal; pooling is application-owned and Scene reactivation requires explicit retention. Dynamic images load asynchronously and can fail independently of logical Actors.
 

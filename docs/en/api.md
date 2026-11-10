@@ -1,8 +1,8 @@
 # API
 
-This reference covers the v0.2.0 SDK. For scoped Assets, retained Scenes and structured diagnostics, see the [v0.2.0 migration guide](migrate-0.2.0.md).
+This reference covers the v0.2.1 SDK. For scoped Assets, retained Scenes and structured diagnostics, see the [v0.2.0 migration guide](migrate-0.2.0.md).
 
-`@simpludify/core` is DOM-free. [Typed Action input](./specs/action-input.md) defines logical buttons/axes, key bindings, source composition and input boundaries. `@simpludify/web` re-exports Core and supplies Game, PixiRenderer, browser input, DOM UI and scoped default CSS. All mode objects export corresponding union types. The root workspace is private; Core/Web are publishable SDK packages. The published registry SDK is v0.2.0.
+`@simpludify/core` is DOM-free. [Typed Action input](./specs/action-input.md) defines logical buttons/axes, key bindings, source composition and input boundaries. `@simpludify/web` re-exports Core and supplies Game, PixiRenderer, browser input, DOM UI and scoped default CSS. All mode objects export corresponding union types. The root workspace is private; Core/Web are publishable SDK packages. The published registry SDK is v0.2.1.
 
 ## Fixed-size two-dimensional data
 

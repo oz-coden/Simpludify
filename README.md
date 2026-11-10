@@ -1,6 +1,6 @@
 # Simpludify
 
-Core/Web **v0.2.0 are published on npm** with scoped Assets, audio and fonts, retained Scenes and structured diagnostics. See the [English migration guide](docs/en/migrate-0.2.0.md) or [日本語の移行ガイド](docs/ja/migrate-0.2.0.md).
+Core/Web **v0.2.1 are published on npm**. This patch fixes asset reloads and timeouts, Tilemap textures, diagnostics, audio and Canvas UI. See the [English migration guide](docs/en/migrate-0.2.0.md) or [日本語の移行ガイド](docs/ja/migrate-0.2.0.md).
 
 [![Core](https://img.shields.io/npm/v/@simpludify/core?label=core)](https://www.npmjs.com/package/@simpludify/core)
 [![Web](https://img.shields.io/npm/v/@simpludify/web?label=web)](https://www.npmjs.com/package/@simpludify/web)
@@ -11,17 +11,17 @@ Core/Web **v0.2.0 are published on npm** with scoped Assets, audio and fonts, re
 
 [公式ドキュメント・サンプル](https://oz-coden.github.io/Simpludify/) · [日本語ガイド](docs/ja/index.md) · [English Guide](docs/en/index.md) · [API](docs/en/api.md) · [CHANGELOG](CHANGELOG.md)
 
-コード主導・軽量・AIネイティブな、TypeScript製の実験的2Dコンテンツエンジンです。ゲームやインタラクティブコンテンツを、理解しやすい標準APIで構築します。理解しやすく、一貫性があり、保守しやすいAPIを優先します。Experimental v0.2.0のnpm SDKを公開済みです。独立プロジェクトからnpmで導入できます。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できるサンプルを公式サイトにまとめています。
+コード主導・軽量・AIネイティブな、TypeScript製の実験的2Dコンテンツエンジンです。ゲームやインタラクティブコンテンツを、理解しやすい標準APIで構築します。理解しやすく、一貫性があり、保守しやすいAPIを優先します。Experimental v0.2.1のnpm SDKを公開済みです。独立プロジェクトからnpmで導入できます。導入・概念・衝突判定の日本語ガイドと、ブラウザで起動できるサンプルを公式サイトにまとめています。
 
 A code-first TypeScript 2D game engine. Create a visible character, responsive UI, and scene navigation using ordinary code and browser tooling.
 
 [Core / Hostの責務と移植性](docs/ja/host-boundary.md) · [作業報告・検証結果](docs/work-reports/README.md) · [変更履歴](CHANGELOG.md)
 
-**Status: experimental Web engine with a composition-based Core.** The API can change before a stable release. Electron/Tauri/Android packaging is pending. The Core and Web SDK packages are published on npm as v0.2.0.
+**Status: experimental Web engine with a composition-based Core.** The API can change before a stable release. Electron/Tauri/Android packaging is pending. The Core and Web SDK packages are published on npm as v0.2.1.
 
-## Latest release (v0.2.0)
+## Latest release (v0.2.1)
 
-v0.2.0 adds scoped Assets, audio playback, fonts, retained Scenes and structured diagnostics. See the [changelog](CHANGELOG.md) and [v0.2.0 publication record](docs/work-reports/2026-11-10-v0.2.0-assets-audio-logger.md).
+v0.2.1 fixes six issues and preserves the v0.2.0 public API. See the [changelog](CHANGELOG.md), [GitHub Release](https://github.com/oz-coden/Simpludify/releases/tag/v0.2.1) and [publication record](docs/work-reports/2026-11-10-v0.2.0-independent-review.md#v021-publication).
 
 ```sh
 npm run dev -- --example input-bindings

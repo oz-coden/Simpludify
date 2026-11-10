@@ -1,15 +1,15 @@
 # Simpludify v0.1.7からv0.2.0への移行
 
-npmからv0.2.0を導入し、更新したlockfileをコミットします。Webには同じバージョンのCoreが入ります。Coreも直接依存に指定しているプロジェクトでは、両方を同時に更新してください。
+npmからv0.2.1を導入し、更新したlockfileをコミットします。v0.2.1は、このガイドで説明するv0.2.0のAPIと互換です。Webには同じバージョンのCoreが入ります。Coreも直接依存に指定しているプロジェクトでは、両方を同時に更新してください。
 
 ```sh
-npm install --save-exact @simpludify/web@0.2.0
+npm install --save-exact @simpludify/web@0.2.1
 ```
 
 両方が直接依存の場合は、次のコマンドを使います。
 
 ```sh
-npm install --save-exact @simpludify/core@0.2.0 @simpludify/web@0.2.0
+npm install --save-exact @simpludify/core@0.2.1 @simpludify/web@0.2.1
 ```
 
 ## 1. Scene遷移と既存の画像URL
