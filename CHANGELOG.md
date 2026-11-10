@@ -8,6 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-11
+
+This patch preserves the v0.2.0 public API. See the [independent review record](docs/work-reports/2026-11-10-v0.2.0-independent-review.md) for verification details.
+
+### Fixed
+
+- Explicit asset reloads supersede background retries, validate options and report failures to the caller. Concurrent owners can share a reload without interrupting one another.
+- Tilemaps replace stale textures when a managed atlas changes, including while layers are hidden or disabled.
+- Consecutive diagnostic deduplication preserves distinct errors with inherited names or messages and avoids calling custom getters.
+- Asset fallback observers and diagnostics receive a consistent `ASSET_TIMEOUT` error that preserves the original cause.
+- Looping playback of a zero-duration audio buffer finishes cleanly and releases its playback slot.
+- `Game.setFont()` refreshes Canvas UI when the default font changes or finishes loading, including with a manual frame driver.
+
 ## [0.2.0] - 2026-11-10
 
 Release details and verification: [GitHub Release v0.2.0](https://github.com/oz-coden/Simpludify/releases/tag/v0.2.0) · [Publication Record](docs/work-reports/2026-11-10-v0.2.0-assets-audio-logger.md)
