@@ -137,4 +137,34 @@ describe("Logger", () => {
     logger.report(new HostException("second host failure", "SyntaxError"));
     expect(output).toHaveLength(2);
   });
+
+  it("keeps opaque Error accessors and cyclic data out of the sink signature", () => {
+    let getterCalls = 0;
+    class OpaqueError extends Error {
+      override get name(): string {
+        getterCalls++;
+        throw new Error("unsafe name");
+      }
+      override get message(): string {
+        getterCalls++;
+        throw new Error("unsafe message");
+      }
+    }
+    const output: Diagnostic[] = [];
+    const received: Diagnostic[] = [];
+    const logger = new Logger({ sink: (entry) => output.push(entry) });
+    logger.subscribe((entry) => received.push(entry));
+    const cycle: { self?: unknown } = {};
+    cycle.self = cycle;
+    const opaque = new OpaqueError();
+    logger.report(opaque);
+    logger.report(opaque);
+    logger.report(new DOMException("one", "AbortError"));
+    logger.report(new DOMException("one", "NotFoundError"));
+    logger.warn("cycle", { details: cycle });
+    logger.warn("cycle", { details: cycle });
+    expect(getterCalls).toBe(0);
+    expect(output).toHaveLength(6);
+    expect(received).toHaveLength(6);
+  });
 });

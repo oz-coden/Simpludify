@@ -94,14 +94,30 @@ interface Entry {
   fail(error: unknown): void;
   status: Exclude<AssetStatus, "released">;
   asset: AssetResource | undefined;
-  task: Promise<void> | undefined;
-  controller: AbortController | undefined;
+  task:
+    | {
+        readonly promise: Promise<void>;
+        readonly controller: AbortController;
+        readonly reload: boolean;
+      }
+    | undefined;
   error: unknown;
 }
 const cancelled = () =>
   new EngineError("ASSET_CANCELLED", "Asset use has been released");
 const invalid = (field: string) =>
   new EngineError("INVALID_VALUE", `Invalid asset ${field}`);
+
+function timeoutFault(cause: unknown): EngineError {
+  if (cause instanceof EngineError && cause.code === "ASSET_TIMEOUT")
+    return cause;
+  return new EngineError(
+    "ASSET_TIMEOUT",
+    "Asset load deadline expired",
+    {},
+    { cause },
+  );
+}
 
 function numberIn(
   value: number,
@@ -517,7 +533,6 @@ export class AssetStore {
       status: "loading",
       asset: undefined,
       task: undefined,
-      controller: undefined,
       error: undefined,
     };
     this.entries.set(key, entry);
@@ -556,7 +571,7 @@ export class AssetStore {
     if (this.entries.get(entry.key) === entry) this.entries.delete(entry.key);
     this.images.delete(entry.id);
     this.idle.delete(entry);
-    entry.controller?.abort(cancelled());
+    entry.task?.controller.abort(cancelled());
     entry.fail(cancelled());
     const asset = entry.asset;
     entry.asset = undefined;
@@ -567,7 +582,9 @@ export class AssetStore {
     signal.throwIfAborted();
     if (entry.asset) return;
     await wait(
-      entry.status === "failed" && entry.task ? entry.task : entry.first,
+      entry.status === "failed" && entry.task
+        ? entry.task.promise
+        : entry.first,
       signal,
     );
     signal.throwIfAborted();
@@ -581,30 +598,24 @@ export class AssetStore {
   ): Promise<void> {
     if (this.dead || !entry.users.size) return Promise.reject(cancelled());
     const policy = settings(options);
-    if (entry.task) {
-      if (reload && entry.asset) {
-        entry.controller?.abort(cancelled());
-      } else {
-        return entry.task;
-      }
-    }
+    const active = entry.task;
+    if (active && (!reload || active.reload)) return active.promise;
     const controller = new AbortController();
-    entry.controller = controller;
-    const task = Promise.resolve().then(async () => {
+    const promise = Promise.resolve().then(async () => {
       try {
         await this.load(entry, policy, reload, controller.signal);
       } finally {
-        if (entry.task === task) {
+        if (entry.task?.promise === promise) {
           entry.task = undefined;
-          entry.controller = undefined;
           this.changed();
         }
       }
     });
-    entry.task = task;
-    void task.catch(() => {});
+    entry.task = { promise, controller, reload };
+    active?.controller.abort(cancelled());
+    void promise.catch(() => {});
     this.changed();
-    return task;
+    return promise;
   }
 
   private async attempt(
@@ -642,6 +653,7 @@ export class AssetStore {
     entry: Entry,
     signal: AbortSignal,
     owner: AbortSignal,
+    deadline: AbortSignal,
   ): Promise<void> {
     const custom = this.customFallback[entry.kind];
     if (custom && !signal.aborted) {
@@ -651,9 +663,9 @@ export class AssetStore {
           signal,
         );
         if (asset) {
-          if (owner.aborted) {
+          if (signal.aborted) {
             this.release(asset);
-            throw owner.reason;
+            throw signal.reason;
           }
           this.commit(entry, asset, true);
           return;
@@ -666,6 +678,7 @@ export class AssetStore {
         });
       }
     }
+    owner.throwIfAborted();
     const asset = await this.attempt(
       this.adapter.fallback(entry.kind, undefined, owner),
       owner,
@@ -675,6 +688,7 @@ export class AssetStore {
         this.release(asset);
         throw owner.reason;
       }
+      if (deadline.aborted) entry.error = timeoutFault(entry.error);
       this.commit(entry, asset, true);
     }
   }
@@ -707,24 +721,19 @@ export class AssetStore {
           return;
         } catch (cause) {
           owner.throwIfAborted();
-          const fault = deadline.aborted
-            ? new EngineError(
-                "ASSET_TIMEOUT",
-                "Asset load deadline expired",
-                {},
-                { cause },
-              )
-            : cause;
+          const fault = deadline.aborted ? timeoutFault(cause) : cause;
           failure = fault;
           entry.error = fault;
           if (!entry.asset) {
-            await this.fallback(entry, signal, owner);
+            await this.fallback(entry, signal, owner, deadline);
+            owner.throwIfAborted();
+            failure = entry.error;
             if (entry.asset)
               this.logger.warn("Using an asset fallback", {
                 source: "engine.assets",
                 code: "ASSET_FALLBACK",
                 details: { kind: entry.kind, id: entry.id },
-                cause: fault,
+                cause: failure,
               });
           }
           if (signal.aborted) break;
@@ -746,16 +755,8 @@ export class AssetStore {
       owner.throwIfAborted();
       failure = cause;
     }
-    if (
-      deadline.aborted &&
-      !(failure instanceof EngineError && failure.code === "ASSET_TIMEOUT")
-    )
-      failure = new EngineError(
-        "ASSET_TIMEOUT",
-        "Asset load deadline expired",
-        {},
-        { cause: failure },
-      );
+    owner.throwIfAborted();
+    if (deadline.aborted) failure = timeoutFault(failure);
     failure ??= new EngineError(
       "ASSET_LOAD_FAILED",
       "Asset could not be loaded",

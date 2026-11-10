@@ -244,6 +244,7 @@ export class Game<SceneId extends string = string> {
   private previousTime: number | undefined;
   private dead = false;
   private ready = false;
+  private rendering = false;
   private rendererReady = false;
   private rendererSized = false;
   private staging: Scene | undefined;
@@ -416,9 +417,12 @@ export class Game<SceneId extends string = string> {
       );
       if (this.ready) this.render();
     };
-    next?.onChange(update);
-    update();
-    old?.release();
+    try {
+      next?.onChange(update);
+      update();
+    } finally {
+      old?.release();
+    }
   }
 
   private assertAlive(): void {
@@ -1082,10 +1086,16 @@ export class Game<SceneId extends string = string> {
     if (this.ready) this.render();
   }
   private render(): void {
-    this.updateProjection();
-    this.virtualPresentation ??= this.prepareVirtual(this.engine.scene);
-    this.virtualPresentation?.update();
-    this.prepared?.render(this.projection);
+    if (this.dead || this.rendering) return;
+    this.rendering = true;
+    try {
+      this.updateProjection();
+      this.virtualPresentation ??= this.prepareVirtual(this.engine.scene);
+      this.virtualPresentation?.update();
+      this.prepared?.render(this.projection);
+    } finally {
+      this.rendering = false;
+    }
   }
   private readonly tick = (time: number): void => {
     if (this.dead) return;

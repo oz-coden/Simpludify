@@ -254,3 +254,142 @@ it("normalizes timeout failures to ASSET_TIMEOUT before fallback notification", 
   ).toMatchObject({ code: "ASSET_TIMEOUT" });
   store.dispose();
 });
+
+it("shares an explicit reload across owners without aborting it when one leaves", async () => {
+  const replacement = deferred<AssetResource>();
+  const original = resource(1);
+  const next = resource(2);
+  const load = vi
+    .fn<AssetAdapter["load"]>()
+    .mockResolvedValueOnce(original)
+    .mockReturnValue(replacement.promise);
+  const { assets, store } = fixture({ load, fallback: async () => undefined });
+  try {
+    const scope = assets.scope();
+    const a = await scope.load({ kind: "json", url: "/shared" }).ready;
+    const b = await assets.load({ kind: "json", url: "/shared" }).ready;
+    const first = a.reload();
+    const released = expect(first).rejects.toMatchObject({
+      code: "ASSET_CANCELLED",
+    });
+    await Promise.resolve();
+    const signal = load.mock.calls[1]?.[2];
+    await expect(b.reload({ timeoutMs: 0 })).rejects.toMatchObject({
+      code: "INVALID_VALUE",
+    });
+    const joined = b.reload();
+    scope.dispose();
+    await released;
+    const aborted = signal?.aborted;
+    replacement.resolve(next);
+    await joined;
+    expect(aborted).toBe(false);
+    expect(b.value).toBe(2);
+    expect(load).toHaveBeenCalledTimes(2);
+    expect(original.release).toHaveBeenCalledTimes(1);
+    expect(next.release).not.toHaveBeenCalled();
+  } finally {
+    store.dispose();
+  }
+  expect(next.release).toHaveBeenCalledTimes(1);
+});
+
+it("reports a failed explicit reload even before the first fallback and releases the superseded result", async () => {
+  const abandoned = deferred<AssetResource>();
+  const old = resource({ width: 32 });
+  const fallback = resource({ width: 2 });
+  const load = vi
+    .fn<AssetAdapter["load"]>()
+    .mockReturnValueOnce(abandoned.promise)
+    .mockRejectedValueOnce(new Error("replacement failed"));
+  const { assets, store } = fixture({ load, fallback: async () => fallback });
+  try {
+    const handle = assets.load({ kind: "image", url: "/early" });
+    await Promise.resolve();
+    const result = handle.reload();
+    const rejected = expect(result).rejects.toThrow("replacement failed");
+    abandoned.resolve(old);
+    await rejected;
+    await handle.ready;
+    expect(load.mock.calls[0]?.[2].aborted).toBe(true);
+    expect(old.release).toHaveBeenCalledTimes(1);
+    expect(handle.status).toBe("fallback");
+    expect(handle.value).toEqual({ width: 2 });
+  } finally {
+    store.dispose();
+  }
+});
+
+it("does not finish a superseded load after a reentrant fallback observer starts a reload", async () => {
+  const next = deferred<AssetResource>();
+  const fallback = resource({ width: 2 });
+  const load = vi
+    .fn<AssetAdapter["load"]>()
+    .mockRejectedValueOnce(new Error("initial failure"))
+    .mockReturnValueOnce(next.promise);
+  const { assets, store, diagnostics } = fixture({
+    load,
+    fallback: async () => fallback,
+  });
+  try {
+    const handle = assets.load({ kind: "image", url: "/reentrant" });
+    const started = deferred<PromiseLike<void>>();
+    handle.onChange((asset) => {
+      if (asset.status === "fallback")
+        started.resolve(asset.reload().then(() => {}));
+    });
+    await handle.ready;
+    await Promise.resolve();
+    const loading = handle.loading;
+    const oldDiagnostics = [...diagnostics];
+    next.resolve(resource({ width: 16 }));
+    await started.promise;
+    expect(loading).toBe(true);
+    expect(oldDiagnostics).not.toContainEqual(
+      expect.objectContaining({ message: "Asset loading failed" }),
+    );
+    expect(handle.status).toBe("ready");
+    expect(handle.error).toBeUndefined();
+    expect(fallback.release).toHaveBeenCalledTimes(1);
+  } finally {
+    store.dispose();
+  }
+});
+
+it("normalizes a deadline spent on the custom fallback before committing the built-in fallback", async () => {
+  const custom = deferred<AssetResource>();
+  const late = resource({ width: 8 });
+  const initial = new Error("initial load failed");
+  const { assets, store, diagnostics } = fixture(
+    {
+      load: async () => {
+        throw initial;
+      },
+      fallback: (_kind, url) =>
+        url ? custom.promise : Promise.resolve(resource({ width: 2 })),
+    },
+    { fallback: { image: "/custom" } },
+  );
+  try {
+    const handle = assets.load({
+      kind: "image",
+      url: "/deadline",
+      timeoutMs: 5,
+    });
+    const observed: unknown[] = [];
+    handle.onChange((asset) => observed.push(asset.error));
+    await handle.ready;
+    expect(observed[0]).toMatchObject({
+      code: "ASSET_TIMEOUT",
+      cause: initial,
+    });
+    expect(
+      diagnostics.find((entry) => entry.code === "ASSET_FALLBACK")?.cause,
+    ).toBe(observed[0]);
+    custom.resolve(late);
+    await Promise.resolve();
+    expect(late.release).toHaveBeenCalledTimes(1);
+  } finally {
+    store.dispose();
+  }
+});

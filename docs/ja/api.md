@@ -338,7 +338,7 @@ actor.add(new Renderable({ source: hero.source }));
 
 `new Game({ assets: { cacheEntries, fallback } })` でキャッシュ件数と画像・音声・フォントのFallback URLを指定できます。`cacheEntries` は成功した未使用Assetの最大保持数です。既定値は16で、0では最後の参照が外れた時点で解放します。描画側も独立した参照を持ちます。画像のロード失敗時は設定された `assets.fallback.image`、または内蔵の市松模様を使います。JSONは利用可能な値が得られなければ拒否されます。正常画像が得られると管理対象のsourceを使うVisualを更新します。既定のRendererでは、同じURLの画像の初回ロードを暗黙ロードと共有できます。Fallbackや差し替えの反映には管理対象のsourceを使います。使用中のアトラスフレームが不正になる差し替えは確定前に拒否します。
 
-`handle.reload()` は現在の利用可能な値を維持しながら再読み込みします。通常失敗を一度だけ再試行するには `retry.once` に `"immediate"`、`{ delayMs }` または `{ until: promise }` を指定します。通信エラーやHTTP 408、429、5xxに対する `retry.network` は追加試行回数0〜5です。待機時間を含むロード期限の既定値は30秒です。処理を共有する場合は最初のロードの方針を使います。Fallbackが利用可能になった時点で `ready` が解決し、再試行は背景で継続できます。
+`handle.reload()` は現在の利用可能な値を維持しながら再読み込みします。通常失敗を一度だけ再試行するには `retry.once` に `"immediate"`、`{ delayMs }` または `{ until: promise }` を指定します。通信エラーやHTTP 408、429、5xxに対する `retry.network` は追加試行回数0〜5です。待機時間を含むロード期限の既定値は30秒です。進行中の処理を共有する場合は、その処理の方針を使います。明示的な再読み込みは通常ロードやバックグラウンド再試行を置き換え、並行する明示的な再読み込み同士は処理を共有します。Fallbackが利用可能になった時点で `ready` が解決し、再試行は背景で継続できます。
 
 `ready` はハンドルの初回結果を表すPromiseです。失敗後の再試行結果は `reload()` をawaitしてください。`handle.onChange(handler)` で確定した世代を購読できます。`value`、`status`、`error`、`loading` は現在の状態を示します。
 

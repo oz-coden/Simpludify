@@ -61,11 +61,25 @@ export class TilemapVisual {
         );
         this.sync();
         lease.onChange?.(() => {
-          if (this.disposed || !isCurrent()) return;
+          if (!isCurrent()) {
+            this.dispose();
+            return;
+          }
+          if (this.disposed) return;
           this.textures.clear();
           this.revision = -1;
           this.invalid = true;
           this.sync();
+          // The previous atlas is released after this notification.
+          for (const [index, sprite] of this.sprites) {
+            const id = this.map.get(
+              index % this.map.width,
+              Math.floor(index / this.map.width),
+            );
+            const texture = id === null ? undefined : this.textures.get(id);
+            if (texture) sprite.texture = texture;
+            else this.remove(index);
+          }
           this.changed();
         });
       })
@@ -99,18 +113,6 @@ export class TilemapVisual {
             this.lease.textureFor(this.map.sheet.get(id).frame),
           );
         }
-      }
-      for (const [index, sprite] of this.sprites) {
-        const id = this.map.get(
-          index % this.map.width,
-          Math.floor(index / this.map.width),
-        );
-        if (id === null) {
-          this.remove(index);
-          continue;
-        }
-        const texture = this.textures.get(id);
-        if (texture && sprite.texture !== texture) sprite.texture = texture;
       }
     } catch (error) {
       this.fail(error);

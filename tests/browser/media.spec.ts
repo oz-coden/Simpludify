@@ -199,6 +199,37 @@ test("registers a real FontFace, switches the Game default and removes the final
       const lateAppliedWithoutTick = String(canvasFont(inherited)).includes(
         lateFamily ?? "missing",
       );
+      const prepared = (
+        game as unknown as {
+          prepared: import("@simpludify/core").PreparedScene;
+        }
+      ).prepared;
+      const render = prepared.render.bind(prepared);
+      let renderCalls = 0;
+      prepared.render = (view) => {
+        if (++renderCalls === 1) game.setFont();
+        render(view);
+      };
+      game.setViewport();
+      prepared.render = render;
+
+      game.setFont(late);
+      late.release();
+      prepared.render = () => {
+        throw new Error("render failed");
+      };
+      let renderError = false;
+      try {
+        game.setFont();
+      } catch (error) {
+        renderError =
+          error instanceof Error && error.message === "render failed";
+      } finally {
+        prepared.render = render;
+      }
+      const releasedAfterError = !Array.from(document.fonts).some(
+        (fontFace) => fontFace.family === lateFamily,
+      );
       game.dispose();
       return {
         fallback,
@@ -210,6 +241,9 @@ test("registers a real FontFace, switches the Game default and removes the final
         removed,
         restoredWithoutTick,
         lateAppliedWithoutTick,
+        renderCalls,
+        renderError,
+        releasedAfterError,
       };
     },
     [sdk, font] as const,
@@ -224,5 +258,8 @@ test("registers a real FontFace, switches the Game default and removes the final
     removed: true,
     restoredWithoutTick: true,
     lateAppliedWithoutTick: true,
+    renderCalls: 1,
+    renderError: true,
+    releasedAfterError: true,
   });
 });

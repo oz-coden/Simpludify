@@ -1,29 +1,32 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
 
 const sdk = `/@fs/${process.cwd()}/packages/web/src/index.ts`;
+
+async function forceCanvas2d(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    for (const proto of [
+      HTMLCanvasElement.prototype,
+      OffscreenCanvas.prototype,
+    ]) {
+      const original = proto.getContext;
+      proto.getContext = function (
+        this: HTMLCanvasElement | OffscreenCanvas,
+        kind: string,
+        ...args: unknown[]
+      ) {
+        return kind.includes("webgl")
+          ? null
+          : Reflect.apply(original, this, [kind, ...args]);
+      } as typeof proto.getContext;
+    }
+  });
+}
 
 for (const renderer of ["WebGL", "Canvas2D"]) {
   test(`swaps fallback and real atlas generations on the same ${renderer} sprite`, async ({
     page,
   }) => {
-    if (renderer === "Canvas2D")
-      await page.addInitScript(() => {
-        for (const proto of [
-          HTMLCanvasElement.prototype,
-          OffscreenCanvas.prototype,
-        ]) {
-          const original = proto.getContext;
-          proto.getContext = function (
-            this: HTMLCanvasElement | OffscreenCanvas,
-            kind: string,
-            ...args: unknown[]
-          ) {
-            return kind.includes("webgl")
-              ? null
-              : Reflect.apply(original, this, [kind, ...args]);
-          } as typeof proto.getContext;
-        }
-      });
+    if (renderer === "Canvas2D") await forceCanvas2d(page);
     let requests = 0;
     await page.route("**/managed-image.svg", async (route) => {
       requests++;
@@ -211,70 +214,119 @@ test("validates a managed atlas against tile edits made before replacement commi
   expect(requests).toBe(3);
 });
 
-test("replaces live tilemap sprite textures immediately on managed atlas reload even while hidden", async ({
-  page,
-}) => {
-  await page.route("**/managed-hidden-terrain.svg", async (route) => {
-    await route.fulfill({
-      contentType: "image/svg+xml",
-      body: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="16"><rect width="32" height="16" fill="lime"/></svg>',
-    });
-  });
-  await page.goto("/");
-  await expect(page.getByRole("heading")).toBeVisible();
-  const result = await page.evaluate(async (url) => {
-    const { Game, SpriteSheet, Tilemap } = (await import(
-      url
-    )) as typeof import("@simpludify/web");
-    window.demo.dispose();
-    const game = new Game({
-      logging: { console: false },
-      frames: { request: () => 1, cancel: () => {} },
-    });
-    try {
-      const atlas = game.assets.load({
-        kind: "image",
-        url: "/managed-hidden-terrain.svg",
+for (const renderer of ["WebGL", "Canvas2D"]) {
+  test(`keeps only live ${renderer} tile textures after hidden and disabled atlas reloads`, async ({
+    page,
+  }) => {
+    if (renderer === "Canvas2D") await forceCanvas2d(page);
+    await page.route("**/managed-hidden-terrain.svg", async (route) => {
+      await route.fulfill({
+        contentType: "image/svg+xml",
+        body: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="16"><rect width="32" height="16" fill="lime"/></svg>',
       });
-      await atlas.ready;
-      const map = new Tilemap({
-        sheet: SpriteSheet.grid(atlas.source.url, {
-          frameWidth: 16,
-          frameHeight: 16,
-        }),
-        tiles: [[0, 1]],
-        tileWidth: 16,
-        tileHeight: 16,
-      }).place(game.engine.scene);
-      await game.run();
-      const renderer = (
-        game as unknown as {
-          renderer: {
-            tilemaps: Set<{
-              sprites: Map<
-                number,
-                { texture: { destroyed: boolean; source: unknown } }
-              >;
-            }>;
-          };
-        }
-      ).renderer;
-      map.visible = false;
-      game.setViewport();
-      await atlas.reload();
-      const sprites = [...([...renderer.tilemaps][0]?.sprites.values() ?? [])];
-      return {
-        spriteCount: sprites.length,
-        anyDestroyed: sprites.some(
-          (sprite) => sprite.texture.destroyed || !sprite.texture.source,
-        ),
-      };
-    } finally {
-      game.dispose();
-    }
-  }, sdk);
-  expect(result).toEqual({
-    spriteCount: 2,
-    anyDestroyed: false,
+    });
+    await page.goto("/");
+    await expect(page.getByRole("heading")).toBeVisible();
+    const result = await page.evaluate(async (url) => {
+      const { Game, SpriteSheet, Tilemap } = (await import(
+        url
+      )) as typeof import("@simpludify/web");
+      window.demo.dispose();
+      const game = new Game({
+        logging: { console: false },
+        frames: { request: () => 1, cancel: () => {} },
+      });
+      try {
+        const atlas = game.assets.load({
+          kind: "image",
+          url: "/managed-hidden-terrain.svg",
+        });
+        await atlas.ready;
+        const map = new Tilemap({
+          sheet: SpriteSheet.grid(atlas.source.url, {
+            frameWidth: 16,
+            frameHeight: 16,
+          }),
+          tiles: [[0, 1]],
+          tileWidth: 16,
+          tileHeight: 16,
+        }).place(game.engine.scene);
+        let editOnCommit = false;
+        atlas.onChange(() => {
+          if (editOnCommit) map.set(0, 0, 2);
+        });
+        await game.run();
+        const renderer = (
+          game as unknown as {
+            renderer: {
+              app: import("pixi.js").Application;
+              tilemaps: Set<{
+                sprites: Map<number, import("pixi.js").Sprite>;
+                error: unknown;
+              }>;
+            };
+          }
+        ).renderer;
+        const visual = [...renderer.tilemaps][0];
+        if (!visual) throw new Error("Missing tilemap presentation");
+        const textures = () =>
+          [...visual.sprites.values()].map(({ texture }) => texture);
+        const live = () =>
+          textures().every((texture) => !texture.destroyed && !!texture.source);
+
+        const original = textures();
+        map.visible = false;
+        game.setViewport();
+        await atlas.reload();
+        const hidden = {
+          count: visual.sprites.size,
+          live: live(),
+          oldReleased: original.every((texture) => texture.destroyed),
+        };
+
+        map.visible = true;
+        map.enabled = false;
+        game.setViewport();
+        map.set(1, 0, null);
+        await atlas.reload();
+        const disabled = { count: visual.sprites.size, live: live() };
+
+        map.enabled = true;
+        map.set(1, 0, 1);
+        game.setViewport();
+        editOnCommit = true;
+        await atlas.reload();
+        const reentrant = {
+          count: visual.sprites.size,
+          live: live(),
+          invalidFrame: (visual.error as { code?: string } | undefined)?.code,
+        };
+
+        map.set(0, 0, 0);
+        game.setViewport();
+        const restored = { count: visual.sprites.size, live: live() };
+        const current = textures();
+        const type = renderer.app.renderer.type;
+        game.dispose();
+        return {
+          type,
+          hidden,
+          disabled,
+          reentrant,
+          restored,
+          released: current.every((texture) => texture.destroyed),
+        };
+      } finally {
+        game.dispose();
+      }
+    }, sdk);
+    expect(result).toEqual({
+      type: renderer === "WebGL" ? 1 : 4,
+      hidden: { count: 2, live: true, oldReleased: true },
+      disabled: { count: 1, live: true },
+      reentrant: { count: 1, live: true, invalidFrame: "SPRITE_FRAME_BOUNDS" },
+      restored: { count: 2, live: true },
+      released: true,
+    });
   });
-});
+}
