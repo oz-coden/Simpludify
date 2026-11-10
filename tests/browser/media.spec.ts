@@ -134,16 +134,18 @@ test("registers a real FontFace, switches the Game default and removes the final
   await expect(page.getByRole("heading")).toBeVisible();
   const result = await page.evaluate(
     async ([url, font]) => {
-      const { CanvasLabel, Game } = (await import(
+      const { CanvasColumn, CanvasLabel, Game } = (await import(
         url
       )) as typeof import("@simpludify/web");
       window.demo.dispose();
       const game = new Game({
         logging: { console: false },
         assets: { cacheEntries: 0 },
+        frames: { request: () => 1, cancel: () => {} },
       });
       const label = CanvasLabel("A");
-      game.canvasUI(label);
+      const inherited = CanvasLabel("B");
+      game.canvasUI(CanvasColumn([label, inherited]));
       await game.run();
       const scope = game.assets.scope();
       const invalid = scope.load({
@@ -176,8 +178,8 @@ test("registers a real FontFace, switches the Game default and removes the final
           };
         }
       ).renderer;
-      const canvasFont = () =>
-        [...renderer.canvasPresentations][0]?.entries.get(label)?.text?.style
+      const canvasFont = (target = label) =>
+        [...renderer.canvasPresentations][0]?.entries.get(target)?.text?.style
           .fontFamily;
       const canvasApplied = String(canvasFont()).includes(family ?? "missing");
       label.setStyle({ fontFamily: "system-ui, sans-serif" });
@@ -187,6 +189,16 @@ test("registers a real FontFace, switches the Game default and removes the final
       const retained = registered();
       game.setFont();
       const removed = !registered();
+      const restoredWithoutTick = !String(canvasFont(inherited)).includes(
+        family ?? "missing",
+      );
+      const late = game.assets.load({ kind: "font", url: font });
+      game.setFont(late);
+      await late.ready;
+      const lateFamily = late.value?.split(",")[0];
+      const lateAppliedWithoutTick = String(canvasFont(inherited)).includes(
+        lateFamily ?? "missing",
+      );
       game.dispose();
       return {
         fallback,
@@ -196,6 +208,8 @@ test("registers a real FontFace, switches the Game default and removes the final
         explicitFont,
         retained,
         removed,
+        restoredWithoutTick,
+        lateAppliedWithoutTick,
       };
     },
     [sdk, font] as const,
@@ -208,5 +222,7 @@ test("registers a real FontFace, switches the Game default and removes the final
     explicitFont: true,
     retained: true,
     removed: true,
+    restoredWithoutTick: true,
+    lateAppliedWithoutTick: true,
   });
 });

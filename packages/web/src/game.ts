@@ -409,10 +409,12 @@ export class Game<SceneId extends string = string> {
     const old = this.fontUse;
     this.fontUse = next;
     const update = () => {
+      if (this.dead) return;
       this.element.style.setProperty(
         "--s-font",
         next?.value ?? this.defaultFont,
       );
+      if (this.ready) this.render();
     };
     next?.onChange(update);
     update();

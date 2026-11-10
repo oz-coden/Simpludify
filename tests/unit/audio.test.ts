@@ -123,3 +123,51 @@ it("unlocks queued voices, routes hierarchical gain and resumes with a new sourc
     vi.unstubAllGlobals();
   }
 });
+
+it("handles zero-duration audio buffers and non-running context pauses without NaN offsets or leaked nodes", async () => {
+  vi.stubGlobal("AudioContext", Device);
+  vi.stubGlobal("navigator", { userActivation: { isActive: true } });
+  const logger = new Logger();
+  let duration = 0;
+  const adapter: AssetAdapter = {
+    load: async () => ({ value: { duration }, release() {} }),
+    fallback: async () => undefined,
+  };
+  const store = new AssetStore(adapter, logger, "https://game.example/");
+  const assets = new AssetScope(store, undefined, true);
+  const audio = new GameAudio(new EventTarget() as HTMLElement, store, logger);
+  try {
+    const empty = await assets.load({ kind: "audio", url: "/empty" }).ready;
+    expect(await audio.unlock()).toBe(true);
+    const loopEmpty = audio.play(empty, { loop: true });
+    expect(await loopEmpty.finished).toBe("ended");
+    expect(Device.last?.sources).toHaveLength(0);
+
+    duration = 4;
+    await empty.reload();
+    const voice = audio.play(empty);
+    await vi.waitFor(() => expect(voice.state).toBe("playing"));
+    const device = Device.last;
+    if (!device) throw new Error("Missing device");
+    const first = device.sources[0];
+    device.state = "suspended";
+    device.currentTime = 1;
+    voice.pause();
+    expect(voice.state).toBe("paused");
+    voice.resume();
+    expect(voice.state).toBe("pending");
+    voice.pause();
+    expect(voice.state).toBe("paused");
+    await device.resume();
+    expect(voice.state).toBe("paused");
+    expect(device.sources).toHaveLength(1);
+    expect(first?.stop).toHaveBeenCalledTimes(1);
+    voice.resume();
+    expect(voice.state).toBe("playing");
+    expect(device.sources[1]?.start).toHaveBeenCalledWith(0, 1);
+  } finally {
+    audio.dispose();
+    store.dispose();
+    vi.unstubAllGlobals();
+  }
+});

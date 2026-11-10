@@ -181,6 +181,10 @@ export class AudioPlayback {
       if (context.state !== "running") return;
       this.buffer = current;
       const buffer = current ?? context.createBuffer(1, 1, context.sampleRate);
+      if (buffer.duration <= 0) {
+        this.finish("ended");
+        return;
+      }
       if (this.position >= buffer.duration) {
         if (!this.looping) {
           this.finish("ended");
