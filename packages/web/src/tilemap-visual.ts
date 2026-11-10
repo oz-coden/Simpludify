@@ -100,6 +100,18 @@ export class TilemapVisual {
           );
         }
       }
+      for (const [index, sprite] of this.sprites) {
+        const id = this.map.get(
+          index % this.map.width,
+          Math.floor(index / this.map.width),
+        );
+        if (id === null) {
+          this.remove(index);
+          continue;
+        }
+        const texture = this.textures.get(id);
+        if (texture && sprite.texture !== texture) sprite.texture = texture;
+      }
     } catch (error) {
       this.fail(error);
     }

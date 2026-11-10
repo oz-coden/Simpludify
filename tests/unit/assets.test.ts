@@ -192,3 +192,65 @@ it("delivers ordered progress snapshots across reentrant scope updates", async (
   );
   store.dispose();
 });
+
+it("preempts a pending background retry on reload, validates reload options and rejects when reload fails on fallback", async () => {
+  const stalled = deferred<void>();
+  const fallback = resource({ width: 2, height: 2 });
+  const load = vi
+    .fn<AssetAdapter["load"]>()
+    .mockRejectedValueOnce(new Error("initial failure"))
+    .mockRejectedValueOnce(new Error("reload failure"));
+  const { assets, store } = fixture({
+    load,
+    fallback: async () => fallback,
+  });
+  const handle = assets.load({
+    kind: "image",
+    url: "/hero",
+    retry: { once: { until: stalled.promise } },
+  });
+  await handle.ready;
+  expect(handle.status).toBe("fallback");
+  expect(handle.loading).toBe(true);
+  await expect(handle.reload({ timeoutMs: 0 })).rejects.toMatchObject({
+    code: "INVALID_VALUE",
+  });
+  await expect(handle.reload()).rejects.toThrow("reload failure");
+  expect(load).toHaveBeenLastCalledWith(
+    "image",
+    "https://game.example/hero",
+    expect.any(AbortSignal),
+    true,
+  );
+  expect(handle.status).toBe("fallback");
+  expect(handle.value).toEqual({ width: 2, height: 2 });
+  store.dispose();
+});
+
+it("normalizes timeout failures to ASSET_TIMEOUT before fallback notification", async () => {
+  const fallback = resource({ width: 2, height: 2 });
+  const { assets, store, diagnostics } = fixture({
+    load: (_kind, _url, signal) =>
+      new Promise((_, reject) => {
+        signal.addEventListener("abort", () => reject(signal.reason), {
+          once: true,
+        });
+      }),
+    fallback: async () => fallback,
+  });
+  const observed: unknown[] = [];
+  const handle = assets.load({
+    kind: "image",
+    url: "/slow",
+    timeoutMs: 1,
+  });
+  handle.onChange((asset) => observed.push(asset.error));
+  await handle.ready;
+  expect(handle.status).toBe("fallback");
+  expect(handle.error).toMatchObject({ code: "ASSET_TIMEOUT" });
+  expect(observed[0]).toMatchObject({ code: "ASSET_TIMEOUT" });
+  expect(
+    diagnostics.find((entry) => entry.code === "ASSET_FALLBACK")?.cause,
+  ).toMatchObject({ code: "ASSET_TIMEOUT" });
+  store.dispose();
+});

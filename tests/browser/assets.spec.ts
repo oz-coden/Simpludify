@@ -210,3 +210,71 @@ test("validates a managed atlas against tile edits made before replacement commi
   });
   expect(requests).toBe(3);
 });
+
+test("replaces live tilemap sprite textures immediately on managed atlas reload even while hidden", async ({
+  page,
+}) => {
+  await page.route("**/managed-hidden-terrain.svg", async (route) => {
+    await route.fulfill({
+      contentType: "image/svg+xml",
+      body: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="16"><rect width="32" height="16" fill="lime"/></svg>',
+    });
+  });
+  await page.goto("/");
+  await expect(page.getByRole("heading")).toBeVisible();
+  const result = await page.evaluate(async (url) => {
+    const { Game, SpriteSheet, Tilemap } = (await import(
+      url
+    )) as typeof import("@simpludify/web");
+    window.demo.dispose();
+    const game = new Game({
+      logging: { console: false },
+      frames: { request: () => 1, cancel: () => {} },
+    });
+    try {
+      const atlas = game.assets.load({
+        kind: "image",
+        url: "/managed-hidden-terrain.svg",
+      });
+      await atlas.ready;
+      const map = new Tilemap({
+        sheet: SpriteSheet.grid(atlas.source.url, {
+          frameWidth: 16,
+          frameHeight: 16,
+        }),
+        tiles: [[0, 1]],
+        tileWidth: 16,
+        tileHeight: 16,
+      }).place(game.engine.scene);
+      await game.run();
+      const renderer = (
+        game as unknown as {
+          renderer: {
+            tilemaps: Set<{
+              sprites: Map<
+                number,
+                { texture: { destroyed: boolean; source: unknown } }
+              >;
+            }>;
+          };
+        }
+      ).renderer;
+      map.visible = false;
+      game.setViewport();
+      await atlas.reload();
+      const sprites = [...([...renderer.tilemaps][0]?.sprites.values() ?? [])];
+      return {
+        spriteCount: sprites.length,
+        anyDestroyed: sprites.some(
+          (sprite) => sprite.texture.destroyed || !sprite.texture.source,
+        ),
+      };
+    } finally {
+      game.dispose();
+    }
+  }, sdk);
+  expect(result).toEqual({
+    spriteCount: 2,
+    anyDestroyed: false,
+  });
+});

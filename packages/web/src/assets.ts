@@ -579,22 +579,30 @@ export class AssetStore {
     options: AssetLoadOptions,
     reload: boolean,
   ): Promise<void> {
-    if (entry.task) return entry.task;
     if (this.dead || !entry.users.size) return Promise.reject(cancelled());
     const policy = settings(options);
+    if (entry.task) {
+      if (reload && entry.asset) {
+        entry.controller?.abort(cancelled());
+      } else {
+        return entry.task;
+      }
+    }
     const controller = new AbortController();
     entry.controller = controller;
-    entry.task = Promise.resolve().then(async () => {
+    const task = Promise.resolve().then(async () => {
       try {
         await this.load(entry, policy, reload, controller.signal);
       } finally {
-        entry.task = undefined;
-        entry.controller = undefined;
-        this.changed();
+        if (entry.task === task) {
+          entry.task = undefined;
+          entry.controller = undefined;
+          this.changed();
+        }
       }
     });
-    void entry.task.catch(() => {});
-    const task = entry.task;
+    entry.task = task;
+    void task.catch(() => {});
     this.changed();
     return task;
   }
@@ -699,8 +707,16 @@ export class AssetStore {
           return;
         } catch (cause) {
           owner.throwIfAborted();
-          failure = cause;
-          entry.error = cause;
+          const fault = deadline.aborted
+            ? new EngineError(
+                "ASSET_TIMEOUT",
+                "Asset load deadline expired",
+                {},
+                { cause },
+              )
+            : cause;
+          failure = fault;
+          entry.error = fault;
           if (!entry.asset) {
             await this.fallback(entry, signal, owner);
             if (entry.asset)
@@ -708,11 +724,11 @@ export class AssetStore {
                 source: "engine.assets",
                 code: "ASSET_FALLBACK",
                 details: { kind: entry.kind, id: entry.id },
-                cause,
+                cause: fault,
               });
           }
           if (signal.aborted) break;
-          if (cause instanceof EngineError && cause.code === "ASSET_NETWORK") {
+          if (fault instanceof EngineError && fault.code === "ASSET_NETWORK") {
             if (!network) break;
             network--;
             await pause(policy.networkDelayMs, signal);
@@ -730,7 +746,10 @@ export class AssetStore {
       owner.throwIfAborted();
       failure = cause;
     }
-    if (deadline.aborted)
+    if (
+      deadline.aborted &&
+      !(failure instanceof EngineError && failure.code === "ASSET_TIMEOUT")
+    )
       failure = new EngineError(
         "ASSET_TIMEOUT",
         "Asset load deadline expired",
