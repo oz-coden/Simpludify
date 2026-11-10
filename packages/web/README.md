@@ -1,11 +1,11 @@
 # @simpludify/web
 
-Experimental v0.2.0 browser SDK for Simpludify, a code-first TypeScript 2D engine. APIs may change between 0.x releases. Includes Game, PixiJS rendering, browser input and Canvas/DOM UI adapters; re-exports the host-independent Core API. Core and PixiJS are installed as runtime dependencies, not bundled into this package.
+Experimental v0.2.1 browser SDK for Simpludify, a code-first TypeScript 2D engine. APIs may change between 0.x releases. Includes Game, PixiJS rendering, browser input and Canvas/DOM UI adapters; re-exports the host-independent Core API. Core and PixiJS are installed as runtime dependencies, not bundled into this package.
 
-Registry installation (check availability with `npm view @simpludify/web@0.2.0 version`):
+Registry installation (check availability with `npm view @simpludify/web@0.2.1 version`):
 
 ```sh
-npm install @simpludify/web@0.2.0
+npm install @simpludify/web@0.2.1
 npm install --save-dev vite typescript
 ```
 
