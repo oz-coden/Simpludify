@@ -215,8 +215,17 @@ export function visitRayTiles(
     const lowX = Math.max(0, Math.ceil(Math.min(firstX, lastX)) - 1);
     const highX = Math.min(map.width - 1, Math.floor(Math.max(firstX, lastX)));
     const stepX = ray.dx < 0 ? -1 : 1;
-    for (let x = stepX > 0 ? lowX : highX; x >= lowX && x <= highX; x += stepX)
+    for (
+      let x = stepX > 0 ? lowX : highX;
+      x >= lowX && x <= highX;
+      x += stepX
+    ) {
+      if (ray.dx !== 0) {
+        const edge = left + (stepX > 0 ? x : x + 1) * w;
+        if (beyond((edge - ray.x) / ray.dx, limit)) break;
+      }
       limit = visit(x, y, limit);
+    }
   }
 }
 

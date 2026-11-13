@@ -228,5 +228,10 @@ it("visits a diagonal strip of a large tilemap and gives repeatable nearest and 
   const count = probes;
   expect(world.raycast(ray)).toEqual(first[0]);
   expect(probes - count).toBeLessThan(5);
+  const beforeHorizontal = probes;
+  expect(world.raycast(segment(257, 0.5, -1, 0.5))).toMatchObject({
+    tile: { x: 255, y: 0 },
+  });
+  expect(probes - beforeHorizontal).toBe(1);
   expect(world.raycastAll(ray)).toEqual(first);
 });
