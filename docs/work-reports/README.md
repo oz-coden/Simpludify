@@ -25,6 +25,10 @@ This directory contains persistent engineering reports, implementation logs, ver
 
 ## Technical implementation reports (by date)
 
+### 2026-11-13
+
+- [v0.3.0 world queries, masks and input activity](2026-11-13-v0.3.0-world-queries.md).
+
 ### 2026-11-10
 
 - [Independent v0.2.0 code review, fixes and verification](2026-11-10-v0.2.0-independent-review.md): Independent post-release audit of v0.2.0 on `argon/review/v0.2.0` for v0.2.1 incorporation — `AssetHandle.reload()` preemption and failure propagation during fallback retries, `ASSET_TIMEOUT` normalization before fallback commit, immediate `TilemapVisual` sprite texture swap on managed atlas reload, `Logger` deduplication of prototype-getter `Error`/`DOMException` fields, zero-duration looping `AudioBuffer` guard, and `Game.setFont()` Canvas UI re-render.

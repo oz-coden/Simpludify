@@ -7,7 +7,7 @@ import {
 /** Scoped keyboard adapter: editors own text; engine buttons consume only their UI keys. */
 export class BrowserInput {
   private readonly controller = new AbortController();
-  constructor(host: HTMLElement, input: InputSystem) {
+  constructor(host: HTMLElement, input: InputSystem, onActivity?: () => void) {
     const source = input.createKeyboardSource();
     let compositionOwner: EventTarget | null = null;
     const down = (event: KeyboardEvent) => {
@@ -36,7 +36,10 @@ export class BrowserInput {
       if (!isKeyCode(event.code) || !input.acceptsKey(event.code)) return;
       event.preventDefault();
       // Released/cleared holds require a fresh keydown; autorepeat never restores them.
-      if (!event.repeat) source.set(event.code, true);
+      if (!event.repeat) {
+        source.set(event.code, true);
+        onActivity?.();
+      }
     };
     const up = (event: KeyboardEvent) => {
       if (isKeyCode(event.code)) source.set(event.code, false);

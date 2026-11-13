@@ -64,6 +64,9 @@ import {
 } from "./ui";
 import { blocksGameKeyboard } from "./ui-keyboard";
 import type { VirtualInputPresentation } from "./virtual-input-visual";
+import type { WorldMaskRegion } from "./world-mask";
+
+export type ActiveInputDevice = "keyboard" | "mouse" | "touch" | "gamepad";
 
 export interface SceneContext {
   readonly scene: Scene;
@@ -130,6 +133,11 @@ export class Game<SceneId extends string = string> {
   readonly logger: Logger;
   readonly assets: AssetScope;
   readonly audio: GameAudio;
+  private inputDevice: ActiveInputDevice | undefined;
+  /** Most recent accepted physical input on this Game. */
+  get lastInputDevice(): ActiveInputDevice | undefined {
+    return this.dead ? undefined : this.inputDevice;
+  }
   private readonly defaultFont: string;
   private fontUse: AssetHandle<"font"> | undefined;
   private readonly imagePool = createImagePool();
@@ -358,9 +366,14 @@ export class Game<SceneId extends string = string> {
       () => this.pointers.release(),
       (error) => this.report(error, "engine.input"),
     );
-    this.keyboard = new BrowserInput(this.element, this.engine.input);
+    this.keyboard = new BrowserInput(this.element, this.engine.input, () => {
+      this.inputDevice = "keyboard";
+    });
     this.gamepads = new GamepadInput(this.engine.input, {
       observe: (pads) => this.captures.sample(pads),
+      onActivity: () => {
+        this.inputDevice = "gamepad";
+      },
       active: () =>
         !document.hidden &&
         document.hasFocus() &&
@@ -381,6 +394,9 @@ export class Game<SceneId extends string = string> {
       (error) => this.report(error, "engine.input"),
       () => this.updateProjection(),
       this.engine.input,
+      (device) => {
+        this.inputDevice = device;
+      },
     );
     document.addEventListener(
       "visibilitychange",
@@ -400,6 +416,28 @@ export class Game<SceneId extends string = string> {
       }
     });
     this.observer.observe(this.element);
+  }
+  /** Clip this Scene's world visuals to the union of these regions. */
+  setWorldMask(
+    regions?: readonly WorldMaskRegion[],
+    scene = this.engine.scene,
+  ): void {
+    this.assertAlive();
+    if (
+      scene.disposed ||
+      (scene !== this.engine.scene && scene !== this.staging)
+    )
+      throw new EngineError(
+        "SCENE_STATE",
+        "World mask Scene must be current or staged by this Game",
+      );
+    if (!(this.renderer instanceof PixiRenderer))
+      throw new EngineError(
+        "RENDERER_UNSUPPORTED",
+        "World masks require PixiRenderer",
+      );
+    this.renderer.setWorldMask(scene, regions);
+    if (this.ready && scene === this.engine.scene) this.render();
   }
   /** Choose the Game default font for DOM and Canvas UI. */
   setFont(asset?: AssetHandle<"font">): void {

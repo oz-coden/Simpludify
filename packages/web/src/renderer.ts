@@ -36,6 +36,7 @@ import {
   type VirtualInputPresentation,
   VirtualInputVisual,
 } from "./virtual-input-visual";
+import { copyWorldMask, type WorldMaskRegion } from "./world-mask";
 
 interface Visual {
   actor: Actor;
@@ -63,6 +64,15 @@ interface Visual {
 }
 export class PixiRenderer implements RendererPort {
   private readonly app = new Application();
+  private readonly worldMasks = new WeakMap<
+    Scene,
+    readonly WorldMaskRegion[]
+  >();
+  /** @internal Scene data outlives a retained Scene's current presentation. */
+  setWorldMask(scene: Scene, regions?: readonly WorldMaskRegion[]): void {
+    if (regions === undefined) this.worldMasks.delete(scene);
+    else this.worldMasks.set(scene, copyWorldMask(regions));
+  }
   private readonly pendingUITextKeys = new Set<string>();
   private readonly canvasPresentations = new Set<CanvasVisual>();
   private readonly virtualPresentations = new Set<VirtualInputVisual>();
@@ -310,6 +320,44 @@ export class PixiRenderer implements RendererPort {
     world.sortableChildren = true;
     root.addChild(world, mask);
     root.mask = mask;
+    let worldMask: Graphics | undefined;
+    let regions: readonly WorldMaskRegion[] | undefined;
+    const clearWorldMask = () => {
+      if (!worldMask) return;
+      world.mask = null;
+      const context = worldMask.context.uid;
+      worldMask.destroy({ context: true });
+      releaseUIGraphics(this.app.renderer, worldMask, context);
+      worldMask = undefined;
+    };
+    const syncWorldMask = () => {
+      const next = this.worldMasks.get(scene);
+      if (next === regions) return;
+      regions = next;
+      world.visible = next?.length !== 0;
+      if (!next?.length) {
+        clearWorldMask();
+        return;
+      }
+      if (!worldMask) {
+        worldMask = new Graphics();
+        root.addChild(worldMask);
+        world.mask = worldMask;
+      }
+      worldMask.clear();
+      for (const region of next) {
+        if (region.kind === "rectangle")
+          worldMask.rect(region.x, region.y, region.width, region.height);
+        else if (region.kind === "circle")
+          worldMask.circle(region.x, region.y, region.radius);
+        else
+          worldMask.poly(
+            region.points.flatMap(({ x, y }) => [x, y]),
+            true,
+          );
+      }
+      worldMask.fill(0xffffff);
+    };
     const visuals = new Map<Actor, Visual>();
     const tilemaps = new Map<Actor, TilemapVisual>();
     const geometryTilemaps = new Map<Actor, GeometryTilemapVisual>();
@@ -771,6 +819,11 @@ export class PixiRenderer implements RendererPort {
         }
         world.scale.set(view.scale);
         world.position.set(view.x, view.y);
+        syncWorldMask();
+        if (worldMask) {
+          worldMask.scale.set(view.scale);
+          worldMask.position.set(view.x, view.y);
+        }
         for (const entry of visuals.values()) {
           update(entry);
           if (entry.display) {
@@ -882,6 +935,7 @@ export class PixiRenderer implements RendererPort {
               }
               geometryTilemaps.clear();
             },
+            clearWorldMask,
             () => root.destroy({ children: true, context: true }),
           ],
           "Presentation cleanup failed",

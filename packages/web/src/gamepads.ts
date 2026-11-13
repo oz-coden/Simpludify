@@ -117,6 +117,15 @@ function neutral(
       : value.x === 0 && value.y === 0 && (value.z ?? 0) === 0;
 }
 
+function intentional(value: Parameters<typeof neutral>[0]): boolean {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return Math.abs(value) >= 0.12;
+  return (
+    Math.max(Math.abs(value.x), Math.abs(value.y), Math.abs(value.z ?? 0)) >=
+    0.12
+  );
+}
+
 /** A controller-owned device contribution. Reassignment does not replace its readers/Actors. */
 export class GamepadSource<A extends ActionSet> {
   private readonly life = new Lifetime();
@@ -130,6 +139,7 @@ export class GamepadSource<A extends ActionSet> {
   private following: boolean;
   private bindingRevision: number;
   private readonly waiting = new Set<ActionToken>();
+  private readonly activeBindings = new Set<ActionToken>();
   constructor(
     private readonly input: GamepadInput,
     private readonly controller: ActionController<A>,
@@ -224,6 +234,7 @@ export class GamepadSource<A extends ActionSet> {
       )
         continue;
       this.source.resetBinding(action as A[keyof A]);
+      this.activeBindings.delete(action);
       if (after.has(action)) this.waiting.add(action);
       else this.waiting.delete(action);
     }
@@ -234,6 +245,7 @@ export class GamepadSource<A extends ActionSet> {
     this.source.clear();
     this.armed = false;
     this.waiting.clear();
+    this.activeBindings.clear();
   }
   private alive(): void {
     if (this.disposed)
@@ -245,8 +257,8 @@ export class GamepadSource<A extends ActionSet> {
   /** @internal */ sample(
     pad: GamepadState | undefined,
     allowed: boolean,
-  ): void {
-    if (this.disposed) return;
+  ): boolean {
+    if (this.disposed) return false;
     this.syncBindings();
     if (
       !allowed ||
@@ -257,7 +269,7 @@ export class GamepadSource<A extends ActionSet> {
     ) {
       this.clear();
       this.signature = undefined;
-      return;
+      return false;
     }
     const signature = JSON.stringify([
       pad.id,
@@ -272,15 +284,22 @@ export class GamepadSource<A extends ActionSet> {
     const next = values(pad, this.bindings, this.zone);
     if (!this.armed) {
       if (next.every(([, value]) => neutral(value))) this.armed = true;
-      return;
+      return false;
     }
+    let activity = false;
     for (const [action, value] of next) {
       if (this.waiting.has(action)) {
         if (!neutral(value)) continue;
         this.waiting.delete(action);
       }
       this.source.set(action as A[keyof A], value as never);
+      if (neutral(value)) this.activeBindings.delete(action);
+      else if (intentional(value) && !this.activeBindings.has(action)) {
+        this.activeBindings.add(action);
+        activity = true;
+      }
     }
+    return activity;
   }
   /** @internal */ onDispose(callback: () => void): () => void {
     return this.life.onDispose(callback);
@@ -302,6 +321,7 @@ export class GamepadInput implements InputAdapter {
   private readable = false;
   private readonly poll: GamepadPoll;
   private readonly active: () => boolean;
+  private readonly onActivity: (() => void) | undefined;
   private readonly observe:
     | ((pads: ReadonlyMap<number, GamepadState>) => void)
     | undefined;
@@ -313,6 +333,8 @@ export class GamepadInput implements InputAdapter {
       readonly events?: EventTarget;
       /** @internal Host capture observes the same poll before any device contribution. */
       readonly observe?: (pads: ReadonlyMap<number, GamepadState>) => void;
+      /** @internal Record accepted activity from any assigned controller. */
+      readonly onActivity?: () => void;
     } = {},
   ) {
     this.life.onDispose(() => this.changes.dispose());
@@ -327,6 +349,7 @@ export class GamepadInput implements InputAdapter {
             })());
     this.active = options.active ?? (() => true);
     this.observe = options.observe;
+    this.onActivity = options.onActivity;
     this.life.onDispose(input.addAdapter(this));
     const events =
         options.events ?? (typeof window === "undefined" ? undefined : window),
@@ -444,10 +467,12 @@ export class GamepadInput implements InputAdapter {
     );
     this.observe?.(pads);
     const allowed = this.active() && this.input.liveInput;
+    let activity = false;
     for (const source of this.sources) {
       if (source.disposed) this.sources.delete(source);
-      else source.sample(pads.get(source.index), allowed);
+      else if (source.sample(pads.get(source.index), allowed)) activity = true;
     }
+    if (activity) this.onActivity?.();
     this.publish(listed, wasReadable !== this.readable);
   }
   reset(): void {

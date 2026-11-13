@@ -31,6 +31,7 @@ export class BrowserPointer {
   private readonly mouseStates = new Map<number, number>();
   private readonly blockedMouse = new Set<number>();
   private readonly auxiliary = new Set<MouseButton>();
+  private mouseAnchor: PointerInfo["screen"] | undefined;
   private readonly offInput: (() => void) | undefined;
   constructor(
     private readonly host: HTMLElement,
@@ -41,6 +42,7 @@ export class BrowserPointer {
     private readonly report: (error: unknown) => void,
     private readonly flush: () => void,
     private readonly input?: InputSystem,
+    private readonly onActivity?: (device: "mouse" | "touch") => void,
   ) {
     this.routing = new PointerRouting((id) => {
       if (host.hasPointerCapture(id)) host.releasePointerCapture(id);
@@ -74,6 +76,14 @@ export class BrowserPointer {
           const target = this.routing.down(data);
           this.updateMouse(e);
           if (this.routing.has(e.pointerId)) {
+            if (
+              input?.liveInput &&
+              (e.pointerType === "mouse" || e.pointerType === "touch")
+            ) {
+              this.mouseAnchor =
+                e.pointerType === "mouse" ? data.screen : undefined;
+              this.onActivity?.(e.pointerType);
+            }
             e.preventDefault();
             // UI gestures retain compatible focus; an explicit world click selects the game.
             if (target) focusGameSurface(host);
@@ -104,8 +114,11 @@ export class BrowserPointer {
               e.deltaX * unit,
               e.deltaY * unit,
             )
-          )
+          ) {
+            if (input?.liveInput && (e.deltaX || e.deltaY))
+              this.onActivity?.("mouse");
             e.preventDefault();
+          }
         }),
       { ...options, passive: false },
     );
@@ -114,7 +127,10 @@ export class BrowserPointer {
       (e) =>
         this.guard(() => {
           if (!this.routing.owns(e.pointerId) && !this.surface(e.target)) {
-            if (e.pointerType === "mouse") this.releaseMouse(e.pointerId);
+            if (e.pointerType === "mouse") {
+              this.mouseAnchor = undefined;
+              this.releaseMouse(e.pointerId);
+            }
             if (this.routing.hasHover(e.pointerId)) {
               const data = this.data(e);
               if (data) this.routing.leave(data);
@@ -127,6 +143,23 @@ export class BrowserPointer {
           if (!data) return this.release();
           this.updateMouse(e);
           this.routing.move(data);
+          if (
+            e.pointerType === "mouse" &&
+            data.inside &&
+            input?.liveInput &&
+            host.contains(document.activeElement) &&
+            !blocksGameKeyboard(document.activeElement)
+          ) {
+            this.mouseAnchor ??= data.screen;
+            const anchor = this.mouseAnchor;
+            if (
+              Math.hypot(data.screen.x - anchor.x, data.screen.y - anchor.y) >=
+              8
+            ) {
+              this.mouseAnchor = data.screen;
+              this.onActivity?.("mouse");
+            }
+          } else if (e.pointerType === "mouse") this.mouseAnchor = undefined;
         }),
       options,
     );
@@ -249,6 +282,7 @@ export class BrowserPointer {
     this.applyMouse();
   }
   private resetMouse(): void {
+    this.mouseAnchor = undefined;
     for (const id of this.mouseStates.keys()) this.blockedMouse.add(id);
     this.mouseStates.clear();
     this.auxiliary.clear();

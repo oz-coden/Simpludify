@@ -46,3 +46,4 @@ export { BrowserInput } from "./input";
 export { PixiRenderer } from "./renderer";
 export * from "./ui";
 export type { VirtualInputPresentation } from "./virtual-input-visual";
+export type { WorldMaskRegion } from "./world-mask";

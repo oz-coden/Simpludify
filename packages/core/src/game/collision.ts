@@ -27,8 +27,18 @@ import {
   type Manifold,
   updateGeometry,
 } from "./collision-geometry";
-import { allowsPair, pairResponse } from "./collision-policy";
+import { allowsPair, collisionBits, pairResponse } from "./collision-policy";
 import { correctPositions } from "./collision-response";
+import {
+  intersectRay,
+  queryRay,
+  type RaycastHit,
+  type RaycastOptions,
+  type RaycastQuery,
+  rayHitGeometry,
+  type TileRaycastHit,
+  visitRayTiles,
+} from "./raycast";
 import {
   exposedFaces,
   tileGeometry,
@@ -47,6 +57,13 @@ import type { ResolvedTileCollision } from "./tilemap-collision";
 
 export * from "./collider";
 export * from "./collision-body";
+export type {
+  ColliderRaycastHit,
+  RaycastHit,
+  RaycastOptions,
+  RaycastQuery,
+  TileRaycastHit,
+} from "./raycast";
 export * from "./tile-contact";
 
 interface Entry {
@@ -189,6 +206,127 @@ export class CollisionWorld {
   }
   get disposed(): boolean {
     return this.lifetime.disposed;
+  }
+  /** Query current world geometry, independently of the contact step. */
+  raycast(
+    query: RaycastQuery,
+    options?: RaycastOptions,
+  ): RaycastHit | undefined {
+    return this.cast(query, options);
+  }
+  /** One first hit per target, sorted by distance then stable world order. */
+  raycastAll(
+    query: RaycastQuery,
+    options?: RaycastOptions,
+  ): readonly RaycastHit[] {
+    const hits: RaycastHit[] = [];
+    this.cast(query, options, hits);
+    return hits.sort((a, b) => a.distance - b.distance);
+  }
+  private cast(
+    query: RaycastQuery,
+    {
+      layers = 0xffffffff,
+      includeTriggers = false,
+      targets = "all",
+      exclude,
+    }: RaycastOptions = {},
+    hits?: RaycastHit[],
+  ): RaycastHit | undefined {
+    if (this.disposed)
+      throw new EngineError(
+        "COLLISION_WORLD_DISPOSED",
+        "Collision world has been disposed",
+      );
+    const ray = queryRay(query);
+    collisionBits(layers, "layers", true);
+    if (targets !== "all" && targets !== "colliders" && targets !== "tiles")
+      throw new EngineError("INVALID_VALUE", "Unknown raycast targets");
+    if (typeof includeTriggers !== "boolean")
+      throw new EngineError("INVALID_VALUE", "includeTriggers must be boolean");
+    if (layers === 0) return;
+    this.reconcile();
+    const matches = ({
+      layer,
+      response,
+    }: Pick<ResolvedTileCollision, "layer" | "response">) =>
+      (layer & layers) !== 0 &&
+      (includeTriggers || response === CollisionResponse.Solid);
+    const hit = { distance: 0, nx: 0, ny: 0 };
+    const geometry = createGeometry();
+    let nearest: RaycastHit | undefined;
+    let limit = ray.length;
+    if (targets !== "tiles") {
+      for (const entry of this.entries.values()) {
+        const { actor, collider } = entry;
+        if (
+          !this.eligible(entry) ||
+          !matches(collider) ||
+          exclude?.includes(actor) ||
+          exclude?.includes(collider) ||
+          !updateGeometry(entry) ||
+          !intersectRay(ray, collider.shape, entry.geometry, limit, hit) ||
+          (!hits && nearest && hit.distance >= limit)
+        )
+          continue;
+        const result = {
+          kind: "collider" as const,
+          actor,
+          collider,
+          ...rayHitGeometry(ray, hit, collider),
+        };
+        if (hits) hits.push(result);
+        else {
+          nearest = result;
+          limit = hit.distance;
+          if (limit === 0) return nearest;
+        }
+      }
+    }
+    if (targets !== "colliders") {
+      for (const { map } of this.maps.values()) {
+        if (
+          !this.mapEligible(map) ||
+          !map.hasCollision ||
+          exclude?.includes(map)
+        )
+          continue;
+        const mapHits = hits ? ([] as TileRaycastHit[]) : undefined;
+        visitRayTiles(ray, map, limit, (x, y, bound) => {
+          const policy = map.getCollision(x, y);
+          if (!policy || !matches(policy)) return bound;
+          tileGeometry(map, x, y, geometry);
+          if (!intersectRay(ray, CollisionShape.Box, geometry, bound, hit))
+            return bound;
+          if (!hits && nearest && hit.distance === bound) {
+            if (
+              nearest.kind !== "tile" ||
+              nearest.map !== map ||
+              nearest.tile.y < y ||
+              (nearest.tile.y === y && nearest.tile.x < x)
+            )
+              return bound;
+          }
+          const result: TileRaycastHit = {
+            kind: "tile",
+            map,
+            tile: { space: "tile", x, y },
+            tileId: map.get(x, y),
+            policy,
+            ...rayHitGeometry(ray, hit, policy),
+          };
+          if (mapHits) mapHits.push(result);
+          else nearest = result;
+          return hits ? bound : hit.distance;
+        });
+        if (mapHits && hits) {
+          mapHits.sort((a, b) => a.tile.y - b.tile.y || a.tile.x - b.tile.x);
+          for (const result of mapHits) hits.push(result);
+        }
+        if (!hits && nearest) limit = nearest.distance;
+      }
+    }
+    return nearest;
   }
   /** Actor broad-phase counters retain their existing meaning; terrain is separate below. */
   get diagnostics() {

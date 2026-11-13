@@ -288,3 +288,108 @@ for (const fallback of [false, true])
       await expect(page.locator(".simpludify")).toHaveCount(0);
     });
   });
+
+test("last input device reports accepted physical activity without changing action ownership", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    window.mockPads = [0, 1].map((index) => ({
+      id: `Mock ${index}`,
+      index,
+      connected: true,
+      mapping: "standard",
+      axes: [0, 0, 0, 0],
+      buttons: Array.from({ length: 17 }, () => ({ value: 0, pressed: false })),
+    }));
+    Object.defineProperty(navigator, "getGamepads", {
+      value: () => window.mockPads,
+    });
+  });
+  await page.goto(route);
+  await page.evaluate(async (sample) => {
+    window.inputLab = await import(sample);
+  }, sample);
+  await focus(page);
+  const read = () => page.evaluate(() => window.inputLab.game.lastInputDevice);
+  expect(await read()).toBeUndefined();
+  await page.keyboard.press("z");
+  expect(await read()).toBeUndefined();
+  await page.keyboard.press("f");
+  expect(await read()).toBe("keyboard");
+  const target = page.locator(".simpludify canvas");
+  const center = await page.evaluate(() => {
+    const game = window.inputLab.game;
+    const rect = game.element.getBoundingClientRect();
+    const { clip } = game.view;
+    return {
+      x: rect.left + clip.x + clip.width / 2,
+      y: rect.top + clip.y + clip.height / 2,
+    };
+  });
+  await target.dispatchEvent("pointermove", {
+    pointerType: "mouse",
+    pointerId: 3,
+    clientX: center.x,
+    clientY: center.y,
+  });
+  await target.dispatchEvent("pointermove", {
+    pointerType: "mouse",
+    pointerId: 3,
+    clientX: center.x + 2,
+    clientY: center.y,
+  });
+  expect(await read()).toBe("keyboard");
+  await target.dispatchEvent("pointermove", {
+    pointerType: "mouse",
+    pointerId: 3,
+    clientX: center.x + 14,
+    clientY: center.y,
+  });
+  expect(await read()).toBe("mouse");
+  await target.dispatchEvent("pointerdown", {
+    pointerType: "touch",
+    pointerId: 7,
+    clientX: center.x,
+    clientY: center.y,
+    button: 0,
+    buttons: 1,
+  });
+  await target.dispatchEvent("pointerup", {
+    pointerType: "touch",
+    pointerId: 7,
+    clientX: center.x,
+    clientY: center.y,
+    button: 0,
+  });
+  expect(await read()).toBe("touch");
+  await page.evaluate(() => {
+    const { game, Actions, players } = window.inputLab;
+    const pad = window.mockPads[1];
+    const player = players[0];
+    if (!pad || !player) throw new Error("Missing fixture");
+    const program = player.controls.createSource();
+    program.set(Actions.Fire, true);
+    program.dispose();
+    pad.axes[0] = 0.18;
+    game.engine.step(0);
+  });
+  expect(await read()).toBe("touch");
+  await page.evaluate(() => {
+    const pad = window.mockPads[1];
+    if (!pad) throw new Error("Missing fixture");
+    pad.axes[0] = 0.9;
+    window.inputLab.game.engine.step(0);
+  });
+  expect(await read()).toBe("gamepad");
+  await page.keyboard.press("f");
+  await step(page);
+  expect(await read()).toBe("keyboard");
+  await page.evaluate(() => {
+    window.mockPads[1] = null;
+    window.dispatchEvent(new Event("blur"));
+    window.inputLab.game.engine.step(0);
+  });
+  expect(await read()).toBe("keyboard");
+  await page.evaluate(() => window.inputLab.game.dispose());
+  expect(await read()).toBeUndefined();
+});
