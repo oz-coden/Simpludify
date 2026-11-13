@@ -123,7 +123,7 @@ v0.2.0では、スコープ付きAsset、音声、FontFace、Scene保持、構�
 - **再現性：** [Random、Replay、固定ステップ](./specs/replay.md)。初期条件からAction列を再生できます。
 - **サンプル：** Character、UI/Scene、Beacon Field、Signal Run、Blockfall、Prism Raid、Sprite Garden、Tile Trail、幾何タイル、Canvas UI、仮想入力、入力Bindingなど。
 - **開発・配布：** dev/check/test/build/doctor CLI、JSON診断、単体・ブラウザ・ビルドテスト、性能計測、依存ライセンス通知、静的サイトとGitHub Pages。
-- **SDK:** `@simpludify/core@0.2.1` と `@simpludify/web@0.2.1` はnpmで公開済みです。[npm導入ガイド](npm.md)。
+- **SDK:** `@simpludify/core@0.3.0` と `@simpludify/web@0.3.0` はnpmで公開済みです。[npm導入ガイド](npm.md)。
 
 ## 現在の制約・未実装事項
 

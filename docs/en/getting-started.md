@@ -1,6 +1,6 @@
 # First game and getting started
 
-This guide explains how to check out the repository source workspace and get started with the existing examples. To build an independent game project without vendoring or copying engine sources, see the [npm SDK / Vite guide](npm.md). The published registry SDK is v0.2.1. See the [migration guide](migrate-0.2.0.md) when upgrading from v0.1.7. Unified input, gamepads, virtual input, and input bindings are available via npm.
+This guide explains how to check out the repository source workspace and get started with the existing examples. To build an independent game project without vendoring or copying engine sources, see the [npm SDK / Vite guide](npm.md). The published registry SDK is v0.3.0. See the [migration guide](migrate-0.2.0.md) when upgrading from v0.1.7. Unified input, gamepads, virtual input, and input bindings are available via npm.
 
 ## Requirements
 

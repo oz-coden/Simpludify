@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [0.3.0] - 2026-11-13
 
+[GitHub Release](https://github.com/oz-coden/Simpludify/releases/tag/v0.3.0) · [Publication record](docs/work-reports/2026-11-13-v0.3.0-world-queries.md#publication)
+
 ### Added
 
 - Query the nearest or all intersections with Colliders and collision tiles through `CollisionWorld.raycast()` and `raycastAll()`.

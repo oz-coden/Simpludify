@@ -4,7 +4,7 @@
 
 ## 公開ステータス
 
-Core/Web **v0.2.1はnpmレジストリで公開済み**です。[v0.2.1公開記録](../work-reports/2026-11-10-v0.2.0-independent-review.md#v021-publication)と[v0.2.0への移行ガイド](migrate-0.2.0.md)を参照してください。公開済みのバージョンとタグは変更できません。
+Core/Web **v0.3.0はnpmレジストリで公開済み**です。[v0.3.0公開記録](../work-reports/2026-11-13-v0.3.0-world-queries.md#publication)と[v0.2.0への移行ガイド](migrate-0.2.0.md)を参照してください。公開済みのバージョンとタグは変更できません。
 
 ## リリース準備と検証手順
 

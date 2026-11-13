@@ -1,8 +1,8 @@
 # APIリファレンス
 
-このリファレンスはv0.2.1のSDKを対象とします。Assetのスコープ、Scene保持、構造化診断は[v0.2.0への移行ガイド](migrate-0.2.0.md)も参照してください。
+このリファレンスはv0.3.0のSDKを対象とします。Assetのスコープ、Scene保持、構造化診断は[v0.2.0への移行ガイド](migrate-0.2.0.md)も参照してください。
 
-`@simpludify/core`はDOMに依存しません。[型安全なAction入力](./specs/action-input.md)で論理ボタン／軸、キー割り当て、入力元の合成、更新境界を定義します。`@simpludify/web`はCoreを再exportし、Game、PixiRenderer、ブラウザ入力、DOM UI、スコープ付き標準CSSを追加します。すべてのモードオブジェクトに対応するUnion型をexportします。ルートワークスペースはprivateですが、Core/Webは公開用SDKパッケージです。公開済みレジストリSDKはv0.2.1です。
+`@simpludify/core`はDOMに依存しません。[型安全なAction入力](./specs/action-input.md)で論理ボタン／軸、キー割り当て、入力元の合成、更新境界を定義します。`@simpludify/web`はCoreを再exportし、Game、PixiRenderer、ブラウザ入力、DOM UI、スコープ付き標準CSSを追加します。すべてのモードオブジェクトに対応するUnion型をexportします。ルートワークスペースはprivateですが、Core/Webは公開用SDKパッケージです。公開済みレジストリSDKはv0.3.0です。
 
 ## 2次元固定サイズデータ（Grid）
 

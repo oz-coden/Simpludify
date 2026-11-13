@@ -2,7 +2,7 @@
 
 Simpludify is an experimental ESM SDK split into `@simpludify/core` and `@simpludify/web`. During the 0.x phase, APIs may evolve between releases. Direct imports of internal source paths are not public APIs.
 
-**Registry status: `@simpludify/core@0.2.1` and `@simpludify/web@0.2.1` are published on the npm registry.** Follow the steps below to install and set up an independent game project.
+**Registry status: `@simpludify/core@0.3.0` and `@simpludify/web@0.3.0` are published on the npm registry.** Follow the steps below to install and set up an independent game project.
 
 ## 1. Requirements and packages
 
@@ -27,7 +27,7 @@ cd my-game
 npm init -y
 npm pkg set type=module
 npm pkg set scripts.dev=vite scripts.build="tsc --noEmit && vite build" scripts.preview="vite preview"
-npm install --save-exact @simpludify/web@0.2.1
+npm install --save-exact @simpludify/web@0.3.0
 npm install --save-dev vite typescript
 ```
 
@@ -143,8 +143,8 @@ The [independent template](../../templates/npm-vite/README.md) automates `THIRD-
 Engine maintainers can generate `.tgz` packages via `npm run pack:packages` and install them locally:
 
 ```sh
-npm install /path/to/simpludify-core-0.2.1.tgz
-npm install /path/to/simpludify-web-0.2.1.tgz
+npm install /path/to/simpludify-core-0.3.0.tgz
+npm install /path/to/simpludify-web-0.3.0.tgz
 ```
 
 When testing unpublished archives, install Core first so the matching dependency is available when installing Web. See the [v0.2.0 migration guide](migrate-0.2.0.md).

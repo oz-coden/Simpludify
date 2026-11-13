@@ -1,6 +1,6 @@
 # Platform limits and implemented scope
 
-The public registry SDK is v0.2.1. During the 0.x phase, APIs can evolve before reaching 1.0 stability. Use public package roots and exact versions with a committed lockfile.
+The public registry SDK is v0.3.0. During the 0.x phase, APIs can evolve before reaching 1.0 stability. Use public package roots and exact versions with a committed lockfile.
 
 ## Implemented features
 
