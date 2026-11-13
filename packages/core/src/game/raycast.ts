@@ -89,6 +89,16 @@ export interface RayIntersection {
   ny: number;
 }
 
+/** A corner can reach the two slabs a few ULPs apart after normalization. */
+function beyond(distance: number, end: number): boolean {
+  if (!(distance > end)) return false;
+  if (!Number.isFinite(distance) || !Number.isFinite(end)) return true;
+  return (
+    distance - end >
+    Math.max(Math.abs(distance), Math.abs(end)) * (Number.EPSILON * 8)
+  );
+}
+
 export function intersectRay(
   ray: Ray,
   shape: CollisionShape,
@@ -102,19 +112,20 @@ export function intersectRay(
     const initial = Math.hypot(x, y);
     if (initial <= g.radius) {
       out.distance = 0;
-      out.nx = initial === g.radius ? x / initial : 0;
-      out.ny = initial === g.radius ? y / initial : 0;
+      out.nx = initial !== 0 && initial === g.radius ? x / initial : 0;
+      out.ny = initial !== 0 && initial === g.radius ? y / initial : 0;
       return true;
     }
     if (!limit || !Number.isFinite(initial)) return false;
     const along = -(x * ray.dx + y * ray.dy);
     const across = x * ray.dy - y * ray.dx;
-    if (along < 0 || Math.abs(across) > g.radius) return false;
-    const ratio = across / g.radius;
+    if (along < 0 || beyond(Math.abs(across), g.radius)) return false;
+    const ratio = Math.max(-1, Math.min(1, across / g.radius));
     const offset = g.radius * Math.sqrt(Math.max(0, 1 - ratio * ratio));
     const distance = along - offset;
-    if (!(distance >= 0 && distance <= limit)) return false;
-    out.distance = distance;
+    if (!Number.isFinite(distance) || distance < 0 || beyond(distance, limit))
+      return false;
+    out.distance = Math.min(distance, limit);
     out.nx = ratio * ray.dy - (offset / g.radius) * ray.dx;
     out.ny = -ratio * ray.dx - (offset / g.radius) * ray.dy;
     return true;
@@ -133,15 +144,25 @@ export function intersectRay(
   )
     return false;
   const distance = Math.max(0, nearX, nearY);
-  if (!(distance <= Math.min(limit, farX, farY))) return false;
+  const exit = Math.min(limit, farX, farY);
+  if (
+    !Number.isFinite(distance) ||
+    Number.isNaN(exit) ||
+    beyond(distance, exit)
+  )
+    return false;
   let nx = 0,
     ny = 0;
   if (distance === 0) {
     if (Math.abs(localX) === g.hx) nx = localX < 0 ? -1 : 1;
     else if (Math.abs(localY) === g.hy) ny = localY < 0 ? -1 : 1;
-  } else if (nearX >= nearY) nx = dx > 0 ? -1 : 1;
+  } else if (
+    nearX >= nearY ||
+    (Number.isFinite(nearX) && !beyond(nearY, nearX))
+  )
+    nx = dx > 0 ? -1 : 1;
   else ny = dy > 0 ? -1 : 1;
-  out.distance = distance;
+  out.distance = Math.min(distance, limit);
   out.nx = nx * g.cos - ny * g.sin;
   out.ny = nx * g.sin + ny * g.cos;
   return true;
@@ -162,19 +183,34 @@ export function visitRayTiles(
   visit: (x: number, y: number, limit: number) => number,
 ): void {
   const { tileWidth: w, tileHeight: h } = map;
-  const firstY = gridCoordinate((ray.y - map.y) / h);
+  const left = map.x;
+  const right = left + map.width * w;
+  let entry = 0;
+  if (ray.dx === 0) {
+    if (ray.x < left || ray.x > right) return;
+  } else {
+    const a = (left - ray.x) / ray.dx;
+    const b = (right - ray.x) / ray.dx;
+    entry = Math.max(0, Math.min(a, b));
+    limit = Math.min(limit, Math.max(a, b));
+    if (beyond(entry, limit)) return;
+    entry = Math.min(entry, limit);
+  }
+  const firstY = gridCoordinate((ray.y + ray.dy * entry - map.y) / h);
   const lastY = gridCoordinate((ray.y + ray.dy * limit - map.y) / h);
   const lowY = Math.max(0, Math.ceil(Math.min(firstY, lastY)) - 1);
   const highY = Math.min(map.height - 1, Math.floor(Math.max(firstY, lastY)));
   const stepY = ray.dy < 0 ? -1 : 1;
   for (let y = stepY > 0 ? lowY : highY; y >= lowY && y <= highY; y += stepY) {
-    const edgeA = ray.dy === 0 ? 0 : (map.y + y * h - ray.y) / ray.dy;
+    const edgeA = ray.dy === 0 ? entry : (map.y + y * h - ray.y) / ray.dy;
     const edgeB = ray.dy === 0 ? limit : (map.y + (y + 1) * h - ray.y) / ray.dy;
-    const start = Math.max(0, Math.min(edgeA, edgeB));
+    const start = Math.max(entry, Math.min(edgeA, edgeB));
     const end = Math.min(limit, Math.max(edgeA, edgeB));
-    if (start > limit) break;
-    if (start > end) continue;
-    const firstX = gridCoordinate((ray.x + ray.dx * start - map.x) / w);
+    if (beyond(start, limit)) break;
+    if (beyond(start, end)) continue;
+    const firstX = gridCoordinate(
+      (ray.x + ray.dx * Math.min(start, end) - map.x) / w,
+    );
     const lastX = gridCoordinate((ray.x + ray.dx * end - map.x) / w);
     const lowX = Math.max(0, Math.ceil(Math.min(firstX, lastX)) - 1);
     const highX = Math.min(map.width - 1, Math.floor(Math.max(firstX, lastX)));

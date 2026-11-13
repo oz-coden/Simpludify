@@ -147,6 +147,8 @@ export class BrowserPointer {
             e.pointerType === "mouse" &&
             data.inside &&
             input?.liveInput &&
+            !document.hidden &&
+            document.hasFocus() &&
             host.contains(document.activeElement) &&
             !blocksGameKeyboard(document.activeElement)
           ) {

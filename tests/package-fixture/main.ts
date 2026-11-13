@@ -8,6 +8,9 @@ import {
   CanvasPanel,
   CanvasTextInput,
   Character,
+  Collider,
+  CollisionResponse,
+  CollisionWorld,
   defineActions,
   Game,
   GamepadButton,
@@ -17,6 +20,7 @@ import {
   MouseButton,
   VirtualRegions,
   VirtualStickMode,
+  type WorldMaskRegion,
 } from "@simpludify/web";
 
 // Explicit CSS is optional: the Web entry also includes it automatically.
@@ -101,6 +105,31 @@ await game.run("first");
 if (!(game.engine instanceof Engine)) throw new Error("Duplicate Core runtime");
 const probe = {
   game,
+  worldQuery() {
+    const world = new CollisionWorld(game.engine.scene);
+    const collider = player.add(
+      new Collider({ response: CollisionResponse.Solid }),
+    );
+    const mask: WorldMaskRegion[] = [
+      { kind: "circle", x: player.x, y: player.y, radius: 40 },
+    ];
+    try {
+      game.setWorldMask(mask);
+      const hit = world.raycast({
+        from: { x: player.x - 50, y: player.y },
+        to: player,
+      });
+      return (
+        hit?.kind === "collider" &&
+        hit.collider === collider &&
+        hit.distance === 34
+      );
+    } finally {
+      game.setWorldMask();
+      player.remove(Collider.type);
+      world.dispose();
+    }
+  },
   async loadAssets() {
     const scope = game.assets.scope();
     try {

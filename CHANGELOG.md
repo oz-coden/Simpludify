@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-13
+
+### Added
+
+- Query the nearest or all intersections with Colliders and collision tiles through `CollisionWorld.raycast()` and `raycastAll()`.
+- Clip Scene world visuals to rectangles, circles and simple polygons with `Game.setWorldMask()` on WebGL and Canvas2D.
+- Read the most recent physical input kind through `Game.lastInputDevice` for optional game-specific prompts.
+
 ## [0.2.1] - 2026-11-11
 
 This patch preserves the v0.2.0 public API. See the [GitHub Release](https://github.com/oz-coden/Simpludify/releases/tag/v0.2.1) and [publication record](docs/work-reports/2026-11-10-v0.2.0-independent-review.md#v021-publication) for verification details.

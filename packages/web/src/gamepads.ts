@@ -139,7 +139,7 @@ export class GamepadSource<A extends ActionSet> {
   private following: boolean;
   private bindingRevision: number;
   private readonly waiting = new Set<ActionToken>();
-  private readonly activeBindings = new Set<ActionToken>();
+  private activeBindings: Set<ActionToken> | undefined;
   constructor(
     private readonly input: GamepadInput,
     private readonly controller: ActionController<A>,
@@ -234,7 +234,7 @@ export class GamepadSource<A extends ActionSet> {
       )
         continue;
       this.source.resetBinding(action as A[keyof A]);
-      this.activeBindings.delete(action);
+      this.activeBindings?.delete(action);
       if (after.has(action)) this.waiting.add(action);
       else this.waiting.delete(action);
     }
@@ -245,7 +245,7 @@ export class GamepadSource<A extends ActionSet> {
     this.source.clear();
     this.armed = false;
     this.waiting.clear();
-    this.activeBindings.clear();
+    this.activeBindings?.clear();
   }
   private alive(): void {
     if (this.disposed)
@@ -257,8 +257,9 @@ export class GamepadSource<A extends ActionSet> {
   /** @internal */ sample(
     pad: GamepadState | undefined,
     allowed: boolean,
-  ): boolean {
-    if (this.disposed) return false;
+    onActivity?: () => void,
+  ): void {
+    if (this.disposed) return;
     this.syncBindings();
     if (
       !allowed ||
@@ -269,7 +270,7 @@ export class GamepadSource<A extends ActionSet> {
     ) {
       this.clear();
       this.signature = undefined;
-      return false;
+      return;
     }
     const signature = JSON.stringify([
       pad.id,
@@ -284,8 +285,10 @@ export class GamepadSource<A extends ActionSet> {
     const next = values(pad, this.bindings, this.zone);
     if (!this.armed) {
       if (next.every(([, value]) => neutral(value))) this.armed = true;
-      return false;
+      return;
     }
+    if (onActivity) this.activeBindings ??= new Set();
+    const activeBindings = this.activeBindings;
     let activity = false;
     for (const [action, value] of next) {
       if (this.waiting.has(action)) {
@@ -293,13 +296,14 @@ export class GamepadSource<A extends ActionSet> {
         this.waiting.delete(action);
       }
       this.source.set(action as A[keyof A], value as never);
-      if (neutral(value)) this.activeBindings.delete(action);
-      else if (intentional(value) && !this.activeBindings.has(action)) {
-        this.activeBindings.add(action);
+      if (!activeBindings) continue;
+      if (neutral(value)) activeBindings.delete(action);
+      else if (!activeBindings.has(action) && intentional(value)) {
+        activeBindings.add(action);
         activity = true;
       }
     }
-    return activity;
+    if (activity) onActivity?.();
   }
   /** @internal */ onDispose(callback: () => void): () => void {
     return this.life.onDispose(callback);
@@ -467,12 +471,10 @@ export class GamepadInput implements InputAdapter {
     );
     this.observe?.(pads);
     const allowed = this.active() && this.input.liveInput;
-    let activity = false;
     for (const source of this.sources) {
       if (source.disposed) this.sources.delete(source);
-      else if (source.sample(pads.get(source.index), allowed)) activity = true;
+      else source.sample(pads.get(source.index), allowed, this.onActivity);
     }
-    if (activity) this.onActivity?.();
     this.publish(listed, wasReadable !== this.readable);
   }
   reset(): void {

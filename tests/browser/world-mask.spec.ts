@@ -13,7 +13,11 @@ for (const canvas2d of [false, true]) {
           OffscreenCanvas.prototype,
         ]) {
           const get = prototype.getContext;
-          prototype.getContext = function (name: string, ...args: unknown[]) {
+          prototype.getContext = function (
+            this: HTMLCanvasElement | OffscreenCanvas,
+            name: string,
+            ...args: unknown[]
+          ) {
             return name.includes("webgl")
               ? null
               : Reflect.apply(get, this, [name, ...args]);

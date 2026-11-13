@@ -429,6 +429,10 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
         await page.goto(server.resolvedUrls.local[0]);
         await page.waitForFunction(() => window.packageProbe);
         assert.equal(
+          await page.evaluate(() => window.packageProbe.worldQuery()),
+          true,
+        );
+        assert.equal(
           await page
             .locator(".simpludify")
             .evaluate((element) => getComputedStyle(element).position),
@@ -475,6 +479,10 @@ if (typeof Grid !== 'function' || !TileGeometry || !Tween) throw new Error('Miss
           return { x: v.x + v.width / 2, y: v.y + v.height / 2 };
         });
         await page.locator(".simpludify").click({ position: worldCenter });
+        assert.equal(
+          await page.evaluate(() => window.packageProbe.game.lastInputDevice),
+          "mouse",
+        );
         assert.equal(
           await page.evaluate(() => window.packageProbe.roundTrip()),
           true,

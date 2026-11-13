@@ -245,7 +245,8 @@ export class CollisionWorld {
     if (typeof includeTriggers !== "boolean")
       throw new EngineError("INVALID_VALUE", "includeTriggers must be boolean");
     if (layers === 0) return;
-    this.reconcile();
+    // Keep this read independent of contact registration and solver scratch state.
+    const actors = this.scene.actors;
     const matches = ({
       layer,
       response,
@@ -257,15 +258,22 @@ export class CollisionWorld {
     let nearest: RaycastHit | undefined;
     let limit = ray.length;
     if (targets !== "tiles") {
-      for (const entry of this.entries.values()) {
-        const { actor, collider } = entry;
+      for (const actor of actors) {
+        if (actor.disposed || !actor.enabled || exclude?.includes(actor))
+          continue;
+        const collider = actor.get(Collider.type);
         if (
-          !this.eligible(entry) ||
+          !collider?.enabled ||
+          collider.disposed ||
           !matches(collider) ||
-          exclude?.includes(actor) ||
           exclude?.includes(collider) ||
-          !updateGeometry(entry) ||
-          !intersectRay(ray, collider.shape, entry.geometry, limit, hit) ||
+          !updateGeometry({
+            actor,
+            collider,
+            transform: actor.require(Transform.type),
+            geometry,
+          }) ||
+          !intersectRay(ray, collider.shape, geometry, limit, hit) ||
           (!hits && nearest && hit.distance >= limit)
         )
           continue;
@@ -284,8 +292,12 @@ export class CollisionWorld {
       }
     }
     if (targets !== "colliders") {
-      for (const { map } of this.maps.values()) {
+      for (const actor of actors) {
+        const layer = actor.get(TilemapLayer.type);
+        const map = layer?.map;
         if (
+          !map ||
+          !layer.enabled ||
           !this.mapEligible(map) ||
           !map.hasCollision ||
           exclude?.includes(map)
@@ -298,7 +310,7 @@ export class CollisionWorld {
           tileGeometry(map, x, y, geometry);
           if (!intersectRay(ray, CollisionShape.Box, geometry, bound, hit))
             return bound;
-          if (!hits && nearest && hit.distance === bound) {
+          if (!hits && nearest && hit.distance === nearest.distance) {
             if (
               nearest.kind !== "tile" ||
               nearest.map !== map ||

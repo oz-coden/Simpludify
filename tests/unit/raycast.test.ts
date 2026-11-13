@@ -25,7 +25,11 @@ function setup() {
     const actor = scene.add(new Actor());
     const transform = actor.add(new Transform({ x, y }));
     const collider = actor.add(
-      new Collider({ width: 2, height: 2, response: R.Solid, ...options }),
+      new Collider(
+        options.shape === CollisionShape.Circle
+          ? { response: R.Solid, ...options }
+          : { width: 2, height: 2, response: R.Solid, ...options },
+      ),
     );
     return { actor, transform, collider };
   }
@@ -36,6 +40,25 @@ const segment = (x: number, y: number, x2: number, y2: number) => ({
   to: { x: x2, y: y2 },
 });
 const sheet = SpriteSheet.grid("test.png", { frameWidth: 1, frameHeight: 1 });
+
+it("keeps a shallow ray's closed corner hit before the next wall", () => {
+  const { scene, world } = setup();
+  const tiles = new Grid<number | null>(20, 12, null);
+  tiles.set(9, 4, 0);
+  tiles.set(11, 4, 0);
+  new Tilemap({
+    sheet,
+    tiles,
+    tileWidth: 32,
+    tileHeight: 32,
+    collision: { tiles: [{ tile: 0, response: R.Solid }] },
+  }).place(scene);
+  const query = segment(208, 80, 656, 272);
+  const nearest = world.raycast(query);
+  expect(nearest).toMatchObject({ kind: "tile", tile: { x: 9, y: 4 } });
+  expect(nearest?.distance).toBeCloseTo(Math.hypot(112, 48), 10);
+  expect(world.raycastAll(query)[0]).toEqual(nearest);
+});
 
 it("orders nearest hits and filters bodies, layers, triggers and ownership before testing geometry", () => {
   const { add, world, scene } = setup();

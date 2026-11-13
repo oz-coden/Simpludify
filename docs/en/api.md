@@ -398,3 +398,88 @@ CanvasLabel accepts a string or CanvasLabelOptions with `text` and optional `rol
 ## Virtual pointer controls
 
 `context.virtualInput` / `game.virtualInput` creates Scene-owned VirtualStick and VirtualButton controls using existing ActionSources. [Virtual input contracts](./specs/virtual-input.md) define fixed/floating/follow modes, relative/screen/custom activation regions, radial normalization, independent visibility/enablement, optional drag direction, hold/end/cancel callbacks and arbitration. The same PointerRouting owns Canvas UI, virtual and world gestures. Canvas UI wins first; virtual buttons override sticks; ambiguous same-priority virtual regions are rejected. Physical pointer identity never transfers when fingers cross.
+
+## Raycasts
+
+A Scene's `CollisionWorld` provides `raycast(query, options?)` for the nearest hit and `raycastAll(query, options?)` for a distance-ordered snapshot. Use `{ from, to }` for a finite world-space segment or `{ origin, direction, maxDistance }` for a direction and a maximum distance in world units. Direction is normalized internally. Static and dynamic box or circle Colliders and rectangular Tilemap collision cells use the same geometry as contacts. The query sees current state, including edits made before the next simulation step.
+
+```ts verify
+import {
+  Actor,
+  Collider,
+  CollisionResponse,
+  CollisionWorld,
+  Scene,
+  SpriteSheet,
+  Tilemap,
+  Transform,
+} from "@simpludify/core";
+
+const scene = new Scene("arena");
+const collisions = new CollisionWorld(scene);
+const crate = scene.add(new Actor());
+crate.add(new Transform({ x: 48, y: 16 }));
+crate.add(
+  new Collider({ width: 16, height: 16, response: CollisionResponse.Solid }),
+);
+new Tilemap({
+  sheet: SpriteSheet.grid("terrain.png", { frameWidth: 32, frameHeight: 32 }),
+  tiles: [[0]],
+  tileWidth: 32,
+  tileHeight: 32,
+  x: 96,
+  collision: { tiles: [{ tile: 0, response: CollisionResponse.Solid }] },
+}).place(scene);
+
+const segment = { from: { x: 0, y: 16 }, to: { x: 160, y: 16 } };
+const obstacle = collisions.raycast(segment, { layers: 1, exclude: [crate] });
+if (obstacle?.kind === "tile") console.log(obstacle.tile, obstacle.point);
+const hits = collisions.raycastAll(segment, { includeTriggers: true });
+console.log(hits.map(({ distance, normal }) => ({ distance, normal })));
+```
+
+- By default, query Solid targets on all layers. Set `includeTriggers: true` to include triggers and `targets: "colliders"` or `"tiles"` to narrow the query. The `layers` bitset matches each target's layer. The target's contact mask does not participate. `exclude` accepts Actor, Collider and Tilemap references.
+- A hit includes a world point, distance, outward normal, layer and response. The `kind` discriminant adds an Actor and Collider, or a Tilemap, tile coordinates, tile ID and policy. There is one entry per intersected target, including individual adjacent cells.
+- Endpoints, edges and corners count. Starting inside gives distance zero and a null normal. Starting on a boundary gives its outward normal. Box corner ties prefer the local X face. Equal distances prefer Collider Scene insertion order, then Tilemap placement order and row-major cell order.
+- A zero-length segment or a ray with zero distance and a valid direction acts as a point query. Nonfinite inputs, a zero ray direction and negative distances raise `INVALID_VALUE`. Disabled or disposed targets and zero-scale Colliders are skipped. Tilemap visibility is independent of collision.
+- For line of sight, use `!collisions.raycast(segment, { targets: "tiles" })` when only terrain can obstruct. A ray has zero thickness. Character clearance, swept motion and visibility rules belong to game logic.
+
+## World-space rendering masks and input activity
+
+`game.setWorldMask(regions, scene?)` clips world visuals to the union of rectangles, circles and simple polygons. The Pixi WebGL and Canvas2D renderers use the same camera projection for the world and mask. Coordinates remain in world units across camera moves, zoom, resizing and DPR changes. An empty array hides the world. Call `game.setWorldMask()` to restore normal rendering. Pass the Scene from its factory when configuring a staged Scene.
+
+```ts verify
+import {
+  Actor,
+  Game,
+  Renderable,
+  Transform,
+  type WorldMaskRegion,
+} from "@simpludify/web";
+
+const game = new Game<"arena">();
+game.scene("arena", ({ scene, add }) => {
+  const terrain = add(new Actor());
+  terrain.add(new Transform({ x: 200, y: 150 }));
+  terrain.add(new Renderable({ width: 400, height: 300, color: 0x638ce6 }));
+  const regions: WorldMaskRegion[] = [
+    { kind: "circle", x: 140, y: 140, radius: 65 },
+    { kind: "rectangle", x: 220, y: 95, width: 100, height: 90 },
+    {
+      kind: "polygon",
+      points: [
+        { x: 315, y: 215 },
+        { x: 390, y: 245 },
+        { x: 330, y: 280 },
+      ],
+    },
+  ];
+  game.setWorldMask(regions, scene);
+});
+await game.run("arena");
+console.log(game.lastInputDevice ?? "No input yet");
+```
+
+The renderer copies the region data. Set a fresh mask when its shape changes. The mask affects world visuals including Tilemaps. It leaves the background, DOM and Canvas UI, hit testing and simulation alone. Retained Scenes keep their mask settings. Simple polygons can be concave. Use non-self-intersecting outlines without holes. The API provides a binary intersection with the viewport and a union within it. Per-layer, inverse and soft masks are outside this API.
+
+`game.lastInputDevice` is a read-only value of type `ActiveInputDevice | undefined`. It starts unset. Accepted bound keydowns record `"keyboard"`. A routed mouse press or scroll records `"mouse"`, as does movement of at least eight logical screen pixels on the focused world surface. An accepted touch gesture start records `"touch"`. Release, cancel and touch motion do not switch devices. A neutral-armed, enabled gamepad binding records `"gamepad"` on a button activation or when an axis reaches 0.12 after its binding dead zone. A sustained actuation does not repeatedly claim the device. Focus loss and disconnection clear held input while retaining the last observation. Inactive bindings, key repeat, text editing, program Action sources and replay do not report activity. Read the value wherever the game chooses its own input prompts.

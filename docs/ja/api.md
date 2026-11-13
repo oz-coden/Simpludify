@@ -397,3 +397,88 @@ CanvasLabelは文字列またはCanvasLabelOptions（textと任意の`role: "sta
 ## 仮想ポインターコントロール
 
 `context.virtualInput` / `game.virtualInput`は、既存のActionSourceを使用してScene所有のVirtualStickおよびVirtualButtonコントロールを作成します。[仮想入力の契約](./specs/virtual-input.md)で固定・浮動・追従モード、相対／画面／カスタムの有効化領域、放射状の正規化、独立した可視性／有効性、任意のドラッグ方向、hold/end/cancelコールバック、調停を定義しています。同一のPointerRoutingがCanvas UI、仮想コントロール、ワールドジェスチャーを所有します。Canvas UIが最優先され、仮想ボタンはスティックを上書きし、同じ優先度の曖昧な仮想領域は拒否されます。指が交差しても物理ポインターの同一性が入れ替わることはありません。
+
+## レイキャスト
+
+Sceneの `CollisionWorld` から、`raycast(query, options?)` で最近傍のヒットを、`raycastAll(query, options?)` で距離順の全ヒットを取得できます。ワールド座標の線分は `{ from, to }`、方向と最大距離を指定するRayは `{ origin, direction, maxDistance }` です。方向は内部で正規化され、距離はワールド単位です。静的・動的な矩形および円Colliderと、矩形Tilemapの衝突セルに対応します。問い合わせは現在のTransformとタイル設定を読み取るため、次のシミュレーション更新を待たずに使えます。
+
+```ts verify
+import {
+  Actor,
+  Collider,
+  CollisionResponse,
+  CollisionWorld,
+  Scene,
+  SpriteSheet,
+  Tilemap,
+  Transform,
+} from "@simpludify/core";
+
+const scene = new Scene("arena");
+const collisions = new CollisionWorld(scene);
+const crate = scene.add(new Actor());
+crate.add(new Transform({ x: 48, y: 16 }));
+crate.add(
+  new Collider({ width: 16, height: 16, response: CollisionResponse.Solid }),
+);
+new Tilemap({
+  sheet: SpriteSheet.grid("terrain.png", { frameWidth: 32, frameHeight: 32 }),
+  tiles: [[0]],
+  tileWidth: 32,
+  tileHeight: 32,
+  x: 96,
+  collision: { tiles: [{ tile: 0, response: CollisionResponse.Solid }] },
+}).place(scene);
+
+const segment = { from: { x: 0, y: 16 }, to: { x: 160, y: 16 } };
+const obstacle = collisions.raycast(segment, { layers: 1, exclude: [crate] });
+if (obstacle?.kind === "tile") console.log(obstacle.tile, obstacle.point);
+const hits = collisions.raycastAll(segment, { includeTriggers: true });
+console.log(hits.map(({ distance, normal }) => ({ distance, normal })));
+```
+
+- 既定では全レイヤーのSolidが対象です。`includeTriggers: true` でTriggerを含め、`targets: "colliders"` または `"tiles"` で対象を絞れます。`layers` は対象のレイヤービットと照合し、接触用のmaskは参照しません。`exclude` にはActor・Collider・Tilemapを指定できます。
+- 結果は交点、距離、外向きの法線、レイヤー、反応種別を返します。`kind` に応じてActorとCollider、またはTilemap、タイル座標、タイルIDと衝突設定を取得できます。隣り合うタイルも個別のヒットです。
+- 端点・辺・角の接触を含みます。内部から開始した場合は距離ゼロで法線が `null`、境界から開始した場合は外向きの法線を返します。矩形の角ではローカルX面を優先します。同距離ではColliderを持つActorのScene追加順、Tilemapの配置順とセルの行優先順で決まります。
+- 長さゼロの線分や、有効な方向で距離ゼロのRayは点として判定します。非有限値、ゼロ方向、負の距離は `INVALID_VALUE` です。無効・破棄済みの対象とゼロスケールのColliderは対象外です。Tilemapの表示状態は衝突設定に影響しません。
+- 地形だけを遮蔽物とする視線判定なら `!collisions.raycast(segment, { targets: "tiles" })` で確認できます。Rayには幅がありません。キャラクターの通行幅、移動中の衝突、視界のルールはゲーム側で扱います。
+
+## ワールド空間マスクと入力元の取得
+
+`game.setWorldMask(regions, scene?)` は矩形・円・単純多角形の和集合でワールド描画を切り抜きます。PixiのWebGLとCanvas2Dはワールドと同じカメラ変換をマスクに適用します。カメラ移動・ズーム・リサイズ・DPR変更後も、領域はワールド座標で指定できます。空配列はワールド全体を隠し、引数なしの呼び出しで解除します。準備中のSceneにはファクトリーで受け取ったSceneを渡します。
+
+```ts verify
+import {
+  Actor,
+  Game,
+  Renderable,
+  Transform,
+  type WorldMaskRegion,
+} from "@simpludify/web";
+
+const game = new Game<"arena">();
+game.scene("arena", ({ scene, add }) => {
+  const terrain = add(new Actor());
+  terrain.add(new Transform({ x: 200, y: 150 }));
+  terrain.add(new Renderable({ width: 400, height: 300, color: 0x638ce6 }));
+  const regions: WorldMaskRegion[] = [
+    { kind: "circle", x: 140, y: 140, radius: 65 },
+    { kind: "rectangle", x: 220, y: 95, width: 100, height: 90 },
+    {
+      kind: "polygon",
+      points: [
+        { x: 315, y: 215 },
+        { x: 390, y: 245 },
+        { x: 330, y: 280 },
+      ],
+    },
+  ];
+  game.setWorldMask(regions, scene);
+});
+await game.run("arena");
+console.log(game.lastInputDevice ?? "入力待ち");
+```
+
+領域は設定時にコピーされます。形が変わるときは新しい領域を設定してください。マスクはTilemapを含むワールド描画に適用されます。背景、DOM／Canvas UI、入力の当たり判定、シミュレーションには影響しません。保持されたSceneはマスク設定も保持します。凹多角形を使う場合も、自己交差や穴のない輪郭を指定します。レイヤー別のマスク、反転、ぼかしはこのAPIの対象外です。
+
+読み取り専用の `game.lastInputDevice` は `ActiveInputDevice | undefined` 型で、初期値は `undefined` です。有効なキー割り当ての押下は `"keyboard"`、受理されたマウスの押下やスクロール、フォーカス中のワールド上で論理画面上8ピクセル以上の移動は `"mouse"` になります。受理されたタッチの開始は `"touch"` です。タッチ移動・終了・キャンセルでは切り替わりません。ゲームパッドは有効な割り当てがニュートラルを通過したあと、ボタンの押下またはデッドゾーン適用後の軸が0.12に達した時に `"gamepad"` になります。押し続けるだけでは更新しません。切断やフォーカス喪失で保持入力は解除され、最後の入力元は残ります。無効な割り当て、キーリピート、文字入力、プログラムによるActionとリプレイは記録しません。
